@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-require 'sinatra'
+require 'environment'
 
 configure(:development) do |config|
   require 'sinatra/reloader'
 end
 
 get '/' do
-  'Hello, World'
+  Legislator.first.bioguide_id
 end
