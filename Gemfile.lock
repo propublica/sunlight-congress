@@ -1,0 +1,60 @@
+GIT
+  remote: http://github.com/mongoid/mongoid.git
+  revision: b1080cda54d32d3bc18e008867b33b82d64fb55b
+  specs:
+    mongoid (2.0.0.beta.19)
+      activemodel (~> 3.0)
+      mongo (~> 1.1)
+      tzinfo (~> 0.3.22)
+      will_paginate (~> 3.0.pre)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activemodel (3.0.0)
+      activesupport (= 3.0.0)
+      builder (~> 2.1.2)
+      i18n (~> 0.4.1)
+    activesupport (3.0.0)
+    backports (1.18.2)
+    bson (1.1)
+    bson_ext (1.1)
+    builder (2.1.2)
+    daemons (1.0.10)
+    gem_plugin (0.2.3)
+    i18n (0.4.1)
+    mongo (1.1)
+      bson (>= 1.0.5)
+    mongrel (1.2.0.pre2)
+      daemons (~> 1.0.10)
+      gem_plugin (~> 0.2.3)
+    monkey-lib (0.5.4)
+      backports
+    rack (1.2.1)
+    sinatra (1.0)
+      rack (>= 1.0)
+    sinatra-advanced-routes (0.5.1)
+      monkey-lib (~> 0.5.0)
+      sinatra (~> 1.0)
+      sinatra-sugar (~> 0.5.0)
+    sinatra-reloader (0.5.0)
+      sinatra (~> 1.0)
+      sinatra-advanced-routes (~> 0.5.0)
+    sinatra-sugar (0.5.0)
+      monkey-lib (~> 0.5.0)
+      sinatra (~> 1.0)
+    tzinfo (0.3.23)
+    will_paginate (3.0.pre2)
+    wirble (0.1.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bson_ext (= 1.1)
+  mongo (= 1.1)
+  mongoid!
+  mongrel (= 1.2.0.pre2)
+  sinatra (= 1.0)
+  sinatra-reloader (= 0.5.0)
+  wirble
