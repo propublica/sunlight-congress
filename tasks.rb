@@ -13,6 +13,7 @@ class Report
   index :status
   index :source
   
+  
   def self.file(status, source, message, rest = {})
     report = Report.new({:source => source, :status => status, :message => message}.merge(rest))
     
@@ -59,7 +60,14 @@ class Report
 #   end
   
   def to_s
-    "[#{status}] #{source}#{elapsed_time ? " [#{to_minutes elapsed_time.to_i}]" : ""}\n    #{message}"
+    msg = "[#{status}] #{source}#{elapsed_time ? " [#{to_minutes elapsed_time.to_i}]" : ""}\n\t#{message}"
+    if self[:exception]
+      msg += "\n\t#{self[:exception]['type']}: #{self[:exception]['message']}"
+      if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
+        self[:exception]['backtrace'].first(5).each {|line| msg += "\n\t\t#{line}"}
+      end
+    end
+    msg
   end
   
   def to_minutes(seconds)

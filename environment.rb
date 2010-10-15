@@ -12,14 +12,4 @@ configure do
   end
 end
 
-configure :development do
-  require 'sinatra/reloader'
-end
-
 Dir.glob('models/*.rb').each {|model| load model}
-
-
-require 'sunlight'
-configure do
-  Sunlight::Base.api_key = config[:sunlight_api_key]
-end

@@ -23,15 +23,14 @@ def run_task(name)
   
   start = Time.now
   
-  if ENV['just_run'].to_i > 0
-    task.run
+  begin
+    task.run :config => config
+    
+  rescue Exception => ex
+    Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+    
   else
-    begin
-      task.run
-    rescue Exception => ex
-      Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {:error_message => ex.message, :type => ex.class.to_s}}
-    else
-      Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
-    end
+    Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
   end
+  
 end

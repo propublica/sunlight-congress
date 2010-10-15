@@ -1,18 +1,17 @@
+require 'sunlight'
+
 class GetLegislators
 
   def self.run(options = {})
-    start = Time.now
-    bad_legislators = []
+    Sunlight::Base.api_key = options[:config][:sunlight_api_key]
     
+    bad_legislators = []
     count = 0
     
-    Sunlight::Legislator.all_where(:all_legislators => 1).each do |api_legislator|
-      if legislator = Legislator.first(:conditions => {:bioguide_id => api_legislator.bioguide_id})
-        #puts "[Legislator #{legislator.bioguide_id}] Updated"
-      else
-        legislator = Legislator.new :bioguide_id => api_legislator.bioguide_id
-        #puts "[Legislator #{legislator.bioguide_id}] Created"
-      end
+    legislators = Sunlight::Legislator.all_where :all_legislators => 1
+    
+    legislators.each do |api_legislator|
+      legislator = Legislator.find_or_initialize_by :bioguide_id => api_legislator.bioguide_id
       
       legislator.attributes = attributes_from api_legislator
       
@@ -23,10 +22,10 @@ class GetLegislators
       count += 1
     end
     
-    Report.success self, "Updated #{count} legislators from API - total count in database now: #{Legislator.count}"
+    Report.success self, "Processed #{count} legislators from API - total count in database now: #{Legislator.count}"
     
     if bad_legislators.any?
-      Report.failure self, "Failed to save #{bad_legislators.size} legislators, last bad one attached", :bad_legislator => bad_legislators.first
+      Report.warning self, "Failed to save #{bad_legislators.size} legislators, last bad one attached", :bad_legislator => bad_legislators.first
     end
   end
     
