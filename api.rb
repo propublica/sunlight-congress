@@ -2,10 +2,7 @@
 
 require 'environment'
 
-configure(:development) do |config|
-  require 'sinatra/reloader'
-end
-
 get '/' do
-  Legislator.first.bioguide_id
+  # Legislator.first.bioguide_id
+  Legislator.count.to_s
 end

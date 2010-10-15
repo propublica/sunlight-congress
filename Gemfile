@@ -11,3 +11,7 @@ group :development do
   gem 'mongrel', '1.2.0.pre2'
   gem 'wirble'
 end
+
+# for individual tasks
+
+gem 'sunlight', '1.0.7'

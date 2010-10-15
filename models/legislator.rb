@@ -12,5 +12,8 @@ class Legislator
   index :in_office
   index :chamber
   
-  
+  validates_presence_of :bioguide_id
+  validates_presence_of :govtrack_id
+  validates_inclusion_of :in_office, :in => [true, false]
+  validates_presence_of :chamber
 end
