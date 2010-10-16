@@ -32,6 +32,7 @@ class GetLegislators
     
   def self.attributes_from(api_legislator)
     {
+      # bioguide_id covered in initialization
       :in_office => api_legislator.in_office,
       :govtrack_id => api_legislator.govtrack_id,
       :votesmart_id => api_legislator.votesmart_id,

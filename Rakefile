@@ -1,13 +1,3 @@
-Dir.glob('tasks/*.rb').each do |file|
-  name = File.basename file, File.extname(file)
-  
-  namespace :task do
-    task name.to_sym => :environment do
-      run_task name
-    end
-  end
-end
-
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
@@ -33,4 +23,14 @@ def run_task(name)
     Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
   end
   
+end
+
+Dir.glob('tasks/*.rb').each do |file|
+  name = File.basename file, File.extname(file)
+  
+  namespace :task do
+    task name.to_sym => :environment do
+      run_task name
+    end
+  end
 end
