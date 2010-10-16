@@ -1,5 +1,7 @@
 source 'http://rubygems.org'
 
+gem 'json', '1.4.2'
+
 gem 'sinatra', '1.0'
 
 gem "mongo", "1.1"

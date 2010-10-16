@@ -4,7 +4,6 @@ require 'environment'
 configure(:development) {require 'sinatra/reloader'}
 
 
-
 get /^\/(#{models.join "|"})\.(json)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   

@@ -57,6 +57,7 @@ PLATFORMS
 
 DEPENDENCIES
   bson_ext (= 1.1)
+  json (= 1.4.2)
   mongo (= 1.1)
   mongoid!
   mongrel (= 1.2.0.pre2)
