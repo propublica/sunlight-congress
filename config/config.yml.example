@@ -2,14 +2,7 @@
 :sunlight_api_key:
 
 :mongoid:
-  defaults: &defaults
-    host: localhost
-    raise_not_found_error: false
-
-  development:
-    <<: *defaults
-    autocreate_indexes: true
-    database: rtc_development
-
-  production:
-    database: rtc_production
+  host: localhost
+  database: rtc
+  raise_not_found_error: false
+  logger: # leaving blank suppresses logging, to enable delete this line

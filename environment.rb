@@ -5,11 +5,15 @@ def config
   @config ||= YAML.load_file 'config/config.yml'
 end
 
-configure do
-  Mongoid.configure do |mongoid|
-    mongoid.from_hash config[:mongoid][ENV['RACK_ENV'] || 'development']
-    mongoid.logger = nil
-  end
+def models
+  @models ||= []
 end
 
-Dir.glob('models/*.rb').each {|model| load model}
+Dir.glob('models/*.rb').each do |model| 
+  load model
+  models << File.basename(model, File.extname(model))
+end
+
+configure do
+  Mongoid.configure {|c| c.from_hash config[:mongoid]}
+end

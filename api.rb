@@ -5,7 +5,7 @@ configure(:development) {require 'sinatra/reloader'}
 
 
 
-get /^\/([^\.]+)\.(json)$/ do
+get /^\/(#{models.join "|"})\.(json)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
   conditions = conditions_for model.unique_keys, params
@@ -18,25 +18,26 @@ get /^\/([^\.]+)\.(json)$/ do
   json model, attributes_for(document)
 end
 
-# get /^\/api\/(bills)\.(json)$/ do
-#   fields = fields_for Bill, params[:sections]
-#   conditions = search_conditions_for Bill, params
-#   order = order_for Bill, params
-#   
-#   bills = Bill.all({
-#     :conditions => conditions,
-#     :fields => fields,
-#     :order => order,
-#   }.merge(pagination_for(params)))
-#   
-#   json Bill, bills.map {|bill| attributes_for bill, fields}, params[:callback]
-# end
-
-not_found do
-  # If this is a JSONP request, and it did trigger one of the main routes, return an error response
-  # Otherwise, let it lapse into a normal content-less 404
+get /^\/(#{models.map(&:pluralize).join "|"})\.(json)$/ do
+  model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
-  # If we don't do this, in-browser clients using JSONP have no way of detecting a problem
+  fields = fields_for model, params[:sections]
+  conditions = search_conditions_for model, params
+  order = order_for model, params
+  
+  bills = model.where(conditions).only(fields).order_by(order).all.paginate(pagination_for(params))
+  
+  #TODO: Pagination
+  
+  json model, attributes_for(bills)
+end
+
+
+
+# If this is a JSONP request, and it did trigger one of the main routes, return an error response
+# Otherwise, let it lapse into a normal content-less 404
+# If we don't do this, in-browser clients using JSONP have no way of detecting a problem
+not_found do
   if params[:captures] and params[:captures][0] and params[:callback]
     json = {:error => {:code => 404, :message => "#{params[:captures][0].capitalize} not found"}}.to_json
     jsonp = "#{params[:callback]}(#{json});";
@@ -82,12 +83,21 @@ helpers do
   end
   
   def order_for(model, params)
-    order_key = model.order_keys.detect {|key| params[:order].present? and params[:order].to_sym == key} || model.order_keys.first
-    order_sort = ['DESC', 'ASC'].detect {|sort| params[:sort].to_s.upcase == sort} || 'DESC'
+    key = nil
+    if params[:order].present? and model.order_keys.include?(params[:order].to_sym)
+      key = params[:order].to_sym
+    else
+      key = model.order_keys.first
+    end
     
-    secondary_sort = "#{model.unique_keys.first} DESC"
+    sort = nil
+    if params[:sort].present? and [:desc, :asc].include?(params[:sort].downcase.to_sym)
+      sort = params[:sort].downcase.to_sym
+    else
+      sort = :desc
+    end
     
-    "#{order_key} #{order_sort}, #{secondary_sort}"
+    [[key, sort], [model.unique_keys.first, :desc]]
   end
 
   def pagination_for(params)
@@ -104,7 +114,7 @@ helpers do
     page = (params[:page] || 1).to_i
     page = 1 if page <= 0 or page > max_page
     
-    {:limit => per_page, :offset => (page - 1 ) * per_page}
+    {:per_page => per_page, :page => page}
   end
 
   def attributes_for(document)

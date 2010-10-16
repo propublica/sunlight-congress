@@ -21,6 +21,14 @@ class Legislator
     [:bioguide_id, :govtrack_id]
   end
   
+  def self.search_keys
+    {
+      :chamber => String,
+      :in_office => Boolean,
+      :last_name => String
+    }
+  end
+  
   def self.basic_fields
     [ 
       :bioguide_id, 
@@ -44,5 +52,9 @@ class Legislator
       :youtube_url, 
       :congress_office
     ]
+  end
+  
+  def self.order_keys
+    [:last_name]
   end
 end
