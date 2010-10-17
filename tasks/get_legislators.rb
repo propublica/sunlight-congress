@@ -22,11 +22,11 @@ class GetLegislators
       count += 1
     end
     
-    Report.success self, "Processed #{count} legislators from API - total count in database now: #{Legislator.count}"
-    
     if bad_legislators.any?
       Report.warning self, "Failed to save #{bad_legislators.size} legislators, last bad one attached", :bad_legislator => bad_legislators.first
     end
+    
+    Report.success self, "Processed #{count} legislators from API - total count in database now: #{Legislator.count}"
   end
     
     
