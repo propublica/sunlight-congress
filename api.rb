@@ -121,7 +121,7 @@ helpers do
       document.map {|d| attributes_for d}
     else
       attributes = document.attributes
-      attributes.delete :_id
+      [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
       attributes
     end
   end
