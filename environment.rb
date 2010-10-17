@@ -9,11 +9,14 @@ def models
   @models ||= []
 end
 
-Dir.glob('models/*.rb').each do |model| 
-  load model
-  models << File.basename(model, File.extname(model))
-end
-
 configure do
   Mongoid.configure {|c| c.from_hash config[:mongoid]}
+end
+
+Dir.glob('models/*.rb') do |filename|
+  load filename
+  
+  model_name = File.basename filename, File.extname(filename)
+  model = model_name.camelize.constantize
+  models << model_name unless model.respond_to?(:api?) and !model.api?
 end

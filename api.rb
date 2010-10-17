@@ -21,7 +21,7 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json)$/ do
   model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
   fields = fields_for model, params[:sections]
-  conditions = search_conditions_for model, params
+  conditions = filter_conditions_for model, params
   order = order_for model, params
   
   bills = model.where(conditions).only(fields).order_by(order).all.paginate(pagination_for(params))
@@ -67,11 +67,11 @@ helpers do
     conditions
   end
   
-  def search_conditions_for(model, params)
+  def filter_conditions_for(model, params)
     conditions = {}
-    model.search_keys.keys.each do |key|
+    model.filter_keys.keys.each do |key|
       if params[key]
-        if model.search_keys[key] == Boolean
+        if model.filter_keys[key] == Boolean
           conditions[key] = (params[key] == "true") if ["true", "false"].include? params[key]
         else
           conditions[key] = params[key]

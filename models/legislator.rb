@@ -17,44 +17,7 @@ class Legislator
   validates_inclusion_of :in_office, :in => [true, false]
   validates_presence_of :chamber
   
-  def self.unique_keys
-    [:bioguide_id, :govtrack_id]
-  end
-  
-  def self.search_keys
-    {
-      :chamber => String,
-      :in_office => Boolean,
-      :last_name => String
-    }
-  end
-  
-  def self.basic_fields
-    [ 
-      :bioguide_id, 
-      :govtrack_id, 
-      :crp_id, 
-      :votesmart_id, 
-      :chamber, 
-      :in_office, 
-      :first_name, 
-      :nickname, 
-      :last_name, 
-      :name_suffix, 
-      :state, 
-      :district, 
-      :party, 
-      :title, 
-      :gender, 
-      :phone, 
-      :website, 
-      :twitter_id, 
-      :youtube_url, 
-      :congress_office
-    ]
-  end
-  
-  def self.order_keys
-    [:last_name]
+  def self.api?
+    false
   end
 end
