@@ -16,4 +16,8 @@ end
 
 # for individual tasks
 
+# get_legislators
 gem 'sunlight', '1.0.7'
+
+# get_bills
+gem 'hpricot', '0.8.2'

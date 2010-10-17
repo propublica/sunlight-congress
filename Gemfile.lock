@@ -22,6 +22,7 @@ GEM
     builder (2.1.2)
     daemons (1.0.10)
     gem_plugin (0.2.3)
+    hpricot (0.8.2)
     i18n (0.4.1)
     json (1.4.2)
     mongo (1.1)
@@ -57,6 +58,7 @@ PLATFORMS
 
 DEPENDENCIES
   bson_ext (= 1.1)
+  hpricot (= 0.8.2)
   json (= 1.4.2)
   mongo (= 1.1)
   mongoid!
