@@ -24,6 +24,7 @@ role :web, domain
 set :use_sudo, false
 after "deploy", "deploy:cleanup"
 after "deploy:update_code", "deploy:shared_links"
+after "deploy:update_code", "deploy:bundle_install"
 
 
 namespace :deploy do
@@ -32,8 +33,13 @@ namespace :deploy do
   task :migrate do; end
   
   desc "Restart the server"
-  task :restart, :roles => :app, :except => { :no_release => true } do
+  task :restart, :roles => :app, :except => {:no_release => true} do
     run "touch #{File.join current_path, 'tmp', 'restart.txt'}"
+  end
+  
+  desc "Run bundle install --local"
+  task :bundle_install, :roles => :app, :except => {:no_release => true} do
+    run "cd #{current_path} && bundle install --local"
   end
   
   desc "Get shared files into position"
