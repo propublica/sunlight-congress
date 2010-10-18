@@ -48,11 +48,11 @@ def run_task(name)
       else
         report.mark_read!
       end
+    else
+      report.mark_read!
     end
   end
-  
-    
-  
+
 end
 
 def email(report)
