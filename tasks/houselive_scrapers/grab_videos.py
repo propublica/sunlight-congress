@@ -47,7 +47,6 @@ def locate_clip_id(url):
     return int(clip_id)
  
 def grab_daily_meta(db):
-    coll = db['videos']
     url = "http://houselive.gov/ViewPublisher.php?view_id=14"
     page = urllib2.urlopen(url)
     add_date = datetime.datetime.now()
@@ -59,22 +58,22 @@ def grab_daily_meta(db):
         cols = row.findAll('td')
         if len(cols) > 0:
             unix_time = cols[0].span.string
-            fd = get_or_create_video(coll, True, 0, unix_time)
+            fd = get_or_create_video(db['videos'], True, 0, unix_time)
             legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
-            fd['legislative_day'] = legislative_day
+            fd['legislative_day'] = legislative_day.strftime("%m/%d/%Y")
             fd['added_at'] = add_date
             duration_hours = cols[1].contents[0]
             duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
             fd['duration'] = convert_duration(duration_hours, duration_minutes)
             fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
-            fd['clips'] = {
+            fd['clip_urls'] = {
                             'mp3':  cols[4].a['href'],
                             'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
                             'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
                             }
-            coll.save(fd)
 
-            grab_daily_events(fd)
+            fd['clips'] = grab_daily_events(fd)
+            db['videos'].save(fd)
             
 def grab_daily_events(full_video):
     
@@ -107,12 +106,13 @@ def grab_daily_events(full_video):
         return (datetime.datetime(date.year, date.month, date.day, hours, minutes), date, am_or_pm)
 
     def add_event(obj, text, coll):
+        text = text.strip()
         if obj.has_key('events'):
             obj['events'].append(text)
         else:
             obj['events'] = [text,]
-        coll.save(obj)
-
+        return obj
+    
     def parse_group(pt, video, fu, db):
         pt = group.findNext('p')
         while pt.name == 'p':
@@ -127,8 +127,9 @@ def grab_daily_events(full_video):
                         #need to parse links here
                 if text:
                     #add bill ids in here somewhere
-                    add_event(video, text, db['videos'])
-                    add_event(fu, text, db['floor_updates'])
+                    video = add_event(video, text, db['videos'])
+                    fu = add_event(fu, text, db['floor_updates'])
+                    db['floor_updates'].save(fu)
                      
                 else:
                     print "can't parse text "
@@ -137,67 +138,76 @@ def grab_daily_events(full_video):
                 pt = pt.nextSibling
             else:
                 break
+        return video
 
     url = "http://houselive.gov/MinutesViewer.php?view_id=2&clip_id=%s&event_id=&publish_id=&is_archiving=0&embedded=1&camera_id=" % full_video['clip_id']
     page = urllib2.urlopen(url).read()
     add_date = datetime.datetime.now()
     soup = BeautifulSoup(page.replace("<p />", "</p><p>"))
-    date_field = full_video['legislative_day']
-    coll = db['videos']
-    fu_coll = db['floor_updates']
+    clips = []
     groups = soup.findAll('blockquote')
     #special case for first group that's before the first blockquote
     first_group = soup.find('style')
     groups.insert(0, first_group)
+    last_clip = None
     
-    try:
-        am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
-    except Exception:
-        "couldn't parse time out of %s" % groups[0].nextSibling.nextSibling
-#        print groups[0].nextSibling.nextSibling.string
+    if groups: 
         try:
-            am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
+            am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
         except Exception:
-            print "couldn't parse timestamp for %s" % groups[0].nextSibling.nextSibling
-            return
-
-    if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
-        date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id'])) + datetime.timedelta(days=1)
-    else:
-        date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id']))
-
-    for group in groups:
-        if group.nextSibling.nextSibling:
+            "couldn't parse time out of %s" % groups[0]
+#        print groups[0].nextSibling.nextSibling.string
             try:
-                offset = int(group.nextSibling.nextSibling.a['onclick'].replace("top.SetPlayerPosition('0:", "").replace("',null); return false;", ""))
+                am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
-                offset = None
-            
-            timestamp, date, am_or_pm = get_timestamp(group, date, am_or_pm)
-            fe = get_or_create_video(coll, False, offset, full_video['timestamp_id'])
-            fu = get_or_create_floor_update(coll, timestamp, date_field)
-            fe['legislative_day'] = date_field
-            fe['added_at'] = add_date
-            fe['timestamp_id'] = full_video['timestamp_id']
-            fe['time'] = timestamp
-            fu['added_at'] = add_date
-            fu['timestamp'] = timestamp
-            
-            if timestamp:
-                desc_group = group#findNext('p')
-                parse_group(desc_group, fe, fu, db)
-                coll.save(fe)
-                fu_coll.save(fu)
-                
-            else:
-                continue
-        
+                print "couldn't parse timestamp for %s" % full_video['legislative_day']
+                return
+
+        if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
+            date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id'])) + datetime.timedelta(days=1)
         else:
-            print "finished parsing %s" % full_video['legislative_day']
-            #print "\n"
- 
- 
- 
+            date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id']))
+
+        for group in groups:
+            if group.nextSibling.nextSibling:
+                try:
+                    offset = int(group.nextSibling.nextSibling.a['onclick'].replace("top.SetPlayerPosition('0:", "").replace("',null); return false;", ""))
+                except Exception:
+                    offset = None
+                
+                timestamp, date, am_or_pm = get_timestamp(group, date, am_or_pm)
+#            fe = get_or_create_video(coll, False, offset, full_video['timestamp_id'])
+                fe = {'offset': offset, 'time': timestamp}
+                fu = get_or_create_floor_update(db['floor_updates'], timestamp, full_video['legislative_day'])
+                fu['created_at'] = add_date
+                fu['timestamp'] = timestamp
+                
+                #figure out the duration for smaller clips
+                if last_clip is None: 
+                    #first clip read, which is last clip of day
+                    if offset:
+                        fe['duration'] = int(full_video['duration']) - offset
+                    last_clip = fe
+                else:
+                    if offset:
+                        fe['duration'] = int(last_clip['offset']) - offset
+                        last_clip = fe
+
+                if timestamp:
+                    desc_group = group#findNext('p')
+                    fe = parse_group(desc_group, fe, fu, db)
+                    db['floor_updates'].save(fu)
+                    clips.append(fe)
+                else:
+                    continue
+            
+            else:
+                print "finished parsing %s" % full_video['legislative_day']
+                #print "\n"
+        return clips
+    else:
+        print "no groups for %s" % full_video['legislative_day']
+    
 if len(sys.argv) > 1:
     db_name = sys.argv[1]
     conn = Connection()
