@@ -15,13 +15,22 @@ def get_or_create_video(coll, full_length, offset, timestamp_id):
         if objs.count() > 0:
             return objs[0]
         else:
-            return {'timestamp_id':timestamp_id, 'full_length':'true', 'offset':0}
+            return {'timestamp_id':timestamp_id, 'full_length':True, 'offset':'0'}
     else:
         objs = coll.find({'timestamp_id':timestamp_id, 'offset':offset})
         if objs.count() > 0:
             return objs[0]
         else:
-            return {'timestamp_id':timestamp_id, 'full_length':'false', 'offset':offset}
+            return {'timestamp_id':timestamp_id, 'full_length':False, 'offset':str(offset)}
+
+def get_or_create_floor_update(conn, timestamp, legislative_day):
+    coll = conn.floor_updates
+    objs = coll.find({'timestamp': timestamp, 'legislative_day': legislative_day, 'chamber': 'house'})
+    if objs.count() > 0:
+        return objs[0]
+    else:
+        return {'timestamp':timestamp, 'legislative_day': legislative_day, 'chamber': 'house'}
+        
 
 def convert_duration(hours, minutes):
     hours = int(hours)
@@ -37,7 +46,8 @@ def locate_clip_id(url):
             clip_id = param.split('=')[1]
     return int(clip_id)
  
-def grab_daily_meta(coll):
+def grab_daily_meta(db):
+    coll = db['videos']
     url = "http://houselive.gov/ViewPublisher.php?view_id=14"
     page = urllib2.urlopen(url)
     add_date = datetime.datetime.now()
@@ -48,23 +58,25 @@ def grab_daily_meta(coll):
     for row in rows:
         cols = row.findAll('td')
         if len(cols) > 0:
-            unix_time = int(cols[0].span.string)
+            unix_time = cols[0].span.string
             fd = get_or_create_video(coll, True, 0, unix_time)
-            fd['day'] = datetime.datetime.strptime(cols[0].contents[1], '%B %d, %Y')
-            fd['add_date'] = add_date
+            legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
+            fd['legislative_day'] = legislative_day
+            fd['added_at'] = add_date
             duration_hours = cols[1].contents[0]
             duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
             fd['duration'] = convert_duration(duration_hours, duration_minutes)
             fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
-            fd['mp3_url'] = cols[4].a['href']
-            fd['mp4_url'] = fd['mp3_url'].replace('.mp3', '.mp4')
-            fd['wmv_url'] = fd['mp3_url'].replace('.mp3', '.wmv')
-            fd['offset'] = 0
+            fd['clips'] = {
+                            'mp3':  cols[4].a['href'],
+                            'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
+                            'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
+                            }
             coll.save(fd)
 
             grab_daily_events(fd)
             
-def grab_daily_events(video):
+def grab_daily_events(full_video):
     
     def get_timestamp(item, date, am_or_pm):
         try:
@@ -94,7 +106,14 @@ def grab_daily_events(video):
         
         return (datetime.datetime(date.year, date.month, date.day, hours, minutes), date, am_or_pm)
 
-    def parse_group(pt, video):
+    def add_event(obj, text, coll):
+        if obj.has_key('events'):
+            obj['events'].append(text)
+        else:
+            obj['events'] = [text,]
+        coll.save(obj)
+
+    def parse_group(pt, video, fu, db):
         pt = group.findNext('p')
         while pt.name == 'p':
             if (len(pt.contents) > 0):
@@ -108,17 +127,9 @@ def grab_daily_events(video):
                         #need to parse links here
                 if text:
                     #add bill ids in here somewhere
-                    if video.has_key('events'):
-                        video['events'].append(text.strip())
-                    else:
-                        video['events'] = [text.strip(),]
-                    try:
-                        coll.save(video)
-                    except Exception as e:
-                        print fe
-                        print pt
-                        print "could not save, %s" % e
-                    
+                    add_event(video, text, db['videos'])
+                    add_event(fu, text, db['floor_updates'])
+                     
                 else:
                     print "can't parse text "
                     print pt.contents
@@ -127,18 +138,13 @@ def grab_daily_events(video):
             else:
                 break
 
-    #proceeding = Video.query.get(fd_unix_time) #FloorDate.query.filter_by(clip_id=clip_id).first() # None #needs completion
-    url = "http://houselive.gov/MinutesViewer.php?view_id=2&clip_id=%s&event_id=&publish_id=&is_archiving=0&embedded=1&camera_id=" % video['clip_id']
+    url = "http://houselive.gov/MinutesViewer.php?view_id=2&clip_id=%s&event_id=&publish_id=&is_archiving=0&embedded=1&camera_id=" % full_video['clip_id']
     page = urllib2.urlopen(url).read()
     add_date = datetime.datetime.now()
     soup = BeautifulSoup(page.replace("<p />", "</p><p>"))
-    try:
-       date_field = soup.findAll(text=re.compile('LEGISLATIVE DAY OF'))[0].strip()
-    except Exception as e:
-        print "couldn't find date for FloorDate %s" % video['day']
-        return
-
-    date_string = time.strftime("%m/%d/%Y", time.strptime(date_field.replace('LEGISLATIVE DAY OF ', '').strip(), "%B %d, %Y"))
+    date_field = full_video['legislative_day']
+    coll = db['videos']
+    fu_coll = db['floor_updates']
     groups = soup.findAll('blockquote')
     #special case for first group that's before the first blockquote
     first_group = soup.find('style')
@@ -147,7 +153,8 @@ def grab_daily_events(video):
     try:
         am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
     except Exception:
-        print groups[0].nextSibling.nextSibling.string
+        "couldn't parse time out of %s" % groups[0].nextSibling.nextSibling
+#        print groups[0].nextSibling.nextSibling.string
         try:
             am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
         except Exception:
@@ -155,9 +162,9 @@ def grab_daily_events(video):
             return
 
     if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
-        date = datetime.datetime.fromtimestamp(float(video['timestamp_id'])) + datetime.timedelta(days=1)
+        date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id'])) + datetime.timedelta(days=1)
     else:
-        date = datetime.datetime.fromtimestamp(float(video['timestamp_id']))
+        date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id']))
 
     for group in groups:
         if group.nextSibling.nextSibling:
@@ -165,21 +172,28 @@ def grab_daily_events(video):
                 offset = int(group.nextSibling.nextSibling.a['onclick'].replace("top.SetPlayerPosition('0:", "").replace("',null); return false;", ""))
             except Exception:
                 offset = None
+            
             timestamp, date, am_or_pm = get_timestamp(group, date, am_or_pm)
-            fe = get_or_create_video(coll, False, offset, video['timestamp_id'])
-            fe['add_date'] = add_date
-            fe['timestamp_id'] = video['timestamp_id']
+            fe = get_or_create_video(coll, False, offset, full_video['timestamp_id'])
+            fu = get_or_create_floor_update(coll, timestamp, date_field)
+            fe['legislative_day'] = date_field
+            fe['added_at'] = add_date
+            fe['timestamp_id'] = full_video['timestamp_id']
             fe['time'] = timestamp
+            fu['added_at'] = add_date
+            fu['timestamp'] = timestamp
+            
             if timestamp:
                 desc_group = group#findNext('p')
-                parse_group(desc_group, fe)
+                parse_group(desc_group, fe, fu, db)
                 coll.save(fe)
+                fu_coll.save(fu)
+                
             else:
                 continue
         
         else:
-            print "no a tag"
-            print group.nextSibling
+            print "finished parsing %s" % full_video['legislative_day']
             #print "\n"
  
  
@@ -188,8 +202,7 @@ if len(sys.argv) > 1:
     db_name = sys.argv[1]
     conn = Connection()
     db = conn[db_name]
-    coll = db['video']
-    grab_daily_meta(coll)
+    grab_daily_meta(db)
 
 
 else:
