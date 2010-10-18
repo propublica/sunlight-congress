@@ -127,12 +127,12 @@ helpers do
       documents = object
       
       key = model.to_s.underscore.pluralize
-      count = documents.count
+      total_count = documents.count
       pagination = pagination_for params
       
       json = {
         key => documents.paginate(pagination).map {|document| attributes_for document},
-        :count => count,
+        :total_count => total_count,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
       }.to_json
