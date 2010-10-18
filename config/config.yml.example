@@ -6,3 +6,16 @@
   database: rtc
   raise_not_found_error: false
   logger: # leaving blank suppresses logging, to enable delete this line
+
+:email:
+  :via: :smtp
+  :to: 
+    - 
+  :from: 
+  :via_options:
+    :address: 
+    :port: 
+    :user_name: 
+    :password: 
+    :authentication: plain
+    :domain: 
