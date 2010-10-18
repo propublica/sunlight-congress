@@ -140,7 +140,7 @@ def grab_daily_events(full_video):
                     db['floor_updates'].save(fu)
                      
                 else:
-                    PARSING_ERRORS.append((video['_id'], "Couldn't parse text: %s" % pt.contents))
+                    PARSING_ERRORS.append((video['legislative_day'], "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
                 pt = pt.nextSibling
             else:
@@ -164,10 +164,10 @@ def grab_daily_events(full_video):
             am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
         except Exception:
             try:
-                PARSING_ERRORS.append((full_video["_id"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
+                PARSING_ERRORS.append((full_video["legislative_day"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
                 am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
-                PARSING_ERRORS.append((full_video["_id"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
+                PARSING_ERRORS.append((full_video["legislative_day"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
                 return
 
         if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
@@ -212,7 +212,7 @@ def grab_daily_events(full_video):
                 #print "\n"
         return clips
     else:
-        PARSING_ERRORS.append((full_video["_id"], "Record empty for %s " % full_video["legislative_day"]))
+        PARSING_ERRORS.append((full_video["legislative_day"], "Record empty for %s " % full_video["legislative_day"]))
     
 if len(sys.argv) > 1:
     db_name = sys.argv[1]
