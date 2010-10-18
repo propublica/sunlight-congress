@@ -9,6 +9,13 @@ import urllib2
 import re
 import sys
 
+PARSING_FAILURES = []
+
+
+def file_report(db, status, message, source):
+    db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
+
+
 def get_or_create_video(coll, full_length, offset, timestamp_id):
     if full_length:
         objs = coll.find({'timestamp_id':timestamp_id})
@@ -89,7 +96,6 @@ def grab_daily_events(full_video):
             print "couldn't parse minutes for %s" % timestamp
             return (None, date, am_or_pm)
 
-
         if re.findall('PM', timestamp):
             hours = int(re.findall('\d+(?=:)', timestamp)[0])
             if hours != 12:
@@ -114,6 +120,7 @@ def grab_daily_events(full_video):
         return obj
     
     def parse_group(pt, video, fu, db):
+        global PARSING_ERRORS
         pt = group.findNext('p')
         while pt.name == 'p':
             if (len(pt.contents) > 0):
@@ -125,15 +132,14 @@ def grab_daily_events(full_video):
                     if pt.findAll('a'):
                         pass
                         #need to parse links here
-                if text:
                     #add bill ids in here somewhere
+                if text:
                     video = add_event(video, text, db['videos'])
                     fu = add_event(fu, text, db['floor_updates'])
                     db['floor_updates'].save(fu)
                      
                 else:
-                    print "can't parse text "
-                    print pt.contents
+                    PARSING_ERRORS.append((video['_id'], "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
                 pt = pt.nextSibling
             else:
@@ -150,17 +156,17 @@ def grab_daily_events(full_video):
     first_group = soup.find('style')
     groups.insert(0, first_group)
     last_clip = None
+    global PARSING_ERRORS
     
     if groups: 
         try:
             am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
         except Exception:
-            "couldn't parse time out of %s" % groups[0]
-#        print groups[0].nextSibling.nextSibling.string
+            PARSING_ERRORS.append((full_video["_id"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
             try:
                 am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
-                print "couldn't parse timestamp for %s" % full_video['legislative_day']
+                PARSING_ERRORS.append((full_video["_id"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
                 return
 
         if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
@@ -176,7 +182,6 @@ def grab_daily_events(full_video):
                     offset = None
                 
                 timestamp, date, am_or_pm = get_timestamp(group, date, am_or_pm)
-#            fe = get_or_create_video(coll, False, offset, full_video['timestamp_id'])
                 fe = {'offset': offset, 'time': timestamp}
                 fu = get_or_create_floor_update(db['floor_updates'], timestamp, full_video['legislative_day'])
                 fu['created_at'] = add_date
@@ -206,18 +211,21 @@ def grab_daily_events(full_video):
                 #print "\n"
         return clips
     else:
-        print "no groups for %s" % full_video['legislative_day']
+        PARSING_ERRORS.append((full_video["_id"], "Record empty for %s " % full_video["legislative_day"]))
     
 if len(sys.argv) > 1:
     db_name = sys.argv[1]
     conn = Connection()
     db = conn[db_name]
-    grab_daily_meta(db)
+    try:
+        grab_daily_meta(db)
+        file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
+    except Exception as e:
+        print e
+        file_report(db, "FAILURE", "Fatal Error - %s" % e, "grab_videos")
 
 else:
     print 'No arguments passed'
     sys.exit()
                            
-#grab_daily_meta()
-#grab_daily_events(1268121600)
