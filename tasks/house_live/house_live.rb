@@ -1,4 +1,4 @@
-class HouseliveScrapers
+class HouseLive
   
   def self.run(options = {})
     script = File.join File.dirname(__FILE__), "grab_videos.py"
