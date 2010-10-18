@@ -3,11 +3,12 @@ task :environment do
   require 'bundler/setup'
   require 'config/environment'
   
-  require 'tasks'
+  require 'tasks/report'
 end
 
-Dir.glob('tasks/*.rb').each do |file|
-  name = File.basename file, File.extname(file)
+# for each folder in tasks, generate a rake task
+Dir.glob('tasks/*/').each do |file|
+  name = File.basename file
   
   namespace :task do
     task name.to_sym => :environment do
@@ -18,7 +19,7 @@ end
 
 
 def run_task(name)
-  load "tasks/#{name}.rb"
+  load "tasks/#{name}/#{name}.rb"
   task_name = name.camelize
   task = task_name.constantize
   
