@@ -1,13 +1,3 @@
-GIT
-  remote: http://github.com/mongoid/mongoid.git
-  revision: b1080cda54d32d3bc18e008867b33b82d64fb55b
-  specs:
-    mongoid (2.0.0.beta.19)
-      activemodel (~> 3.0)
-      mongo (~> 1.1)
-      tzinfo (~> 0.3.22)
-      will_paginate (~> 3.0.pre)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -27,6 +17,11 @@ GEM
     json (1.4.2)
     mongo (1.1)
       bson (>= 1.0.5)
+    mongoid (2.0.0.beta.19)
+      activemodel (~> 3.0)
+      mongo (~> 1.1)
+      tzinfo (~> 0.3.22)
+      will_paginate (~> 3.0.pre)
     mongrel (1.2.0.pre2)
       daemons (~> 1.0.10)
       gem_plugin (~> 0.2.3)
@@ -61,7 +56,7 @@ DEPENDENCIES
   hpricot (= 0.8.2)
   json (= 1.4.2)
   mongo (= 1.1)
-  mongoid!
+  mongoid
   mongrel (= 1.2.0.pre2)
   sinatra (= 1.0)
   sinatra-reloader (= 0.5.0)
