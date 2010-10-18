@@ -1,7 +1,7 @@
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
-  require 'environment'
+  require 'config/environment'
   
   require 'tasks'
 end

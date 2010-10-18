@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'environment'
+require 'config/environment'
 configure(:development) {require 'sinatra/reloader'}
 
 
