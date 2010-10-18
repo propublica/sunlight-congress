@@ -33,6 +33,16 @@ def run_task(name)
     
   else
     Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
+    
+  end
+  
+  # go through any reports filed from the task, and email about any failures or warnings
+  Report.unread.where(:source => task_name).all.each do |report|
+    if report.failure? or report.warning?
+      puts "Emailing about report:\n#{report}"
+    end
+    
+    report.mark_read!
   end
   
 end

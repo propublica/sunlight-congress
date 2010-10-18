@@ -8,17 +8,18 @@ class Report
   field :elapsed_time, :type => Float
   field :attached, :type => Hash
   
+  field :read, :type => Boolean, :default => false
+  
   index :status
   index :source
+  index :read
   
+  scope :unread , :where => {:read => false}
   
   def self.file(status, source, message, rest = {})
     report = Report.new({:source => source, :status => status, :message => message}.merge(rest))
-    
-    report.save
+    report.save!
     puts report.to_s
-    # send_email report if ['FAILURE', 'WARNING'].include?(status.to_s)
-    
     report
   end
   
@@ -35,7 +36,27 @@ class Report
   end
   
   def self.complete(source, message, objects = {})
-    file 'COMPLETE', source, message, objects
+    file 'COMPLETE', source, message, objects.merge(:read => true)
+  end
+  
+  def success?
+    status == 'SUCCESS'
+  end
+  
+  def failure?
+    status == 'FAILURE'
+  end
+  
+  def warning?
+    status == 'WARNING'
+  end
+  
+  def complete?
+    status == 'COMPLETE'
+  end
+  
+  def mark_read!
+    update_attributes :read => true
   end
   
 #   def self.latest(model, size = 1)
