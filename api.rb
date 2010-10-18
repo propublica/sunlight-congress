@@ -14,7 +14,7 @@ get /^\/(#{models.join "|"})\.(json)$/ do
     raise Sinatra::NotFound
   end
   
-  json model, attributes_for(document)
+  json model, document
 end
 
 get /^\/(#{models.map(&:pluralize).join "|"})\.(json)$/ do
@@ -24,11 +24,9 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json)$/ do
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
-  bills = model.where(conditions).only(fields).order_by(order).all.paginate(pagination_for(params))
+  documents = model.where(conditions).only(fields).order_by(order).all
   
-  #TODO: Pagination
-  
-  json model, attributes_for(bills)
+  json model, documents
 end
 
 
@@ -117,22 +115,33 @@ helpers do
   end
 
   def attributes_for(document)
-    if document.is_a? Array
-      document.map {|d| attributes_for d}
-    else
-      attributes = document.attributes
-      [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
-      attributes
-    end
+    attributes = document.attributes
+    [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
+    attributes
   end
   
   def json(model, object)
     response['Content-Type'] = 'application/json'
     
-    key = model.to_s.underscore
-    key = key.pluralize if object.is_a?(Array)
-    
-    json = {key => object}.to_json
+    if object.is_a?(Mongoid::Criteria)
+      documents = object
+      
+      key = model.to_s.underscore.pluralize
+      count = documents.count
+      pagination = pagination_for params
+      
+      json = {
+        key => documents.paginate(pagination).map {|document| attributes_for document},
+        :count => count,
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }.to_json
+    else
+      document = object
+      
+      key = model.to_s.underscore
+      json = {key => attributes_for(document)}.to_json
+    end
     
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
