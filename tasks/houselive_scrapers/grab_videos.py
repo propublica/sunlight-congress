@@ -8,8 +8,9 @@ import datetime, time
 import urllib2
 import re
 import sys
+import traceback
 
-PARSING_FAILURES = []
+PARSING_ERRORS = []
 
 
 def file_report(db, status, message, source):
@@ -162,8 +163,8 @@ def grab_daily_events(full_video):
         try:
             am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
         except Exception:
-            PARSING_ERRORS.append((full_video["_id"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
             try:
+                PARSING_ERRORS.append((full_video["_id"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
                 am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
                 PARSING_ERRORS.append((full_video["_id"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
@@ -222,8 +223,9 @@ if len(sys.argv) > 1:
         file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
     except Exception as e:
-        print e
-        file_report(db, "FAILURE", "Fatal Error - %s" % e, "grab_videos")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "%s %s" % (e, traceback.extract_tb(exc_traceback))
+        file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
 
 else:
     print 'No arguments passed'
