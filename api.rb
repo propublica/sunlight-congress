@@ -133,6 +133,7 @@ helpers do
       json = {
         key => documents.paginate(pagination).map {|document| attributes_for document},
         :total_count => total_count,
+        :count => documents.size,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
       }.to_json
