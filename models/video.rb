@@ -2,16 +2,14 @@ class Video
   include Mongoid::Document
   
   def self.unique_keys
-    [:clip_id]
+    [:legislative_day]
   end
   
   def self.filter_keys
-    {
-      :full_length => Boolean
-    }
+    {}
   end
   
   def self.order_keys
-    [:add_date]
+    [:legislative_day]
   end
 end

@@ -3,8 +3,26 @@
 require 'config/environment'
 configure(:development) {require 'sinatra/reloader'}
 
+def models
+  @models ||= load_models
+end
 
-get /^\/(#{models.join "|"})\.(json)$/ do
+def load_models
+  all_models = {:singular => [], :plural => []}
+  
+  Dir.glob('models/*.rb').each do |filename|
+    model_name = File.basename filename, File.extname(filename)
+    model = model_name.camelize.constantize
+    unless model.respond_to?(:api?) and !model.api?
+      all_models[:singular] << model_name unless model.respond_to?(:singular_api?) and !model.singular_api?
+      all_models[:plural] << model_name unless model.respond_to?(:plural_api?) and !model.plural_api?
+    end
+  end
+  
+  all_models
+end
+
+get /^\/(#{models[:singular].join "|"})\.(json)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
   conditions = conditions_for model.unique_keys, params
@@ -17,7 +35,7 @@ get /^\/(#{models.join "|"})\.(json)$/ do
   json model, document
 end
 
-get /^\/(#{models.map(&:pluralize).join "|"})\.(json)$/ do
+get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json)$/ do
   model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
   fields = fields_for model, params[:sections]
@@ -94,7 +112,12 @@ helpers do
       sort = :desc
     end
     
-    [[key, sort], [model.unique_keys.first, :desc]]
+    total_sort = [[key, sort]]
+    if model.respond_to?(:unique_keys) and model.unique_keys.any?
+      total_sort << [model.unique_keys.first, :desc]
+    end
+    
+    total_sort
   end
 
   def pagination_for(params)
