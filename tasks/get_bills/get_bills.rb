@@ -74,8 +74,7 @@ class GetBills
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
-        :introduced_at => introduced_at,
-        :last_updated => Time.now
+        :introduced_at => introduced_at
       }
       
       timeline = timeline_for doc, state, passage_votes
