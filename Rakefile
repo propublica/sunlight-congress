@@ -2,8 +2,6 @@ task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require 'config/environment'
-  
-  require 'tasks/report'
 end
 
 # for each folder in tasks, generate a rake task
@@ -19,8 +17,12 @@ end
 
 
 def run_task(name)
+  require 'tasks/report'
+  require 'tasks/utils'
+
   require 'pony'
   
+
   load "tasks/#{name}/#{name}.rb"
   task_name = name.camelize
   task = task_name.constantize
@@ -34,23 +36,15 @@ def run_task(name)
     Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
     
   else
-    Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
-    
+    complete = Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
+    puts complete
   end
   
   # go through any reports filed from the task, and email about any failures or warnings
   Report.unread.where(:source => task_name).all.each do |report|
-    if report.failure? or report.warning?
-      begin
-        email report
-      rescue Exception => ex
-        puts "Error emailing a report! Will try again on next run"
-      else
-        report.mark_read!
-      end
-    else
-      report.mark_read!
-    end
+    puts report
+    email report if report.failure? or report.warning?
+    report.mark_read!
   end
 
 end

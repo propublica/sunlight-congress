@@ -7,6 +7,7 @@ require 'bundler/setup'
 require File.join(File.dirname(__FILE__), "../../../config/environment")
 
 require 'hpricot'
+require File.join(File.dirname(__FILE__), "../../utils")
 require File.join(File.dirname(__FILE__), "../get_bills")
 
 class BillTest < Test::Unit::TestCase
@@ -190,8 +191,8 @@ class BillTest < Test::Unit::TestCase
     cases.keys.each do |name|
       doc = Hpricot.XML open(fixture("timeline/#{name}.xml"))
       state = GetBills.state_for doc
-      votes = GetBills.votes_for doc
-      timeline = GetBills.timeline_for doc, state, votes
+      passage_votes = GetBills.passage_votes_for doc
+      timeline = GetBills.timeline_for doc, state, passage_votes
       
       cases[name].each do |key, value|
         if value == :missing

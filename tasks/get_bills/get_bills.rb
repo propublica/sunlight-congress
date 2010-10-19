@@ -5,7 +5,7 @@ class GetBills
   # options:
   #   session: The session of Congress to update
   def self.run(options = {})
-    session = options[:session] || current_session
+    session = options[:session] || Utils.current_session
     count = 0
     missing_ids = []
     bad_bills = []
@@ -27,14 +27,14 @@ class GetBills
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
-    #bills = Dir.glob "data/govtrack/#{session}/bills/hr103.xml"
-    #bills = bills.first 20
+    # bills = Dir.glob "data/govtrack/#{session}/bills/hr103.xml"
+    # bills = bills.first 20
     
     bills.each do |path|
       doc = Hpricot::XML open(path)
       
       filename = File.basename path
-      type = type_for doc.root.attributes['type']
+      type = Utils.bill_type_for doc.root.attributes['type']
       number = doc.root.attributes['number']
       code = "#{type}#{number}"
       
@@ -47,12 +47,11 @@ class GetBills
       actions = actions_for doc
       titles = titles_for doc
       state = state_for doc
-      votes = votes_for doc
-      last_vote_at = votes.last ? votes.last[:voted_at] : nil
-      introduced_at = govtrack_time_for doc.at(:introduced)['datetime']
+      passage_votes = passage_votes_for doc
+      last_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
+      introduced_at = Utils.govtrack_time_for doc.at(:introduced)['datetime']
       
       bill.attributes = {
-        :filename => filename,
         :bill_type => type,
         :number => number,
         :code => code,
@@ -63,7 +62,6 @@ class GetBills
         :official_title => most_recent_title_from(titles, :official),
         :popular_title => most_recent_title_from(titles, :popular),
         :titles => titles,
-        :keywords => doc.search('//subjects/term').map {|term| term['name']},
         :summary => summary_for(doc),
         :sponsor => sponsor,
         :sponsor_id => sponsor ? sponsor[:bioguide_id] : nil,
@@ -73,20 +71,22 @@ class GetBills
         :actions => actions,
         :last_action => actions.last,
         :last_action_at => actions.last ? actions.last[:acted_at] : nil,
-        :votes => votes,
-        :votes_count => votes.size,
+        :passage_votes => passage_votes,
+        :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
         :last_updated => Time.now
       }
       
-      timeline = timeline_for doc, state, votes
+      timeline = timeline_for doc, state, passage_votes
       bill.attributes = timeline
       
       if bill.save
         count += 1
+        puts "[#{bill_id}] Saved successfully"
       else
         bad_bills << {:attributes => bill.attributes, :error_messages => bill.errors.full_messages}
+        puts "[#{bill_id}] Error saving, will file report"
       end
     end
     
@@ -142,17 +142,17 @@ class GetBills
   def self.timeline_for(doc, state, votes)
     timeline = {}
     
-    if house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:type] != 'override'}.last
+    if house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:passage_type] != 'override'}.last
       timeline[:house_result] = house_vote[:result]
       timeline[:house_result_at] = house_vote[:voted_at]
     end
     
-    if senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:type] != 'override'}.last
+    if senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:passage_type] != 'override'}.last
       timeline[:senate_result] = senate_vote[:result]
       timeline[:senate_result_at] = senate_vote[:voted_at]
     end
     
-    if concurring_vote = votes.select {|vote| vote[:type] == 'vote2'}.last
+    if concurring_vote = votes.select {|vote| vote[:passage_type] == 'vote2'}.last
       if concurring_vote[:result] == 'pass' and state !~ /PASS_BACK/
         timeline[:passed] = true
         timeline[:passed_at] = concurring_vote[:voted_at]
@@ -164,24 +164,24 @@ class GetBills
     end
     
     if vetoed_action = doc.at('//actions/vetoed')
-      timeline[:vetoed_at] = govtrack_time_for vetoed_action['datetime']
+      timeline[:vetoed_at] = Utils.govtrack_time_for vetoed_action['datetime']
       timeline[:vetoed] = true
     else
       timeline[:vetoed] = false
     end
     
-    if override_house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:type] == 'override'}.last
+    if override_house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:passage_type] == 'override'}.last
       timeline[:override_house_result] = override_house_vote[:result]
       timeline[:override_house_result_at] = override_house_vote[:voted_at]
     end
     
-    if override_senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:type] == 'override'}.last
+    if override_senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:passage_type] == 'override'}.last
       timeline[:override_senate_result] = override_senate_vote[:result]
       timeline[:override_senate_result_at] = override_senate_vote[:voted_at]
     end
     
     if enacted_action = doc.at('//actions/enacted')
-      timeline[:enacted_at] = govtrack_time_for enacted_action['datetime']
+      timeline[:enacted_at] = Utils.govtrack_time_for enacted_action['datetime']
       timeline[:enacted] = true
     else
       timeline[:enacted] = false
@@ -189,7 +189,7 @@ class GetBills
     
     # finally, set the awaiting_signature flag, inferring it from the details above
     if timeline[:passed] and !timeline[:vetoed] and !timeline[:enacted] and topresident_action = doc.search('//actions/topresident').last
-      timeline[:awaiting_signature_since] = govtrack_time_for topresident_action['datetime']
+      timeline[:awaiting_signature_since] = Utils.govtrack_time_for topresident_action['datetime']
       timeline[:awaiting_signature] = true
     else
       timeline[:awaiting_signature] = false
@@ -207,17 +207,17 @@ class GetBills
   def self.actions_for(doc)
     doc.search('//actions/*').reject {|a| a.class == Hpricot::Text}.map do |action|
       {
-        :acted_at => govtrack_time_for(action['datetime']),
+        :acted_at => Utils.govtrack_time_for(action['datetime']),
         :text => (action/:text).inner_text,
         :type => action.name
       }
     end
   end
   
-  def self.votes_for(doc)
+  def self.passage_votes_for(doc)
     chamber = {'h' => 'house', 's' => 'senate'}
     doc.search('//actions/vote|//actions/vote2|//actions/vote-aux').map do |vote|
-      voted_at = govtrack_time_for vote['datetime']
+      voted_at = Utils.govtrack_time_for vote['datetime']
       chamber_code = vote['where']
       how = vote['how']
       
@@ -227,7 +227,7 @@ class GetBills
         :voted_at => voted_at,
         :text => (vote/:text).inner_text,
         :chamber => chamber[chamber_code],
-        :type => vote['type']
+        :passage_type => vote['type']
       }
       
       if vote['roll'].present?
@@ -235,18 +235,6 @@ class GetBills
       end
       
       result
-    end
-  end
-  
-  # If it's a full timestamp with hours and minutes and everything, store that
-  # Otherwise, if it's just a day, store the day with a date of noon UTC
-  # So that it's the same date everywhere
-  def self.govtrack_time_for(timestamp)
-    if timestamp =~ /:/
-      Time.xmlschema timestamp
-    else
-      time = Time.parse timestamp
-      time.getutc + (12-time.getutc.hour).hours
     end
   end
   
@@ -264,24 +252,6 @@ class GetBills
     end
   end
   
-  # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
-  def self.current_session
-    ((Time.now.year + 1) / 2) - 894
-  end
-  
-  # map govtrack type to RTC type
-  def self.type_for(type)
-    {
-      :h => 'hr',
-      :hr => 'hres',
-      :hj => 'hjres',
-      :hc => 'hcres',
-      :s => 's',
-      :sr => 'sres',
-      :sj => 'sjres',
-      :sc => 'scres'
-    }[type.to_sym]
-  end
   
   # fields of legislator to include on sponsor fields
   def self.sponsor_fields

@@ -17,10 +17,7 @@ class Report
   scope :unread , :where => {:read => false}
   
   def self.file(status, source, message, rest = {})
-    report = Report.new({:source => source, :status => status, :message => message}.merge(rest))
-    report.save!
-    puts report.to_s
-    report
+    Report.create!({:source => source, :status => status, :message => message}.merge(rest))
   end
   
   def self.success(source, message, objects = {})
@@ -58,26 +55,7 @@ class Report
   def mark_read!
     update_attributes :read => true
   end
-  
-#   def self.latest(model, size = 1)
-#     reports = Report.all :conditions => {:source => model.to_s}, :order => "created_at DESC", :limit => size
-#     size > 1 ? reports : reports.first
-#   end
-  
-#   def self.send_email(report)
-#     if email[:to] and email[:to].any?
-#       Pony.mail email.merge(:subject => report.to_s, :body => report.attributes.inspect)
-#     end
-#   end
-  
-#   def self.email=(details)
-#     @email = details
-#   end
-#   
-#   def self.email
-#     @email
-#   end
-  
+
   def to_s
     msg = "[#{status}] #{source}#{elapsed_time ? " [#{to_minutes elapsed_time.to_i}]" : ""}\n\t#{message}"
     if self[:exception]
