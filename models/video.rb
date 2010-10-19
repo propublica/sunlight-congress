@@ -12,4 +12,8 @@ class Video
   def self.order_keys
     [:legislative_day]
   end
+  
+  def self.basic_fields
+    [:duration, :clip_id, :legislative_day, :timestamp_id, :clip_urls]
+  end
 end
