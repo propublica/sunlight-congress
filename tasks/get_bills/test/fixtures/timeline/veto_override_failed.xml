@@ -1,0 +1,22 @@
+<actions>
+  <action datetime="2009-12-15"><text>Referred to the House Committee on Appropriations.</text></action>
+  <action datetime="2009-12-16T09:25:00-05:00"><text>Rules Committee Resolution H. Res. 976 Reported to House. Rule provides for consideration of H.R. 3326, H.J. Res. 64, H.R. 4314 and H.R. 2847.</text></action>
+  <action datetime="2009-12-16T14:08:00-05:00"><text>Considered under the provisions of rule H. Res. 976.</text><reference label="consideration" ref="CR H15421"/></action>
+  <action datetime="2009-12-16T14:08:00-05:00"><text>Rule provides for consideration of H.R. 3326, H.J. Res. 64, H.R. 4314 and H.R. 2847.</text></action>
+  <action datetime="2009-12-16T14:08:00-05:00"><text>DEBATE - The House proceeded with one hour of debate on H.J. Res. 64.</text></action>
+  <action datetime="2009-12-16T14:10:00-05:00"><text>The previous question was ordered pursuant to the rule.</text><reference label="consideration" ref="CR H15421"/></action>
+  <vote date="1260990600" how="by voice vote" datetime="2009-12-16T14:10:00-05:00" where="h" type="vote" result="pass" ><text>On passage Passed by voice vote.</text><reference label="text" ref="CR H15421"/></vote>
+  <action datetime="2009-12-16"><text>Received in the Senate, read twice.</text></action>
+  <vote date="1261198800" how="by Unanimous Consent" datetime="2009-12-19" where="s" type="vote2" result="pass" ><text>Passed Senate without amendment by Unanimous Consent.</text><reference label="consideration" ref="CR S13477"/></vote>
+  <action datetime="2009-12-19"><text>Message on Senate action sent to the House.</text></action>
+  <topresident date="1261198800" datetime="2009-12-19" ><text>Cleared for White House.</text></topresident>
+  <topresident date="1261198800" datetime="2009-12-19" ><text>Presented to President.</text></topresident>
+  <vetoed date="1262149200" datetime="2009-12-30" ><text>Vetoed by President. (text of veto message: CR 1/12/2010 H11)</text></vetoed>
+  <action datetime="2010-01-12T19:14:00-05:00"><text>The Chair laid before the House the veto message from the President. (H. Doc. 111-84). In a Memorandum of Disapproval, the President stated the enactment of H.R. 3326 (Department of Defense Appropriations Act, 2010, P.L. 111-118), which was signed into law on December 19, 2009, has rendered the enactment of H.J. Res. 64 (Continuing Appropriations, FY 2010) unnecessary and accordingly, he is withholding his approval from the bill. In order to leave no doubt that the bill is being vetoed as unnecessary legislation, and in addition to withholding his signature, the President returned H.J. Res. 64 to the House along with the Memorandum of Disapproval .</text><reference label="consideration" ref="CR H10"/></action>
+  <action datetime="2010-01-12T19:14:00-05:00"><text>Pursuant to a previous order of the House, consideration of the veto message on H.J. Res. 64 is postponed unti5l the legislative day of January 13, 2010.</text></action>
+  <action datetime="2010-01-13T10:40:00-05:00"><text>The Chair laid before the House the veto message from the President.</text><reference label="consideration" ref="CR H48-49"/></action>
+  <action datetime="2010-01-13T10:40:00-05:00"><text>The House proceeded with one hour of debate on the question of passage, the objections of the President to the contrary notwithstanding.</text></action>
+  <action datetime="2010-01-13T10:45:00-05:00"><text>POSTPONED PROCEEDINGS - At the conclusion of debate, the Chair put the question on passage, the objections of the President to the contrary notwithstanding, and announced that under the Constitution, the Yeas and Nays were ordered. The Chair then postponed further proceedings on the question until later in the legislative day.</text></action>
+  <action datetime="2010-01-13T15:06:00-05:00"><text>The Chair announced the unfinished business to be the consideration of the veto.</text><reference label="consideration" ref="CR H104-105"/></action>
+  <vote date="1263414900" how="roll" roll="2" datetime="2010-01-13T15:35:00-05:00" where="h" type="override" result="fail" ><text>On passage, the objections of the President to the contrary notwithstanding Failed by the Yeas and Nays: (2/3 required): 143 - 245, 1 Present (Roll no. 2).</text></vote>
+</actions>

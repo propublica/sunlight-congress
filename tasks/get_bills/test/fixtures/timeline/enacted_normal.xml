@@ -1,0 +1,25 @@
+<actions>
+  <action datetime="2010-02-25"><text>Referred to the Committee on Ways and Means, and in addition to the Committees on Energy and Commerce, Education and Labor, Transportation and Infrastructure, Financial Services, Small Business, the Judiciary, and the Budget, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Ways and Means</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Energy and Commerce</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Education and Labor</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Transportation and Infrastructure</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Financial Services</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Small Business</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Judiciary</text></action>
+  <action datetime="2010-02-25"><text>Referred to House Budget</text></action>
+  <action datetime="2010-02-25T17:25:00-05:00"><text>Mr. McDermott moved to suspend the rules and pass the bill.</text></action>
+  <action datetime="2010-02-25T17:25:00-05:00"><text>Considered under suspension of the rules.</text><reference label="consideration" ref="CR H901-906"/></action>
+  <action datetime="2010-02-25T17:25:00-05:00"><text>DEBATE - The House proceeded with forty minutes of debate on H.R. 4691.</text></action>
+  <vote date="1267137540" how="by voice vote" datetime="2010-02-25T17:39:00-05:00" where="h" type="vote" result="pass" ><text>On motion to suspend the rules and pass the bill Agreed to by voice vote.</text><reference label="text" ref="CR H901-903"/></vote>
+  <action datetime="2010-02-25"><text>Received in the Senate.</text></action>
+  <action datetime="2010-02-26"><text>Read the first time. Placed on Senate Legislative Calendar under Read the First Time.</text></action>
+  <calendar under="General Orders" number="278" date="1267419600" datetime="2010-03-01" calendar="Senate Legislative" ><text>Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 278.</text></calendar>
+  <action datetime="2010-03-02"><text>Measure laid before Senate by unanimous consent.</text><reference label="consideration" ref="CR S926-934"/></action>
+  <vote date="1267506000" how="roll" roll="32" datetime="2010-03-02" where="s" type="vote2" result="pass" ><text>Passed Senate without amendment by Yea-Nay Vote. 78 - 19. Record Vote Number: 32.</text></vote>
+  <action datetime="2010-03-02"><text>Message on Senate action sent to the House.</text></action>
+  <topresident date="1267506000" datetime="2010-03-02" ><text>Cleared for White House.</text></topresident>
+  <topresident date="1267506000" datetime="2010-03-02" ><text>Presented to President.</text></topresident>
+  <signed date="1267506000" datetime="2010-03-02" ><text>Signed by President.</text></signed>
+  <enacted number="111-144" date="1267506000" datetime="2010-03-02" type="public" ><text>Became Public Law No: 111-144.</text></enacted>
+</actions>
