@@ -68,8 +68,8 @@ def grab_daily_meta(db):
             unix_time = cols[0].span.string
             fd = get_or_create_video(db['videos'], True, 0, unix_time)
             legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
-            fd['legislative_day'] = legislative_day.strftime("%m/%d/%Y")
-            fd['added_at'] = add_date
+            fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
+            fd['created_at'] = add_date
             duration_hours = cols[1].contents[0]
             duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
             fd['duration'] = convert_duration(duration_hours, duration_minutes)
