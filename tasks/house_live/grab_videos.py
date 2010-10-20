@@ -164,7 +164,7 @@ def grab_daily_events(full_video):
             am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.a.string)[0]
         except Exception:
             try:
-                PARSING_ERRORS.append((full_video["legislative_day"], "Couldn't parse initial timestamp for %s" % groups.nextSibling ))
+                PARSING_ERRORS.append((full_video["legislative_day"], "Couldn't parse initial timestamp for %s" % groups[0].nextSibling ))
                 am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
                 PARSING_ERRORS.append((full_video["legislative_day"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
