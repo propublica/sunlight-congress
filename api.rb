@@ -7,6 +7,8 @@ def models
   @models ||= load_models
 end
 
+set :logging, false
+
 def load_models
   all_models = {:singular => [], :plural => []}
   
