@@ -159,10 +159,12 @@ helpers do
       
       json = {
         key => page.map {|document| attributes_for document},
-        :total_count => total_count,
-        :count => page.size,
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
+        :count => total_count,
+        :page => {
+          :count => page.size,
+          :per_page => pagination[:per_page],
+          :page => pagination[:page]
+        }
       }.to_json
     else
       document = object
