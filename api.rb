@@ -115,7 +115,7 @@ helpers do
     end
     
     total_sort = [[key, sort]]
-    if model.respond_to?(:unique_keys) and model.unique_keys.any?
+    if model.respond_to?(:unique_keys) and model.unique_keys.any? and model.unique_keys.first != key
       total_sort << [model.unique_keys.first, :desc]
     end
     
