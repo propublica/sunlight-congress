@@ -4,6 +4,8 @@ set :user, 'rtc'
 set :application, user
 set :deploy_to, "/projects/#{user}/"
 
+set :sock, "#{user}.sock"
+
 # if environment == 'production'
 #   set :domain, 'realtimecongress.org'
 # else # environment == 'staging'
@@ -28,13 +30,19 @@ after "deploy:update_code", "deploy:bundle_install"
 
 
 namespace :deploy do
-  task :start do ; end
-  task :stop do ; end
+  task :start do
+    run "cd #{current_path} && unicorn -D -l #{shared_path}/#{sock}"
+  end
+  
+  task :stop do
+    run "killall unicorn"
+  end
+  
   task :migrate do; end
   
   desc "Restart the server"
   task :restart, :roles => :app, :except => {:no_release => true} do
-    run "touch #{File.join current_path, 'tmp', 'restart.txt'}"
+    run "killall -HUP unicorn"
   end
   
   desc "Run bundle install --local"
@@ -47,8 +55,8 @@ namespace :deploy do
     run "ln -nfs #{shared_path}/config.yml #{release_path}/config/config.yml"
     run "ln -nfs #{shared_path}/config.ru #{release_path}/config.ru"
     run "ln -nfs #{shared_path}/data #{release_path}/data"
-    run "rm #{File.join release_path, 'tmp', 'pids'}"
-    run "rm #{File.join release_path, 'public', 'system'}"
+    run "rm -rf #{File.join release_path, 'tmp'}"
+    run "rm -rf #{File.join release_path, 'public'}"
     run "rm #{File.join release_path, 'log'}"
   end
 end
