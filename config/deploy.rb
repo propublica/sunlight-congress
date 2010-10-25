@@ -6,8 +6,10 @@ set :deploy_to, "/projects/#{user}/"
 
 set :sock, "#{user}.sock"
 
-if environment == 'production'
+if environment == 'api' # production api box
   set :domain, 'api.realtimecongress.org'
+elsif environment == 'backend' # production scraper box
+  set :domain, 'takoma.sunlightlabs.net'
 else # environment == 'staging'
   set :domain, 'rtc.sunlightlabs.com'
 end
@@ -31,18 +33,24 @@ after "deploy:update_code", "deploy:bundle_install"
 
 namespace :deploy do
   task :start do
-    run "cd #{current_path} && unicorn -D -l #{shared_path}/#{sock}"
+    if environment != 'backend'
+      run "cd #{current_path} && unicorn -D -l #{shared_path}/#{sock}"
+    end
   end
   
   task :stop do
-    run "killall unicorn"
+    if environment != 'backend'
+      run "killall unicorn"
+    end
   end
   
   task :migrate do; end
   
   desc "Restart the server"
   task :restart, :roles => :app, :except => {:no_release => true} do
-    run "killall -HUP unicorn"
+    if environment != 'backend'
+      run "killall -HUP unicorn"
+    end
   end
   
   desc "Run bundle install --local"
