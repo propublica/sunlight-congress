@@ -1,4 +1,4 @@
-# set :environment, (ENV['target'] || 'staging')
+set :environment, (ENV['target'] || 'staging')
 
 set :user, 'rtc'
 set :application, user
@@ -6,11 +6,11 @@ set :deploy_to, "/projects/#{user}/"
 
 set :sock, "#{user}.sock"
 
-# if environment == 'production'
-#   set :domain, 'realtimecongress.org'
-# else # environment == 'staging'
+if environment == 'production'
+  set :domain, 'api.realtimecongress.org'
+else # environment == 'staging'
   set :domain, 'rtc.sunlightlabs.com'
-# end
+end
 
 set :scm, :git
 set :repository, "git@github.com:sunlightlabs/realtimecongress.git"
@@ -47,7 +47,7 @@ namespace :deploy do
   
   desc "Run bundle install --local"
   task :bundle_install, :roles => :app, :except => {:no_release => true} do
-    run "cd #{current_path} && bundle install --local"
+    run "cd #{release_path} && bundle install --local"
   end
   
   desc "Get shared files into position"
