@@ -1,3 +1,5 @@
+load 'analytics/report.rake'
+
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
