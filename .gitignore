@@ -2,6 +2,8 @@
 /config/config.yml
 /data
 
+/vendor/gems
+
 /tmp
 /REVISION
 /log
