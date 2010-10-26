@@ -11,6 +11,7 @@ end
 set :logging, false
 
 require 'analytics/api_key'
+require 'analytics/hits'
 
 # load all models and prepare them to be API-ized
 
