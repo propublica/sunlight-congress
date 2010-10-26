@@ -214,10 +214,13 @@ def grab_daily_events(full_video):
     else:
         PARSING_ERRORS.append((full_video["legislative_day"], "Record empty for %s " % full_video["legislative_day"]))
     
-if len(sys.argv) > 1:
-    db_name = sys.argv[1]
-    conn = Connection()
+if len(sys.argv) > 2:
+    db_host = sys.argv[1]
+    db_name = sys.argv[2]
+    
+    conn = Connection(host=db_host)
     db = conn[db_name]
+    
     try:
         grab_daily_meta(db)
         file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
@@ -228,6 +231,6 @@ if len(sys.argv) > 1:
         file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
 
 else:
-    print 'No arguments passed'
+    print 'Not enough arguments passed'
     sys.exit()
                            
