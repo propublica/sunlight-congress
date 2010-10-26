@@ -1,19 +1,22 @@
 require 'analytics/sunlight_services'
 
 # Require an API key
+
 before do
-  if request.post?
-    unless SunlightServices.verify params, config[:services][:shared_secret], config[:services][:api_name]
-      halt 403, 'Bad signature' 
-    end
-  else
+  if request.get?
     unless ApiKey.allowed? api_key
       halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+    end
+  else
+    unless SunlightServices.verify params, config[:services][:shared_secret], config[:services][:api_name]
+      halt 403, 'Bad signature' 
     end
   end
 end
 
+
 # Accept the API key through the query string or the x-apikey header
+
 def api_key
   params[:apikey] || request.env['HTTP_X_APIKEY']
 end
@@ -56,6 +59,7 @@ post '/analytics/update_key_by_email/' do
     halt 404, 'Could not locate api key by the given email'
   end
 end
+
 
 class ApiKey
   include Mongoid::Document
