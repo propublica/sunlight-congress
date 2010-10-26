@@ -2,7 +2,12 @@
 
 require 'config/environment'
 
-configure(:development) {require 'sinatra/reloader'}
+configure(:development) do |config|
+  require 'sinatra/reloader'
+  config.also_reload "analytics/*.rb"
+  config.also_reload "models/*.rb"
+end
+
 set :logging, false
 
 require 'analytics/api_key'

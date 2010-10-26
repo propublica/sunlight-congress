@@ -1,12 +1,17 @@
+require 'analytics/sunlight_services'
+
 # Require an API key
 before do
-  if request.path_info !~ /^\/analytics\//i
+  if request.post?
+    unless SunlightServices.verify params, config[:services][:shared_secret], config[:services][:api_name]
+      halt 403, 'Bad signature' 
+    end
+  else
     unless ApiKey.allowed? api_key
       halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
     end
   end
 end
-
 
 # Accept the API key through the query string or the x-apikey header
 def api_key

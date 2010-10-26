@@ -1,6 +1,10 @@
 # fill in from services.sunlightlabs.com
 :sunlight_api_key:
 
+:services:
+  :shared_secret: 
+  :api_name: realtimecongress
+
 :mongoid:
   host: localhost
   database: rtc

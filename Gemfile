@@ -8,6 +8,8 @@ gem "mongo", "1.1"
 gem "mongoid"
 gem 'bson_ext', '1.1'
 
+gem 'ruby-hmac', '0.4.0'
+
 gem 'pony', '1.0.1'
 
 group :development do

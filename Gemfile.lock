@@ -36,6 +36,7 @@ GEM
     pony (1.0.1)
       mail (> 2.0)
     rack (1.2.1)
+    ruby-hmac (0.4.0)
     sinatra (1.0)
       rack (>= 1.0)
     sinatra-advanced-routes (0.5.1)
@@ -69,6 +70,7 @@ DEPENDENCIES
   mongoid
   mongrel (= 1.2.0.pre2)
   pony (= 1.0.1)
+  ruby-hmac (= 0.4.0)
   sinatra (= 1.0)
   sinatra-reloader (= 0.5.0)
   sunlight (= 1.0.7)
