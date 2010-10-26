@@ -1,28 +1,27 @@
 #!/usr/bin/env ruby
 
 require 'config/environment'
+
 configure(:development) {require 'sinatra/reloader'}
-
-def models
-  @models ||= load_models
-end
-
 set :logging, false
 
-def load_models
-  all_models = {:singular => [], :plural => []}
-  
-  Dir.glob('models/*.rb').each do |filename|
-    model_name = File.basename filename, File.extname(filename)
-    model = model_name.camelize.constantize
-    unless model.respond_to?(:api?) and !model.api?
-      all_models[:singular] << model_name unless model.respond_to?(:singular_api?) and !model.singular_api?
-      all_models[:plural] << model_name unless model.respond_to?(:plural_api?) and !model.plural_api?
-    end
+require 'analytics/api_key'
+
+# load all models and prepare them to be API-ized
+
+models = {:singular => [], :plural => []}
+
+Dir.glob('models/*.rb').each do |filename|
+  model_name = File.basename filename, File.extname(filename)
+  model = model_name.camelize.constantize
+  unless model.respond_to?(:api?) and !model.api?
+    models[:singular] << model_name unless model.respond_to?(:singular_api?) and !model.singular_api?
+    models[:plural] << model_name unless model.respond_to?(:plural_api?) and !model.plural_api?
   end
-  
-  all_models
 end
+
+
+# generalized singular and plural methods
 
 get /^\/(#{models[:singular].join "|"})\.(json)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
