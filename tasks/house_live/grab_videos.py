@@ -218,6 +218,9 @@ if len(sys.argv) > 2:
     db_host = sys.argv[1]
     db_name = sys.argv[2]
     
+    # further command line arguments will come in as sys.argv[3] and on up
+    # e.g. 'all' will be sys.argv[3]
+    
     conn = Connection(host=db_host)
     db = conn[db_name]
     

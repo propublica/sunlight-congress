@@ -46,7 +46,7 @@ def run_task(name)
   start = Time.now
   
   begin
-    task.run :config => config
+    task.run :config => config, :args => ARGV[1..-1]
     
   rescue Exception => ex
     Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
