@@ -10,7 +10,13 @@ namespace :development do
   desc "Load a fake 'development' api key into the db"
   task :api_key => :environment do
     require 'analytics/api_key'
-    ApiKey.create! :status => "A", :email => "nobody@example.com", :key => "development"
+    
+    if ApiKey.where(:key => "development", :email => "nobody@example.com").first.nil?
+      ApiKey.create! :status => "A", :email => "nobody@example.com", :key => "development"
+      puts "Created 'development' API key"
+    else
+      puts "'development' API key already exists"
+    end
   end
 end
 
