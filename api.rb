@@ -2,16 +2,19 @@
 
 require 'config/environment'
 
+# reload in development without starting server
 configure(:development) do |config|
   require 'sinatra/reloader'
   config.also_reload "analytics/*.rb"
   config.also_reload "models/*.rb"
 end
 
+
 set :logging, false
 
 require 'analytics/api_key'
 require 'analytics/hits'
+
 
 # load all models and prepare them to be API-ized
 
@@ -29,7 +32,7 @@ end
 
 # generalized singular and plural methods
 
-get /^\/(#{models[:singular].join "|"})\.(json)$/ do
+get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
   conditions = conditions_for model.unique_keys, params
@@ -39,10 +42,14 @@ get /^\/(#{models[:singular].join "|"})\.(json)$/ do
     raise Sinatra::NotFound
   end
   
-  json model, document
+  if params[:captures][1] == 'json'
+    json model, document
+  elsif params[:captures][1] == 'xml'
+    xml model, document
+  end
 end
 
-get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json)$/ do
+get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
   model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
   fields = fields_for model, params[:sections]
@@ -51,7 +58,11 @@ get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json)$/ do
   
   documents = model.where(conditions).only(fields).order_by(order).all
   
-  json model, documents
+  if params[:captures][1] == 'json'
+    json model, documents
+  elsif params[:captures][1] == 'xml'
+    xml model, documents
+  end
 end
 
 
@@ -145,41 +156,52 @@ helpers do
     {:per_page => per_page, :page => page}
   end
 
-  def attributes_for(document)
+  def attributes_for_single(document)
     attributes = document.attributes
     [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
     attributes
   end
   
+  def attributes_for_plural(model, documents)
+    key = model.to_s.underscore.pluralize
+    pagination = pagination_for params
+    
+    # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
+    # counting will not trigger it, paginate will
+    total_count = documents.count
+    page = documents.paginate pagination
+    
+    {
+      key => page.map {|document| attributes_for_single document},
+      :count => total_count,
+      :page => {
+        :count => page.size,
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }
+    }
+  end
+  
   def json(model, object)
-    response['Content-Type'] = 'application/json'
+    response['Content-Type'] = 'application/json'    
     
     if object.is_a?(Mongoid::Criteria)
-      documents = object
-      
-      key = model.to_s.underscore.pluralize
-      total_count = documents.count
-      pagination = pagination_for params
-      
-      page = documents.paginate pagination
-      
-      json = {
-        key => page.map {|document| attributes_for document},
-        :count => total_count,
-        :page => {
-          :count => page.size,
-          :per_page => pagination[:per_page],
-          :page => pagination[:page]
-        }
-      }.to_json
+      json = attributes_for_plural(model, object).to_json
     else
-      document = object
-      
-      key = model.to_s.underscore
-      json = {key => attributes_for(document)}.to_json
+      json = {model.to_s.underscore => attributes_for_single(object)}.to_json
     end
     
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
+  end
+  
+  def xml(model, object)
+    response['Content-Type'] = 'application/xml'
+    
+    if object.is_a?(Mongoid::Criteria)
+      attributes_for_plural(model, object).to_xml :root => 'results'
+    else
+      attributes_for_single(object).to_xml :root => model.to_s.underscore
+    end
   end
   
 end
