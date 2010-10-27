@@ -6,6 +6,14 @@ task :environment do
   require 'config/environment'
 end
 
+namespace :development do
+  desc "Load a fake 'development' api key into the db"
+  task :api_key => :environment do
+    require 'analytics/api_key'
+    ApiKey.create! :status => "A", :email => "nobody@example.com", :key => "development"
+  end
+end
+
 # for each folder in tasks, generate a rake task
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file
