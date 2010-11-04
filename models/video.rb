@@ -6,7 +6,7 @@ class Video
   end
   
   def self.filter_keys
-    {}
+    {:legislative_day => String}
   end
   
   def self.order_keys
