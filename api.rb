@@ -98,7 +98,7 @@ helpers do
     params.each do |key, value|
       # if there's a special operator (>, <, !, ~, etc.), strip it off the key
       operator = nil
-      if ['>', '<'].include? key[-1..-1]
+      if ['>', '<', '!'].include? key[-1..-1]
         operator = key[-1..-1]
         key = key[0...-1]
       end
@@ -116,6 +116,8 @@ helpers do
                 conditions[key]["$lte"] = value 
               elsif operator == '>'
                 conditions[key]["$gte"] = value
+              elsif operator == '!'
+                conditions[key]["$ne"] = value
               end
             else
               # let it fall, someone already assigned the filter directly
