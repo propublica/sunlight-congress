@@ -108,10 +108,12 @@ helpers do
         # transform 'value' to the correct type for this key if needed
         if model.filter_keys[key] == Boolean
           value = (value == "true") if ["true", "false"].include? value
+        elsif model.filter_keys[key] == Integer
+          value = value.to_i
         end
         
         if operator
-          if (conditions[key].nil? or conditions[key].is_a?(Hash))
+          if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}
             
             if operator == '<'
@@ -132,7 +134,7 @@ helpers do
         
       end
     end
-    
+    p conditions
     conditions
   end
   

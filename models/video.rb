@@ -8,7 +8,8 @@ class Video
   def self.filter_keys
     {
       :legislative_day => String,
-      :timestamp_id => String
+      :timestamp_id => String,
+      :duration => Integer
     }
   end
   
