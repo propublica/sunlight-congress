@@ -17,6 +17,6 @@ class Video
   end
   
   def self.basic_fields
-    [:duration, :clip_id, :legislative_day, :timestamp_id, :clip_urls]
+    [:duration, :legislative_day, :timestamp_id, :clip_urls]
   end
 end
