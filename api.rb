@@ -105,30 +105,31 @@ helpers do
       key = key.to_sym
       
       if model.filter_keys.include? key
+        # transform 'value' to the correct type for this key if needed
         if model.filter_keys[key] == Boolean
-          conditions[key] = (value == "true") if ["true", "false"].include? value
-        else
-          if operator
-            if (conditions[key].nil? or conditions[key].is_a?(Hash))
-              conditions[key] ||= {}
-              
-              if operator == '<'
-                conditions[key]["$lte"] = value 
-              elsif operator == '>'
-                conditions[key]["$gte"] = value
-              elsif operator == '!'
-                conditions[key]["$ne"] = value
-              end
-            else
-              # let it fall, someone already assigned the filter directly
-              # this is for edge cases like x>=2&x=1, where x=1 should take precedence
-            end
-            
-          else
-            # override anything that may already be there
-            conditions[key] = value
-          end
+          value = (value == "true") if ["true", "false"].include? value
         end
+        
+        if operator
+          if (conditions[key].nil? or conditions[key].is_a?(Hash))
+            conditions[key] ||= {}
+            
+            if operator == '<'
+              conditions[key]["$lte"] = value 
+            elsif operator == '>'
+              conditions[key]["$gte"] = value
+            elsif operator == '!'
+              conditions[key]["$ne"] = value
+            end
+          else
+            # let it fall, someone already assigned the filter directly
+            # this is for edge cases like x>=2&x=1, where x=1 should take precedence
+          end
+        else
+          # override anything that may already be there
+          conditions[key] = value
+        end
+        
       end
     end
     
