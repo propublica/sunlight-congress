@@ -35,18 +35,14 @@ end
 get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
-  conditions = conditions_for model.unique_keys, params
   fields = fields_for model, params[:sections]
+  conditions = unique_conditions_for model, params
   
   unless conditions.any? and document = model.where(conditions).only(fields).first
     raise Sinatra::NotFound
   end
   
-  if params[:captures][1] == 'json'
-    json model, document
-  elsif params[:captures][1] == 'xml'
-    xml model, document
-  end
+  output_for params[:captures][1], model, documents
 end
 
 get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
@@ -58,11 +54,7 @@ get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
   
   documents = model.where(conditions).only(fields).order_by(order).all
   
-  if params[:captures][1] == 'json'
-    json model, documents
-  elsif params[:captures][1] == 'xml'
-    xml model, documents
-  end
+  output_for params[:captures][1], model, documents
 end
 
 
@@ -93,12 +85,11 @@ helpers do
     sections.uniq
   end
   
-  def conditions_for(keys, params)
-    conditions = {}
-    keys.each do |key|
-      conditions[key] = params[key] if params[key]
+  def unique_conditions_for(model, params)
+    model.unique_keys.each do |key|
+      return {key => params[key]} if params[key]
     end
-    conditions
+    {}
   end
   
   def filter_conditions_for(model, params)
@@ -180,6 +171,14 @@ helpers do
         :page => pagination[:page]
       }
     }
+  end
+  
+  def output_for(format, model, object)
+    if format == 'json'
+      json model, object
+    elsif format == 'xml'
+      xml model, object
+    end
   end
   
   def json(model, object)
