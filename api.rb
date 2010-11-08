@@ -35,7 +35,7 @@ end
 get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
-  fields = fields_for model, params[:sections]
+  fields = fields_for model, params
   conditions = unique_conditions_for model, params
   
   unless conditions.any? and document = model.where(conditions).only(fields).first
@@ -48,7 +48,7 @@ end
 get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
   model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
-  fields = fields_for model, params[:sections]
+  fields = fields_for model, params
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
@@ -73,10 +73,10 @@ end
 
 helpers do
   
-  def fields_for(model, sections)
-    return nil if sections.blank?
+  def fields_for(model, params)
+    return nil if params[:sections].blank?
     
-    sections = sections.split ','
+    sections = params[:sections].split ','
     
     if sections.include?('basic')
       sections.delete 'basic' # does nothing if not present
