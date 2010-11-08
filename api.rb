@@ -42,7 +42,7 @@ get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
     raise Sinatra::NotFound
   end
   
-  output_for params[:captures][1], model, documents
+  output_for params[:captures][1], model, document
 end
 
 get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
@@ -95,6 +95,13 @@ helpers do
   def filter_conditions_for(model, params)
     conditions = {}
     model.filter_keys.keys.each do |key|
+      # if there's a special operator (>, <, !, ~, etc.), strip it off the key
+#       operator = nil
+#       if ['>', '<'].include? key.to_s[-1..-1]
+#         operator = key.to_s[-1..-1]
+#         key = key.to_s[0...-1].to_sym
+#       end
+      
       if params[key]
         if model.filter_keys[key] == Boolean
           conditions[key] = (params[key] == "true") if ["true", "false"].include? params[key]
