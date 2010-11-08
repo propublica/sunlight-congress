@@ -2,7 +2,7 @@ class Video
   include Mongoid::Document
   
   def self.unique_keys
-    [:legislative_day, :timestamp_id]
+    [:timestamp_id]
   end
   
   def self.filter_keys
