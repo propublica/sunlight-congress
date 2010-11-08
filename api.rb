@@ -94,22 +94,42 @@ helpers do
   
   def filter_conditions_for(model, params)
     conditions = {}
-    model.filter_keys.keys.each do |key|
+    
+    params.each do |key, value|
       # if there's a special operator (>, <, !, ~, etc.), strip it off the key
-#       operator = nil
-#       if ['>', '<'].include? key.to_s[-1..-1]
-#         operator = key.to_s[-1..-1]
-#         key = key.to_s[0...-1].to_sym
-#       end
+      operator = nil
+      if ['>', '<'].include? key[-1..-1]
+        operator = key[-1..-1]
+        key = key[0...-1]
+      end
+      key = key.to_sym
       
-      if params[key]
+      if model.filter_keys.include? key
         if model.filter_keys[key] == Boolean
-          conditions[key] = (params[key] == "true") if ["true", "false"].include? params[key]
+          conditions[key] = (value == "true") if ["true", "false"].include? value
         else
-          conditions[key] = params[key]
+          if operator
+            if (conditions[key].nil? or conditions[key].is_a?(Hash))
+              conditions[key] ||= {}
+              
+              if operator == '<'
+                conditions[key]["$lte"] = value 
+              elsif operator == '>'
+                conditions[key]["$gte"] = value
+              end
+            else
+              # let it fall, someone already assigned the filter directly
+              # this is for edge cases like x>=2&x=1, where x=1 should take precedence
+            end
+            
+          else
+            # override anything that may already be there
+            conditions[key] = value
+          end
         end
       end
     end
+    
     conditions
   end
   
