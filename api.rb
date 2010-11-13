@@ -190,7 +190,7 @@ helpers do
     pagination = pagination_for params
     
     # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
-    # counting will not trigger it, paginate will
+    # #count will not trigger it, #paginate will
     total_count = documents.count
     page = documents.paginate pagination
     
