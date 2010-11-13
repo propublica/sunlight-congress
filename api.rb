@@ -96,7 +96,7 @@ helpers do
     conditions = {}
     
     params.each do |key, value|
-      # if there's a special operator (>, <, !, ~, etc.), strip it off the key
+      # if there's a special operator (>, <, !, etc.), strip it off the key
       operator = nil
       if ['>', '<', '!'].include? key[-1..-1]
         operator = key[-1..-1]
