@@ -134,7 +134,7 @@ helpers do
         
       end
     end
-    p conditions
+
     conditions
   end
   
