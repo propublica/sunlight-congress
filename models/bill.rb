@@ -50,7 +50,9 @@ class Bill
       :override_house_result => String,
       :override_senate_result => String,
       :awaiting_signature => Boolean,
-      :enacted => Boolean
+      :enacted => Boolean,
+      :cosponsors_count => Integer,
+      :passage_votes_count => Integer
     }
   end
   
