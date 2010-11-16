@@ -31,7 +31,11 @@ class Vote
       :session => String,
       :chamber => String, 
       :bill_id => String,
-      :type => String
+      :type => String,
+      :result => String,
+      :required => String,
+      :number => String,
+      :question => String
     }
   end
   
