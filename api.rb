@@ -109,7 +109,11 @@ helpers do
         "<" => :lte, 
         "__lte" => :lte, 
         "!" => :ne,
-        "__ne" => :ne
+        "__ne" => :ne,
+        "~" => :match,
+        "__match" => :match,
+        "~~" => :match_i,
+        "__match_i" => :match_i
       }
       
       operator = nil
@@ -128,14 +132,21 @@ helpers do
           value = value.to_i
         end
         
-#         p "key: #{key}"
-#         p "operator: #{operator}"
-#         p "value: #{value}"
+        p "key: #{key}"
+        p "operator: #{operator}"
+        p "value: #{value}"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}
-            conditions[key]["$#{operator}"] = value 
+            
+            if [:lt, :lte, :gt, :gte, :ne].include?(operator)
+              conditions[key]["$#{operator}"] = value 
+            elsif operator == :match
+              conditions[key] = /#{value}/
+            elsif operator == :match_i
+              conditions[key] = /#{value}/i
+            end
           else
             # let it fall, someone already assigned the filter directly
             # this is for edge cases like x>=2&x=1, where x=1 should take precedence
