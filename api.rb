@@ -95,13 +95,29 @@ helpers do
   def filter_conditions_for(model, params)
     conditions = {}
     
+    # there are magical operators that can be appended to any params
+    # params[:captures] will not be 
     params.each do |key, value|
       # if there's a special operator (>, <, !, etc.), strip it off the key
+      operators = {
+        ">>" => :gt, 
+        "__gt" => :gt, 
+        "<<" => :lt,
+        "__lt" => :lt,
+        ">" => :gte, 
+        "__gte" => :gte,
+        "<" => :lte, 
+        "__lte" => :lte, 
+        "!" => :ne,
+        "__ne" => :ne
+      }
+      
       operator = nil
-      if ['>', '<', '!'].include? key[-1..-1]
-        operator = key[-1..-1]
-        key = key[0...-1]
+      if key =~ /^(.*?)(#{operators.keys.join "|"})$/
+        key = $1
+        operator = operators[$2]
       end
+      
       key = key.to_sym
       
       if model.filter_keys.include? key
@@ -112,17 +128,14 @@ helpers do
           value = value.to_i
         end
         
+#         p "key: #{key}"
+#         p "operator: #{operator}"
+#         p "value: #{value}"
+        
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}
-            
-            if operator == '<'
-              conditions[key]["$lte"] = value 
-            elsif operator == '>'
-              conditions[key]["$gte"] = value
-            elsif operator == '!'
-              conditions[key]["$ne"] = value
-            end
+            conditions[key]["$#{operator}"] = value 
           else
             # let it fall, someone already assigned the filter directly
             # this is for edge cases like x>=2&x=1, where x=1 should take precedence
