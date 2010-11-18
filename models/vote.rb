@@ -6,6 +6,11 @@ class Vote
   field :chamber
   field :session
   field :result
+  field :number
+  field :bill_id
+  field :roll_type
+  field :required
+  field :question
   
   index :roll_id
   index :chamber
@@ -13,7 +18,7 @@ class Vote
   index :type
   index :result
   index :voted_at
-  index :type
+  index :roll_type
   index :bill_id
   
   validates_presence_of :roll_id
@@ -26,25 +31,12 @@ class Vote
     [:roll_id]
   end
   
-  def self.filter_keys
-    {
-      :session => String,
-      :chamber => String, 
-      :bill_id => String,
-      :type => String,
-      :result => String,
-      :required => String,
-      :number => String,
-      :question => String
-    }
-  end
-  
   def self.order_keys
     [:voted_at]
   end
   
   def self.basic_fields
-    [:roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :type, :question, :required, :vote_breakdown]
+    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :vote_breakdown]
   end
   
 end

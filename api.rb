@@ -122,13 +122,11 @@ helpers do
         operator = operators[$2]
       end
       
-      key = key.to_sym
-      
-      if model.filter_keys.include? key
+      if model.fields.keys.include? key
         # transform 'value' to the correct type for this key if needed
-        if model.filter_keys[key] == Boolean
+        if model.fields[key].type == Boolean
           value = (value == "true") if ["true", "false"].include? value
-        elsif model.filter_keys[key] == Integer
+        elsif model.fields[key].type == Integer
           value = value.to_i
         end
         

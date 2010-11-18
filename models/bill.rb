@@ -9,6 +9,25 @@ class Bill
   field :session
   field :state
   
+  field :sponsor_id, :type => Array
+  field :cosponsor_ids, :type => Array
+  
+  field :house_result
+  field :senate_result
+  field :override_house_result
+  field :override_senate_result
+  field :passed, :type => Boolean
+  field :vetoed, :type => Boolean
+  field :awaiting_signature, :type => Boolean
+  field :enacted, :type => Boolean
+  field :cosponsors_count, :type => Integer
+  field :passage_votes_count, :type => Integer
+  
+  field "last_action.type"
+  field "last_action.text"
+  field "last_action.acted_at"
+  
+  
   index :bill_id
   index :bill_type
   index :code
@@ -30,31 +49,10 @@ class Bill
   validates_presence_of :session
   validates_presence_of :state
   
+  field "last_action.type", :type => String
   
   def self.unique_keys
     [:bill_id]
-  end
-  
-  def self.filter_keys
-    {
-      :session => String,
-      :chamber => String,
-      :sponsor_id => String, 
-      :cosponsor_ids => String, 
-      :bill_type => String,
-      :state => String,
-      :house_result => String,
-      :senate_result => String,
-      :passed => Boolean,
-      :vetoed => Boolean,
-      :override_house_result => String,
-      :override_senate_result => String,
-      :awaiting_signature => Boolean,
-      :enacted => Boolean,
-      :cosponsors_count => Integer,
-      :passage_votes_count => Integer,
-      :"last_action.type" => String
-    }
   end
   
   def self.basic_fields
