@@ -1,47 +1,28 @@
 class Bill
   include Mongoid::Document
   include Mongoid::Timestamps
-  
-  field :bill_id
-  field :bill_type
-  field :code
-  field :chamber
-  field :session, :type => Integer
-  field :number, :type => Integer
-  field :state
-  
-  field :sponsor_id
-  field :cosponsor_ids, :type => Array
-  
-  field :house_result
-  field :senate_result
-  field :override_house_result
-  field :override_senate_result
-  field :passed, :type => Boolean
-  field :vetoed, :type => Boolean
-  field :awaiting_signature, :type => Boolean
-  field :enacted, :type => Boolean
-  field :cosponsors_count, :type => Integer
-  field :passage_votes_count, :type => Integer
-  
-  field "last_action.type"
-  field "last_action.text"
-  field "last_action.acted_at"
-  
-  
-  index :bill_id
+    
+  index :bill_id, :unique => true
   index :bill_type
   index :code
   index :chamber
   index :session
-  index :introduced_at
+  index :passed
+  index :enacted
+  index :house_result
+  index :senate_result
+  index :override_house_result
+  index :override_senate_result
+  index :awaiting_signature
   index :sponsor_id
   index :cosponsor_ids
-  index :keywords
+  
+  index :introduced_at
   index :last_action_at
   index :last_vote_at
+  index :passed_at
+  index :awaiting_signature_since
   index :enacted_at
-  index :enacted
   
   validates_presence_of :bill_id
   validates_presence_of :bill_type
@@ -50,10 +31,12 @@ class Bill
   validates_presence_of :session
   validates_presence_of :state
   
-  field "last_action.type", :type => String
-  
   def self.unique_keys
     [:bill_id]
+  end
+  
+  def self.default_order
+    :introduced_at
   end
   
   def self.basic_fields
@@ -66,10 +49,6 @@ class Bill
       :override_senate_result, :override_senate_result_at, 
       :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
     ]
-  end
-  
-  def self.default_order
-    :introduced_at
   end
   
 end

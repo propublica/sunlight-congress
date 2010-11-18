@@ -1,10 +1,7 @@
 class Video
   include Mongoid::Document
   
-  field :legislative_day
-  field :timestamp_id
-  field :duration, :type => Integer
-  field "clips.duration", :type => Integer
+  index :timestamp_id, :unique => true
   
   def self.unique_keys
     [:timestamp_id]

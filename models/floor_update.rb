@@ -1,8 +1,8 @@
 class FloorUpdate
   include Mongoid::Document
   
-  field :chamber
-  field :legislative_day
+  index :chamber
+  index :legislative_day
   
   def self.singular_api?
     false
