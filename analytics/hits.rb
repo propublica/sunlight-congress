@@ -60,6 +60,7 @@ class Hit
   index :user_agent
   index "query_hash.bill_id"
   index "query_hash.vote_id"
+  index "query_hash.timestamp_id"
   index "query_hash.bioguide_id"
 end
 
