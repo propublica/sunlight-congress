@@ -10,7 +10,7 @@ class Bill
   field :number, :type => Integer
   field :state
   
-  field :sponsor_id, :type => Array
+  field :sponsor_id
   field :cosponsor_ids, :type => Array
   
   field :house_result
