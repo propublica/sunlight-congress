@@ -10,8 +10,8 @@ class Video
     [:timestamp_id]
   end
   
-  def self.order_keys
-    [:legislative_day]
+  def self.default_order
+    :timestamp_id
   end
   
   def self.basic_fields

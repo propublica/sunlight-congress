@@ -6,7 +6,8 @@ class Bill
   field :bill_type
   field :code
   field :chamber
-  field :session
+  field :session, :type => Integer
+  field :number, :type => Integer
   field :state
   
   field :sponsor_id, :type => Array
@@ -67,12 +68,8 @@ class Bill
     ]
   end
   
-  def self.order_keys
-    [
-      :introduced_at, :last_vote_at, :last_action_at, 
-      :passed_at, :vetoed_at, :override_house_result_at, 
-      :override_senate_result_at, :awaiting_signature_since, :enacted_at
-    ]
+  def self.default_order
+    :introduced_at
   end
   
 end

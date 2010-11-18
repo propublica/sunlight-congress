@@ -162,10 +162,10 @@ helpers do
   
   def order_for(model, params)
     key = nil
-    if params[:order].present? and model.order_keys.include?(params[:order].to_sym)
+    if params[:order].present?
       key = params[:order].to_sym
     else
-      key = model.order_keys.first
+      key = model.default_order
     end
     
     sort = nil

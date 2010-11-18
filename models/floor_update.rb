@@ -4,8 +4,8 @@ class FloorUpdate
   field :chamber
   field :legislative_day
   
-  def self.order_keys
-    [:timestamp, :legislative_day]
+  def self.default_order
+    :timestamp
   end
   
   def self.singular_api?

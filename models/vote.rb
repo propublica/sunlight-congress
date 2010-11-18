@@ -31,8 +31,8 @@ class Vote
     [:roll_id]
   end
   
-  def self.order_keys
-    [:voted_at]
+  def self.default_order
+    :voted_at
   end
   
   def self.basic_fields
