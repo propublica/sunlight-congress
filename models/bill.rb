@@ -52,7 +52,8 @@ class Bill
       :awaiting_signature => Boolean,
       :enacted => Boolean,
       :cosponsors_count => Integer,
-      :passage_votes_count => Integer
+      :passage_votes_count => Integer,
+      :"last_action.type" => String
     }
   end
   

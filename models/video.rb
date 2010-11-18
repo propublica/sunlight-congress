@@ -9,7 +9,8 @@ class Video
     {
       :legislative_day => String,
       :timestamp_id => String,
-      :duration => Integer
+      :duration => Integer,
+      :"clips.duration" => Integer
     }
   end
   
