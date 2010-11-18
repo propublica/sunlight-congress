@@ -34,8 +34,8 @@ class GetRolls
       
       filename = File.basename path
       matches = filename.match /^([hs])(\d+)-(\d+)\.xml/
-      year = matches[2]
-      number = matches[3]
+      year = matches[2].to_i
+      number = matches[3].to_i
       
       roll_id = "#{matches[1]}#{number}-#{year}"
       
