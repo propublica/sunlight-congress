@@ -5,6 +5,7 @@ require 'config/environment'
 # reload in development without starting server
 configure(:development) do |config|
   require 'sinatra/reloader'
+  config.also_reload "config.environment.rb"
   config.also_reload "analytics/*.rb"
   config.also_reload "models/*.rb"
 end
@@ -122,17 +123,29 @@ helpers do
         operator = operators[$2]
       end
       
-      if model.fields.keys.include? key
+      if !magic_fields.include? key.to_sym
         # transform 'value' to the correct type for this key if needed
-        if model.fields[key].type == Boolean
-          value = (value == "true") if ["true", "false"].include? value
-        elsif model.fields[key].type == Integer
-          value = value.to_i
+        
+        # type overridden in model
+        if model.fields[key] 
+          if model.fields[key].type == Boolean
+            value = (value == "true") if ["true", "false"].include? value
+          elsif model.fields[key].type == Integer
+            value = value.to_i
+          end
+          
+        # try to autodetect type
+        else
+          if ["true", "false"].include? value # boolean
+            value = (value == "true")
+          elsif value =~ /^\d+$/
+            value = value.to_i
+          end
         end
         
         p "key: #{key}"
         p "operator: #{operator}"
-        p "value: #{value}"
+        p "value: #{value} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
