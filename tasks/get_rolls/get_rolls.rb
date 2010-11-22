@@ -156,7 +156,11 @@ class GetRolls
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else
-        missing_ids << [govtrack_id, filename]
+        if govtrack_id.to_i == 0
+          missing_ids << [govtrack_id, filename]
+        else
+          missing_ids << govtrack_id
+        end
       end
     end
     
