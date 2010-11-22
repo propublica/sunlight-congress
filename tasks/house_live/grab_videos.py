@@ -17,19 +17,12 @@ def file_report(db, status, message, source):
     db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
 
 
-def get_or_create_video(coll, full_length, offset, timestamp_id):
-    if full_length:
-        objs = coll.find({'timestamp_id':timestamp_id})
-        if objs.count() > 0:
-            return objs[0]
-        else:
-            return {'timestamp_id':timestamp_id, 'full_length':True, 'offset':'0'}
+def get_or_create_video(coll, timestamp_id):
+    objs = coll.find({'timestamp_id':timestamp_id})
+    if objs.count() > 0:
+        return objs[0]
     else:
-        objs = coll.find({'timestamp_id':timestamp_id, 'offset':offset})
-        if objs.count() > 0:
-            return objs[0]
-        else:
-            return {'timestamp_id':timestamp_id, 'full_length':False, 'offset':str(offset)}
+        return {'timestamp_id':timestamp_id}
 
 def get_or_create_floor_update(conn, timestamp, legislative_day):
     coll = conn.floor_updates
@@ -63,26 +56,32 @@ def grab_daily_meta(db):
 
     rows = link.findAll('tr')
     for row in rows:
-        cols = row.findAll('td')
-        if len(cols) > 0:
-            unix_time = cols[0].span.string
-            fd = get_or_create_video(db['videos'], True, 0, unix_time)
-            legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
-            fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-            fd['created_at'] = add_date
-            duration_hours = cols[1].contents[0]
-            duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
-            fd['duration'] = convert_duration(duration_hours, duration_minutes)
-            fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
-            fd['clip_urls'] = {
-                            'mp3':  cols[4].a['href'],
-                            'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
-                            'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
-                            }
+        try:
+            cols = row.findAll('td')
+            if len(cols) > 0:
+                unix_time = cols[0].span.string
+                fd = get_or_create_video(db['videos'], unix_time)
+                legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
+                fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
+                fd['created_at'] = add_date
+                duration_hours = cols[1].contents[0]
+                duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
+                fd['duration'] = convert_duration(duration_hours, duration_minutes)
+                fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
+                try:
+                    fd['clip_urls'] = {
+                                'mp3':  cols[4].a['href'],
+                                'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
+                                'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
+                                }
+                except Exception:
+                    pass
 
-            fd['clips'] = grab_daily_events(fd)
-            db['videos'].save(fd)
-            
+                fd['clips'] = grab_daily_events(fd)
+                db['videos'].save(fd)
+        except:
+            continue
+                            
 def grab_daily_events(full_video):
     
     def get_timestamp(item, date, am_or_pm):
@@ -226,7 +225,8 @@ if len(sys.argv) > 2:
     
     try:
         grab_daily_meta(db)
-        file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
+        if PARSING_ERRORS:
+            file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
