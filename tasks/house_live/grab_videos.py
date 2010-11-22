@@ -9,6 +9,7 @@ import urllib2
 import re
 import sys
 import traceback
+import feedparser
 
 PARSING_ERRORS = []
 
@@ -17,12 +18,18 @@ def file_report(db, status, message, source):
     db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
 
 
-def get_or_create_video(coll, timestamp_id):
-    objs = coll.find({'timestamp_id':timestamp_id})
+def get_or_create_video(coll, timestamp_id, clip_id=None):
+    if clip_id:
+        objs = coll.find({'clip_id': clip_id})
+    else:
+        objs = coll.find({'timestamp_id':timestamp_id})
     if objs.count() > 0:
         return objs[0]
     else:
-        return {'timestamp_id':timestamp_id}
+        if not clip_id:
+            return {'timestamp_id':timestamp_id}
+        else:
+            return {'clip_id': clip_id}
 
 def get_or_create_floor_update(conn, timestamp, legislative_day):
     coll = conn.floor_updates
@@ -72,7 +79,7 @@ def grab_daily_meta(db):
                     fd['clip_urls'] = {
                                 'mp3':  cols[4].a['href'],
                                 'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
-                                'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
+                                #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
                                 }
                 except Exception:
                     pass
@@ -212,6 +219,28 @@ def grab_daily_events(full_video):
         return clips
     else:
         PARSING_ERRORS.append((full_video["legislative_day"], "Record empty for %s " % full_video["legislative_day"]))
+   
+   
+#pull wmv file links
+def pull_wmv_rss(coll):
+    
+    parsed = feedparser.parse("http://houselive.gov/ViewPublisherRSS.php?view_id=2")
+    for video in parsed.entries:
+        try:
+            link = video.link
+            clip_id = re.findall('(?<=clip_id=)\d+', link)[0]
+            vid = get_or_create_video(coll, None, int(clip_id))
+            if vid.has_key("timestamp_id"):
+                wmv_url= video.enclosures[0]['url']
+                if vid.has_key('clip_urls'):
+                    vid['clip_urls']['wmv'] = wmv_url
+                else:
+                    vid['clip_urls'] = { 'wmv' : wmv_url }
+
+                coll.save(vid) 
+        except:
+            continue 
+   
     
 if len(sys.argv) > 2:
     db_host = sys.argv[1]
@@ -222,9 +251,9 @@ if len(sys.argv) > 2:
     
     conn = Connection(host=db_host)
     db = conn[db_name]
-    
     try:
         grab_daily_meta(db)
+        pull_wmv_rss(db['videos'])
         if PARSING_ERRORS:
             file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
