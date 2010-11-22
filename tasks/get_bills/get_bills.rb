@@ -35,7 +35,7 @@ class GetBills
       
       filename = File.basename path
       type = Utils.bill_type_for doc.root.attributes['type']
-      number = doc.root.attributes['number']
+      number = doc.root.attributes['number'].to_i
       code = "#{type}#{number}"
       
       bill_id = "#{code}-#{session}"

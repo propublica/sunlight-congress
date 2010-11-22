@@ -5,6 +5,7 @@ require 'config/environment'
 # reload in development without starting server
 configure(:development) do |config|
   require 'sinatra/reloader'
+  config.also_reload "config.environment.rb"
   config.also_reload "analytics/*.rb"
   config.also_reload "models/*.rb"
 end
@@ -35,34 +36,26 @@ end
 get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
   model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
   
-  conditions = conditions_for model.unique_keys, params
-  fields = fields_for model, params[:sections]
+  fields = fields_for model, params
+  conditions = unique_conditions_for model, params
   
   unless conditions.any? and document = model.where(conditions).only(fields).first
     raise Sinatra::NotFound
   end
   
-  if params[:captures][1] == 'json'
-    json model, document
-  elsif params[:captures][1] == 'xml'
-    xml model, document
-  end
+  output_for params[:captures][1], model, document
 end
 
 get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
   model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
   
-  fields = fields_for model, params[:sections]
+  fields = fields_for model, params
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
   documents = model.where(conditions).only(fields).order_by(order).all
   
-  if params[:captures][1] == 'json'
-    json model, documents
-  elsif params[:captures][1] == 'xml'
-    xml model, documents
-  end
+  output_for params[:captures][1], model, documents
 end
 
 
@@ -81,10 +74,10 @@ end
 
 helpers do
   
-  def fields_for(model, sections)
-    return nil if sections.blank?
+  def fields_for(model, params)
+    return nil if params[:sections].blank?
     
-    sections = sections.split ','
+    sections = params[:sections].split ','
     
     if sections.include?('basic')
       sections.delete 'basic' # does nothing if not present
@@ -93,34 +86,99 @@ helpers do
     sections.uniq
   end
   
-  def conditions_for(keys, params)
-    conditions = {}
-    keys.each do |key|
-      conditions[key] = params[key] if params[key]
+  def unique_conditions_for(model, params)
+    model.unique_keys.each do |key|
+      return {key => params[key]} if params[key]
     end
-    conditions
+    {}
   end
   
   def filter_conditions_for(model, params)
     conditions = {}
-    model.filter_keys.keys.each do |key|
-      if params[key]
-        if model.filter_keys[key] == Boolean
-          conditions[key] = (params[key] == "true") if ["true", "false"].include? params[key]
+    
+    # there are magical operators that can be appended to any params
+    # params[:captures] will not be 
+    params.each do |key, value|
+      # if there's a special operator (>, <, !, etc.), strip it off the key
+      operators = {
+        ">>" => :gt, 
+        "__gt" => :gt, 
+        "<<" => :lt,
+        "__lt" => :lt,
+        ">" => :gte, 
+        "__gte" => :gte,
+        "<" => :lte, 
+        "__lte" => :lte, 
+        "!" => :ne,
+        "__ne" => :ne,
+        "~" => :match,
+        "__match" => :match,
+        "~~" => :match_i,
+        "__match_i" => :match_i
+      }
+      
+      operator = nil
+      if key =~ /^(.*?)(#{operators.keys.join "|"})$/
+        key = $1
+        operator = operators[$2]
+      end
+      
+      if !magic_fields.include? key.to_sym
+        # transform 'value' to the correct type for this key if needed
+        
+        # type overridden in model
+        if model.fields[key] 
+          if model.fields[key].type == Boolean
+            value = (value == "true") if ["true", "false"].include? value
+          elsif model.fields[key].type == Integer
+            value = value.to_i
+          end
+          
+        # try to autodetect type
         else
-          conditions[key] = params[key]
+          if ["true", "false"].include? value # boolean
+            value = (value == "true")
+          elsif value =~ /^\d+$/
+            value = value.to_i
+          end
         end
+        
+        p "key: #{key}"
+        p "operator: #{operator}"
+        p "value: #{value} (#{value.class})"
+        
+        if operator
+          if conditions[key].nil? or conditions[key].is_a?(Hash)
+            conditions[key] ||= {}
+            
+            if [:lt, :lte, :gt, :gte, :ne].include?(operator)
+              conditions[key]["$#{operator}"] = value 
+            elsif operator == :match
+              conditions[key] = /#{value}/
+            elsif operator == :match_i
+              conditions[key] = /#{value}/i
+            end
+          else
+            # let it fall, someone already assigned the filter directly
+            # this is for edge cases like x>=2&x=1, where x=1 should take precedence
+          end
+        else
+          # override anything that may already be there
+          conditions[key] = value
+        end
+        
       end
     end
+
     conditions
   end
   
   def order_for(model, params)
     key = nil
-    if params[:order].present? and model.order_keys.include?(params[:order].to_sym)
+    if params[:order].present?
       key = params[:order].to_sym
     else
-      key = model.order_keys.first
+      key = model.default_order
     end
     
     sort = nil
@@ -167,7 +225,7 @@ helpers do
     pagination = pagination_for params
     
     # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
-    # counting will not trigger it, paginate will
+    # #count will not trigger it, #paginate will
     total_count = documents.count
     page = documents.paginate pagination
     
@@ -180,6 +238,14 @@ helpers do
         :page => pagination[:page]
       }
     }
+  end
+  
+  def output_for(format, model, object)
+    if format == 'json'
+      json model, object
+    elsif format == 'xml'
+      xml model, object
+    end
   end
   
   def json(model, object)

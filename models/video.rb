@@ -1,19 +1,17 @@
 class Video
   include Mongoid::Document
   
+  index :timestamp_id, :unique => true
+  
   def self.unique_keys
-    [:legislative_day]
+    [:timestamp_id]
   end
   
-  def self.filter_keys
-    {:legislative_day => String}
-  end
-  
-  def self.order_keys
-    [:legislative_day]
+  def self.default_order
+    :timestamp_id
   end
   
   def self.basic_fields
-    [:duration, :clip_id, :legislative_day, :timestamp_id, :clip_urls]
+    [:duration, :legislative_day, :timestamp_id, :clip_urls]
   end
 end

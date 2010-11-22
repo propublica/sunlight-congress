@@ -1,19 +1,19 @@
 class FloorUpdate
   include Mongoid::Document
   
-  def self.filter_keys
-    {
-      :chamber => String,
-      :legislative_day => String
-    }
-  end
-  
-  def self.order_keys
-    [:occurred_at]
-  end
+  index :chamber
+  index :legislative_day
   
   def self.singular_api?
     false
+  end
+  
+  def self.default_order
+    :timestamp
+  end
+  
+  def self.basic_fields
+    [:chamber, :legislative_day, :timestamp, :events]
   end
   
 end

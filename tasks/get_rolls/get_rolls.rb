@@ -34,8 +34,8 @@ class GetRolls
       
       filename = File.basename path
       matches = filename.match /^([hs])(\d+)-(\d+)\.xml/
-      year = matches[2]
-      number = matches[3]
+      year = matches[2].to_i
+      number = matches[3].to_i
       
       roll_id = "#{matches[1]}#{number}-#{year}"
       
@@ -156,7 +156,11 @@ class GetRolls
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else
-        missing_ids << [govtrack_id, filename]
+        if govtrack_id.to_i == 0
+          missing_ids << [govtrack_id, filename]
+        else
+          missing_ids << govtrack_id
+        end
       end
     end
     
