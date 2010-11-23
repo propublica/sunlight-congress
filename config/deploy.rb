@@ -64,7 +64,6 @@ namespace :deploy do
     run "ln -nfs #{shared_path}/config.ru #{release_path}/config.ru"
     run "ln -nfs #{shared_path}/data #{release_path}/data"
     run "rm -rf #{File.join release_path, 'tmp'}"
-    run "rm -rf #{File.join release_path, 'public'}"
     run "rm #{File.join release_path, 'log'}"
   end
 end
