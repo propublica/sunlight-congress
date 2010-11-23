@@ -13,6 +13,15 @@ feeds = [   "http://www.whitehouse.gov/podcast/video/weekly-addresses/rss.xml",
             "http://www.whitehouse.gov/podcast/video/music-and-the-arts-at-the-white-house/rss.xml",  
             "http://www.whitehouse.gov/podcast/video/open-for-questions/rss.xml" 
         ]
+cats =  [   "Weekly Addresses",
+            "Press Briefings",
+            "Speeches",
+            "Features",
+            "West Wing Week",
+            "The First Lady",
+            "Music and Arts at the White House",
+            "Open For Questions"
+        ]
 
 def get_or_create_video(coll, video_id):
     objs = coll.find({'video_id' : video_id})
@@ -30,7 +39,7 @@ if len(sys.argv) > 2:
     conn = Connection(host=db_host)
     db = conn[db_name]
     add_date = datetime.datetime.now()
-
+    
     for f in feeds:
         rss = feedparser.parse(f)
         for video in rss.entries:
@@ -48,6 +57,7 @@ if len(sys.argv) > 2:
                 video_obj['created_at'] = add_date
                 video_obj['chamber'] = 'whitehouse'
                 video_obj['pubdate'] = video.date
+                video_obj['category'] = cats[feeds.index(f)]
                 db['videos'].save(video_obj)
 
             except Exception as e:
