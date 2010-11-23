@@ -18,16 +18,16 @@ def file_report(db, status, message, source):
     db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
 
 
-def get_or_create_video(coll, timestamp_id, clip_id=None):
+def get_or_create_video(coll, video_id, clip_id=None):
     if clip_id:
         objs = coll.find({'clip_id': clip_id})
     else:
-        objs = coll.find({'timestamp_id':timestamp_id})
+        objs = coll.find({'video_id':video_id})
     if objs.count() > 0:
         return objs[0]
     else:
         if not clip_id:
-            return {'timestamp_id':timestamp_id}
+            return {'video_id':video_id}
         else:
             return {'clip_id': clip_id}
 
@@ -62,12 +62,13 @@ def grab_daily_meta(db):
     link = soup.find('table', id="archive")
 
     rows = link.findAll('tr')
+    print "got page"
     for row in rows:
         try:
             cols = row.findAll('td')
             if len(cols) > 0:
                 unix_time = cols[0].span.string
-                fd = get_or_create_video(db['videos'], unix_time)
+                fd = get_or_create_video(db['videos'], unix_time + '-house')
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
                 fd['created_at'] = add_date
@@ -75,6 +76,7 @@ def grab_daily_meta(db):
                 duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
                 fd['duration'] = convert_duration(duration_hours, duration_minutes)
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
+                fd['chamber'] = 'house'
                 try:
                     fd['clip_urls'] = {
                                 'mp3':  cols[4].a['href'],
@@ -86,7 +88,7 @@ def grab_daily_meta(db):
 
                 fd['clips'] = grab_daily_events(fd)
                 db['videos'].save(fd)
-        except:
+        except Exception as e:
             continue
                             
 def grab_daily_events(full_video):
@@ -177,9 +179,9 @@ def grab_daily_events(full_video):
                 return
 
         if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
-            date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id'])) + datetime.timedelta(days=1)
+            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('-house', ''))) + datetime.timedelta(days=1)
         else:
-            date = datetime.datetime.fromtimestamp(float(full_video['timestamp_id']))
+            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('-house', '')))
 
         for group in groups:
             if group.nextSibling.nextSibling:
@@ -253,7 +255,7 @@ if len(sys.argv) > 2:
     db = conn[db_name]
     try:
         grab_daily_meta(db)
-        pull_wmv_rss(db['videos'])
+        #pull_wmv_rss(db['videos'])
         if PARSING_ERRORS:
             file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
