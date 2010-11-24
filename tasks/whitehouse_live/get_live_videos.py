@@ -25,6 +25,7 @@ if len(sys.argv) > 2:
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects
+    db["videos"].update({"live": True}, {"$set": {"live": False }})
 
    # url = "http://www.whitehouse.gov/live"
     url = "http://10.13.33.209/"
@@ -36,6 +37,7 @@ if len(sys.argv) > 2:
             timestamp = datetime.datetime.strptime( vid.find('div', 'date').find('span').string, "%B %d, %Y %I:%M %p %Z" )
             a_tag = vid.find('h3').find('a')
             slug = a_tag['href'][a_tag['href'].rfind("/") + 1:]
+            link = a_tag['href']
             title = a_tag.string
             video_id = slug + 'whitehouse'
             video_obj = get_or_create_video(db["videos"], video_id)
@@ -46,8 +48,18 @@ if len(sys.argv) > 2:
             video_obj['live'] = True
         
             # get full href from a_tag and pull that page, then parse the video tag on that page
-            if video_obj.has_key('clip_urls'):
-                video_obj['clip_urls']['hls'] = live_url 
+            this_url = "http://whitehouse.gov" + link
+            vid_page = urllib2.urlopen(this_url)
+            vid_soup = BeautifulSoup(vid_page)
+            vid_tag = vid_soup.find('video')
+            if vid_tag:
+                live_url = vid_tag['src']
+                if video_obj.has_key('clip_urls'):
+                    video_obj['clip_urls']['hls'] = live_url 
+                else:
+                    video_obj['clip_urls'] = { 'hls': live_url }
+            else:
+                video_obj['live'] = False
 
             db["videos"].save(video_obj)
     else:
