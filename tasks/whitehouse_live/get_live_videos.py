@@ -27,8 +27,8 @@ if len(sys.argv) > 2:
     #Should start with setting live to false on all video objects
     db["videos"].update({"live": True}, {"$set": {"live": False }})
 
-   # url = "http://www.whitehouse.gov/live"
-    url = "http://10.13.33.209/"
+    url = "http://www.whitehouse.gov/live"
+   # url = "http://10.13.33.209/"
     page = urllib2.urlopen(url)
     soup = BeautifulSoup(page)
     vid_list = soup.findAll('div', {"class": re.compile(r'\bviews-row\b')})
