@@ -36,32 +36,33 @@ if len(sys.argv) > 2:
         for vid in vid_list:
             timestamp = datetime.datetime.strptime( vid.find('div', 'date').find('span').string, "%B %d, %Y %I:%M %p %Z" )
             a_tag = vid.find('h3').find('a')
-            slug = a_tag['href'][a_tag['href'].rfind("/") + 1:]
-            link = a_tag['href']
-            title = a_tag.string
-            video_id = slug + 'whitehouse'
-            video_obj = get_or_create_video(db["videos"], video_id)
-            video_obj['title'] = title
-            video_obj['created_at'] = add_date
-            video_obj['chamber'] = 'whitehouse'
-            video_obj['start_time'] = timestamp
-            video_obj['live'] = True
-        
-            # get full href from a_tag and pull that page, then parse the video tag on that page
-            this_url = "http://whitehouse.gov" + link
-            vid_page = urllib2.urlopen(this_url)
-            vid_soup = BeautifulSoup(vid_page)
-            vid_tag = vid_soup.find('video')
-            if vid_tag:
-                live_url = vid_tag['src']
-                if video_obj.has_key('clip_urls'):
-                    video_obj['clip_urls']['hls'] = live_url 
+            if a_tag:
+                slug = a_tag['href'][a_tag['href'].rfind("/") + 1:]
+                link = a_tag['href']
+                title = a_tag.string
+                video_id = slug + 'whitehouse'
+                video_obj = get_or_create_video(db["videos"], video_id)
+                video_obj['title'] = title
+                video_obj['created_at'] = add_date
+                video_obj['chamber'] = 'whitehouse'
+                video_obj['start_time'] = timestamp
+                video_obj['live'] = True
+            
+                # get full href from a_tag and pull that page, then parse the video tag on that page
+                this_url = "http://whitehouse.gov" + link
+                vid_page = urllib2.urlopen(this_url)
+                vid_soup = BeautifulSoup(vid_page)
+                vid_tag = vid_soup.find('video')
+                if vid_tag:
+                    live_url = vid_tag['src']
+                    if video_obj.has_key('clip_urls'):
+                        video_obj['clip_urls']['hls'] = live_url 
+                    else:
+                        video_obj['clip_urls'] = { 'hls': live_url }
                 else:
-                    video_obj['clip_urls'] = { 'hls': live_url }
-            else:
-                video_obj['live'] = False
+                    video_obj['live'] = False
 
-            db["videos"].save(video_obj)
+                db["videos"].save(video_obj)
     else:
         print "no live streaming"
     
