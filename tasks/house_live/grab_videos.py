@@ -68,7 +68,7 @@ def grab_daily_meta(db):
             cols = row.findAll('td')
             if len(cols) > 0:
                 unix_time = cols[0].span.string
-                fd = get_or_create_video(db['videos'], unix_time + '-house')
+                fd = get_or_create_video(db['videos'], 'house-' + unix_time)
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
                 fd['created_at'] = add_date
@@ -179,9 +179,9 @@ def grab_daily_events(full_video):
                 return
 
         if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
-            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('-house', ''))) + datetime.timedelta(days=1)
+            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('house-', ''))) + datetime.timedelta(days=1)
         else:
-            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('-house', '')))
+            date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('house-', '')))
 
         for group in groups:
             if group.nextSibling.nextSibling:
