@@ -29,7 +29,7 @@ if len(sys.argv) > 2:
 
     #Should start with setting live to false on all video objects
     db["videos"].update({"live": True}, {"$set": {"live": False }})
-    db["videos"].update({"upcoming": True}, {"$set": {"live": False }})
+    db["videos"].remove({"upcoming": True})
 
     url = "http://www.whitehouse.gov/live"
    # url = "http://10.13.33.209/"
@@ -80,7 +80,8 @@ if len(sys.argv) > 2:
                 title = vid.find('h3').string
                 video_obj = { "title" : title,
                               "upcoming": True,
-                              "start_time": timestamp
+                              "start_time": timestamp,
+                              "chamber": "whitehouse"
                             }
                 db["videos"].save(video_obj)
     else:
