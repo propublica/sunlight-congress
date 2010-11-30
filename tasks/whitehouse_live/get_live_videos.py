@@ -28,7 +28,7 @@ if len(sys.argv) > 2:
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects
-    db["videos"].update({"status": "live"}, {"$set": {"status": "archive" }})
+    db["videos"].update({"status": "live"}, {"$set": {"status": "archived" }})
     db["videos"].remove({"status": "upcoming"})
 
     url = "http://www.whitehouse.gov/live"
