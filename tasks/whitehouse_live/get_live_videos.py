@@ -28,8 +28,8 @@ if len(sys.argv) > 2:
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects
-    db["videos"].update({"live": True}, {"$set": {"live": False }})
-    db["videos"].remove({"upcoming": True})
+    db["videos"].update({"status": "live"}, {"$set": {"status": "archive" }})
+    db["videos"].remove({"status": "upcoming"})
 
     url = "http://www.whitehouse.gov/live"
    # url = "http://10.13.33.209/"
@@ -50,6 +50,7 @@ if len(sys.argv) > 2:
             timestamp = datetime.datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, tzinfo=gettz(tzs[tz])) #use this because datetime.replace not working for tzinfo???
             a_tag = vid.find('h3').find('a')
             if a_tag:
+                print "has a tag"
                 slug = a_tag['href'][a_tag['href'].rfind("/") + 1:]
                 link = a_tag['href']
                 title = a_tag.string
@@ -59,7 +60,7 @@ if len(sys.argv) > 2:
                 video_obj['created_at'] = add_date
                 video_obj['chamber'] = 'whitehouse'
                 video_obj['start_time'] = timestamp
-                video_obj['live'] = True
+                video_obj['status'] = "live"
             
                 # get full href from a_tag and pull that page, then parse the video tag on that page
                 this_url = "http://whitehouse.gov" + link
@@ -73,13 +74,13 @@ if len(sys.argv) > 2:
                     else:
                         video_obj['clip_urls'] = { 'hls': live_url }
                 else:
-                    video_obj['live'] = False
+                    video_obj['status'] = ''
 
                 db["videos"].save(video_obj)
             else:
                 title = vid.find('h3').string
                 video_obj = { "title" : title,
-                              "upcoming": True,
+                              "status": "upcoming",
                               "start_time": timestamp,
                               "chamber": "whitehouse"
                             }
