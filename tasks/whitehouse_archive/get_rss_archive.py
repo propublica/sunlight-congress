@@ -58,6 +58,7 @@ if len(sys.argv) > 2:
                 video_obj['chamber'] = 'whitehouse'
                 video_obj['pubdate'] = video.date
                 video_obj['category'] = cats[feeds.index(f)]
+                video_obj['status'] = "archived"
                 db['videos'].save(video_obj)
 
             except Exception as e:
