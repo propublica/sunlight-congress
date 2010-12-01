@@ -74,12 +74,13 @@ def grab_daily_meta(db):
                 fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-                fd['created_at'] = add_date
+                fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
                 duration_hours = cols[1].contents[0]
                 duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
                 fd['duration'] = convert_duration(duration_hours, duration_minutes)
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
                 fd['chamber'] = 'house'
+                fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
                 try:
                     fd['clip_urls'] = {
                                 'mp3':  cols[4].a['href'],

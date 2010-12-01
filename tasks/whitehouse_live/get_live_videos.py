@@ -47,7 +47,7 @@ if len(sys.argv) > 2:
                 tz = re.findall("[A-Z]{3}", timestr)[0]
             except:
                 tz = "EST"
-            timestamp = datetime.datetime.strptime(timestr.replace(tz, "").strip() , "%B %d, %Y %I:%M %p" )
+            timestamp = datetime.datetime.strptime(timestr.replace(tz, "").strip(), "%B %d, %Y %I:%M %p" )
             timestamp = datetime.datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, tzinfo=gettz(tzs[tz])) #use this because datetime.replace not working for tzinfo???
             a_tag = vid.find('h3').find('a')
             if a_tag:
@@ -62,6 +62,8 @@ if len(sys.argv) > 2:
                 video_obj['chamber'] = 'whitehouse'
                 video_obj['start_time'] = timestamp
                 video_obj['status'] = "live"
+                video_obj['pubDate'] = timestamp.strftime("%Y-%m-%dT%H:%M%z")
+
             
                 # get full href from a_tag and pull that page, then parse the video tag on that page
                 this_url = "http://whitehouse.gov" + link

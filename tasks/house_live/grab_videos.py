@@ -1,6 +1,7 @@
 import re
 import feedparser
 import datetime
+from dateutil.tz import *
 import time
 import sys
 from pymongo import Connection
@@ -24,17 +25,16 @@ if len(sys.argv) > 2:
     db_name = sys.argv[2]
     conn = Connection(host=db_host)
     db = conn[db_name]
-    add_date = datetime.datetime.now()
-    
+    add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%Mz")
     rss = feedparser.parse(rss_url)
     for video in rss.entries:
         try:
             date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
-            timestamp_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, 12, 0, 0)
+            timestamp_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, 12, 0, 0, tzinfo=gettz("America/New_York"))
             slug = int(time.mktime(timestamp_obj.timetuple()))
             video_id = 'house-' + str(slug)
             video_obj = get_or_create_video(db['videos'], video_id)
-            video_obj['pubdate'] = video.date
+            video_obj['pubdate'] = timestamp_obj.strftime("%Y-%m-%dT%H:%M%z")
             url = video.enclosures[0]['url']
             video_obj['title'] = video.title
             video_obj['description'] = "HouseLive.gov feed for " + timestamp_obj.strftime("%B %d, %Y")
