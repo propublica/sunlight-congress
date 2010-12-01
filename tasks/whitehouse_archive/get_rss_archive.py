@@ -1,5 +1,7 @@
 import feedparser
 import datetime
+import re
+import time
 import sys
 from pymongo import Connection
 import traceback
@@ -45,7 +47,10 @@ if len(sys.argv) > 2:
         for video in rss.entries:
             try:
                 slug = video.link[video.link.rfind("/") + 1:]
-                video_id = 'whitehouse-' + slug
+                date = video.date
+                date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
+                timestamp = int(time.mktime(date_obj.timetuple()))
+                video_id = 'whitehouse-' + str(timestamp) + "-" + slug
                 video_obj = get_or_create_video(db['videos'], video_id)
                 url = video.enclosures[0]['url']
                 video_obj['title'] = video.title

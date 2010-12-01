@@ -1,4 +1,5 @@
 import datetime
+import time
 from dateutil.tz import *
 import sys
 from pymongo import Connection
@@ -50,11 +51,11 @@ if len(sys.argv) > 2:
             timestamp = datetime.datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, tzinfo=gettz(tzs[tz])) #use this because datetime.replace not working for tzinfo???
             a_tag = vid.find('h3').find('a')
             if a_tag:
-                print "has a tag"
                 slug = a_tag['href'][a_tag['href'].rfind("/") + 1:]
                 link = a_tag['href']
                 title = a_tag.string
-                video_id = 'whitehouse-' + slug
+                time_key = int(time.mktime(timestamp.timetuple()))
+                video_id = 'whitehouse-' + str(time_key) + '-' + slug
                 video_obj = get_or_create_video(db["videos"], video_id)
                 video_obj['title'] = title
                 video_obj['created_at'] = add_date
