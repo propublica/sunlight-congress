@@ -1,5 +1,8 @@
 import feedparser
 import datetime
+from dateutil.tz import *
+import re
+import time
 import sys
 from pymongo import Connection
 import traceback
@@ -38,14 +41,17 @@ if len(sys.argv) > 2:
     db_name = sys.argv[2]
     conn = Connection(host=db_host)
     db = conn[db_name]
-    add_date = datetime.datetime.now()
+    add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%MZ")
     
     for f in feeds:
         rss = feedparser.parse(f)
         for video in rss.entries:
             try:
                 slug = video.link[video.link.rfind("/") + 1:]
-                video_id = slug + '-whitehouse'
+                date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
+                date_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, date_obj.hour, date_obj.minute, tzinfo=gettz("America/New_York"))
+                timestamp = int(time.mktime(date_obj.timetuple()))
+                video_id = 'whitehouse-' + str(timestamp) + "-" + slug
                 video_obj = get_or_create_video(db['videos'], video_id)
                 url = video.enclosures[0]['url']
                 video_obj['title'] = video.title
@@ -56,8 +62,9 @@ if len(sys.argv) > 2:
                     video_obj['clip_urls'] = {'mp4' : url }
                 video_obj['created_at'] = add_date
                 video_obj['chamber'] = 'whitehouse'
-                video_obj['pubdate'] = video.date
+                video_obj['pubdate'] = date_obj.strftime("%Y-%m-%dT%H:%M%z")
                 video_obj['category'] = cats[feeds.index(f)]
+                video_obj['status'] = "archived"
                 db['videos'].save(video_obj)
 
             except Exception as e:
