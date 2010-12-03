@@ -1,6 +1,6 @@
 require 'hpricot'
 
-class GetRolls
+class RollsArchive
 
   def self.run(options = {})
     session = options[:session] || Utils.current_session
