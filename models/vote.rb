@@ -2,7 +2,7 @@ class Vote
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :roll_id, :unique => true
+  index :roll_id
   index :chamber
   index :session
   index :type
