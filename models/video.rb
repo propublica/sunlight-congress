@@ -1,10 +1,12 @@
 class Video
   include Mongoid::Document
   
-  index :timestamp_id, :unique => true
-  
-  # timestamp_id is stored as a String
-  field :timestamp_id, :type => String
+  index :video_id
+  index :chamber
+  index :legislative_day
+  index :status
+  index :pubdate
+  index :category
   
   def self.unique_keys
     [:timestamp_id]
