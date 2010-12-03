@@ -53,9 +53,14 @@ namespace :deploy do
     end
   end
   
+  desc "Create indexes"
+  task :create_indexes, :roles => :app, :except => {:no_release => true} do
+    run "cd #{current_path} && rake create_indexes"
+  end
+  
   desc "Run bundle install --local"
   task :bundle_install, :roles => :app, :except => {:no_release => true} do
-    run "cd #{release_path} && bundle install --local"
+    run "cd #{current_path} && bundle install --local"
   end
   
   desc "Get shared files into position"
