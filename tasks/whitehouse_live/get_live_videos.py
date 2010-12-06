@@ -62,7 +62,7 @@ if len(sys.argv) > 2:
                 video_obj['chamber'] = 'whitehouse'
                 video_obj['start_time'] = timestamp
                 video_obj['status'] = "live"
-                video_obj['pubDate'] = timestamp.strftime("%Y-%m-%dT%H:%M%z")
+                video_obj['pubdate'] = timestamp.strftime("%Y-%m-%dT%H:%M%z")
 
             
                 # get full href from a_tag and pull that page, then parse the video tag on that page

@@ -1,6 +1,6 @@
 require 'hpricot'
 
-class GetBills
+class BillsArchive
   
   # options:
   #   session: The session of Congress to update

@@ -20,6 +20,21 @@ namespace :development do
   end
 end
 
+desc "Run through each model and create all indexes" 
+task :create_indexes => :environment do
+  require 'analytics/api_key'
+  require 'tasks/report'
+  
+  models = Dir.glob('models/*.rb').map do |file|
+    File.basename(file, File.extname(file)).camelize.constantize
+  end + [ApiKey, Report]
+  
+  models.each do |model| 
+    model.create_indexes
+    puts "Created indexes for #{model}"
+  end
+end
+
 # for each folder in tasks, generate a rake task
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file

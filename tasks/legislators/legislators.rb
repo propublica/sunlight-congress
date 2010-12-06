@@ -1,6 +1,6 @@
 require 'sunlight'
 
-class GetLegislators
+class Legislators
 
   def self.run(options = {})
     Sunlight::Base.api_key = options[:config][:sunlight_api_key]

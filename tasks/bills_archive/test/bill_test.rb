@@ -8,7 +8,7 @@ require File.join(File.dirname(__FILE__), "../../../config/environment")
 
 require 'hpricot'
 require File.join(File.dirname(__FILE__), "../../utils")
-require File.join(File.dirname(__FILE__), "../get_bills")
+require File.join(File.dirname(__FILE__), "../bills_archive")
 
 class BillTest < Test::Unit::TestCase
   
