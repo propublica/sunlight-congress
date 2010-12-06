@@ -9,81 +9,6 @@ class VotesArchive
     sort_passage_votes options
   end
   
-  def self.sort_passage_votes(options)
-    session = options[:session]
-    
-    roll_count = 0
-    voice_count = 0
-    bad_votes = []
-    
-    missing_rolls = []
-    
-    bills = Bill.where(:session => session, :passage_votes_count => {"$gte" => 1}).all
-    # bills = bills.to_a.first 20
-    
-    bills.each do |bill|
-      
-      # clear out old voice votes for this bill, since there is no unique ID to update them by
-      Vote.where(:bill_id => bill.bill_id, :how => {"$ne" => "roll"}).all.each {|v| v.delete}
-      
-      bill.passage_votes.each do |vote|
-        if vote['how'] == 'roll'
-          
-          # if the roll has been entered into the system already, mark it as a passage vote
-          # otherwise, don't bother creating it here, we don't have enough information
-          roll = Vote.where(:roll_id => vote['roll_id']).first
-          
-          if roll
-            roll[:vote_type] = "passage"
-            roll[:passage_type] = vote['passage_type']
-            roll.save!
-            
-            roll_count += 1
-            # puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote"
-          else
-            missing_rolls << {:bill_id => bill.bill_id, :roll_id => vote['roll_id']}
-            puts "[#{bill.bill_id} Couldn't find roll call #{vote['roll_id']} mentioned in passage votes list for #{bill.bill_id}"
-          end
-        else
-          
-          attributes = {
-            :bill_id => bill.bill_id,
-            :session => session,
-            :year => vote['voted_at'].year,
-            
-            :how => vote['how'],
-            :result => vote['result'],
-            :voted_at => vote['voted_at'],
-            :text => vote['text'],
-            :chamber => vote['chamber'],
-            
-            :passage_type => vote['passage_type'],
-            :vote_type => "passage"
-          }
-          vote = Vote.new attributes
-          
-          if vote.save
-            voice_count += 1
-            # puts "[#{bill.bill_id}] Added a voice vote"
-          else
-            bad_votes << {:attributes => attributes, :error_messages => vote.errors.full_messages}
-            puts "[#{bill.bill_id}] Bad voice vote, logging"
-          end
-        end
-      end
-    end
-    
-    if bad_votes.any?
-      Report.failure self, "Failed to save #{bad_votes.size} voice votes. Attached the last failed vote's attributes and error messages.", bad_votes.last
-    end
-    
-    if missing_rolls.any?
-      Report.warning self, "Found #{missing_rolls.size} roll calls mentioned in a passage votes array whose corresponding Vote object was not found", :missing_rolls => missing_rolls
-    end
-    
-    Report.success self, "Updated #{roll_count} roll call and #{voice_count} voice passage votes"
-  end
-  
   def self.get_rolls(options)
     session = options[:session]
     
@@ -171,6 +96,81 @@ class VotesArchive
     end
     
     Report.success self, "Synced #{count} roll calls for session ##{session} from GovTrack.us."
+  end
+  
+  def self.sort_passage_votes(options)
+    session = options[:session]
+    
+    roll_count = 0
+    voice_count = 0
+    bad_votes = []
+    
+    missing_rolls = []
+    
+    bills = Bill.where(:session => session, :passage_votes_count => {"$gte" => 1}).all
+    # bills = bills.to_a.first 20
+    
+    bills.each do |bill|
+      
+      # clear out old voice votes for this bill, since there is no unique ID to update them by
+      Vote.where(:bill_id => bill.bill_id, :how => {"$ne" => "roll"}).all.each {|v| v.delete}
+      
+      bill.passage_votes.each do |vote|
+        if vote['how'] == 'roll'
+          
+          # if the roll has been entered into the system already, mark it as a passage vote
+          # otherwise, don't bother creating it here, we don't have enough information
+          roll = Vote.where(:roll_id => vote['roll_id']).first
+          
+          if roll
+            roll[:vote_type] = "passage"
+            roll[:passage_type] = vote['passage_type']
+            roll.save!
+            
+            roll_count += 1
+            # puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote"
+          else
+            missing_rolls << {:bill_id => bill.bill_id, :roll_id => vote['roll_id']}
+            puts "[#{bill.bill_id} Couldn't find roll call #{vote['roll_id']} mentioned in passage votes list for #{bill.bill_id}"
+          end
+        else
+          
+          attributes = {
+            :bill_id => bill.bill_id,
+            :session => session,
+            :year => vote['voted_at'].year,
+            
+            :how => vote['how'],
+            :result => vote['result'],
+            :voted_at => vote['voted_at'],
+            :text => vote['text'],
+            :chamber => vote['chamber'],
+            
+            :passage_type => vote['passage_type'],
+            :vote_type => "passage"
+          }
+          vote = Vote.new attributes
+          
+          if vote.save
+            voice_count += 1
+            # puts "[#{bill.bill_id}] Added a voice vote"
+          else
+            bad_votes << {:attributes => attributes, :error_messages => vote.errors.full_messages}
+            puts "[#{bill.bill_id}] Bad voice vote, logging"
+          end
+        end
+      end
+    end
+    
+    if bad_votes.any?
+      Report.failure self, "Failed to save #{bad_votes.size} voice votes. Attached the last failed vote's attributes and error messages.", bad_votes.last
+    end
+    
+    if missing_rolls.any?
+      Report.warning self, "Found #{missing_rolls.size} roll calls mentioned in a passage votes array whose corresponding Vote object was not found", :missing_rolls => missing_rolls
+    end
+    
+    Report.success self, "Updated #{roll_count} roll call and #{voice_count} voice passage votes"
   end
   
   # I think we can reliably say cloture and nomination, 
