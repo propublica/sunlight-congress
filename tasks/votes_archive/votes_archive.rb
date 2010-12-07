@@ -12,7 +12,7 @@ class VotesArchive
   def self.get_rolls(options)
     session = options[:session]
     
-    count  = 0
+    count = 0
     missing_ids = []
     bad_rolls = []
     
@@ -26,7 +26,7 @@ class VotesArchive
     
     # make lookups faster later by caching a hash of legislators from which we can lookup govtrack_ids
     legislators = {}
-    Legislator.only(voter_fields).all.each do |legislator|
+    Legislator.only(Utils.voter_fields).all.each do |legislator|
       legislators[legislator.govtrack_id] = legislator
     end
     
@@ -51,7 +51,7 @@ class VotesArchive
       
       bill_id = bill_id_for doc
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
-      party_vote_breakdown = vote_breakdown_for voters
+      party_vote_breakdown = Utils.vote_breakdown_for voters
       vote_breakdown = party_vote_breakdown.delete :total
       
       roll_type = doc.at(:type).inner_text
@@ -140,6 +140,8 @@ class VotesArchive
             :session => session,
             :year => vote['voted_at'].year,
             
+            :bill => bill_for(bill.bill_id), # reusing the method standardizes on columns, worth the extra call
+            
             :how => vote['how'],
             :result => vote['result'],
             :voted_at => vote['voted_at'],
@@ -149,6 +151,7 @@ class VotesArchive
             :passage_type => vote['passage_type'],
             :vote_type => "passage"
           }
+          
           vote = Vote.new attributes
           
           if vote.save
@@ -208,42 +211,6 @@ class VotesArchive
     end
   end
   
-  def self.vote_mapping
-    {
-      '-' => :nays, 
-      '+' => :ayes, 
-      '0' => :not_voting, 
-      'P' => :present
-    }
-  end
-  
-  def self.vote_breakdown_for(voters)
-    breakdown = {:total => {}}
-    mapping = vote_mapping
-    
-    voters.each do|bioguide_id, voter|      
-      party = voter[:voter]['party']
-      vote = mapping[voter[:vote]] || voter[:vote]
-      
-      breakdown[party] ||= {}
-      breakdown[party][vote] ||= 0
-      breakdown[:total][vote] ||= 0
-      
-      breakdown[party][vote] += 1
-      breakdown[:total][vote] += 1
-    end
-    
-    parties = breakdown.keys
-    votes = (breakdown[:total].keys + mapping.values).uniq
-    votes.each do |vote|
-      parties.each do |party|
-        breakdown[party][vote] ||= 0
-      end
-    end
-    
-    breakdown
-  end
-  
   def self.votes_for(filename, doc, legislators, missing_ids)
     voter_ids = {}
     voters = {}
@@ -275,16 +242,12 @@ class VotesArchive
     
     if legislator
       attributes = legislator.attributes
-      allowed_keys = voter_fields.map {|f| f.to_s}
+      allowed_keys = Utils.voter_fields.map {|f| f.to_s}
       attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
       attributes
     else
       nil
     end
-  end
-  
-  def self.voter_fields
-    [:first_name, :nickname, :last_name, :name_suffix, :title, :state, :party, :district, :govtrack_id, :bioguide_id]
   end
   
   def self.bill_fields

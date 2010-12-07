@@ -30,5 +30,45 @@ module Utils
       :sc => 'scres'
     }[govtrack_type.to_sym]
   end
+  
+  def self.voter_fields
+    [:first_name, :nickname, :last_name, :name_suffix, :title, :state, :party, :chamber, :district, :govtrack_id, :bioguide_id]
+  end
+  
+  def self.vote_mapping
+    {
+      '-' => :nays, 
+      '+' => :ayes, 
+      '0' => :not_voting, 
+      'P' => :present
+    }
+  end
+  
+  def self.vote_breakdown_for(voters)
+    breakdown = {:total => {}}
+    mapping = vote_mapping
+    
+    voters.each do|bioguide_id, voter|      
+      party = voter[:voter]['party']
+      vote = mapping[voter[:vote]] || voter[:vote]
+      
+      breakdown[party] ||= {}
+      breakdown[party][vote] ||= 0
+      breakdown[:total][vote] ||= 0
+      
+      breakdown[party][vote] += 1
+      breakdown[:total][vote] += 1
+    end
+    
+    parties = breakdown.keys
+    votes = (breakdown[:total].keys + mapping.values).uniq
+    votes.each do |vote|
+      parties.each do |party|
+        breakdown[party][vote] ||= 0
+      end
+    end
+    
+    breakdown
+  end
 
 end
