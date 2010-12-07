@@ -131,7 +131,7 @@ class VotesArchive
             # puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote"
           else
             missing_rolls << {:bill_id => bill.bill_id, :roll_id => vote['roll_id']}
-            puts "[#{bill.bill_id} Couldn't find roll call #{vote['roll_id']} mentioned in passage votes list for #{bill.bill_id}"
+            puts "[#{bill.bill_id} Couldn't find roll call #{vote['roll_id']}, which was mentioned in passage votes list for #{bill.bill_id}"
           end
         else
           
