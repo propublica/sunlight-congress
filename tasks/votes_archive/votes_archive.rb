@@ -55,7 +55,7 @@ class VotesArchive
       vote_breakdown = party_vote_breakdown.delete :total
       
       roll_type = doc.at(:type).inner_text
-      vote_type = vote_type_for roll_type
+      vote_type = Utils.vote_type_for roll_type
       
       vote.attributes = {
         :vote_type => vote_type,
@@ -176,22 +176,6 @@ class VotesArchive
     Report.success self, "Updated #{roll_count} roll call and #{voice_count} voice passage votes"
   end
   
-  # I think we can reliably say cloture and nomination, 
-  # since the Senate does a good job of keeping the roll call types to a small set, 
-  # and both of these kind of votes only occur in the Senate.
-  #
-  # "passage" will get set in the part of the task dedicated to going back over each bill and looking at its passage votes.
-  # Such votes will be automatically be labeled "other" between the execution of this method and that one.
-  def self.vote_type_for(roll_type)
-    if roll_type =~ /cloture/i 
-      "cloture"
-    elsif roll_type == "On the Nomination"
-      "nomination"
-    else
-      "other"
-    end
-  end
-  
   def self.bill_id_for(doc)
     if bill = doc.at(:bill)
       bill_id = "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
@@ -226,7 +210,8 @@ class VotesArchive
     
     doc.search("//voter").each do |elem|
       vote = elem['vote']
-      value = elem['value']
+      vote = vote_mapping[vote] || vote # check to see if it should be standardized
+      
       govtrack_id = elem['id']
       voter = voter_for govtrack_id, legislators
       

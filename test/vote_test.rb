@@ -11,34 +11,34 @@ class VoteTest < Test::Unit::TestCase
   
   def test_vote_breakdown_for_regular_vote
     voters = {
-        'a' => {:voter => {'party' => 'R'}, :vote => '+'},
-        'b' => {:voter => {'party' => 'R'}, :vote => '+'},
-        'c' => {:voter => {'party' => 'R'}, :vote => '0'},
-        'd' => {:voter => {'party' => 'D'}, :vote => '-'},
-        'e' => {:voter => {'party' => 'D'}, :vote => '+'},
+        'a' => {:voter => {'party' => 'R'}, :vote => 'Yea'},
+        'b' => {:voter => {'party' => 'R'}, :vote => 'Yea'},
+        'c' => {:voter => {'party' => 'R'}, :vote => 'Not Voting'},
+        'd' => {:voter => {'party' => 'D'}, :vote => 'Nay'},
+        'e' => {:voter => {'party' => 'D'}, :vote => 'Yea'},
       }
     breakdown = Utils.vote_breakdown_for voters
     totals = breakdown.delete :total
     
-    assert_equal 1, totals[:not_voting]
-    assert_equal 3, totals[:ayes]
-    assert_equal 1, totals[:nays]
-    assert_not_nil totals[:present]
-    assert_equal 0, totals[:present]
+    assert_equal 1, totals['Not Voting']
+    assert_equal 3, totals['Yea']
+    assert_equal 1, totals['Nay']
+    assert_not_nil totals['Present']
+    assert_equal 0, totals['Present']
     
-    assert_equal 2, breakdown['R'][:ayes]
-    assert_equal 1, breakdown['R'][:not_voting]
-    assert_not_nil breakdown['R'][:present]
-    assert_equal 0, breakdown['R'][:present]
-    assert_not_nil breakdown['R'][:nays]
-    assert_equal 0, breakdown['R'][:nays]
+    assert_equal 2, breakdown['R']['Yea']
+    assert_equal 1, breakdown['R']['Not Voting']
+    assert_not_nil breakdown['R']['Present']
+    assert_equal 0, breakdown['R']['Present']
+    assert_not_nil breakdown['R']['Nay']
+    assert_equal 0, breakdown['R']['Nay']
     
-    assert_equal 1, breakdown['D'][:ayes]
-    assert_equal 1, breakdown['D'][:nays]
-    assert_not_nil breakdown['D'][:present]
-    assert_equal 0, breakdown['D'][:present]
-    assert_not_nil breakdown['D'][:not_voting]
-    assert_equal 0, breakdown['D'][:not_voting]
+    assert_equal 1, breakdown['D']['Yea']
+    assert_equal 1, breakdown['D']['Nay']
+    assert_not_nil breakdown['D']['Present']
+    assert_equal 0, breakdown['D']['Present']
+    assert_not_nil breakdown['D']['Not Voting']
+    assert_equal 0, breakdown['D']['Not Voting']
   end
   
   def test_vote_breakdown_for_speaker_election
@@ -55,7 +55,7 @@ class VoteTest < Test::Unit::TestCase
     
     assert_equal 3, totals['Pelosi']
     assert_equal 2, totals['Boehner']
-    [:ayes, :nays, :not_voting, :present].each do |vote|
+    Utils.constant_vote_keys.each do |vote|
       assert_not_nil totals[vote]
       assert_equal 0, totals[vote]
     end
@@ -66,7 +66,7 @@ class VoteTest < Test::Unit::TestCase
     assert_equal 2, breakdown['R']['Boehner']
     assert_equal 1, breakdown['R']['Pelosi']
     
-    [:ayes, :nays, :not_voting, :present].each do |vote|
+    Utils.constant_vote_keys.each do |vote|
       assert_not_nil breakdown['D'][vote]
       assert_equal 0, breakdown['D'][vote]
       assert_not_nil breakdown['R'][vote]
