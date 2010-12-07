@@ -40,6 +40,11 @@ def get_or_create_floor_update(conn, timestamp, legislative_day):
         return {'timestamp':timestamp, 'legislative_day': legislative_day, 'chamber': 'house'}
         
 
+def get_mms_url(clip_id):
+    clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
+    mms_url = re.search("(<REF HREF=\")([^\"]+)", clip_xml).groups()[1]
+    return mms_url 
+    
 def convert_duration(hours, minutes):
     hours = int(hours)
     minutes = int(minutes)
@@ -81,14 +86,26 @@ def grab_daily_meta(db):
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
                 fd['chamber'] = 'house'
                 fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+                mms_url = get_mms_url(fd['clip_id'])
                 try:
-                    fd['clip_urls'] = {
+                    if fd.has_key('clip_urls'):
+                        fd['clip_urls']['mp3'] = cols[4].a['href'],
+                        fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
+                        fd['clip_urls']['wmv'] = mms_url
+                    else:
+                        fd['clip_urls'] = {
                                 'mp3':  cols[4].a['href'],
                                 'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
+                                'wmv': mms_url.replace('mms://', 'http://')
                                 #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
                                 }
                 except Exception:
-                    pass
+                    if mms_url:
+                        if fd.has_key('clip_urls'):
+                            fd['clip_urls']['wmv'] = mms_url.replace('mms://', 'http://')
+
+                        else:
+                            fd['clip_urls'] = { 'wmv':mms_url.replace('mms://', 'http://') }
 
                 fd['clips'] = grab_daily_events(fd)
                 db['videos'].save(fd)
@@ -247,28 +264,28 @@ def pull_wmv_rss(coll):
         except:
             continue 
    
-    
-if len(sys.argv) > 2:
-    db_host = sys.argv[1]
-    db_name = sys.argv[2]
-    
-    # further command line arguments will come in as sys.argv[3] and on up
-    # e.g. 'all' will be sys.argv[3]
-    
-    conn = Connection(host=db_host)
-    db = conn[db_name]
-    try:
-        grab_daily_meta(db)
-        #pull_wmv_rss(db['videos'])
-        if PARSING_ERRORS:
-            file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
+if __name__ == "__main__": 
+    if len(sys.argv) > 2:
+        db_host = sys.argv[1]
+        db_name = sys.argv[2]
+        
+        # further command line arguments will come in as sys.argv[3] and on up
+        # e.g. 'all' will be sys.argv[3]
+        
+        conn = Connection(host=db_host)
+        db = conn[db_name]
+        try:
+            grab_daily_meta(db)
+            #pull_wmv_rss(db['videos'])
+            if PARSING_ERRORS:
+                file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
 
-    except Exception as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "%s %s" % (e, traceback.extract_tb(exc_traceback))
-        file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print "%s %s" % (e, traceback.extract_tb(exc_traceback))
+            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
 
-else:
-    print 'Not enough arguments passed'
-    sys.exit()
-                           
+    else:
+        print 'Not enough arguments passed'
+        sys.exit()
+                            
