@@ -88,6 +88,10 @@ module Utils
     when /^On Motion to Concur/i, /^On Motion to Suspend the Rules and (Agree|Concur|Pass)/i, /^Suspend (?:the )?Rules and (Agree|Concur)/i,
       "passage"
     
+    # house
+    when /^On Agreeing to the Resolution/i, /^On Agreeing to the Concurrent Resolution/i, /^On Agreeing to the Conference Report/i
+      "passage"
+      
     # senate
     when /^On the Joint Resolution/i, /^On the Concurrent Resolution/i, /^On the Resolution/i
       "passage"
