@@ -200,9 +200,9 @@ class VotesArchive
       vote = vote_mapping[vote] || vote # check to see if it should be standardized
       
       govtrack_id = elem['id']
-      voter = Utils.voter_for legislators[govtrack_id]
       
-      if voter
+      if legislators[govtrack_id]
+        voter = Utils.voter_for legislators[govtrack_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}

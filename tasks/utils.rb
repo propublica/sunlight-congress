@@ -117,14 +117,10 @@ module Utils
   end
   
   def self.voter_for(legislator)
-    if legislator
-      attributes = legislator.attributes
-      allowed_keys = voter_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
-    else
-      nil
-    end
+    attributes = legislator.attributes
+    allowed_keys = voter_fields.map {|f| f.to_s}
+    attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
+    attributes
   end
   
   def self.bill_for(bill_id)
