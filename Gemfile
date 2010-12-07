@@ -20,8 +20,6 @@ end
 
 # for individual tasks
 
-# get_legislators
-gem 'sunlight', '1.0.7'
-
-# get_bills
-gem 'hpricot', '0.8.2'
+gem 'sunlight', '1.0.7' # get_legislators
+gem 'hpricot', '0.8.2' # get_bills
+gem 'nokogiri', '1.4.4' # rolls_live_house

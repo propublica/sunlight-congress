@@ -211,6 +211,15 @@ class VotesArchive
     end
   end
   
+  def self.vote_mapping
+    {
+      '-' => "Nay", 
+      '+' => "Yea", 
+      '0' => "Not Voting", 
+      'P' => "Present"
+    }
+  end
+  
   def self.votes_for(filename, doc, legislators, missing_ids)
     voter_ids = {}
     voters = {}

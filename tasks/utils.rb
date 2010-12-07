@@ -35,15 +35,6 @@ module Utils
     [:first_name, :nickname, :last_name, :name_suffix, :title, :state, :party, :chamber, :district, :govtrack_id, :bioguide_id]
   end
   
-  def self.vote_mapping
-    {
-      '-' => :nays, 
-      '+' => :ayes, 
-      '0' => :not_voting, 
-      'P' => :present
-    }
-  end
-  
   def self.vote_breakdown_for(voters)
     breakdown = {:total => {}}
     mapping = vote_mapping

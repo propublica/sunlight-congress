@@ -32,6 +32,7 @@ GEM
       gem_plugin (~> 0.2.3)
     monkey-lib (0.5.4)
       backports
+    nokogiri (1.4.4)
     polyglot (0.3.1)
     pony (1.0.1)
       mail (> 2.0)
@@ -69,6 +70,7 @@ DEPENDENCIES
   mongo (= 1.1)
   mongoid
   mongrel (= 1.2.0.pre2)
+  nokogiri (= 1.4.4)
   pony (= 1.0.1)
   ruby-hmac (= 0.4.0)
   sinatra (= 1.0)
