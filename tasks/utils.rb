@@ -31,10 +31,6 @@ module Utils
     }[govtrack_type.to_sym]
   end
   
-  def self.voter_fields
-    [:first_name, :nickname, :last_name, :name_suffix, :title, :state, :party, :chamber, :district, :govtrack_id, :bioguide_id]
-  end
-  
   def self.constant_vote_keys
     ["Yea", "Nay", "Not Voting", "Present"]
   end
@@ -109,6 +105,40 @@ module Utils
     # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
     else
       "other"
+    end
+  end
+  
+  def self.voter_fields 
+    [
+      :govtrack_id, :bioguide_id,
+      :title, :first_name, :nickname, :last_name, :name_suffix, 
+      :state, :party, :chamber, :district
+    ]
+  end
+  
+  def self.voter_for(legislator)
+    if legislator
+      attributes = legislator.attributes
+      allowed_keys = voter_fields.map {|f| f.to_s}
+      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
+      attributes
+    else
+      nil
+    end
+  end
+  
+  def self.bill_for(bill_id)
+    bill_fields = Bill.basic_fields
+    
+    bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
+    
+    if bill
+      attributes = bill.attributes
+      allowed_keys = bill_fields.map {|f| f.to_s}
+      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
+      attributes
+    else
+      nil
     end
   end
 

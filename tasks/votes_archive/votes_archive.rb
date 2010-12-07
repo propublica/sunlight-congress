@@ -70,7 +70,7 @@ class VotesArchive
         :roll_type => roll_type,
         :question => doc.at(:question).inner_text,
         :required => doc.at(:required).inner_text,
-        :bill => bill_for(bill_id),
+        :bill => Utils.bill_for(bill_id),
         :voter_ids => voter_ids,
         :voters => voters,
         :vote_breakdown => vote_breakdown,
@@ -140,7 +140,7 @@ class VotesArchive
             :session => session,
             :year => vote['voted_at'].year,
             
-            :bill => bill_for(bill.bill_id), # reusing the method standardizes on columns, worth the extra call
+            :bill => Utils.bill_for(bill.bill_id), # reusing the method standardizes on columns, worth the extra call
             
             :how => vote['how'],
             :result => vote['result'],
@@ -182,19 +182,6 @@ class VotesArchive
     end
   end
   
-  def self.bill_for(bill_id)
-    bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-    
-    if bill
-      attributes = bill.attributes
-      allowed_keys = bill_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
-    else
-      nil
-    end
-  end
-  
   def self.vote_mapping
     {
       '-' => "Nay", 
@@ -213,7 +200,7 @@ class VotesArchive
       vote = vote_mapping[vote] || vote # check to see if it should be standardized
       
       govtrack_id = elem['id']
-      voter = voter_for govtrack_id, legislators
+      voter = Utils.voter_for legislators[govtrack_id]
       
       if voter
         bioguide_id = voter[:bioguide_id]
@@ -230,22 +217,5 @@ class VotesArchive
     
     [voter_ids, voters]
   end
-  
-  def self.voter_for(govtrack_id, legislators)
-    legislator = legislators[govtrack_id]
     
-    if legislator
-      attributes = legislator.attributes
-      allowed_keys = Utils.voter_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
-    else
-      nil
-    end
-  end
-  
-  def self.bill_fields
-    Bill.basic_fields
-  end
-  
 end
