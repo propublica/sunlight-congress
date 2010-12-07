@@ -33,11 +33,14 @@ class RollsLiveHouse
       end
     end
     
-    
     if to_fetch.empty?
       Report.success self, "No new rolls for the House for #{year}, latest one is #{latest_new_roll}."
       return
     end
+    
+    # debug
+    # to_fetch = [2]
+    # year = 2009
     
     # get each new roll
     to_fetch.each do |number|
@@ -76,7 +79,7 @@ class RollsLiveHouse
           :voted_at => voted_at_for(doc),
           :voter_ids => voter_ids,
           :voters => voters,
-          # :vote_breakdown => vote_breakdown,
+          :vote_breakdown => Utils.vote_breakdown_for(voters),
         }
         
         if bill_id
@@ -94,7 +97,7 @@ class RollsLiveHouse
           count += 1
           puts "[#{roll_id}] Saved successfully"
         else
-          bad_votes << {:attributes => vote.attributes, :error_messages => vote.errors.full_messages}
+          bad_votes << {:error_messages => vote.errors.full_messages, :roll_id => roll_id}
           puts "[#{roll_id}] Error saving, will file report"
         end
         
@@ -104,7 +107,7 @@ class RollsLiveHouse
     end
     
     if bad_votes.any?
-      Report.failure self, "Failed to save #{bad_votes.size} roll calls. Attached the last failed roll's attributes and error messages.", bad_rolls.last
+      Report.failure self, "Failed to save #{bad_votes.size} roll calls. Attached the last failed roll's attributes and error messages.", {:bad_vote => bad_votes.last}
     end
     
     if missing_ids.any?
@@ -213,8 +216,13 @@ class RollsLiveHouse
     elem = doc.at 'legis-num'
     if elem
       type = elem.text.strip.gsub(' ', '').downcase
-      type = "hcres" if type == "hconres"
-      "#{type}-#{session}"
+      
+      if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
+        nil
+      else
+        type = "hcres" if type == "hconres"
+        "#{type}-#{session}"
+      end
     else
       nil
     end
