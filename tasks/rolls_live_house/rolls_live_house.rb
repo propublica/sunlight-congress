@@ -17,27 +17,30 @@ class RollsLiveHouse
       legislators[legislator.bioguide_id] = legislator
     end
     
+    latest_new_roll = nil
     begin
-      last_number = latest_known_roll year
+      latest_new_roll = latest_new_roll year
     rescue Timeout::Error
       Report.warning self, "Timeout error on fetching the listing page, can't go on."
       return
     end
     
-    current_number = latest_new_roll year
-    
-    if last_number == current_number
-      Report.success self, "No new rolls for the House for #{year}.", :current_number => current_number
-      return
+    # check last 20 rolls, see if any are missing from our database
+    to_fetch = []
+    (latest_new_roll-19).upto(latest_new_roll) do |number|
+      if Vote.where(:roll_id => "h#{number}-#{year}").first == nil
+        to_fetch << number
+      end
     end
     
-    if last_number > current_number
-      Report.failure self, "Something is wrong, our archive is ahead of the live roll number.", :last_number => last_number, :current_number => current_number
+    
+    if to_fetch.empty?
+      Report.success self, "No new rolls for the House for #{year}, latest one is #{latest_new_roll}."
       return
     end
     
     # get each new roll
-    (last_number + 1).upto(current_number) do |number|
+    to_fetch.each do |number|
       url = "http://clerk.house.gov/evs/#{year}/roll#{zero_prefix number}.xml"
       
       doc = nil
@@ -110,17 +113,12 @@ class RollsLiveHouse
     end
     
     if timed_out.any?
-      Report.warning self, "Timeout error on fetching #{timed_out.size} House roll, skipping and going onto the next one.", :timed_out => timed_out
+      Report.warning self, "Timeout error on fetching #{timed_out.size} House roll(s), skipping and going onto the next one.", :timed_out => timed_out
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the House Clerk website."
   end
   
-  # latest House roll number that we have information about in our database for a given year
-  def self.latest_known_roll(year)
-    latest_roll = Vote.where(:how => "roll", :chamber => "house", :year => 2010).only([:number]).order_by([[:number, :desc]]).first
-    latest_roll ? latest_roll.number : nil
-  end
   
   # latest roll number on the House Clerk's listing of latest votes
   def self.latest_new_roll(year)
@@ -214,7 +212,9 @@ class RollsLiveHouse
   def self.bill_id_for(doc, session)
     elem = doc.at 'legis-num'
     if elem
-      elem.text.strip.gsub(' ', '').downcase + "-#{session}"
+      type = elem.text.strip.gsub(' ', '').downcase
+      type = "hcres" if type == "hconres"
+      "#{type}-#{session}"
     else
       nil
     end
