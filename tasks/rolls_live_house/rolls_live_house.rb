@@ -10,6 +10,7 @@ class RollsLiveHouse
     count = 0
     missing_ids = []
     bad_votes = []
+    timed_out = []
     
     legislators = {}
     Legislator.only(Utils.voter_fields).all.each do |legislator|
@@ -95,7 +96,7 @@ class RollsLiveHouse
         end
         
       else
-        Report.warning self, "Timeout error on fetching House roll #{number}, skipping and going onto the next one."
+        timed_out << [number]
       end
     end
     
@@ -106,6 +107,10 @@ class RollsLiveHouse
     if missing_ids.any?
       missing_ids = missing_ids.uniq
       Report.warning self, "Found #{missing_ids.size} missing Bioguide IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {:missing_ids => missing_ids}
+    end
+    
+    if timed_out.any?
+      Report.warning self, "Timeout error on fetching #{timed_out.size} House roll, skipping and going onto the next one.", :timed_out => timed_out
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the House Clerk website."
@@ -238,4 +243,18 @@ class RollsLiveHouse
     Time.local date.year, date.month, date.day, time.hour, time.min, time.sec
   end
   
+end
+
+require 'net/http'
+
+# Shorten timeout in Net::HTTP
+module Net
+  class HTTP
+    alias old_initialize initialize
+
+    def initialize(*args)
+        old_initialize(*args)
+        @read_timeout = 10 # 10 seconds
+    end
+  end
 end
