@@ -82,7 +82,7 @@ class BillsArchive
       
       if bill.save
         count += 1
-        puts "[#{bill_id}] Saved successfully"
+        # puts "[#{bill_id}] Saved successfully"
       else
         bad_bills << {:attributes => bill.attributes, :error_messages => bill.errors.full_messages}
         puts "[#{bill_id}] Error saving, will file report"
