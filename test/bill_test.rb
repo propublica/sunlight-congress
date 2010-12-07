@@ -4,11 +4,9 @@ require 'test/unit'
 require 'rubygems'
 require 'bundler/setup'
 
-require File.join(File.dirname(__FILE__), "../../../config/environment")
-
-require 'hpricot'
-require File.join(File.dirname(__FILE__), "../../utils")
-require File.join(File.dirname(__FILE__), "../bills_archive")
+require File.join File.dirname(__FILE__), "../config/environment"
+require File.join File.dirname(__FILE__), "../tasks/utils"
+require File.join File.dirname(__FILE__), "../tasks/bills_archive/bills_archive"
 
 class BillTest < Test::Unit::TestCase
   
@@ -34,9 +32,9 @@ class BillTest < Test::Unit::TestCase
     
     cases.each do |filename, recents|
       doc = Hpricot.XML open(fixture("titles/#{filename}.xml"))
-      titles = GetBills.titles_for doc
-      assert_equal recents[:short], GetBills.most_recent_title_from(titles, :short)
-      assert_equal recents[:official], GetBills.most_recent_title_from(titles, :official)
+      titles = BillsArchive.titles_for doc
+      assert_equal recents[:short], BillsArchive.most_recent_title_from(titles, :short)
+      assert_equal recents[:official], BillsArchive.most_recent_title_from(titles, :official)
     end
   end
   
@@ -190,9 +188,9 @@ class BillTest < Test::Unit::TestCase
     
     cases.keys.each do |name|
       doc = Hpricot.XML open(fixture("timeline/#{name}.xml"))
-      state = GetBills.state_for doc
-      passage_votes = GetBills.passage_votes_for doc
-      timeline = GetBills.timeline_for doc, state, passage_votes
+      state = BillsArchive.state_for doc
+      passage_votes = BillsArchive.passage_votes_for doc
+      timeline = BillsArchive.timeline_for doc, state, passage_votes
       
       cases[name].each do |key, value|
         if value == :missing
