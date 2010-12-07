@@ -220,7 +220,7 @@ class RollsLiveHouse
       if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
         nil
       else
-        type = "hcres" if type == "hconres"
+        type.gsub! "hconres", "hcres"
         "#{type}-#{session}"
       end
     else
