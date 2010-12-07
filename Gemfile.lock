@@ -76,4 +76,5 @@ DEPENDENCIES
   sinatra (= 1.0)
   sinatra-reloader (= 0.5.0)
   sunlight (= 1.0.7)
+  tzinfo (= 0.3.23)
   wirble
