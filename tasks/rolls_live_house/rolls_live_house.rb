@@ -25,9 +25,9 @@ class RollsLiveHouse
       return
     end
     
-    # check last 20 rolls, see if any are missing from our database
+    # check last 50 rolls, see if any are missing from our database
     to_fetch = []
-    (latest_new_roll-19).upto(latest_new_roll) do |number|
+    (latest_new_roll-49).upto(latest_new_roll) do |number|
       if Vote.where(:roll_id => "h#{number}-#{year}").first == nil
         to_fetch << number
       end
