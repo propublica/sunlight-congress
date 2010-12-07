@@ -40,25 +40,27 @@ module Utils
   end
   
   def self.vote_breakdown_for(voters)
-    breakdown = {:total => {}}
+    breakdown = {:total => {}, :party => {}}
     
     voters.each do|bioguide_id, voter|      
       party = voter[:voter]['party']
       vote = voter[:vote]
       
-      breakdown[party] ||= {}
-      breakdown[party][vote] ||= 0
+      breakdown[:party][party] ||= {}
+      breakdown[:party][party][vote] ||= 0
       breakdown[:total][vote] ||= 0
       
-      breakdown[party][vote] += 1
+      breakdown[:party][party][vote] += 1
       breakdown[:total][vote] += 1
     end
     
-    parties = breakdown.keys
+    # initialize
+    parties = breakdown[:party].keys
     votes = (breakdown[:total].keys + constant_vote_keys).uniq
     votes.each do |vote|
+      breakdown[:total][vote] ||= 0
       parties.each do |party|
-        breakdown[party][vote] ||= 0
+        breakdown[:party][party][vote] ||= 0
       end
     end
     
