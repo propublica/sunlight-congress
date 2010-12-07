@@ -86,7 +86,7 @@ class RollsLiveHouse
           if bill = bill_for(bill_id)
             vote.attributes = {
               :bill_id => bill_id,
-              :bill => bill_for(bill_id)
+              :bill => bill
             }
           else
             Report.warning self, "Found bill_id #{bill_id} on House roll no. #{number}, which isn't in the database."
@@ -215,13 +215,16 @@ class RollsLiveHouse
   def self.bill_id_for(doc, session)
     elem = doc.at 'legis-num'
     if elem
-      type = elem.text.strip.gsub(' ', '').downcase
+      code = elem.text.strip.gsub(' ', '').downcase
+      type = code.gsub /\d/, ''
+      number = code.gsub type, ''
+      
+      type.gsub! "hconres", "hcres" # house uses H CON RES
       
       if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
         nil
       else
-        type.gsub! "hconres", "hcres"
-        "#{type}-#{session}"
+        "#{type}#{number}-#{session}"
       end
     else
       nil
