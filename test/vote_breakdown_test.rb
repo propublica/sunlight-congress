@@ -7,7 +7,7 @@ require 'bundler/setup'
 require File.join(File.dirname(__FILE__), "../config/environment")
 require File.join(File.dirname(__FILE__), "../tasks/utils")
 
-class VoteTest < Test::Unit::TestCase
+class VoteBreakdownTest < Test::Unit::TestCase
   
   def test_vote_breakdown_for_regular_vote
     voters = {
