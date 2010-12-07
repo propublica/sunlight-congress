@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'open-uri'
+require 'tzinfo'
 
 class RollsLiveHouse
   
@@ -50,11 +51,11 @@ class RollsLiveHouse
         session = doc.at(:congress).inner_text.to_i
         bill_id = bill_id_for doc, session
         voter_ids, voters = votes_for doc, legislators, missing_ids
-        question = doc.at("vote-question").inner_text
+        roll_type = doc.at("vote-question").inner_text
         
         vote = Vote.new :roll_id => roll_id
         vote.attributes = {
-          :vote_type => "other",
+          :vote_type => Utils.vote_type_for(roll_type),
           :how => "roll",
           :chamber => "house",
           :year => year,
@@ -62,13 +63,13 @@ class RollsLiveHouse
           
           :session => session,
           
-          :roll_type => question,
-          :question => question,
+          :roll_type => roll_type,
+          :question => roll_type,
           :result => doc.at("vote-result").inner_text,
           
           :required => required_for(doc),
           
-          # :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
+          :voted_at => voted_at_for(doc),
           :voter_ids => voter_ids,
           :voters => voters,
           # :vote_breakdown => vote_breakdown,
@@ -222,6 +223,19 @@ class RollsLiveHouse
     else
       number
     end
+  end
+  
+  def self.voted_at_for(doc)
+    # make sure we're set to EST
+    Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
+    
+    datestamp = doc.at("action-date").inner_text
+    timestamp = doc.at("action-time").inner_text
+    
+    date = Time.parse datestamp
+    time = Time.parse timestamp
+    
+    Time.local date.year, date.month, date.day, time.hour, time.min, time.sec
   end
   
 end
