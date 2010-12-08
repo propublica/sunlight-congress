@@ -105,9 +105,9 @@ helpers do
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = /#{value}/ rescue nil
+              conditions[key] = /#{value}/ rescue nil # avoid RegexpError
             elsif operator == :match_i
-              conditions[key] = /#{value}/i rescue nil
+              conditions[key] = /#{value}/i rescue nil # avoid RegexpError
             end
           else
             # let it fall, someone already assigned the filter directly
