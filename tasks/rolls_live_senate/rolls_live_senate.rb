@@ -84,9 +84,9 @@ class RollsLiveSenate
           :required => required_for(doc),
           
           :voted_at => voted_at_for(doc),
-#           :voter_ids => voter_ids,
-#           :voters => voters,
-#           :vote_breakdown => Utils.vote_breakdown_for(voters),
+          :voter_ids => voter_ids,
+          :voters => voters,
+          :vote_breakdown => Utils.vote_breakdown_for(voters),
         }
         
         if bill_id
@@ -176,32 +176,35 @@ class RollsLiveSenate
     voter_ids = {}
     voters = {}
     
-    # TODO
-    
-#     doc.search("//vote-data/recorded-vote").each do |elem|
-#       vote = (elem / 'vote').text
-#       
-#       bioguide_id = (elem / 'legislator').first['name-id']
+    doc.search("//members/member").each do |elem|
+      vote = (elem / 'vote_cast').text
+      lis_id = (elem / 'lis_member_id').text
 
-#       if legislators[lis_id]
-#         voter = Utils.voter_for legislators[lis_id]
-#         bioguide_id = voter[:bioguide_id]
-#         voter_ids[bioguide_id] = vote
-#         voters[bioguide_id] = {:vote => vote, :voter => voter}
-#       else
-#         if bioguide_id.to_i == 0
-#           missing_legislators << [bioguide_id, filename]
-#         else
-#           missing_legislators << bioguide_id
-#         end
-#       end
-#     end
+      legislators[lis_id] ||= lookup_legislator elem
+      
+      if legislators[lis_id]
+        voter = Utils.voter_for legislators[lis_id]
+        bioguide_id = voter[:bioguide_id]
+        voter_ids[bioguide_id] = vote
+        voters[bioguide_id] = {:vote => vote, :voter => voter}
+      else
+        missing_legislators << {:lis_id => lis_id, :member_full => elem.at("member_full").text, :number => doc.at("vote_number").text.to_i}
+      end
+    end
     
     [voter_ids, voters]
   end
   
-  def self.lookup_and_cache_legislator(element, legislators, missing_legislators)
-    # TODO
+  def self.lookup_legislator(element)
+    last_name = element.at("last_name").text
+    first_name = element.at("first_name").text
+    party = element.at("party").text
+    state = element.at("state").text
+    
+    party = "I" if party == "ID"
+    
+    results = Legislator.where(:chamber => "senate", :last_name => last_name, :party => party, :state => state)
+    results.size == 1 ? results.first : nil
   end
   
   def self.bill_id_for(doc, session)
