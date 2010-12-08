@@ -36,7 +36,7 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
   
   criteria = model.where(conditions).only(fields).order_by(order)
   
-  results = results_for model, criteria
+  results = results_for model, criteria, conditions
   
   if format == 'json'
     json results
@@ -62,9 +62,6 @@ helpers do
   
   def filter_conditions_for(model, params)
     conditions = {}
-    
-    puts
-    puts "params: #{params.inspect}"
     
     params.each do |key, value|
       
@@ -99,11 +96,6 @@ helpers do
         else
           value = value_for value, model.fields[key]
         end
-        
-        puts
-        puts "key: #{key}"
-        puts "operator: #{operator}"
-        puts "value: #{value.inspect} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
@@ -206,7 +198,7 @@ helpers do
     attributes
   end
   
-  def results_for(model, criteria)
+  def results_for(model, criteria, conditions)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
@@ -222,7 +214,8 @@ helpers do
         :count => documents.size,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
-      }
+      },
+      :conditions => conditions
     }
   end
   
