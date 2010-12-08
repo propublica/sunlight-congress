@@ -207,7 +207,6 @@ def grab_daily_events(full_video):
                             
                             possibles = db['legislators'].find(query)
                             if possibles.count() > 0:
-                                print possibles
                                 if text not in legislator_names:
                                     legislator_names.append(raw_name)
                             for p in possibles:
