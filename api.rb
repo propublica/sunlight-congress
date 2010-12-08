@@ -96,6 +96,9 @@ helpers do
   def filter_conditions_for(model, params)
     conditions = {}
     
+    puts
+    puts "params: #{params.inspect}"
+    
     params.each do |key, value|
       
       # if there's a special operator (>, <, !, __ne, etc.), strip it off the key
@@ -122,34 +125,24 @@ helpers do
       end
       
       if !magic_fields.include? key.to_sym
-        # transform 'value' to the correct type for this key if needed
         
-        # type overridden in model
-        if model.fields[key] 
-          if model.fields[key].type == Boolean
-            value = (value == "true") if ["true", "false"].include? value
-          elsif model.fields[key].type == Integer
-            value = value.to_i
-          end
-          
-        # try to autodetect type
+        # transform 'value' to the correct type for this key if needed
+        if [:nin, :in].include?(operator)
+          value = value.split("|").map {|v| value_for v, model.fields[key]}
         else
-          if ["true", "false"].include? value # boolean
-            value = (value == "true")
-          elsif value =~ /^\d+$/
-            value = value.to_i
-          end
+          value = value_for value, model.fields[key]
         end
         
-        p "key: #{key}"
-        p "operator: #{operator}"
-        p "value: #{value} (#{value.class})"
+        puts
+        puts "key: #{key}"
+        puts "operator: #{operator}"
+        puts "value: #{value.inspect} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}
             
-            if [:lt, :lte, :gt, :gte, :ne, :exists].include?(operator)
+            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
               conditions[key] = /#{value}/
@@ -167,8 +160,36 @@ helpers do
         
       end
     end
+    
+    puts
+    puts "conditions: #{conditions.inspect}"
+    puts
 
     conditions
+  end
+  
+  
+  def value_for(value, field)
+    # type overridden in model
+    if field
+      if field.type == Boolean
+        (value == "true") if ["true", "false"].include? value
+      elsif field.type == Integer
+        value.to_i
+      else
+        value
+      end
+      
+    # try to autodetect type
+    else
+      if ["true", "false"].include? value # boolean
+        value == "true"
+      elsif value =~ /^\d+$/
+        value.to_i
+      else
+        value
+      end
+    end
   end
   
   def order_for(model, params)
