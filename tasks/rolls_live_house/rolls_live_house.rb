@@ -26,6 +26,11 @@ class RollsLiveHouse
       return
     end
     
+    if latest_new_roll.nil?
+      Report.failure self, "Failed to find the latest new roll on the clerk's page, can't go on."
+      return
+    end
+    
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_new_roll-49).upto(latest_new_roll) do |number|
