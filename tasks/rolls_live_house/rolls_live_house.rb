@@ -133,7 +133,7 @@ class RollsLiveHouse
   def self.latest_new_roll(year)
     url = "http://clerk.house.gov/evs/#{year}/index.asp"
     doc = Nokogiri::HTML open(url)
-    element = doc.css "tr td a"
+    element = doc.css("tr td a").first
     if element and element.text.present?
       number = element.text.to_i
       if number > 0
