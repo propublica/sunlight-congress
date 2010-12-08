@@ -19,35 +19,15 @@ require 'analytics/hits'
 
 # load all models and prepare them to be API-ized
 
-models = {:singular => [], :plural => []}
-
+models = []
 Dir.glob('models/*.rb').each do |filename|
   model_name = File.basename filename, File.extname(filename)
   model = model_name.camelize.constantize
-  unless model.respond_to?(:api?) and !model.api?
-    models[:singular] << model_name unless model.respond_to?(:singular_api?) and !model.singular_api?
-    models[:plural] << model_name unless model.respond_to?(:plural_api?) and !model.plural_api?
-  end
+  models << model_name unless model.respond_to?(:api?) and !model.api?
 end
 
-
-# generalized singular and plural methods
-
-get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
-  model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
-  
-  fields = fields_for model, params
-  conditions = unique_conditions_for model, params
-  
-  unless conditions.any? and document = model.where(conditions).only(fields).first
-    raise Sinatra::NotFound
-  end
-  
-  output_for params[:captures][1], model, document
-end
-
-get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
-  model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
+get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
+  model = params[:captures][0].singularize.camelize.constantize
   
   fields = fields_for model, params
   conditions = filter_conditions_for model, params
@@ -56,19 +36,6 @@ get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
   documents = model.where(conditions).only(fields).order_by(order).all
   
   output_for params[:captures][1], model, documents
-end
-
-
-
-# If this is a JSONP request, and it did trigger one of the main routes, return an error response
-# Otherwise, let it lapse into a normal content-less 404
-# If we don't do this, in-browser clients using JSONP have no way of detecting a problem
-not_found do
-  if params[:captures] and params[:captures][0] and params[:callback]
-    json = {:error => {:code => 404, :message => "#{params[:captures][0].capitalize} not found"}}.to_json
-    jsonp = "#{params[:callback]}(#{json});";
-    halt 200, jsonp
-  end
 end
 
 
@@ -84,13 +51,6 @@ helpers do
       sections += model.basic_fields.map {|field| field.to_s}
     end
     sections.uniq
-  end
-  
-  def unique_conditions_for(model, params)
-    model.unique_keys.each do |key|
-      return {key => params[key]} if params[key]
-    end
-    {}
   end
   
   def filter_conditions_for(model, params)
@@ -233,60 +193,49 @@ helpers do
     {:per_page => per_page, :page => page}
   end
 
-  def attributes_for_single(document)
+  def attributes_for(document)
     attributes = document.attributes
     [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
     attributes
   end
   
-  def attributes_for_plural(model, documents)
+  def results_for(model, criteria)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
     # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
     # #count will not trigger it, #paginate will
-    total_count = documents.count
-    page = documents.paginate pagination
+    total_count = criteria.count
+    documents = criteria.paginate pagination
     
     {
-      key => page.map {|document| attributes_for_single document},
+      key => documents.map {|document| attributes_for document},
       :count => total_count,
       :page => {
-        :count => page.size,
+        :count => documents.size,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
       }
     }
   end
   
-  def output_for(format, model, object)
+  def output_for(format, model, criteria)
     if format == 'json'
-      json model, object
+      json model, criteria
     elsif format == 'xml'
-      xml model, object
+      xml model, criteria
     end
   end
   
-  def json(model, object)
+  def json(model, criteria)
     response['Content-Type'] = 'application/json'    
-    
-    if object.is_a?(Mongoid::Criteria)
-      json = attributes_for_plural(model, object).to_json
-    else
-      json = {model.to_s.underscore => attributes_for_single(object)}.to_json
-    end
-    
+    json = results_for(model, criteria).to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
-  def xml(model, object)
+  def xml(model, criteria)
     response['Content-Type'] = 'application/xml'
-    
-    if object.is_a?(Mongoid::Criteria)
-      attributes_for_plural(model, object).to_xml :root => 'results'
-    else
-      attributes_for_single(object).to_xml :root => model.to_s.underscore
-    end
+    results_for(model, criteria).to_xml :root => 'results'
   end
   
 end
