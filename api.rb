@@ -99,14 +99,15 @@ helpers do
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
+            # error point: invalid regexp, check now
             conditions[key] ||= {}
             
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = /#{value}/
+              conditions[key] = /#{value}/ rescue nil
             elsif operator == :match_i
-              conditions[key] = /#{value}/i
+              conditions[key] = /#{value}/i rescue nil
             end
           else
             # let it fall, someone already assigned the filter directly
