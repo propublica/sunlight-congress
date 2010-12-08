@@ -96,26 +96,23 @@ helpers do
   def filter_conditions_for(model, params)
     conditions = {}
     
-    # there are magical operators that can be appended to any params
-    # params[:captures] will not be 
     params.each do |key, value|
-      # if there's a special operator (>, <, !, etc.), strip it off the key
+      
+      # if there's a special operator (>, <, !, __ne, etc.), strip it off the key
       operators = {
-        ">>" => :gt, 
-        "__gt" => :gt, 
-        "<<" => :lt,
-        "__lt" => :lt,
         ">" => :gte, 
-        "__gte" => :gte,
         "<" => :lte, 
-        "__lte" => :lte, 
         "!" => :ne,
+        "__gt" => :gt, 
+        "__lt" => :lt,
+        "__gte" => :gte,
+        "__lte" => :lte, 
         "__ne" => :ne,
-        "~" => :match,
         "__match" => :match,
-        "~~" => :match_i,
         "__match_i" => :match_i,
-        "__exists" => :exists
+        "__exists" => :exists,
+        "__in" => :in,
+        "__nin" => :nin
       }
       
       operator = nil
