@@ -69,49 +69,50 @@ def grab_daily_meta(db):
     rows = link.findAll('tr')
     print "got page"
     for row in rows:
-    #    try:
-        cols = row.findAll('td')
-        if len(cols) > 0:
-            unix_time = cols[0].span.string
-            this_date = datetime.datetime.fromtimestamp(float(unix_time))
-            date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
-            timestamp_key = int(time.mktime(date_key.timetuple()))
-            fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
-            legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
-            fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-            fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
-            duration_hours = cols[1].contents[0]
-            duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
-            fd['duration'] = convert_duration(duration_hours, duration_minutes)
-            fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
-            fd['chamber'] = 'house'
-            fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
-            mms_url = get_mms_url(fd['clip_id'])
-            try:
-                if fd.has_key('clip_urls'):
-                    fd['clip_urls']['mp3'] = cols[4].a['href'],
-                    fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
-                    fd['clip_urls']['mms'] = mms_url
-                else:
-                    fd['clip_urls'] = {
-                            'mp3':  cols[4].a['href'],
-                            'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
-                            'mms': mms_url
-                            #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
-                            }
-            except Exception:
-                if mms_url:
+        try:
+            cols = row.findAll('td')
+            if len(cols) > 0:
+                unix_time = cols[0].span.string
+                this_date = datetime.datetime.fromtimestamp(float(unix_time))
+                date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
+                timestamp_key = int(time.mktime(date_key.timetuple()))
+                fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
+                legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
+                fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
+                fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
+                duration_hours = cols[1].contents[0]
+                duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
+                fd['duration'] = convert_duration(duration_hours, duration_minutes)
+                fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
+                fd['chamber'] = 'house'
+                fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+                mms_url = get_mms_url(fd['clip_id'])
+                try:
                     if fd.has_key('clip_urls'):
+                        fd['clip_urls']['mp3'] = cols[4].a['href'],
+                        fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
                         fd['clip_urls']['mms'] = mms_url
-
                     else:
-                        fd['clip_urls'] = { 'mms':mms_url }
+                        fd['clip_urls'] = {
+                                'mp3':  cols[4].a['href'],
+                                'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
+                                'mms': mms_url
+                                #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
+                                }
+                except Exception:
+                    if mms_url:
+                        if fd.has_key('clip_urls'):
+                            fd['clip_urls']['mms'] = mms_url
 
-            fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd)
-            db['videos'].save(fd)
-#        except Exception as e:
- #           print "exception! %s " % e
-  #          continue
+                        else:
+                            fd['clip_urls'] = { 'mms':mms_url }
+
+                fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd)
+                db['videos'].save(fd)
+        except Exception as e:
+#            print "exception! %s " % e
+            file_report(db, 'WARNING', e, "house_archive")
+            continue
                             
 def grab_daily_events(full_video):
     
