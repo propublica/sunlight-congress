@@ -7,7 +7,6 @@ import time
 import sys
 from pymongo import Connection
 import traceback
-from tasks.house_archive.grab_videos import grab_daily_events
 
 rss_url = "http://houselive.gov/VPodcast.php?view_id=2"
 
@@ -57,8 +56,8 @@ if len(sys.argv) > 2:
             video_obj['created_at'] = add_date
             video_obj['chamber'] = 'house'
             db['videos'].save(video_obj)
-            except Exception as e:
-                print e
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
+        except Exception as e:
+            print e
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
 

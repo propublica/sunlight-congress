@@ -165,7 +165,7 @@ def grab_daily_events(full_video):
         bioguide_ids = []
         congress =  ((clip['time'].year + 1) / 2 ) - 894
         bill_re = re.compile('((S\.|H\.)( ?J\.|R\.| Con\. | ?)( ?Res\.)* \d+)')
-        name_re = re.compile('((M(rs|s|r)\.)+\s([A-Z]{1}[A-Za-z-]+)(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
+        name_re = re.compile('((M(rs|s|r)\.){1}\s((\s?[A-Z]{1}[A-Za-z-]+){0,2})(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
 
         pt = group.findNext('p')
         while pt.name == 'p':
@@ -199,13 +199,12 @@ def grab_daily_events(full_video):
                                 else: query['gender'] = 'F'
                             if n[3]:
                                 query["last_name"] = n[3]
-                            if n[5]:
-                                query["first_name"] = n[5]
-                            if n[8]:
-                                query["state"] = n[8]
-                            elif n[10]:
-                                query["state"] = n[10]
-                            
+                            if n[6]:
+                                query["first_name"] = n[6]
+                            if n[9]:
+                                query["state"] = n[9]
+                            elif n[11]:
+                                query["state"] = n[11]
                             possibles = db['legislators'].find(query)
                             if possibles.count() > 0:
                                 if text not in legislator_names:
