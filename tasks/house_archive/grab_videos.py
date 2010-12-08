@@ -69,48 +69,49 @@ def grab_daily_meta(db):
     rows = link.findAll('tr')
     print "got page"
     for row in rows:
-        try:
-            cols = row.findAll('td')
-            if len(cols) > 0:
-                unix_time = cols[0].span.string
-                this_date = datetime.datetime.fromtimestamp(float(unix_time))
-                date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
-                timestamp_key = int(time.mktime(date_key.timetuple()))
-                fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
-                legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
-                fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-                fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
-                duration_hours = cols[1].contents[0]
-                duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
-                fd['duration'] = convert_duration(duration_hours, duration_minutes)
-                fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
-                fd['chamber'] = 'house'
-                fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
-                mms_url = get_mms_url(fd['clip_id'])
-                try:
+    #    try:
+        cols = row.findAll('td')
+        if len(cols) > 0:
+            unix_time = cols[0].span.string
+            this_date = datetime.datetime.fromtimestamp(float(unix_time))
+            date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
+            timestamp_key = int(time.mktime(date_key.timetuple()))
+            fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
+            legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
+            fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
+            fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
+            duration_hours = cols[1].contents[0]
+            duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
+            fd['duration'] = convert_duration(duration_hours, duration_minutes)
+            fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
+            fd['chamber'] = 'house'
+            fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+            mms_url = get_mms_url(fd['clip_id'])
+            try:
+                if fd.has_key('clip_urls'):
+                    fd['clip_urls']['mp3'] = cols[4].a['href'],
+                    fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
+                    fd['clip_urls']['mms'] = mms_url
+                else:
+                    fd['clip_urls'] = {
+                            'mp3':  cols[4].a['href'],
+                            'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
+                            'mms': mms_url
+                            #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
+                            }
+            except Exception:
+                if mms_url:
                     if fd.has_key('clip_urls'):
-                        fd['clip_urls']['mp3'] = cols[4].a['href'],
-                        fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
-                        fd['clip_urls']['wmv'] = mms_url
+                        fd['clip_urls']['mms'] = mms_url
+
                     else:
-                        fd['clip_urls'] = {
-                                'mp3':  cols[4].a['href'],
-                                'mp4':  cols[4].a['href'].replace('.mp3', '.mp4'),
-                                'wmv': mms_url.replace('mms://', 'http://')
-                                #'wmv':  cols[4].a['href'].replace('.mp3', '.wmv'),
-                                }
-                except Exception:
-                    if mms_url:
-                        if fd.has_key('clip_urls'):
-                            fd['clip_urls']['wmv'] = mms_url.replace('mms://', 'http://')
+                        fd['clip_urls'] = { 'mms':mms_url }
 
-                        else:
-                            fd['clip_urls'] = { 'wmv':mms_url.replace('mms://', 'http://') }
-
-                fd['clips'] = grab_daily_events(fd)
-                db['videos'].save(fd)
-        except Exception as e:
-            continue
+            fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd)
+            db['videos'].save(fd)
+#        except Exception as e:
+ #           print "exception! %s " % e
+  #          continue
                             
 def grab_daily_events(full_video):
     
@@ -140,8 +141,15 @@ def grab_daily_events(full_video):
             am_or_pm = 'AM'
         
         return (datetime.datetime(date.year, date.month, date.day, hours, minutes), date, am_or_pm)
+    
+    def add_to_video_array(floor_event, key, vid_array):
+            if floor_event.has_key(key): 
+                for k in fe[key]:
+                    if k not in vid_array:
+                        vid_array.append(k)
+            return vid_array
 
-    def add_event(obj, text, coll):
+    def add_event(obj, text):
         text = text.strip()
         if obj.has_key('events'):
             obj['events'].append(text)
@@ -149,8 +157,15 @@ def grab_daily_events(full_video):
             obj['events'] = [text,]
         return obj
     
-    def parse_group(pt, video, fu, db):
+    def parse_group(group, clip, fu, db):
         global PARSING_ERRORS
+        bills = []
+        legislator_names = []
+        bioguide_ids = []
+        congress =  ((clip['time'].year + 1) / 2 ) - 894
+        bill_re = re.compile('((S\.|H\.)( ?J\.|R\.| Con\. | ?)( ?Res\.)* \d+)')
+        name_re = re.compile('((M(rs|s|r)\.)+\s([A-Z]{1}[A-Za-z-]+)(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
+
         pt = group.findNext('p')
         while pt.name == 'p':
             if (len(pt.contents) > 0):
@@ -161,26 +176,72 @@ def grab_daily_events(full_video):
                     text = ''.join(pt.findAll(text=True)) #get rid of formatting tags
                     if pt.findAll('a'):
                         pass
-                        #need to parse links here
-                    #add bill ids in here somewhere
                 if text:
-                    video = add_event(video, text, db['videos'])
-                    fu = add_event(fu, text, db['floor_updates'])
-                    db['floor_updates'].save(fu)
-                     
+                    clip = add_event(clip, text)
+                    fu = add_event(fu, text)
+                    
+                    #find bill text
+                    bill_matches = re.findall(bill_re, text)
+                    if bill_matches:
+                        for b in bill_matches:
+                            bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
+                            if bill_text not in bills:
+                                bills.append(bill_text)
+                    #find legislator names
+                    name_matches = re.findall(name_re, text)
+                    if name_matches:
+                        for n in name_matches:
+                            raw_name = n[0]
+                            query = {"chamber": "house"}
+                            if n[1]:
+                                if n[1] == "Mr." : query["gender"] = 'M'
+                                else: query['gender'] = 'F'
+                            if n[3]:
+                                query["last_name"] = n[3]
+                            if n[5]:
+                                query["first_name"] = n[5]
+                            if n[8]:
+                                query["state"] = n[8]
+                            elif n[10]:
+                                query["state"] = n[10]
+                            
+                            possibles = db['legislators'].find(query)
+                            if possibles.count() > 0:
+                                print possibles
+                                if text not in legislator_names:
+                                    legislator_names.append(raw_name)
+                            for p in possibles:
+                                if p['bioguide_id'] not in bioguide_ids:
+                                    bioguide_ids.append(p['bioguide_id'])
+                                #START HERE, PUT NAMES, IDS in array
                 else:
-                    PARSING_ERRORS.append((video['legislative_day'], "Couldn't parse text: %s" % pt.contents))
+                    PARSING_ERRORS.append((clip['legislative_day'].strftime("%Y-%m-%d"), "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
                 pt = pt.nextSibling
             else:
                 break
-        return video
+        if bills:
+            clip['bills'] = bills
+            fu['bills'] = bills
+        if legislator_names:
+            clip['legislator_names'] = legislator_names
+            fu['legislator_names'] = legislator_names
+        if bioguide_ids:
+            clip['bioguide_ids'] = bioguide_ids
+            fu['bioguide_ids'] = bioguide_ids
+
+        return (clip, fu)
 
     url = "http://houselive.gov/MinutesViewer.php?view_id=2&clip_id=%s&event_id=&publish_id=&is_archiving=0&embedded=1&camera_id=" % full_video['clip_id']
     page = urllib2.urlopen(url).read()
     add_date = datetime.datetime.now()
     soup = BeautifulSoup(page.replace("<p />", "</p><p>"))
+    
     clips = []
+    legislator_names = []
+    bioguide_ids = []
+    bills = []
+
     groups = soup.findAll('blockquote')
     #special case for first group that's before the first blockquote
     first_group = soup.find('style')
@@ -197,7 +258,7 @@ def grab_daily_events(full_video):
                 am_or_pm = re.findall('AM|PM|A.M|P.M', groups[0].nextSibling.nextSibling.string)[0].replace('.', '')
             except Exception:
                 PARSING_ERRORS.append((full_video["legislative_day"], "couldn't parse initial timestamp for %s, day not parsed" % full_video['legislative_day']))
-                return
+                return (None, None, None, None)
 
         if am_or_pm == 'AM': #finishing after midnight, record is being read in backwards
             date = datetime.datetime.fromtimestamp(float(full_video['video_id'].replace('house-', ''))) + datetime.timedelta(days=1)
@@ -217,6 +278,7 @@ def grab_daily_events(full_video):
                 fu['created_at'] = add_date
                 fu['timestamp'] = timestamp
                 
+
                 #figure out the duration for smaller clips
                 if last_clip is None: 
                     #first clip read, which is last clip of day
@@ -229,9 +291,18 @@ def grab_daily_events(full_video):
                         last_clip = fe
 
                 if timestamp:
-                    desc_group = group#findNext('p')
-                    fe = parse_group(desc_group, fe, fu, db)
+                    fe, fu = parse_group(group, fe, fu, db)
+
+                    #reverse our lists since they're read in backwards
+                    fe['events'].reverse()
+                    fu['events'].reverse()
                     db['floor_updates'].save(fu)
+          
+                    #add unique bills to top level array 
+                    bills = add_to_video_array(fe, 'bills', bills)
+                    bioguide_ids = add_to_video_array(fe, 'bioguide_ids', bioguide_ids)
+                    legislator_names = add_to_video_array(fe, 'legislator_names', legislator_names)
+
                     clips.append(fe)
                 else:
                     continue
@@ -239,7 +310,8 @@ def grab_daily_events(full_video):
             else:
                 print "finished parsing %s" % full_video['legislative_day']
                 #print "\n"
-        return clips
+        clips.reverse() #since record is read in backwards
+        return (clips, bills, bioguide_ids, legislator_names)
     else:
         PARSING_ERRORS.append((full_video["legislative_day"], "Record empty for %s " % full_video["legislative_day"]))
    
@@ -256,9 +328,9 @@ def pull_wmv_rss(coll):
             if vid.has_key("timestamp_id"):
                 wmv_url= video.enclosures[0]['url']
                 if vid.has_key('clip_urls'):
-                    vid['clip_urls']['wmv'] = wmv_url
+                    vid['clip_urls']['mms'] = wmv_url
                 else:
-                    vid['clip_urls'] = { 'wmv' : wmv_url }
+                    vid['clip_urls'] = { 'mms' : wmv_url }
 
                 coll.save(vid) 
         except:
