@@ -18,7 +18,6 @@ require 'analytics/hits'
 
 
 # load all models and prepare them to be API-ized
-
 models = []
 Dir.glob('models/*.rb').each do |filename|
   model_name = File.basename filename, File.extname(filename)
@@ -26,16 +25,24 @@ Dir.glob('models/*.rb').each do |filename|
   models << model_name unless model.respond_to?(:api?) and !model.api?
 end
 
+
 get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
   model = params[:captures][0].singularize.camelize.constantize
+  format = params[:captures][1]
   
   fields = fields_for model, params
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
-  documents = model.where(conditions).only(fields).order_by(order).all
+  criteria = model.where(conditions).only(fields).order_by(order)
   
-  output_for params[:captures][1], model, documents
+  results = results_for model, criteria
+  
+  if format == 'json'
+    json results
+  elsif format == 'xml'
+    xml results
+  end
 end
 
 
@@ -219,23 +226,15 @@ helpers do
     }
   end
   
-  def output_for(format, model, criteria)
-    if format == 'json'
-      json model, criteria
-    elsif format == 'xml'
-      xml model, criteria
-    end
-  end
-  
-  def json(model, criteria)
+  def json(documents)
     response['Content-Type'] = 'application/json'    
-    json = results_for(model, criteria).to_json
+    json = documents.to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
-  def xml(model, criteria)
+  def xml(documents)
     response['Content-Type'] = 'application/xml'
-    results_for(model, criteria).to_xml :root => 'results'
+    documents.to_xml :root => 'results'
   end
   
 end
