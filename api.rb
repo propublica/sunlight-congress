@@ -114,7 +114,8 @@ helpers do
         "~" => :match,
         "__match" => :match,
         "~~" => :match_i,
-        "__match_i" => :match_i
+        "__match_i" => :match_i,
+        "__exists" => :exists
       }
       
       operator = nil
@@ -151,7 +152,7 @@ helpers do
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}
             
-            if [:lt, :lte, :gt, :gte, :ne].include?(operator)
+            if [:lt, :lte, :gt, :gte, :ne, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
               conditions[key] = /#{value}/
