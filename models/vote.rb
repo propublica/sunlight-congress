@@ -17,6 +17,9 @@ class Vote
   index :how
   index :bill_id
   
+  field :roll_id
+  validates_uniqueness_of :roll_id, :allow_nil => true
+  
   def self.unique_keys
     [:roll_id]
   end
