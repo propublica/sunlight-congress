@@ -7,6 +7,12 @@ class Video
   index :status
   index :pubdate
   index :category
+  index :bills
+  index :legislator_names
+  index :bioguide_ids
+  index :"clips.bills"
+  index :"clips.legislator_names"
+  index :"clips.bioguide_ids"
   
   def self.unique_keys
     [:timestamp_id]

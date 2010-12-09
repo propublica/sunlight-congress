@@ -164,7 +164,7 @@ def grab_daily_events(full_video):
         legislator_names = []
         bioguide_ids = []
         congress =  ((clip['time'].year + 1) / 2 ) - 894
-        bill_re = re.compile('((S\.|H\.)( ?J\.|R\.| Con\. | ?)( ?Res\.)* \d+)')
+        bill_re = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
         name_re = re.compile('((M(rs|s|r)\.){1}\s((\s?[A-Z]{1}[A-Za-z-]+){0,2})(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
 
         pt = group.findNext('p')
@@ -212,7 +212,6 @@ def grab_daily_events(full_video):
                             for p in possibles:
                                 if p['bioguide_id'] not in bioguide_ids:
                                     bioguide_ids.append(p['bioguide_id'])
-                                #START HERE, PUT NAMES, IDS in array
                 else:
                     PARSING_ERRORS.append((clip['legislative_day'].strftime("%Y-%m-%d"), "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
