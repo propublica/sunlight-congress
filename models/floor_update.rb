@@ -4,10 +4,6 @@ class FloorUpdate
   index :chamber
   index :legislative_day
   
-  def self.singular_api?
-    false
-  end
-  
   def self.default_order
     :timestamp
   end

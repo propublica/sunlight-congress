@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'json', '1.4.2'
+gem 'tzinfo', '0.3.23'
 
 gem 'sinatra', '1.0'
 
@@ -22,5 +23,4 @@ end
 
 gem 'sunlight', '1.0.7' # get_legislators
 gem 'hpricot', '0.8.2'  # get_bills
-gem 'nokogiri', '1.4.4' # rolls_live_house
-gem 'tzinfo', '0.3.23'  # rolls_live_house
+gem 'nokogiri', '1.4.4' # rolls_live_house, rolls_live_senate

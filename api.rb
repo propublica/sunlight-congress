@@ -18,56 +18,30 @@ require 'analytics/hits'
 
 
 # load all models and prepare them to be API-ized
-
-models = {:singular => [], :plural => []}
-
+models = []
 Dir.glob('models/*.rb').each do |filename|
   model_name = File.basename filename, File.extname(filename)
   model = model_name.camelize.constantize
-  unless model.respond_to?(:api?) and !model.api?
-    models[:singular] << model_name unless model.respond_to?(:singular_api?) and !model.singular_api?
-    models[:plural] << model_name unless model.respond_to?(:plural_api?) and !model.plural_api?
-  end
+  models << model_name unless model.respond_to?(:api?) and !model.api?
 end
 
 
-# generalized singular and plural methods
-
-get /^\/(#{models[:singular].join "|"})\.(json|xml)$/ do
-  model = params[:captures][0].camelize.constantize rescue raise(Sinatra::NotFound)
-  
-  fields = fields_for model, params
-  conditions = unique_conditions_for model, params
-  
-  unless conditions.any? and document = model.where(conditions).only(fields).first
-    raise Sinatra::NotFound
-  end
-  
-  output_for params[:captures][1], model, document
-end
-
-get /^\/(#{models[:plural].map(&:pluralize).join "|"})\.(json|xml)$/ do
-  model = params[:captures][0].singularize.camelize.constantize rescue raise(Sinatra::NotFound)
+get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
+  model = params[:captures][0].singularize.camelize.constantize
+  format = params[:captures][1]
   
   fields = fields_for model, params
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
-  documents = model.where(conditions).only(fields).order_by(order).all
+  criteria = model.where(conditions).only(fields).order_by(order)
   
-  output_for params[:captures][1], model, documents
-end
-
-
-
-# If this is a JSONP request, and it did trigger one of the main routes, return an error response
-# Otherwise, let it lapse into a normal content-less 404
-# If we don't do this, in-browser clients using JSONP have no way of detecting a problem
-not_found do
-  if params[:captures] and params[:captures][0] and params[:callback]
-    json = {:error => {:code => 404, :message => "#{params[:captures][0].capitalize} not found"}}.to_json
-    jsonp = "#{params[:callback]}(#{json});";
-    halt 200, jsonp
+  results = results_for model, criteria, conditions
+  
+  if format == 'json'
+    json results
+  elsif format == 'xml'
+    xml results
   end
 end
 
@@ -86,36 +60,26 @@ helpers do
     sections.uniq
   end
   
-  def unique_conditions_for(model, params)
-    model.unique_keys.each do |key|
-      return {key => params[key]} if params[key]
-    end
-    {}
-  end
-  
   def filter_conditions_for(model, params)
     conditions = {}
     
-    # there are magical operators that can be appended to any params
-    # params[:captures] will not be 
     params.each do |key, value|
-      # if there's a special operator (>, <, !, etc.), strip it off the key
+      
+      # if there's a special operator (>, <, !, __ne, etc.), strip it off the key
       operators = {
-        ">>" => :gt, 
-        "__gt" => :gt, 
-        "<<" => :lt,
-        "__lt" => :lt,
         ">" => :gte, 
-        "__gte" => :gte,
         "<" => :lte, 
-        "__lte" => :lte, 
         "!" => :ne,
+        "__gt" => :gt, 
+        "__lt" => :lt,
+        "__gte" => :gte,
+        "__lte" => :lte, 
         "__ne" => :ne,
-        "~" => :match,
         "__match" => :match,
-        "~~" => :match_i,
         "__match_i" => :match_i,
-        "__exists" => :exists
+        "__exists" => :exists,
+        "__in" => :in,
+        "__nin" => :nin
       }
       
       operator = nil
@@ -125,39 +89,28 @@ helpers do
       end
       
       if !magic_fields.include? key.to_sym
-        # transform 'value' to the correct type for this key if needed
         
-        # type overridden in model
-        if model.fields[key] 
-          if model.fields[key].type == Boolean
-            value = (value == "true") if ["true", "false"].include? value
-          elsif model.fields[key].type == Integer
-            value = value.to_i
-          end
-          
-        # try to autodetect type
+        # transform 'value' to the correct type for this key if needed
+        if [:nin, :in].include?(operator)
+          value = value.split("|").map {|v| value_for v, model.fields[key]}
         else
-          if ["true", "false"].include? value # boolean
-            value = (value == "true")
-          elsif value =~ /^\d+$/
-            value = value.to_i
-          end
+          value = value_for value, model.fields[key]
         end
         
-        p "key: #{key}"
-        p "operator: #{operator}"
-        p "value: #{value} (#{value.class})"
+        puts
+        puts "value: #{value.inspect} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
+            # error point: invalid regexp, check now
             conditions[key] ||= {}
             
-            if [:lt, :lte, :gt, :gte, :ne, :exists].include?(operator)
+            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = /#{value}/
+              conditions[key] = /#{value}/ rescue nil # avoid RegexpError
             elsif operator == :match_i
-              conditions[key] = /#{value}/i
+              conditions[key] = /#{value}/i rescue nil # avoid RegexpError
             end
           else
             # let it fall, someone already assigned the filter directly
@@ -170,8 +123,40 @@ helpers do
         
       end
     end
+    
+    puts
+    puts "conditions: #{conditions.inspect}"
+    puts
 
     conditions
+  end
+  
+  
+  def value_for(value, field)
+    # type overridden in model
+    if field
+      if field.type == Boolean
+        (value == "true") if ["true", "false"].include? value
+      elsif field.type == Integer
+        value.to_i
+      elsif [Date, Time, DateTime].include?(field.type)
+        Time.parse value
+      else
+        value
+      end
+      
+    # try to autodetect type
+    else
+      if ["true", "false"].include? value # boolean
+        value == "true"
+      elsif value =~ /^\d+$/
+        value.to_i
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+        Time.parse value
+      else
+        value
+      end
+    end
   end
   
   def order_for(model, params)
@@ -215,60 +200,43 @@ helpers do
     {:per_page => per_page, :page => page}
   end
 
-  def attributes_for_single(document)
+  def attributes_for(document)
     attributes = document.attributes
     [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
     attributes
   end
   
-  def attributes_for_plural(model, documents)
+  def results_for(model, criteria, conditions)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
     # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
     # #count will not trigger it, #paginate will
-    total_count = documents.count
-    page = documents.paginate pagination
+    total_count = criteria.count
+    documents = criteria.paginate pagination
     
     {
-      key => page.map {|document| attributes_for_single document},
+      key => documents.map {|document| attributes_for document},
       :count => total_count,
       :page => {
-        :count => page.size,
+        :count => documents.size,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
-      }
+      },
+      :conditions => conditions
     }
   end
   
-  def output_for(format, model, object)
-    if format == 'json'
-      json model, object
-    elsif format == 'xml'
-      xml model, object
-    end
-  end
-  
-  def json(model, object)
+  def json(results)
     response['Content-Type'] = 'application/json'    
-    
-    if object.is_a?(Mongoid::Criteria)
-      json = attributes_for_plural(model, object).to_json
-    else
-      json = {model.to_s.underscore => attributes_for_single(object)}.to_json
-    end
-    
+    json = results.to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
-  def xml(model, object)
+  def xml(results)
     response['Content-Type'] = 'application/xml'
-    
-    if object.is_a?(Mongoid::Criteria)
-      attributes_for_plural(model, object).to_xml :root => 'results'
-    else
-      attributes_for_single(object).to_xml :root => model.to_s.underscore
-    end
+    results.delete :conditions # operators with $'s are invalid XML
+    results.to_xml :root => 'results'
   end
   
 end
