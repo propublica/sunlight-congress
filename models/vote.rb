@@ -29,7 +29,7 @@ class Vote
   end
   
   def self.basic_fields
-    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :vote_breakdown, :text, :vote_type, :passage_type]
+    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :text, :vote_type, :passage_type]
   end
   
 end
