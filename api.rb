@@ -220,9 +220,9 @@ helpers do
     }
   end
   
-  def json(documents)
+  def json(results)
     response['Content-Type'] = 'application/json'    
-    json = documents.to_json
+    json = results.to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
