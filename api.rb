@@ -226,9 +226,10 @@ helpers do
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
-  def xml(documents)
+  def xml(results)
     response['Content-Type'] = 'application/xml'
-    documents.to_xml :root => 'results'
+    results.delete :conditions # operators with $'s are invalid XML
+    results.to_xml :root => 'results'
   end
   
 end
