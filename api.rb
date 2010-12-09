@@ -97,6 +97,9 @@ helpers do
           value = value_for value, model.fields[key]
         end
         
+        puts
+        puts "value: #{value.inspect} (#{value.class})"
+        
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             # error point: invalid regexp, check now
@@ -136,6 +139,8 @@ helpers do
         (value == "true") if ["true", "false"].include? value
       elsif field.type == Integer
         value.to_i
+      elsif [Date, Time, DateTime].include?(field.type)
+        Time.parse value
       else
         value
       end
@@ -146,6 +151,8 @@ helpers do
         value == "true"
       elsif value =~ /^\d+$/
         value.to_i
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+        Time.parse value
       else
         value
       end
