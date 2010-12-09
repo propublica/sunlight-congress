@@ -29,6 +29,7 @@ set :use_sudo, false
 after "deploy", "deploy:cleanup"
 after "deploy:update_code", "deploy:shared_links"
 after "deploy:update_code", "deploy:bundle_install"
+after "deploy:update_code", "deploy:create_indexes"
 
 
 namespace :deploy do
