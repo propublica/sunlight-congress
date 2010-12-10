@@ -123,6 +123,10 @@ module Utils
     Bill.basic_fields
   end
   
+  def self.amendment_fields
+    Amendment.basic_fields
+  end
+  
   def self.legislator_for(legislator)
     attributes = legislator.attributes
     allowed_keys = legislator_fields.map {|f| f.to_s}
@@ -146,7 +150,7 @@ module Utils
   
   def self.amendment_for(amendment)
     attributes = amendment.attributes
-    allowed_keys = Amendment.basic_fields.map {|f| f.to_s}
+    allowed_keys = amendment_fields.map {|f| f.to_s}
     attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
     attributes
   end

@@ -10,7 +10,7 @@ class Amendment
   index :offered_at
   index :last_voted_at
   index :last_action_at
-  index :status
+  index :state
   index :sponsor_id
   
   field :amendment_id
@@ -25,7 +25,7 @@ class Amendment
   end
   
   def self.basic_fields
-    [:sponsor_id, :chamber, :number, :session, :amendment_id, :status, :bill_id, :offered_at, :last_voted_at, :last_action_at]
+    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :description, :purpose]
   end
   
 end

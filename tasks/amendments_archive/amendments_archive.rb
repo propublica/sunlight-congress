@@ -3,7 +3,13 @@ require 'nokogiri'
 class AmendmentsArchive
   
   def self.run(options = {})
-    session = options[:session] || Utils.current_session
+    options[:session] ||= Utils.current_session
+    load_amendments options
+    update_bills options
+  end
+  
+  def self.load_amendments(options)
+    session = options[:session]
     count = 0
     missing_ids = []
     bad_amendments = []
@@ -23,7 +29,7 @@ class AmendmentsArchive
     amendments = Dir.glob "data/govtrack/#{session}/amendments/*.xml"
     
     # debug helpers
-    # amendments = Dir.glob "data/govtrack/#{session}/bills/h2109.xml"
+    # amendments = Dir.glob "data/govtrack/#{session}/amendments/h538.xml"
     # amendments = amendments.first 20
     
     amendments.each do |path|
@@ -35,6 +41,10 @@ class AmendmentsArchive
       chamber_type = doc.root['chamber']
       chamber = {'h' => 'house', 's' => 'senate'}[chamber_type]
       amendment_id = "#{chamber_type}#{number}-#{session}"
+      state = state_for doc
+      offered_at = Utils.govtrack_time_for doc.at(:offered)['datetime']
+      description = description_for doc
+      purpose = purpose_for doc
       
       bill_id = bill_id_for doc, session
       
@@ -46,11 +56,9 @@ class AmendmentsArchive
         sponsor = doc.at(:sponsor)['committee']
       end
       
-      # actions = actions_for doc
-      state = state_for doc
+      actions = actions_for doc
+      last_action_at = actions.last ? actions.last[:acted_at] : nil
       
-      # last_action_at = actions.last ? actions.last[:acted_at] : nil
-      offered_at = Utils.govtrack_time_for doc.at(:offered)['datetime']
       
       amendment = Amendment.find_or_initialize_by :amendment_id => amendment_id
       amendment.attributes = {
@@ -58,10 +66,12 @@ class AmendmentsArchive
         :number => number,
         :chamber => chamber,
         :state => state,
-        :offered_at => offered_at
+        :offered_at => offered_at,
+        :description => description,
+        :purpose => purpose,
         
-        # :actions => actions,
-        # :last_action_at => last_action_at
+        :actions => actions,
+        :last_action_at => last_action_at
       }
       
       if sponsor
@@ -88,16 +98,7 @@ class AmendmentsArchive
       
       if amendment.save
         count += 1
-        puts "[#{amendment_id}] Saved successfully"
-        
-        # update bill, should be no validation issues
-        if bill_id
-          bill = Bill.where(:bill_id => bill_id).first
-          bill[:amendments] << Utils.amendment_for(amendment)
-          bill[:amendment_ids] << amendment_id
-          bill.save!
-        end
-        
+        # puts "[#{amendment_id}] Saved successfully"
       else
         bad_amendments << {:attributes => amendment.attributes, :error_messages => amendment.errors.full_messages}
         puts "[#{amendment_id}] Error saving, will file report"
@@ -117,6 +118,34 @@ class AmendmentsArchive
   end
   
   
+  def self.update_bills(options)
+    session = options[:session]
+    
+    count = 0
+    amendment_count = 0
+    
+    bills = Bill.where(:session => session).only([:bill_id]).all
+    # bills = bills.to_a.first 20
+    
+    bills.each do |bill|
+      amendments = Amendment.where(:bill_id => bill.bill_id).only(Utils.amendment_fields).all.to_a.map {|amendment| Utils.amendment_for amendment}
+      
+      bill.attributes = {
+        :amendments => amendments,
+        :amendment_ids => amendments.map {|a| a[:amendment_id]},
+        :amendments_count => amendments.size
+      }
+      
+      bill.save! # should be no problem
+      
+      count += 1
+      amendment_count += amendments.size
+      
+      # puts "[#{bill.bill_id}] Updated with #{amendments.size} amendments"
+    end
+    
+    Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.count} amendments)."
+  end
   
   def self.state_for(doc)
     doc.at(:status) ? doc.at(:status).text : "unknown"
@@ -153,13 +182,29 @@ class AmendmentsArchive
   end
   
   def self.actions_for(doc)
-#     doc.search('//actions/*').reject {|a| a.class == Hpricot::Text}.map do |action|
-#       {
-#         :acted_at => Utils.govtrack_time_for(action['datetime']),
-#         :text => (action/:text).inner_text,
-#         :type => action.name
-#       }
-#     end
+    doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
+      {
+        :acted_at => Utils.govtrack_time_for(action['datetime']),
+        :text => (action/:text).inner_text,
+        :type => action.name
+      }
+    end
+  end
+  
+  def self.description_for(doc)
+    if elem = doc.at(:description) and elem.text.present?
+      elem.text
+    else
+      nil
+    end
+  end
+  
+  def self.purpose_for(doc)
+    if elem = doc.at(:purpose) and elem.text.present?
+      elem.text
+    else
+      nil
+    end
   end
 
 end
