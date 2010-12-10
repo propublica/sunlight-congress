@@ -97,8 +97,8 @@ helpers do
           value = value_for value, model.fields[key]
         end
         
-        puts
-        puts "value: #{value.inspect} (#{value.class})"
+#         puts
+#         puts "value: #{value.inspect} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
@@ -124,9 +124,9 @@ helpers do
       end
     end
     
-    puts
-    puts "conditions: #{conditions.inspect}"
-    puts
+#     puts
+#     puts "conditions: #{conditions.inspect}"
+#     puts
 
     conditions
   end

@@ -14,8 +14,8 @@ class RollsLiveHouse
     
     # make lookups faster later by caching a hash of legislators from which we can lookup bioguide_ids
     legislators = {}
-    Legislator.only(Utils.voter_fields).all.each do |legislator|
-      legislators[legislator.bioguide_id] = legislator
+    Legislator.only(Utils.legislator_fields).all.each do |legislator|
+      legislators[legislator.bioguide_id] = Utils.legislator_for legislator
     end
     
     latest_new_roll = nil
@@ -172,7 +172,7 @@ class RollsLiveHouse
       bioguide_id = (elem / 'legislator').first['name-id']
       
       if legislators[bioguide_id]
-        voter = Utils.voter_for legislators[bioguide_id]
+        voter = legislators[bioguide_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}

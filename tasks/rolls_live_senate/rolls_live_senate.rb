@@ -183,7 +183,7 @@ class RollsLiveSenate
       legislators[lis_id] ||= lookup_legislator elem
       
       if legislators[lis_id]
-        voter = Utils.voter_for legislators[lis_id]
+        voter = legislators[lis_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
@@ -203,8 +203,8 @@ class RollsLiveSenate
     
     party = "I" if party == "ID"
     
-    results = Legislator.where(:chamber => "senate", :last_name => last_name, :party => party, :state => state)
-    results.size == 1 ? results.first : nil
+    results = Legislator.where :chamber => "senate", :last_name => last_name, :party => party, :state => state
+    results.size == 1 ? Utils.legislator_for(results.first) : nil
   end
   
   def self.bill_id_for(doc, session)

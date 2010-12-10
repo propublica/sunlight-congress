@@ -26,7 +26,7 @@ class VotesArchive
     
     # make lookups faster later by caching a hash of legislators from which we can lookup govtrack_ids
     legislators = {}
-    Legislator.only(Utils.voter_fields).all.each do |legislator|
+    Legislator.only(Utils.legislator_fields).all.each do |legislator|
       legislators[legislator.govtrack_id] = legislator
     end
     
@@ -202,7 +202,7 @@ class VotesArchive
       govtrack_id = elem['id']
       
       if legislators[govtrack_id]
-        voter = Utils.voter_for legislators[govtrack_id]
+        voter = Utils.legislator_for legislators[govtrack_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}

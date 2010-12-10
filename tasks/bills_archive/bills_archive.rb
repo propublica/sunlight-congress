@@ -16,12 +16,12 @@ class BillsArchive
       return
     end
     
-    # make lookups faster later by caching a hash of legislators from which we can lookup govtrack_ids
-    legislators = {}
-    Legislator.only(sponsor_fields).all.each do |legislator|
-      legislators[legislator.govtrack_id] = legislator
-    end
     
+    # legislator cache
+    legislators = {}
+    Legislator.only(Utils.legislator_fields).all.each do |legislator|
+      legislators[legislator.govtrack_id] = Utils.legislator_for legislator
+    end
     
     
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
@@ -74,7 +74,11 @@ class BillsArchive
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
-        :introduced_at => introduced_at
+        :introduced_at => introduced_at,
+        
+        # will be filled in by amendments_archive, which can do a better job
+        :amendment_ids => [],
+        :amendments => []
       }
       
       timeline = timeline_for doc, state, passage_votes
@@ -102,7 +106,6 @@ class BillsArchive
   end
   
   
-  
   def self.state_for(doc)
     doc.at(:state) ? doc.at(:state).inner_text : "UNKNOWN"
   end
@@ -114,14 +117,30 @@ class BillsArchive
   
   def self.sponsor_for(filename, doc, legislators, missing_ids)
     sponsor = doc.at :sponsor
-    sponsor and sponsor['id'] and !sponsor['withdrawn'] ? legislator_for(filename, sponsor['id'], legislators, missing_ids) : nil
+    if sponsor and sponsor['id'] and !sponsor['withdrawn']
+      if legislators[sponsor['id']]
+        legislators[sponsor['id']]
+      else
+        missing_ids << [sponsor['id'], filename]
+        nil
+      end
+    end
   end
   
   def self.cosponsors_for(filename, doc, legislators, missing_ids)
-    cosponsors = (doc/:cosponsor).map do |cosponsor| 
-      cosponsor and cosponsor['id'] and !cosponsor['withdrawn'] ? legislator_for(filename, cosponsor['id'], legislators, missing_ids) : nil
-    end.compact
-    cosponsors.any? ? cosponsors : nil
+    cosponsors = []
+    
+    (doc/:cosponsor).each do |cosponsor| 
+      if cosponsor and cosponsor['id'] and !cosponsor['withdrawn']
+        if legislators[cosponsor['id']]
+          cosponsors << legislators[cosponsor['id']]
+        else
+          missing_ids << [cosponsor['id'], filename]
+        end
+      end
+    end
+    
+    cosponsors
   end
   
   def self.titles_for(doc)
@@ -235,26 +254,6 @@ class BillsArchive
       
       result
     end
-  end
-  
-  def self.legislator_for(filename, govtrack_id, legislators, missing_ids)
-    legislator = legislators[govtrack_id]
-    
-    if legislator
-      attributes = legislator.attributes
-      allowed_keys = sponsor_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
-    else
-      missing_ids << [govtrack_id, filename] if missing_ids
-      nil
-    end
-  end
-  
-  
-  # fields of legislator to include on sponsor fields
-  def self.sponsor_fields
-    [:first_name, :nickname, :last_name, :name_suffix, :title, :chamber, :state, :party, :district, :govtrack_id, :bioguide_id]
   end
 
 end

@@ -108,7 +108,10 @@ module Utils
     end
   end
   
-  def self.voter_fields 
+  
+  # basic fields and common fetching of them for redundant data
+  
+  def self.legislator_fields
     [
       :govtrack_id, :bioguide_id,
       :title, :first_name, :nickname, :last_name, :name_suffix, 
@@ -116,16 +119,19 @@ module Utils
     ]
   end
   
-  def self.voter_for(legislator)
+  def self.bill_fields
+    Bill.basic_fields
+  end
+  
+  def self.legislator_for(legislator)
     attributes = legislator.attributes
-    allowed_keys = voter_fields.map {|f| f.to_s}
+    allowed_keys = legislator_fields.map {|f| f.to_s}
     attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
     attributes
   end
   
+  # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
-    bill_fields = Bill.basic_fields
-    
     bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
     
     if bill
@@ -137,5 +143,11 @@ module Utils
       nil
     end
   end
-
+  
+  def self.amendment_for(amendment)
+    attributes = amendment.attributes
+    allowed_keys = Amendment.basic_fields.map {|f| f.to_s}
+    attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
+    attributes
+  end
 end
