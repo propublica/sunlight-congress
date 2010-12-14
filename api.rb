@@ -36,7 +36,7 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
   
   criteria = model.where(conditions).only(fields).order_by(order)
   
-  results = results_for model, criteria, conditions
+  results = results_for model, criteria, conditions, fields
   
   if format == 'json'
     json results
@@ -200,13 +200,13 @@ helpers do
     {:per_page => per_page, :page => page}
   end
 
-  def attributes_for(document)
+  def attributes_for(document, fields)
     attributes = document.attributes
-    [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
+    [:_id, :created_at, :updated_at].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
     attributes
   end
   
-  def results_for(model, criteria, conditions)
+  def results_for(model, criteria, conditions, fields)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
@@ -216,7 +216,7 @@ helpers do
     documents = criteria.paginate pagination
     
     {
-      key => documents.map {|document| attributes_for document},
+      key => documents.map {|document| attributes_for document, fields},
       :count => total_count,
       :page => {
         :count => documents.size,
