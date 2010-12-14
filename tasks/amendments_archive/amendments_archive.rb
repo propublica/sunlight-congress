@@ -124,7 +124,7 @@ class AmendmentsArchive
     count = 0
     amendment_count = 0
     
-    bills = Bill.where(:session => session).only([:bill_id]).all
+    bills = Bill.where(:bill_id => {"$in" => Amendment.where(:session => session).distinct(:bill_id)}).all
     # bills = bills.to_a.first 20
     
     bills.each do |bill|
