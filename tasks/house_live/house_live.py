@@ -34,6 +34,7 @@ if len(sys.argv) > 2:
     add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%Mz")
     rss = feedparser.parse(rss_url)
     count = 0
+    
     for video in rss.entries:
         try:
             date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
