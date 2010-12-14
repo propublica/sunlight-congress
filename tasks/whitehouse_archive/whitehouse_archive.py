@@ -42,6 +42,7 @@ if len(sys.argv) > 2:
     conn = Connection(host=db_host)
     db = conn[db_name]
     add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%MZ")
+    count = 0
     
     for f in feeds:
         rss = feedparser.parse(f)
@@ -66,9 +67,13 @@ if len(sys.argv) > 2:
                 video_obj['category'] = cats[feeds.index(f)]
                 video_obj['status'] = "archived"
                 db['videos'].save(video_obj)
+                
+                # print "Saved White House video for %s" % video_obj['pubdate']
+                count += 1
 
             except Exception as e:
                 print e
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
-
+                file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "WhitehouseArchive")
+                
+    file_report(db, "SUCCESS", "Updated or created %s White House videos" % count, "WhitehouseArchive")
