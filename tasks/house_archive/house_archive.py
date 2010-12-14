@@ -68,6 +68,9 @@ def grab_daily_meta(db):
 
     rows = link.findAll('tr')
     print "got page"
+    
+    count = 0
+    
     for row in rows:
         try:
             cols = row.findAll('td')
@@ -109,10 +112,13 @@ def grab_daily_meta(db):
 
                 fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd)
                 db['videos'].save(fd)
+                count += 1
         except Exception as e:
 #            print "exception! %s " % e
             file_report(db, 'WARNING', e, "house_archive")
             continue
+    
+    file_report(db, "SUCCESS", "Updated or created %s legislative days for House video" % count, "HouseArchive")
                             
 def grab_daily_events(full_video):
     
