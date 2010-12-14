@@ -39,6 +39,8 @@ if len(sys.argv) > 2:
     content = soup.find('div', {"id" : "video-list-box"})
     vid_list = content.findAll('div', {"class": re.compile(r'\bviews-row\b')})
     if vid_list:
+        count = 0
+        
         for vid in vid_list:
             date = vid.find('div', "date")
             date_str = date.find("span")
@@ -88,6 +90,12 @@ if len(sys.argv) > 2:
                               "chamber": "whitehouse"
                             }
                 db["videos"].save(video_obj)
+            
+            # print "Updated or created video %s" % video_obj['title']
+            count += 1
+        
+        file_report(db, "SUCCESS", "Updated or created %s live White House videos" % count, "WhitehouseLive")
+        
     else:
         print "no live streaming"
     
