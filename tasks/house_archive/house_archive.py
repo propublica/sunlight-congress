@@ -348,12 +348,12 @@ if __name__ == "__main__":
             grab_daily_meta(db)
             #pull_wmv_rss(db['videos'])
             if PARSING_ERRORS:
-                file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
+                file_report(db, "WARNING", PARSING_ERRORS, "HouseArchive")
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print "%s %s" % (e, traceback.extract_tb(exc_traceback))
-            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
+            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "HouseArchive")
 
     else:
         print 'Not enough arguments passed'

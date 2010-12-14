@@ -50,18 +50,20 @@ end
 def run_task(name)
   require 'tasks/report'
   require 'tasks/utils'
-
   require 'pony'
   
-
-  load "tasks/#{name}/#{name}.rb"
   task_name = name.camelize
-  task = task_name.constantize
   
   start = Time.now
   
   begin
-    task.run :config => config, :args => ARGV[1..-1]
+    if File.exist? "tasks/#{name}/#{name}.rb"
+      run_ruby name
+    elsif File.exist? "tasks/#{name}/#{name}.py"
+      run_python name
+    else
+      raise Exception.new "Couldn't locate task file"
+    end
     
   rescue Exception => ex
     Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
@@ -78,6 +80,16 @@ def run_task(name)
     report.mark_read!
   end
 
+end
+
+def run_ruby(name)
+  load "tasks/#{name}/#{name}.rb"
+  name.camelize.constantize.run :config => config, :args => ARGV[1..-1]
+end
+
+def run_python(name)
+  script = "tasks/#{name}/#{name}.py"
+  system "python #{script} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
 end
 
 def email(report)
