@@ -140,7 +140,7 @@ helpers do
       elsif field.type == Integer
         value.to_i
       elsif [Date, Time, DateTime].include?(field.type)
-        Time.parse value
+        Time.parse(value) rescue nil
       else
         value
       end
@@ -152,7 +152,7 @@ helpers do
       elsif value =~ /^\d+$/
         value.to_i
       elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
-        Time.parse value
+        Time.parse(value) rescue nil
       else
         value
       end
