@@ -19,7 +19,7 @@ class Video
   end
   
   def self.default_order
-    :timestamp_id
+    :pubdate
   end
   
   def self.basic_fields
