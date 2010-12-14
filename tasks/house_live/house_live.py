@@ -33,6 +33,7 @@ if len(sys.argv) > 2:
     db = conn[db_name]
     add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%Mz")
     rss = feedparser.parse(rss_url)
+    count = 0
     for video in rss.entries:
         try:
             date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
@@ -56,8 +57,13 @@ if len(sys.argv) > 2:
             video_obj['created_at'] = add_date
             video_obj['chamber'] = 'house'
             db['videos'].save(video_obj)
+            
+            # print "Saved house video for %s" % video_obj['legislative_day']
+            count += 1
+            
         except Exception as e:
             print e
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
-
+            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "HouseLive")
+        
+    file_report(db, "SUCCESS", "Updated or created %s live House videos" % count, "HouseLive")
