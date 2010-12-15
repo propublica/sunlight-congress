@@ -1,0 +1,16 @@
+# m h  dom mon dow   command
+
+# foundation of legislators, bills, votes
+0 4,16 * * * /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees && /projects/rtc/shared/cron/task.sh bills_archive && /projects/rtc/shared/cron/task.sh amendments_archive && /projects/rtc/shared/cron/task.sh votes_archive
+
+# video
+0 7 * * *    /projects/rtc/shared/cron/task.sh whitehouse_archive
+0 9 * * *    /projects/rtc/shared/cron/task.sh house_archive
+0 2 * * *    /projects/rtc/shared/cron/task.sh house_live
+*/5 * * * *  /projects/rtc/shared/cron/task.sh whitehouse_live
+
+# live roll call votes
+*/5 * * * *  /projects/rtc/shared/cron/task.sh rolls_live_house
+*/5 * * * *  /projects/rtc/shared/cron/task.sh rolls_live_senate
+
+# floor updates
