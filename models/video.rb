@@ -25,4 +25,8 @@ class Video
   def self.basic_fields
     [:duration, :legislative_day, :video_id, :clip_urls, :status, :pubdate, :category, :title, :description, :chamber, :start_time]
   end
+  
+  def self.search_fields
+    ["clips.events"]
+  end
 end
