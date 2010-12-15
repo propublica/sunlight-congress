@@ -79,7 +79,8 @@ helpers do
         "__match_i" => :match_i,
         "__exists" => :exists,
         "__in" => :in,
-        "__nin" => :nin
+        "__nin" => :nin,
+        "__all" => :all
       }
       
       operator = nil
@@ -91,7 +92,7 @@ helpers do
       if !magic_fields.include? key.to_sym
         
         # transform 'value' to the correct type for this key if needed
-        if [:nin, :in].include?(operator)
+        if [:nin, :in, :all].include?(operator)
           value = value.split("|").map {|v| value_for v, model.fields[key]}
         else
           value = value_for value, model.fields[key]
@@ -105,7 +106,7 @@ helpers do
             # error point: invalid regexp, check now
             conditions[key] ||= {}
             
-            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
+            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
               conditions[key] = regex_for value, false
