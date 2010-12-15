@@ -46,18 +46,28 @@ if len(sys.argv) > 2:
           
           for meeting in meetings:
               committee_id = meeting.cmte_code.contents[0].strip()
-              committee = meeting.committee.contents[0].strip()
+              committee_id = re.sub("(\d+)$", "", committee_id)
+              
               date_string = meeting.date.contents[0].strip()
+              occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6])
+              legislative_day = occurs_at.strftime("%Y-%m-%d")
               
-              occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %H:%M %p")[0:6])
+              try:
+                time_str = meeting.time.contents[0].strip()
+                time_of_day = time.strptime(time_str, "%I:%M %p")
+                time_of_day = datetime.datetime(*time_of_day[0:6])
+                time_of_day = time_of_day.strftime("%I:%M%p")
+              except ValueError:
+                time_of_day = None
               
-              if occurs_at.hour < 6:
-                  occurs_at = occurs_at + datetime.timedelta(hours=12)
+              document = None
+              if meeting.document:
+                document = meeting.document.contents[0].strip()
                   
               room = meeting.room.contents[0].strip()
               description = meeting.matter.contents[0].strip().replace('\n', '')
               
-              get_or_create(db, 'committee_hearings', {'chamber': 'senate', 'committee_id': committee_id, 'occurs_at': occurs_at}, {'room': room, 'description': description})
+              get_or_create(db, 'committee_hearings', {'chamber': 'senate', 'committee_id': committee_id, 'legislative_day': legislative_day}, {'room': room, 'description': description, 'occurs_at': occurs_at, 'document': document, 'time_of_day': time_of_day})
               
               count += 1
           
