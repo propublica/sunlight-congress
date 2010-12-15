@@ -108,9 +108,9 @@ helpers do
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = /#{value}/ rescue nil # avoid RegexpError
+              conditions[key] = regex_for value, false
             elsif operator == :match_i
-              conditions[key] = /#{value}/i rescue nil # avoid RegexpError
+              conditions[key] = regex_for value
             end
           else
             # let it fall, someone already assigned the filter directly
@@ -124,13 +124,18 @@ helpers do
       end
     end
     
-#     puts
-#     puts "conditions: #{conditions.inspect}"
-#     puts
+    if params[:search].present? and model.respond_to?(:search_fields)
+      conditions["$or"] = model.search_fields.map do |key|
+        {key => regex_for(params[:search])}
+      end
+    end
 
     conditions
   end
   
+  def regex_for(value, i = true)
+    (i ? /#{value}/i : /#{value}/) rescue nil
+  end
   
   def value_for(value, field)
     # type overridden in model
