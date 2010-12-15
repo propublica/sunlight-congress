@@ -1,4 +1,5 @@
-from BeautifulSoup import BeautifulStoneSoup
+from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+import feedparser
 import re
 
 import urllib2
@@ -67,16 +68,89 @@ if len(sys.argv) > 2:
               room = meeting.room.contents[0].strip()
               description = meeting.matter.contents[0].strip().replace('\n', '')
               
-              get_or_create(db, 'committee_hearings', {'chamber': 'senate', 'committee_id': committee_id, 'legislative_day': legislative_day}, {'room': room, 'description': description, 'occurs_at': occurs_at, 'document': document, 'time_of_day': time_of_day})
+              get_or_create(db, 'committee_hearings', {
+                  'chamber': 'senate', 
+                  'committee_id': committee_id, 
+                  'legislative_day': legislative_day
+                }, {
+                  'room': room, 
+                  'description': description, 
+                  'occurs_at': occurs_at, 
+                  'document_id': document, 
+                  'time_of_day': time_of_day
+                })
               
               count += 1
           
           return count
-
     
+    def house_hearings():
+        today = datetime.date.today()
+      
+        doc = feedparser.parse("http://www.govtrack.us/users/events-rss2.xpd?monitors=misc:allcommittee")
+        items = doc['items']
+        
+        count = 0
+        for item in items:
+            title_str = item.title.replace('Committee Meeting Notice: ', '')
+            chamber = title_str.partition(' ')[0]
+            
+            if chamber == "House":
+                
+                committee_id = None
+                match = re.compile("xpd\?id=([A-Z]+)$").search(item.link)
+                if match:
+                  committee_id = match.group(1)
+                
+                occurs_at = None
+                if hasattr(item, 'pubDate_parsed'):
+                    occurs_at = datetime.datetime(*item.pubDate_parsed[:7])
+                
+                
+                soup = BeautifulSoup(item.description)
+                full_description = soup.findAll('p')[0].contents[0]
+                
+                occurs_at = None
+                legislative_day = None
+                time_of_day = None
+                description = full_description
+                
+                match = re.compile("^([^\.]+)\.").search(full_description)
+                if match:
+                    date_str = match.group(1)
+                    timestamp = time.strptime(date_str, "%a, %b %d, %Y %I:%M %p")
+                    occurs_at = datetime.datetime(*timestamp[:7])
+                    legislative_day = occurs_at.strftime("%Y-%m-%d")
+                    time_of_day = occurs_at.strftime("%I:%M %p")
+                    description = full_description.replace("%s. " % date_str, "")
+                else:
+                    file_report(db, "WARNING", "Couldn't parse date from committee description (%s), possible problem with parser" % date_str, "CommitteeHearings")
+                    
+                #description = p.split(' -- ')[0].strip()
+                #date_str = p.split(' -- ')[1].replace(' at ', ' ').replace('a.m', 'AM').replace('p.m.', 'PM').replace('.', '').strip()
+                
+                get_or_create(db, 'committee_hearings', {
+                    'chamber': 'house', 
+                    'committee_id': committee_id, 
+                    'occurs_at': occurs_at,
+                  }, {
+                    'description': description, 
+                    'legislative_day': legislative_day, 
+                    'time_of_day': time_of_day
+                  })
+                
+                count += 1
+            
+            elif chamber != "Senate":
+                file_report(db, "WARNING", "Found committee chamber (%s) not House or Senate, possible problem with parser" % chamber, "CommitteeHearings")
+        
+        return count
+        
+        
     try:
         total_count = 0
         total_count += senate_hearings()
+        total_count += house_hearings()
     
     except Exception as e:
         print e
