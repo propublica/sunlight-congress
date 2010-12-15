@@ -28,4 +28,8 @@ class Amendment
     [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :description, :purpose]
   end
   
+  def self.search_fields
+    [:description, :purpose]
+  end
+  
 end
