@@ -76,7 +76,7 @@ helpers do
         "__lte" => :lte, 
         "__ne" => :ne,
         "__match" => :match,
-        "__match_i" => :match_i,
+        "__match_s" => :match_s,
         "__exists" => :exists,
         "__in" => :in,
         "__nin" => :nin,
@@ -109,9 +109,9 @@ helpers do
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = regex_for value, false
-            elsif operator == :match_i
               conditions[key] = regex_for value
+            elsif operator == :match_s
+              conditions[key] = regex_for value, false
             end
           else
             # let it fall, someone already assigned the filter directly
