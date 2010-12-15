@@ -19,3 +19,6 @@
 
 # whip notices
 0 15 * * *   /projects/rtc/shared/cron/task.sh whip_notices
+
+# committee hearings
+*/15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings
