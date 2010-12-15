@@ -134,7 +134,9 @@ helpers do
   end
   
   def regex_for(value, i = true)
-    (i ? /#{value}/i : /#{value}/) rescue nil
+    regex_value = value.dup
+    %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
+    i ? /#{regex_value}/i : /#{regex_value}/
   end
   
   def value_for(value, field)
