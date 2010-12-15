@@ -23,11 +23,15 @@ if len(sys.argv) > 2:
 
     def get_or_create_notice(chamber, posted_at, party, notice_type):
       notice = {'chamber': chamber, 'posted_at': posted_at, 'party': party, 'notice_type': notice_type}
+      
       objs = db['whip_notices'].find(notice)
       if objs.count() > 0:
-        return objs[0]
+        notice = objs[0]
       else:
-        return notice
+        notice['created_at'] = datetime.datetime.now()
+        
+      notice['updated_at'] = datetime.datetime.now()
+      return notice
 
     def house_dem(notice_type, source):
         count = 0
@@ -89,7 +93,7 @@ if len(sys.argv) > 2:
                   weekly_url = "http://republicanwhip.house.gov/floor/%s.pdf" % single_digify(weekly_date.strftime("%m-%d-%y"))
                   
                   notice = get_or_create_notice("house", weekly_date, "R", "weekly")
-                  notice ['url'] = weekly_url
+                  notice['url'] = weekly_url
                   db['whip_notices'].save(notice)
                   count += 1
               
