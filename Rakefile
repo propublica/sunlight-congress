@@ -88,8 +88,7 @@ def run_ruby(name)
 end
 
 def run_python(name)
-  script = "tasks/#{name}/#{name}.py"
-  system "python #{script} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
+  system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
 end
 
 def email(report)

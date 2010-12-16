@@ -1,31 +1,14 @@
 import datetime
 import time
 from dateutil.tz import *
-import sys
-from pymongo import Connection
-import traceback
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 import urllib2
 import re 
 
-tzs = { "EST" : "America/New_York", "CST": "America/Chicago", "MST": "America/Denver", "PST": "America/Los_Angeles" }
 
-def get_or_create_video(coll, video_id):
-    objs = coll.find({'video_id' : video_id})
-    if objs.count() > 0:
-        return objs[0]
-    else:
-        return {'video_id' : video_id}
+tzs = {"EST" : "America/New_York", "CST": "America/Chicago", "MST": "America/Denver", "PST": "America/Los_Angeles"}
 
-def file_report(db, status, message, source):
-    db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
-
-
-if len(sys.argv) > 2:
-    db_host = sys.argv[1]
-    db_name = sys.argv[2]
-    conn = Connection(host=db_host)
-    db = conn[db_name]
+def run(db):
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects
@@ -33,11 +16,12 @@ if len(sys.argv) > 2:
     db["videos"].remove({"status": "upcoming"})
 
     url = "http://www.whitehouse.gov/live"
-   # url = "http://10.13.33.209/"
+    # url = "http://10.13.33.209/"
     page = urllib2.urlopen(url)
     soup = BeautifulSoup(page)
     content = soup.find('div', {"id" : "video-list-box"})
     vid_list = content.findAll('div', {"class": re.compile(r'\bviews-row\b')})
+    
     if vid_list:
         count = 0
         
@@ -58,7 +42,9 @@ if len(sys.argv) > 2:
                 title = a_tag.string
                 time_key = int(time.mktime(timestamp.timetuple()))
                 video_id = 'whitehouse-' + str(time_key) + '-' + slug
-                video_obj = get_or_create_video(db["videos"], video_id)
+                
+                video_obj = db.get_or_initialize("videos", {'video_id': video_id})
+                
                 video_obj['title'] = title
                 video_obj['created_at'] = add_date
                 video_obj['chamber'] = 'whitehouse'
@@ -81,7 +67,8 @@ if len(sys.argv) > 2:
                 else:
                     video_obj['status'] = ''
 
-                db["videos"].save(video_obj)
+                db["videos"].save(video_obj, safe=True)
+                
             else:
                 title = vid.find('h3').string
                 video_obj = { "title" : title,
@@ -94,8 +81,7 @@ if len(sys.argv) > 2:
             # print "Updated or created video %s" % video_obj['title']
             count += 1
         
-        file_report(db, "SUCCESS", "Updated or created %s live White House videos" % count, "WhitehouseLive")
+        db.success("Updated or created %s live White House videos" % count)
         
     else:
-        print "no live streaming"
-    
+        db.success("No live streaming scheduled, 0 videos created.")
