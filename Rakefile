@@ -119,7 +119,7 @@ end
 def email(report)
   if config[:email][:to] and config[:email][:to].any?
     begin
-      Pony.mail config[:email].merge(:subject => report.to_s, :body => report.attributes.inspect)
+      Pony.mail config[:email].merge(:subject => report.email_subject, :body => report.email_body)
     rescue Errno::ECONNREFUSED
       puts "Couldn't email report, connection refused! Check system settings."
     end

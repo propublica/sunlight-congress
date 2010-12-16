@@ -67,6 +67,23 @@ class Report
     msg
   end
   
+  def email_subject
+    msg = "[#{status}] #{source} | #{message}"
+    msg += "\n\t#{self[:exception]['type']}: #{self[:exception]['message']}" if self[:exception]
+    msg
+  end
+  
+  def email_body
+    msg = ""
+    if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
+      self[:exception]['backtrace'].each {|line| msg += "\n#{line}"}
+      msg += "\n\n"
+    end
+    
+    msg += attributes.inspect
+    msg
+  end
+  
   def to_minutes(seconds)
     min = seconds / 60
     sec = seconds % 60
