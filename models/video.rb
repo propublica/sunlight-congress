@@ -15,7 +15,7 @@ class Video
   index :"clips.bioguide_ids"
   
   def self.unique_keys
-    [:timestamp_id]
+    [:video_id]
   end
   
   def self.default_order
