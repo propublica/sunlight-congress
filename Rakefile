@@ -6,6 +6,7 @@ task :environment do
   require 'config/environment'
   
   require 'tasks/report'
+  require 'pony'
 end
 
 namespace :development do
@@ -69,7 +70,6 @@ end
 
 def run_task(name)
   require 'tasks/utils'
-  require 'pony'
   
   task_name = name.camelize
   
