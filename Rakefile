@@ -4,6 +4,8 @@ task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require 'config/environment'
+  
+  require 'tasks/report'
 end
 
 namespace :development do
@@ -23,7 +25,6 @@ end
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
   require 'analytics/api_key'
-  require 'tasks/report'
   
   models = Dir.glob('models/*.rb').map do |file|
     File.basename(file, File.extname(file)).camelize.constantize
@@ -36,14 +37,19 @@ task :create_indexes => :environment do
 end
 
 desc "Set the crontab in place for this environment"
-task :set_crontab => :environment
+task :set_crontab => :environment do
   environment = ENV['environment']
   current_path = ENV['current_path']
   
-  if system("cat #{current_path"}/config/cron/#{environment}.crontab | crontab")
+  if environment.blank? or current_path.blank?
+    puts "No environment or current path given, exiting."
+    exit
+  end
+  
+  if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
     puts "Successfully overwrote crontab."
   else
-    report = Report.error self, "Crontab overwriting failed on deploy."
+    report = Report.failure self, "Crontab overwriting failed on deploy."
     email report
     puts "Unsuccessful in overwriting crontab, emailed report."
   end
@@ -62,7 +68,6 @@ end
 
 
 def run_task(name)
-  require 'tasks/report'
   require 'tasks/utils'
   require 'pony'
   
