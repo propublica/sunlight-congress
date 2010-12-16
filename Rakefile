@@ -28,7 +28,7 @@ task :create_indexes => :environment do
   require 'analytics/api_key'
   
   begin
-    models = (Dir.glob('models/*.rb') + ["fdhkjsdhf"]).map do |file|
+    models = Dir.glob('models/*.rb').map do |file|
       File.basename(file, File.extname(file)).camelize.constantize
     end + [ApiKey, Report]
     
