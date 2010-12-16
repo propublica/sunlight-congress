@@ -27,13 +27,19 @@ desc "Run through each model and create all indexes"
 task :create_indexes => :environment do
   require 'analytics/api_key'
   
-  models = Dir.glob('models/*.rb').map do |file|
-    File.basename(file, File.extname(file)).camelize.constantize
-  end + [ApiKey, Report]
-  
-  models.each do |model| 
-    model.create_indexes
-    puts "Created indexes for #{model}"
+  begin
+    models = (Dir.glob('models/*.rb') + ["fdhkjsdhf"]).map do |file|
+      File.basename(file, File.extname(file)).camelize.constantize
+    end + [ApiKey, Report]
+    
+    models.each do |model| 
+      model.create_indexes
+      puts "Created indexes for #{model}"
+    end
+  rescue Exception => ex
+    puts "Error creating indexes, report emailed."
+    report = Report.failure "CreateIndexes", "Exception creating indexes, message and backtrace attached", {:exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+    email report
   end
 end
 
