@@ -17,18 +17,33 @@ class Database():
         self.connection = Connection(host=host)
         self.db = self.connection[name]
 
-    def report(self, status, message):
+    def report(self, status, message, additional=None):
         """
         Files an unread report for the task runner to read following the conclusion of the task.
         Use the success, warning, and failure methods instead of this method directly.
         """
-        self.db['reports'].insert({
+        
+        document= {
           'status': status, 
           'read': False, 
-          'message': message, 
+          'message': str(message), 
           'source': self.task_name, 
           'created_at': datetime.datetime.now()
-        })
+        }
+        
+        if isinstance(message, Exception):
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            backtrace = traceback.format_list(traceback.extract_tb(exc_traceback))
+            document['exception'] = {
+              'backtrace': backtrace,
+              'type': str(exc_type),
+              'message': str(exc_value)
+            }
+        
+        if additional:
+            document.update(additional)
+         
+        self.db['reports'].insert(document)
     
     def success(self, message):
         self.report("SUCCESS", message)
@@ -38,7 +53,7 @@ class Database():
     
     def failure(self, message):
         self.report("FAILURE", message)
-    
+        
     def get_or_initialize(self, collection, criteria):
         """
         If the document (identified by the critiera dict) exists, update its 
@@ -84,7 +99,5 @@ try:
     sys.path.append("tasks/%s" % task_name)
     __import__(task_name).run(db)
 
-except Exception as e:
-    print e
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    db.failure("Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)))
+except Exception as exception:
+    db.failure(exception)
