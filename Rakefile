@@ -35,6 +35,20 @@ task :create_indexes => :environment do
   end
 end
 
+desc "Set the crontab in place for this environment"
+task :set_crontab => :environment
+  environment = ENV['environment']
+  current_path = ENV['current_path']
+  
+  if system("cat #{current_path"}/config/cron/#{environment}.crontab | crontab")
+    puts "Successfully overwrote crontab."
+  else
+    report = Report.error self, "Crontab overwriting failed on deploy."
+    email report
+    puts "Unsuccessful in overwriting crontab, emailed report."
+  end
+end
+
 # for each folder in tasks, generate a rake task
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file
