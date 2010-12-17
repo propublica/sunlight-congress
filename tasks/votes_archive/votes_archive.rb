@@ -34,7 +34,7 @@ class VotesArchive
     # Debug helpers
     rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
     
-    # rolls = Dir.glob "data/govtrack/#{session}/rolls/s2010-246.xml"
+    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2009-884.xml"
     # rolls = rolls.first 20
     
     rolls.each do |path|
@@ -50,7 +50,7 @@ class VotesArchive
       vote = Vote.find_or_initialize_by(:roll_id => roll_id)
       
       bill_id = bill_id_for doc
-      amendment_id = amendment_id_for doc
+      amendment_id = amendment_id_for doc, bill_id
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
       party_vote_breakdown = Utils.vote_breakdown_for voters
       vote_breakdown = party_vote_breakdown.delete :total
@@ -204,9 +204,17 @@ class VotesArchive
     end
   end
   
-  def self.amendment_id_for(doc)
+  def self.amendment_id_for(doc, bill_id)
     if amendment = doc.at(:amendment)
-      "#{amendment['number']}-#{amendment['session']}"
+      if bill_id and (amendment['ref'] == "bill-serial")
+        
+        if result = Amendment.where(:bill_id => bill_id, :bill_sequence => amendment['number'].to_i).only(:amendment_id).first
+          result['amendment_id']
+        end
+        
+      else
+        "#{amendment['number']}-#{amendment['session']}"
+      end
     end
   end
   
