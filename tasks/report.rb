@@ -13,6 +13,7 @@ class Report
   index :status
   index :source
   index :read
+  index :created_at
   
   scope :unread , :where => {:read => false}
   
