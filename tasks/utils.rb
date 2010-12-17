@@ -127,31 +127,35 @@ module Utils
     Amendment.basic_fields
   end
   
-  def self.legislator_for(legislator)
-    attributes = legislator.attributes
-    allowed_keys = legislator_fields.map {|f| f.to_s}
+  def self.committee_fields
+    [:name, :chamber, :committee_id]
+  end
+  
+  def self.document_for(document, fields)
+    attributes = document.attributes
+    allowed_keys = fields.map {|f| f.to_s}
     attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
     attributes
+  end
+  
+  def self.legislator_for(legislator)
+    document_for legislator, legislator_fields
+  end
+  
+  def self.amendment_for(amendment)
+    document_for amendment, amendment_fields
+  end
+  
+  def self.committee_for(committee)
+    document_for committee, committee_fields
   end
   
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
-    bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-    
-    if bill
-      attributes = bill.attributes
-      allowed_keys = bill_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
+    if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
+      document_for bill, bill_fields
     else
       nil
     end
-  end
-  
-  def self.amendment_for(amendment)
-    attributes = amendment.attributes
-    allowed_keys = amendment_fields.map {|f| f.to_s}
-    attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-    attributes
   end
 end

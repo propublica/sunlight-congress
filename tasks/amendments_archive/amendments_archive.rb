@@ -11,7 +11,9 @@ class AmendmentsArchive
   def self.load_amendments(options)
     session = options[:session]
     count = 0
+    
     missing_ids = []
+    missing_committees = []
     bad_amendments = []
     
     FileUtils.mkdir_p "data/govtrack/#{session}/amendments"
@@ -29,7 +31,7 @@ class AmendmentsArchive
     amendments = Dir.glob "data/govtrack/#{session}/amendments/*.xml"
     
     # debug helpers
-    # amendments = Dir.glob "data/govtrack/#{session}/amendments/h538.xml"
+    # amendments = Dir.glob "data/govtrack/111/amendments/h541.xml"
     # amendments = amendments.first 20
     
     amendments.each do |path|
@@ -53,7 +55,7 @@ class AmendmentsArchive
       if sponsor_type == 'legislator'
         sponsor = sponsor_for filename, doc, legislators, missing_ids
       else
-        sponsor = doc.at(:sponsor)['committee']
+        sponsor = sponsor_committee_for filename, doc, chamber, missing_committees
       end
       
       actions = actions_for doc
@@ -77,11 +79,9 @@ class AmendmentsArchive
       if sponsor
         amendment.attributes = {
           :sponsor => sponsor,
-          :sponsor_type => sponsor_type
+          :sponsor_type => sponsor_type,
+          :sponsor_id => (sponsor_type == 'legislator' ? sponsor[:bioguide_id] : sponsor[:committee_id])
         }
-        if sponsor_type == 'legislator'
-          amendment.attributes = {:sponsor_id => sponsor[:bioguide_id]}
-        end
       end
       
       if bill_id
@@ -108,6 +108,11 @@ class AmendmentsArchive
     if missing_ids.any?
       missing_ids = missing_ids.uniq
       Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs, attached.", {:missing_ids => missing_ids}
+    end
+    
+    if missing_committees.any?
+      missing_committees = missing_committees.uniq
+      Report.warning self, "Found #{missing_committees.size} missing committees by name, attached.", {:missing_committees => missing_committees}
     end
     
     if bad_amendments.any?
@@ -166,6 +171,18 @@ class AmendmentsArchive
       legislators[sponsor['id']]
     else
       missing_ids << [sponsor['id'], filename]
+      nil
+    end
+  end
+  
+  def self.sponsor_committee_for(filename, doc, chamber, missing_committees)
+    name = doc.at(:sponsor)['committee']
+    chamber = chamber.capitalize
+    full_name = name.sub /^#{chamber}/, "#{chamber} Committee on"
+    if committee = Committee.where(:name => full_name).first
+      Utils.committee_for committee
+    else
+      missing_committees << [name, filename]
       nil
     end
   end
