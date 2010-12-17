@@ -49,6 +49,7 @@ class AmendmentsArchive
       purpose = purpose_for doc
       
       bill_id = bill_id_for doc, session
+      bill_sequence = bill_sequence_for doc
       
       sponsor_type = sponsor_type_for doc
       sponsor = nil
@@ -90,6 +91,9 @@ class AmendmentsArchive
             :bill_id => bill_id,
             :bill => bill
           }
+          if bill_sequence
+            amendment[:bill_sequence] = bill_sequence
+          end
         else
           Report.warning self, "[#{amendment_id}] Found bill_id #{bill_id}, but couldn't find bill."
         end
@@ -195,6 +199,12 @@ class AmendmentsArchive
       "#{type}#{number}-#{session}"
     else
       nil
+    end
+  end
+  
+  def self.bill_sequence_for(doc)
+    if (elem = doc.at(:amends)) and elem['sequence'].present?
+      elem['sequence'].to_i
     end
   end
   
