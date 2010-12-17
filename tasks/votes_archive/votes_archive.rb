@@ -34,7 +34,7 @@ class VotesArchive
     # Debug helpers
     rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
     
-    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2010-165.xml"
+    # rolls = Dir.glob "data/govtrack/#{session}/rolls/s2010-246.xml"
     # rolls = rolls.first 20
     
     rolls.each do |path|
@@ -50,6 +50,7 @@ class VotesArchive
       vote = Vote.find_or_initialize_by(:roll_id => roll_id)
       
       bill_id = bill_id_for doc
+      amendment_id = amendment_id_for doc
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
       party_vote_breakdown = Utils.vote_breakdown_for voters
       vote_breakdown = party_vote_breakdown.delete :total
@@ -65,17 +66,38 @@ class VotesArchive
         :number => number,
         :session => session,
         :result => doc.at(:result).text,
-        :bill_id => bill_id,
         :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
         :roll_type => roll_type,
         :question => doc.at(:question).text,
         :required => doc.at(:required).text,
-        :bill => Utils.bill_for(bill_id),
         :voter_ids => voter_ids,
         :voters => voters,
         :vote_breakdown => vote_breakdown,
         :party_vote_breakdown => party_vote_breakdown
       }
+      
+      if bill_id
+        if bill = Utils.bill_for(bill_id)
+          vote.attributes = {
+            :bill_id => bill_id,
+            :bill => bill
+          }
+        else
+          Report.warning self, "On roll #{roll_id}, found bill_id #{bill_id}, which isn't in the database."
+        end
+      end
+      
+      if amendment_id
+        if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+          vote.attributes = {
+            :amendment_id => amendment_id,
+            :amendment => Utils.amendment_for(amendment)
+          }
+        else
+          Report.warning self, "On roll #{roll_id}, found amendment_id #{amendment_id}, which isn't in the database."
+        end
+      end
+      
       
       if vote.save
         count += 1
@@ -178,7 +200,13 @@ class VotesArchive
   
   def self.bill_id_for(doc)
     if bill = doc.at(:bill)
-      bill_id = "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
+      "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
+    end
+  end
+  
+  def self.amendment_id_for(doc)
+    if amendment = doc.at(:amendment)
+      "#{amendment['number']}-#{amendment['session']}"
     end
   end
   
