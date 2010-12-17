@@ -45,7 +45,7 @@ class RollsLiveHouse
     end
     
     # debug
-    # to_fetch = [2]
+    # to_fetch = [884]
     # year = 2009
     
     # get each new roll
@@ -62,7 +62,10 @@ class RollsLiveHouse
       if doc
         roll_id = "h#{number}-#{year}"
         session = doc.at(:congress).inner_text.to_i
+        
         bill_id = bill_id_for doc, session
+        amendment_id = amendment_id_for doc, bill_id
+        
         voter_ids, voters = votes_for doc, legislators, missing_ids
         roll_type = doc.at("vote-question").inner_text
         
@@ -96,6 +99,17 @@ class RollsLiveHouse
             }
           else
             Report.warning self, "Found bill_id #{bill_id} on House roll no. #{number}, which isn't in the database."
+          end
+        end
+        
+        if amendment_id
+          if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+            vote.attributes = {
+              :amendment_id => amendment_id,
+              :amendment => Utils.amendment_for(amendment)
+            }
+          else
+            Report.warning self, "On roll #{roll_id}, found amendment_id #{amendment_id}, which isn't in the database."
           end
         end
         
@@ -204,6 +218,14 @@ class RollsLiveHouse
       end
     else
       nil
+    end
+  end
+  
+  def self.amendment_id_for(doc, bill_id)
+    if bill_id and (elem = doc.at("amendment-num"))
+      if result = Amendment.where(:bill_id => bill_id, :bill_sequence => elem.text.to_i).only(:amendment_id).first
+        result['amendment_id']
+      end
     end
   end
   
