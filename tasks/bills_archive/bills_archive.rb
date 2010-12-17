@@ -1,4 +1,4 @@
-require 'hpricot'
+require 'nokogiri'
 
 class BillsArchive
   
@@ -27,15 +27,15 @@ class BillsArchive
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
-    # bills = Dir.glob "data/govtrack/#{session}/bills/hr103.xml"
+    # bills = Dir.glob "data/govtrack/111/bills/h3590.xml"
     # bills = bills.first 20
     
     bills.each do |path|
-      doc = Hpricot::XML open(path)
+      doc = Nokogiri::XML open(path)
       
       filename = File.basename path
-      type = Utils.bill_type_for doc.root.attributes['type']
-      number = doc.root.attributes['number'].to_i
+      type = Utils.bill_type_for doc.root['type']
+      number = doc.root['number'].to_i
       code = "#{type}#{number}"
       
       bill_id = "#{code}-#{session}"
@@ -107,11 +107,11 @@ class BillsArchive
   
   
   def self.state_for(doc)
-    doc.at(:state) ? doc.at(:state).inner_text : "UNKNOWN"
+    doc.at(:state) ? doc.at(:state).text : "UNKNOWN"
   end
   
   def self.summary_for(doc)
-    summary = doc.at(:summary).inner_text.strip
+    summary = doc.at(:summary).text.strip
     summary.present? ? summary : nil
   end
   
@@ -223,7 +223,7 @@ class BillsArchive
   end
   
   def self.actions_for(doc)
-    doc.search('//actions/*').reject {|a| a.class == Hpricot::Text}.map do |action|
+    doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
       {
         :acted_at => Utils.govtrack_time_for(action['datetime']),
         :text => (action/:text).inner_text,

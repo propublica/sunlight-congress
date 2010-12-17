@@ -21,6 +21,5 @@ end
 
 # for individual tasks
 
-gem 'sunlight', '1.0.7' # get_legislators
-gem 'hpricot', '0.8.2'  # get_bills
+gem 'sunlight', '1.0.7' # legislators, committees
 gem 'nokogiri', '1.4.4' # rolls_live_house, rolls_live_senate

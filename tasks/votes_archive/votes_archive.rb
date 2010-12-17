@@ -1,4 +1,4 @@
-require 'hpricot'
+require 'nokogiri'
 
 class VotesArchive
 
@@ -38,7 +38,7 @@ class VotesArchive
     # rolls = rolls.first 20
     
     rolls.each do |path|
-      doc = Hpricot::XML open(path)
+      doc = Nokogiri::XML open(path)
       
       filename = File.basename path
       matches = filename.match /^([hs])(\d+)-(\d+)\.xml/
@@ -54,7 +54,7 @@ class VotesArchive
       party_vote_breakdown = Utils.vote_breakdown_for voters
       vote_breakdown = party_vote_breakdown.delete :total
       
-      roll_type = doc.at(:type).inner_text
+      roll_type = doc.at(:type).text
       vote_type = Utils.vote_type_for roll_type
       
       vote.attributes = {
@@ -64,12 +64,12 @@ class VotesArchive
         :year => year,
         :number => number,
         :session => session,
-        :result => doc.at(:result).inner_text,
+        :result => doc.at(:result).text,
         :bill_id => bill_id,
         :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
         :roll_type => roll_type,
-        :question => doc.at(:question).inner_text,
-        :required => doc.at(:required).inner_text,
+        :question => doc.at(:question).text,
+        :required => doc.at(:required).text,
         :bill => Utils.bill_for(bill_id),
         :voter_ids => voter_ids,
         :voters => voters,
