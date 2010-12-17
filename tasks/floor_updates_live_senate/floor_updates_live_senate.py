@@ -1,4 +1,4 @@
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+from BeautifulSoup import BeautifulSoup
 import urllib2
 import datetime, time
 
@@ -39,4 +39,4 @@ def run(db):
         count += 1
         
    
-    db.success("Updated or created %s floor updates the Senate" % count)
+    db.success("Updated or created %s floor updates for the Senate" % count)
