@@ -8,11 +8,17 @@ class BillsArchive
     session = options[:session] || Utils.current_session
     count = 0
     missing_ids = []
+    missing_committees = []
     bad_bills = []
     
     FileUtils.mkdir_p "data/govtrack/#{session}/bills"
     unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/bills/ data/govtrack/#{session}/bills/")
-      Report.failure self, "Couldn't rsync to Govtrack.us."
+      Report.failure self, "Couldn't rsync to Govtrack.us for bills."
+      return
+    end
+    
+    unless system("rsync -az govtrack.us::govtrackdata/us/committees.xml data/govtrack/committees.xml")
+      Report.failure self, "Couldn't rsync to Govtrack.us for committees.xml."
       return
     end
     
@@ -23,11 +29,12 @@ class BillsArchive
       legislators[legislator.govtrack_id] = Utils.legislator_for legislator
     end
     
+    cached_committees = cached_committees_for session, Nokogiri::XML(open("data/govtrack/committees.xml"))
     
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
-    # bills = Dir.glob "data/govtrack/111/bills/h3590.xml"
+    # bills = Dir.glob "data/govtrack/111/bills/h4780.xml"
     # bills = bills.first 20
     
     bills.each do |path|
@@ -44,6 +51,8 @@ class BillsArchive
       
       sponsor = sponsor_for filename, doc, legislators, missing_ids
       cosponsors = cosponsors_for filename, doc, legislators, missing_ids
+      committees, committee_ids = committees_for filename, doc, cached_committees, missing_committees
+      
       actions = actions_for doc
       titles = titles_for doc
       state = state_for doc
@@ -66,8 +75,8 @@ class BillsArchive
         :sponsor => sponsor,
         :sponsor_id => sponsor ? sponsor[:bioguide_id] : nil,
         :cosponsors => cosponsors,
-        :cosponsor_ids => cosponsors ? cosponsors.map {|c| c[:bioguide_id]} : nil,
-        :cosponsors_count => cosponsors ? cosponsors.size : 0,
+        :cosponsor_ids => cosponsors.map {|c| c[:bioguide_id]},
+        :cosponsors_count => cosponsors.size,
         :actions => actions,
         :last_action => actions.last,
         :last_action_at => actions.last ? actions.last[:acted_at] : nil,
@@ -75,7 +84,9 @@ class BillsArchive
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
-        :keywords => keywords_for(doc)
+        :keywords => keywords_for(doc),
+        :committees => committees,
+        :committee_ids => committee_ids
       }
       
       timeline = timeline_for doc, state, passage_votes
@@ -93,6 +104,11 @@ class BillsArchive
     if missing_ids.any?
       missing_ids = missing_ids.uniq
       Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs, attached.", {:missing_ids => missing_ids}
+    end
+    
+    if missing_committees.any?
+      missing_committees = missing_committees.uniq
+      Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names, attached.", {:missing_committees => missing_committees}
     end
     
     if bad_bills.any?
@@ -255,6 +271,50 @@ class BillsArchive
   
   def self.keywords_for(doc)
     doc.search('//subjects/term').map {|term| term['name']}
+  end
+  
+  def self.committees_for(filename, doc, cached_committees, missing_committees)
+    committees = []
+    
+    doc.search("//committees/committee").each do |elem|
+      activity = elem['activity'].split(/, ?/).map {|a| a.downcase}
+      committee_name = elem['name']
+      subcommittee_name = elem['subcommittee']
+      
+      if subcommittee_name.blank? # we're not getting subcommittees, way too hard to match them up
+        if committee = committee_match(committee_name, cached_committees)
+          committees << {
+            :activity => activity,
+            :committee => Utils.committee_for(committee)
+          }
+        else
+          missing_committees << [committee_name, filename]
+        end
+      end
+    end
+    
+    committee_ids = committees.map do |committee|
+      {:activity => committee[:activity], :committee_id => committee[:committee]['committee_id']}
+    end
+    
+    [committees, committee_ids]
+  end
+  
+  def self.committee_match(name, cached_committees)
+    Committee.where(:committee_id => cached_committees[:committees][name]).first
+  end
+  
+  def self.cached_committees_for(session, doc)
+    committees = {:committees => {}, :subcommittees => {}}
+    doc.search("/committees/committee/thomas-names/name[@session=111]").each do |elem|
+      code = elem.parent.parent['code']
+      
+      # known discrepancies between us and them
+      code = "HSIG" if code == "HLIG"
+      
+      committees[:committees][elem.text] = code
+    end
+    committees
   end
 
 end
