@@ -37,7 +37,7 @@ task :create_indexes => :environment do
       puts "Created indexes for #{model}"
     end
   rescue Exception => ex
-    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}.inspect
+    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}
     puts "Error creating indexes, emailed report."
   end
 end
