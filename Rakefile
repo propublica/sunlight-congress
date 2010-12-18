@@ -129,7 +129,7 @@ def email(report, exception = nil)
 end
 
 def email_subject(report)
-  "[#{status}] #{source} | #{message}"
+  "[#{report.status}] #{report.source} | #{report.message}"
 end
 
 def email_body(report)
@@ -145,11 +145,11 @@ end
 
 def exception_message(exception)
   msg = ""
-  msg += "#{report[:exception]['type']}: #{report[:exception]['message']}" 
+  msg += "#{exception['type']}: #{exception['message']}" 
   msg += "\n\n"
   
-  if report[:exception]['backtrace'] and report[:exception]['backtrace'].respond_to?(:each)
-    report[:exception]['backtrace'].each {|line| msg += "#{line}\n"}
+  if exception['backtrace'] and exception['backtrace'].respond_to?(:each)
+    exception['backtrace'].each {|line| msg += "#{line}\n"}
     msg += "\n\n"
   end
   
