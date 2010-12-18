@@ -8,7 +8,7 @@ import datetime, time
 def run(db):
     senate_count = senate_hearings(db)
     house_count = house_hearings(db)
-
+      
     db.success("Updated or created %s House and %s Senate committee hearings" % (house_count, senate_count))
 
 
@@ -26,8 +26,15 @@ def senate_hearings(db):
       count = 0
       
       for meeting in meetings:
+          if re.search("No committee hearings scheduled", meeting.matter.contents[0]):
+            continue
+            
           committee_id = meeting.cmte_code.contents[0].strip()
           committee_id = re.sub("(\d+)$", "", committee_id)
+          
+          committee = committee_for(db, committee_id)
+          if not committee:
+            db.warning("Couldn't locate committee by committee_id while parsing Senate committee hearings", {'committee_id': committee_id})
           
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6])
@@ -48,17 +55,26 @@ def senate_hearings(db):
           room = meeting.room.contents[0].strip()
           description = meeting.matter.contents[0].strip().replace('\n', '')
           
-          db.get_or_create('committee_hearings', {
+          hearing = db.get_or_initialize('committee_hearings', {
               'chamber': 'senate', 
               'committee_id': committee_id, 
               'legislative_day': legislative_day
-            }, {
-              'room': room, 
-              'description': description, 
-              'occurs_at': occurs_at, 
-              'document_id': document, 
-              'time_of_day': time_of_day
-            })
+          })
+          
+          hearing.update({
+            'room': room, 
+            'description': description, 
+            'occurs_at': occurs_at, 
+            'time_of_day': time_of_day
+          })
+          
+          if committee:
+            hearing['committee'] = committee
+            
+          if document:
+            hearing['document_id'] = document
+          
+          db['committee_hearings'].save(hearing)
           
           count += 1
       
@@ -81,6 +97,13 @@ def house_hearings(db):
             match = re.compile("xpd\?id=([A-Z]+)$").search(item.link)
             if match:
               committee_id = match.group(1)
+            else:
+              db.warning("Couldn't locate committee_id for committee hearing", {'committee_id': committee_id})
+              continue
+            
+            committee = committee_for(db, committee_id)
+            if not committee:
+                db.warning("Couldn't locate committee by committee_id while parsing House committee hearings", {'committee_id': committee_id})
             
             occurs_at = None
             if hasattr(item, 'pubDate_parsed'):
@@ -109,15 +132,20 @@ def house_hearings(db):
             #description = p.split(' -- ')[0].strip()
             #date_str = p.split(' -- ')[1].replace(' at ', ' ').replace('a.m', 'AM').replace('p.m.', 'PM').replace('.', '').strip()
             
-            db.get_or_create('committee_hearings', {
+            hearing = db.get_or_initialize('committee_hearings', {
                 'chamber': 'house', 
                 'committee_id': committee_id, 
                 'occurs_at': occurs_at,
-              }, {
+            })
+            
+            hearing.update({
                 'description': description, 
                 'legislative_day': legislative_day, 
                 'time_of_day': time_of_day
-              })
+            })
+            
+            if committee:
+                hearing['committee'] = committee
             
             count += 1
         
@@ -125,3 +153,9 @@ def house_hearings(db):
             db.warning("Found committee chamber (%s) not House or Senate, possible problem with parser" % chamber)
     
     return count
+
+def committee_for(db, committee_id):
+  committee = db['committees'].find_one({'committee_id': committee_id}, fields=["committee_id", "name", "chamber"])
+  if committee:
+    del committee['_id']
+  return committee

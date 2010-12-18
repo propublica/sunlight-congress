@@ -45,14 +45,14 @@ class Database():
          
         self.db['reports'].insert(document)
     
-    def success(self, message):
-        self.report("SUCCESS", message)
+    def success(self, message, additional=None):
+        self.report("SUCCESS", message, additional)
         
-    def warning(self, message):
-        self.report("WARNING", message)
+    def warning(self, message, additional=None):
+        self.report("WARNING", message, additional)
     
-    def failure(self, message):
-        self.report("FAILURE", message)
+    def failure(self, message, additional=None):
+        self.report("FAILURE", message, additional)
         
     def get_or_initialize(self, collection, criteria):
         """
