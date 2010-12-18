@@ -37,9 +37,8 @@ task :create_indexes => :environment do
       puts "Created indexes for #{model}"
     end
   rescue Exception => ex
-    puts "Error creating indexes, report emailed."
-    report = Report.failure "CreateIndexes", "Exception creating indexes, message and backtrace attached", {:exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
-    email report
+    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}.inspect
+    puts "Error creating indexes, emailed report."
   end
 end
 
@@ -56,8 +55,7 @@ task :set_crontab => :environment do
   if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
     puts "Successfully overwrote crontab."
   else
-    report = Report.failure self, "Crontab overwriting failed on deploy."
-    email report
+    email "Crontab overwriting failed on deploy."
     puts "Unsuccessful in overwriting crontab, emailed report."
   end
 end
@@ -116,10 +114,14 @@ def run_python(name)
   system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
 end
 
-def email(report)
+def email(report, body = nil)
   if config[:email][:to] and config[:email][:to].any?
     begin
-      Pony.mail config[:email].merge(:subject => report.email_subject, :body => report.email_body)
+      if report.is_a?(Report)
+        Pony.mail config[:email].merge(:subject => report.email_subject, :body => report.email_body)
+      else
+        Pony.mail config[:email].merge(:subject => report, :body => (body || report))
+      end
     rescue Errno::ECONNREFUSED
       puts "Couldn't email report, connection refused! Check system settings."
     end
