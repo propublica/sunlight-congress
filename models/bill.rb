@@ -18,6 +18,8 @@ class Bill
   index :cosponsor_ids
   index :amendments_count
   index :cosponsors_count
+  index :keywords
+  index :committee_ids
   
   index :introduced_at
   index :last_action_at

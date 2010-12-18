@@ -12,6 +12,7 @@ class Amendment
   index :last_action_at
   index :state
   index :sponsor_id
+  index :sponsor_type
   
   field :amendment_id
   validates_uniqueness_of :amendment_id
