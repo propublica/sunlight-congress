@@ -68,31 +68,6 @@ class Report
     msg
   end
   
-  def email_subject
-    "[#{status}] #{source} | #{message}"
-  end
-  
-  def email_body
-    msg = ""
-    
-    if self[:exception]
-      msg += "#{self[:exception]['type']}: #{self[:exception]['message']}" 
-      msg += "\n\n"
-      
-      if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
-        self[:exception]['backtrace'].each {|line| msg += "#{line}\n"}
-        msg += "\n\n"
-      end
-    end
-    
-    attrs = attributes.dup
-    [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
-    
-    msg += attrs.inspect
-    
-    msg
-  end
-  
   def to_minutes(seconds)
     min = seconds / 60
     sec = seconds % 60

@@ -114,16 +114,44 @@ def run_python(name)
   system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
 end
 
-def email(report, body = nil)
+def email(report, exception = nil)
   if config[:email][:to] and config[:email][:to].any?
     begin
       if report.is_a?(Report)
         Pony.mail config[:email].merge(:subject => report.email_subject, :body => report.email_body)
       else
-        Pony.mail config[:email].merge(:subject => report, :body => (body || report))
+        Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
       end
     rescue Errno::ECONNREFUSED
       puts "Couldn't email report, connection refused! Check system settings."
     end
   end
+end
+
+def email_subject(report)
+  "[#{status}] #{source} | #{message}"
+end
+
+def email_body(report)
+  msg = ""
+  msg += exception_message(report[:exception]) if report[:exception]
+  
+  attrs = attributes.dup
+  [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
+  
+  msg += attrs.inspect
+  msg
+end
+
+def exception_message(exception)
+  msg = ""
+  msg += "#{report[:exception]['type']}: #{report[:exception]['message']}" 
+  msg += "\n\n"
+  
+  if report[:exception]['backtrace'] and report[:exception]['backtrace'].respond_to?(:each)
+    report[:exception]['backtrace'].each {|line| msg += "#{line}\n"}
+    msg += "\n\n"
+  end
+  
+  msg
 end
