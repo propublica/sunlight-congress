@@ -75,6 +75,7 @@ class BillsArchive
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
+        :keywords => keywords_for(doc),
         
         # will be filled in by amendments_archive, which can do a better job
         :amendment_ids => [],
@@ -254,6 +255,10 @@ class BillsArchive
       
       result
     end
+  end
+  
+  def self.keywords_for(doc)
+    doc.search('//subjects/term').map {|term| term['name']}
   end
 
 end

@@ -47,7 +47,7 @@ class Bill
   end
   
   def self.search_fields
-    [:short_title, :official_title, :popular_title, :summary]
+    [:short_title, :official_title, :popular_title, :summary, :keywords]
   end
   
 end
