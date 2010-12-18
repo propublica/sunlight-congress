@@ -316,6 +316,8 @@ class BillsArchive
     committees
   end
   
+  # known relations
+  # supersedes, superseded, identical, rule, unknown
   def self.related_bills_for(doc)
     related_bills = {}
     
