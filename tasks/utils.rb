@@ -158,4 +158,13 @@ module Utils
       nil
     end
   end
+  
+  # known discrepancies between us and GovTrack
+  def self.committee_id_for(govtrack_id)
+    if govtrack_id == "HLIG"
+      "HSIG"
+    else
+      govtrack_id
+    end
+  end
 end

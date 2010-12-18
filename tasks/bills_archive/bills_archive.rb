@@ -305,12 +305,7 @@ class BillsArchive
     committees = {}
     
     doc.search("/committees/committee/thomas-names/name[@session=#{session}]").each do |elem|
-      code = elem.parent.parent['code']
-      
-      # known discrepancies between us and them
-      code = "HSIG" if code == "HLIG"
-      
-      committees[elem.text] = code
+      committees[elem.text] = Utils.committee_id_for(elem.parent.parent['code'])
     end
     
     committees
