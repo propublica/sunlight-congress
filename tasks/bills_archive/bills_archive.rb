@@ -52,6 +52,7 @@ class BillsArchive
       sponsor = sponsor_for filename, doc, legislators, missing_ids
       cosponsors = cosponsors_for filename, doc, legislators, missing_ids
       committees = committees_for filename, doc, cached_committees, missing_committees
+      related_bills = related_bills_for doc
       
       actions = actions_for doc
       titles = titles_for doc
@@ -85,7 +86,8 @@ class BillsArchive
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
         :keywords => keywords_for(doc),
-        :committees => committees
+        :committees => committees,
+        :related_bills => related_bills
       }
       
       timeline = timeline_for doc, state, passage_votes
@@ -301,7 +303,7 @@ class BillsArchive
   
   def self.cached_committees_for(session, doc)
     committees = {:committees => {}, :subcommittees => {}}
-    doc.search("/committees/committee/thomas-names/name[@session=111]").each do |elem|
+    doc.search("/committees/committee/thomas-names/name[@session=#{session}]").each do |elem|
       code = elem.parent.parent['code']
       
       # known discrepancies between us and them
@@ -310,6 +312,17 @@ class BillsArchive
       committees[:committees][elem.text] = code
     end
     committees
+  end
+  
+  def self.related_bills_for(doc)
+    doc.search("//relatedbills/bill").map do |elem|
+      type = Utils.bill_type_for elem['type']
+      bill_id = "#{type}#{elem['number']}-#{elem['session']}"
+      {
+        :relation => elem['relation'],
+        :bill_id => bill_id
+      }
+    end
   end
 
 end
