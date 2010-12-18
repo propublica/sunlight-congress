@@ -51,7 +51,7 @@ class BillsArchive
       
       sponsor = sponsor_for filename, doc, legislators, missing_ids
       cosponsors = cosponsors_for filename, doc, legislators, missing_ids
-      committees, committee_ids = committees_for filename, doc, cached_committees, missing_committees
+      committees = committees_for filename, doc, cached_committees, missing_committees
       
       actions = actions_for doc
       titles = titles_for doc
@@ -86,7 +86,7 @@ class BillsArchive
         :introduced_at => introduced_at,
         :keywords => keywords_for(doc),
         :committees => committees,
-        :committee_ids => committee_ids
+        :committee_ids => committees.map {|c| c[:committee]['committee_id']}
       }
       
       timeline = timeline_for doc, state, passage_votes
@@ -293,11 +293,7 @@ class BillsArchive
       end
     end
     
-    committee_ids = committees.map do |committee|
-      {:activity => committee[:activity], :committee_id => committee[:committee]['committee_id']}
-    end
-    
-    [committees, committee_ids]
+    committees
   end
   
   def self.committee_match(name, cached_committees)
