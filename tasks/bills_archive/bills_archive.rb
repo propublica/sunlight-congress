@@ -34,8 +34,8 @@ class BillsArchive
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
-    # bills = Dir.glob "data/govtrack/111/bills/h4780.xml"
     # bills = bills.first 20
+    # bills = Dir.glob "data/govtrack/111/bills/h4173.xml"
     
     bills.each do |path|
       doc = Nokogiri::XML open(path)
@@ -275,7 +275,7 @@ class BillsArchive
   end
   
   def self.committees_for(filename, doc, cached_committees, missing_committees)
-    committees = []
+    committees = {}
     
     doc.search("//committees/committee").each do |elem|
       activity = elem['activity'].split(/, ?/).map {|a| a.downcase}
@@ -284,7 +284,7 @@ class BillsArchive
       
       if subcommittee_name.blank? # we're not getting subcommittees, way too hard to match them up
         if committee = committee_match(committee_name, cached_committees)
-          committees << {
+          committees[committee['committee_id']] = {
             :activity => activity,
             :committee => Utils.committee_for(committee)
           }
@@ -298,31 +298,37 @@ class BillsArchive
   end
   
   def self.committee_match(name, cached_committees)
-    Committee.where(:committee_id => cached_committees[:committees][name]).first
+    Committee.where(:committee_id => cached_committees[name]).first
   end
   
   def self.cached_committees_for(session, doc)
-    committees = {:committees => {}, :subcommittees => {}}
+    committees = {}
+    
     doc.search("/committees/committee/thomas-names/name[@session=#{session}]").each do |elem|
       code = elem.parent.parent['code']
       
       # known discrepancies between us and them
       code = "HSIG" if code == "HLIG"
       
-      committees[:committees][elem.text] = code
+      committees[elem.text] = code
     end
+    
     committees
   end
   
   def self.related_bills_for(doc)
+    related_bills = {}
+    
     doc.search("//relatedbills/bill").map do |elem|
+      relation = elem['relation']
       type = Utils.bill_type_for elem['type']
       bill_id = "#{type}#{elem['number']}-#{elem['session']}"
-      {
-        :relation => elem['relation'],
-        :bill_id => bill_id
-      }
+      
+      related_bills[relation] ||= []
+      related_bills[relation] << bill_id
     end
+    
+    related_bills
   end
 
 end
