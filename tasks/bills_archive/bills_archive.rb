@@ -85,8 +85,7 @@ class BillsArchive
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
         :keywords => keywords_for(doc),
-        :committees => committees,
-        :committee_ids => committees.map {|c| c[:committee]['committee_id']}
+        :committees => committees
       }
       
       timeline = timeline_for doc, state, passage_votes
