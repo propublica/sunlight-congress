@@ -75,11 +75,7 @@ class BillsArchive
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
         :introduced_at => introduced_at,
-        :keywords => keywords_for(doc),
-        
-        # will be filled in by amendments_archive, which can do a better job
-        :amendment_ids => [],
-        :amendments => []
+        :keywords => keywords_for(doc)
       }
       
       timeline = timeline_for doc, state, passage_votes
