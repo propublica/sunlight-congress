@@ -234,11 +234,18 @@ helpers do
     skip = pagination[:per_page] * (pagination[:page]-1)
     limit = pagination[:per_page]
     
+    cursor = criteria.skip(skip).limit(limit).execute
+    
     {
       :conditions => conditions,
       :fields => fields,
       :order => order,
-      :explain => criteria.skip(skip).limit(limit).execute.explain
+      :explain => cursor.explain,
+      :count => cursor.count,
+      :page => {
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }
     }
   end
   
