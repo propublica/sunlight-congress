@@ -186,13 +186,7 @@ helpers do
       sort = :desc
     end
     
-    # meant to break ties in a predictable manner
-    total_sort = [[key, sort]]
-    if model.respond_to?(:unique_keys) and model.unique_keys.any? and model.unique_keys.first != key
-      total_sort << [model.unique_keys.first, :desc]
-    end
-    
-    total_sort
+    [[key, sort]]
   end
 
   def pagination_for(params)
