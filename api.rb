@@ -36,7 +36,11 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
   
   criteria = model.where(conditions).only(fields).order_by(order)
   
-  results = results_for model, criteria, conditions, fields
+  if params[:explain] == 'true'
+    results = explain_for criteria, conditions, fields, order
+  else
+    results = results_for model, criteria, conditions, fields
+  end
   
   if format == 'json'
     json results
@@ -227,8 +231,20 @@ helpers do
         :count => documents.count,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
-      },
-      :conditions => conditions
+      }
+    }
+  end
+  
+  def explain_for(criteria, conditions, fields, order)
+    pagination = pagination_for params
+    skip = pagination[:per_page] * (pagination[:page]-1)
+    limit = pagination[:per_page]
+    
+    {
+      :conditions => conditions,
+      :fields => fields,
+      :order => order,
+      :explain => criteria.skip(skip).limit(limit).execute.explain
     }
   end
   
@@ -240,7 +256,6 @@ helpers do
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.delete :conditions
     results.to_xml :root => 'results'
   end
   
