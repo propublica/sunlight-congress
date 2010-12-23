@@ -2,7 +2,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'tzinfo'
 
-class RollsLiveHouse
+class VotesLiveHouse
   
   def self.run(options = {})
     year = Time.now.year
@@ -82,7 +82,6 @@ class RollsLiveHouse
           :roll_type => roll_type,
           :question => roll_type,
           :result => doc.at("vote-result").inner_text,
-          
           :required => required_for(doc),
           
           :voted_at => voted_at_for(doc),

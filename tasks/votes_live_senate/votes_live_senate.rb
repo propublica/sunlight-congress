@@ -2,8 +2,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'tzinfo'
 
-
-class RollsLiveSenate
+class VotesLiveSenate
   
   def self.run(options = {})
     year = Time.now.year

@@ -52,8 +52,6 @@ class VotesArchive
       bill_id = bill_id_for doc
       amendment_id = amendment_id_for doc, bill_id
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
-      party_vote_breakdown = Utils.vote_breakdown_for voters
-      vote_breakdown = party_vote_breakdown.delete :total
       
       roll_type = doc.at(:type).text
       vote_type = Utils.vote_type_for roll_type
@@ -64,16 +62,18 @@ class VotesArchive
         :chamber => doc.root['where'],
         :year => year,
         :number => number,
+        
         :session => session,
-        :result => doc.at(:result).text,
-        :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
+        
         :roll_type => roll_type,
         :question => doc.at(:question).text,
+        :result => doc.at(:result).text,
         :required => doc.at(:required).text,
+        
+        :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
         :voter_ids => voter_ids,
         :voters => voters,
-        :vote_breakdown => vote_breakdown,
-        :party_vote_breakdown => party_vote_breakdown
+        :vote_breakdown => Utils.vote_breakdown_for(voters)
       }
       
       if bill_id

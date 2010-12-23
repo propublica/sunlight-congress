@@ -218,16 +218,13 @@ helpers do
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
-    # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
-    # #count will not trigger it, #paginate will
-    total_count = criteria.count
     documents = criteria.paginate pagination
     
     {
       key => documents.map {|document| attributes_for document, fields},
-      :count => total_count,
+      :count => documents.total_entries,
       :page => {
-        :count => documents.size,
+        :count => documents.count,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
       },
@@ -243,7 +240,7 @@ helpers do
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.delete :conditions # operators with $'s are invalid XML
+    results.delete :conditions
     results.to_xml :root => 'results'
   end
   
