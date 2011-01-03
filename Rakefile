@@ -118,7 +118,7 @@ def email(report, exception = nil)
   if config[:email][:to] and config[:email][:to].any?
     begin
       if report.is_a?(Report)
-        Pony.mail config[:email].merge(:subject => report.email_subject, :body => report.email_body)
+        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report))
       else
         Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
       end
