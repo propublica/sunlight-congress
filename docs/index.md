@@ -1,6 +1,6 @@
 The Real Time Congress (RTC) API is a RESTful API over the artifacts of Congress, in as close to real-time as possible. There is no original data; all data is taken automatically from other sources.
 
-RTC is essentially a very thin layver over MongoDB. If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
+RTC is essentially a very thin layer over MongoDB. If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
 
 ### Getting Started
 
@@ -18,7 +18,6 @@ Examples of a value for collection would be "bills", "floor_updates", "videos", 
 You must pass in a Sunlight Labs API key in order to use the service. This can be provided in the query string, using the format "apikey=[yourApiKey]", or as an HTTP request header named "X-APIKEY".
 
 This is version 1 of the API. New data and methods may be added to it without notification, but no data will be removed, and no backwards-incompatible changes will be made without seeking community input, or advancing to a version 2.
-
 
 ### Collections
 
@@ -59,7 +58,7 @@ __example using bill_id__
 
 __example using enacted and chamber__
 
-**Note**: The API will try to automatically infer the type of values you supply. So a value of "true" or "false" will be treated as booleans, and any values with all digits will be treated as 
+**Note**: The API will try to automatically infer the type of values you supply. A value of "true" or "false" will be treated as a boolean, and any value with all digits will be treated as an integer.
 
 You can also use various operators to perform more powerful queries, by appending "__[operator]" to the end of the field name you are filtering on.
 
