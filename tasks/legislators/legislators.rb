@@ -26,6 +26,10 @@ class Legislators
       Report.warning self, "Failed to save #{bad_legislators.size} legislators, last bad one attached", :bad_legislator => bad_legislators.first
     end
     
+    if count > Legislator.count
+      Report.warning self, "#{count - Legislator.count} legislators didn't get saved regardless of validations."
+    end
+    
     Report.success self, "Processed #{count} legislators from API - total count in database now: #{Legislator.count}"
   end
     
