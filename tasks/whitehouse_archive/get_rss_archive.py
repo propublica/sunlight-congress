@@ -70,5 +70,5 @@ if len(sys.argv) > 2:
             except Exception as e:
                 print e
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
+                file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "wh_archive")
 
