@@ -66,7 +66,7 @@ def grab_daily_meta(db):
                 fd['duration'] = convert_duration(duration_hours, duration_minutes)
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
                 fd['chamber'] = 'house'
-                fd['pubDate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+                fd['pubdate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
                 mms_url = get_mms_url(fd['clip_id'])
                 try:
                     if fd.has_key('clip_urls'):
