@@ -2,8 +2,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'tzinfo'
 
-
-class RollsLiveSenate
+class VotesLiveSenate
   
   def self.run(options = {})
     year = Time.now.year
@@ -33,8 +32,8 @@ class RollsLiveSenate
     
     # check last 20 rolls, see if any are missing from our database
     to_fetch = []
-    (latest_roll-19).upto(latest_roll) do |number|
-      if Vote.where(:roll_id => "s#{number}-#{year}").first.nil?
+    (latest_roll-100).upto(latest_roll) do |number|
+      if (number > 0) and Vote.where(:roll_id => "s#{number}-#{year}").first.nil?
         to_fetch << number
       end
     end
@@ -62,6 +61,7 @@ class RollsLiveSenate
       if doc
         roll_id = "s#{number}-#{year}"
         bill_id = bill_id_for doc, session
+        amendment_id = amendment_id_for doc, session
         voter_ids, voters = votes_for doc, legislators, missing_legislators
         
         roll_type = doc.at("question").text
@@ -96,7 +96,18 @@ class RollsLiveSenate
               :bill => bill
             }
           else
-            Report.warning self, "Found bill_id #{bill_id} on Senate roll no. #{number}, which isn't in the database."
+            Report.warning self, "On Senate roll no. #{number}, found bill_id #{bill_id}, which isn't in the database."
+          end
+        end
+        
+        if amendment_id
+          if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+            vote.attributes = {
+              :amendment_id => amendment_id,
+              :amendment => Utils.amendment_for(amendment)
+            }
+          else
+            Report.warning self, "On Senate roll no. #{number}, found amendment_id #{amendment_id}, which isn't in the database."
           end
         end
         
@@ -183,7 +194,7 @@ class RollsLiveSenate
       legislators[lis_id] ||= lookup_legislator elem
       
       if legislators[lis_id]
-        voter = Utils.voter_for legislators[lis_id]
+        voter = legislators[lis_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
@@ -203,13 +214,17 @@ class RollsLiveSenate
     
     party = "I" if party == "ID"
     
-    results = Legislator.where(:chamber => "senate", :last_name => last_name, :party => party, :state => state)
-    results.size == 1 ? results.first : nil
+    results = Legislator.where :chamber => "senate", :last_name => last_name, :party => party, :state => state
+    results.size == 1 ? Utils.legislator_for(results.first) : nil
   end
   
   def self.bill_id_for(doc, session)
     elem = doc.at 'document_name'
-    if elem
+    if !(elem and elem.text.present?)
+      elem = doc.at 'amendment_to_document_number'
+    end
+      
+    if elem and elem.text.present?
       code = elem.text.strip.gsub(' ', '').gsub('.', '').downcase
       type = code.gsub /\d/, ''
       number = code.gsub type, ''
@@ -221,6 +236,16 @@ class RollsLiveSenate
       else
         "#{type}#{number}-#{session}"
       end
+    else
+      nil
+    end
+  end
+  
+  def self.amendment_id_for(doc, session)
+    elem = doc.at 'amendment_number'
+    if elem and elem.text.present?
+      number = elem.text.gsub(/[^\d]/, '').to_i
+      "s#{number}-#{session}"
     else
       nil
     end

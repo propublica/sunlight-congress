@@ -15,14 +15,18 @@ class Video
   index :"clips.bioguide_ids"
   
   def self.unique_keys
-    [:timestamp_id]
+    [:video_id]
   end
   
   def self.default_order
-    :timestamp_id
+    :pubdate
   end
   
   def self.basic_fields
     [:duration, :legislative_day, :video_id, :clip_urls, :status, :pubdate, :category, :title, :description, :chamber, :start_time]
+  end
+  
+  def self.search_fields
+    ["clips.events"]
   end
 end

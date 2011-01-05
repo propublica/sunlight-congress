@@ -108,7 +108,10 @@ module Utils
     end
   end
   
-  def self.voter_fields 
+  
+  # basic fields and common fetching of them for redundant data
+  
+  def self.legislator_fields
     [
       :govtrack_id, :bioguide_id,
       :title, :first_name, :nickname, :last_name, :name_suffix, 
@@ -116,26 +119,52 @@ module Utils
     ]
   end
   
-  def self.voter_for(legislator)
-    attributes = legislator.attributes
-    allowed_keys = voter_fields.map {|f| f.to_s}
+  def self.bill_fields
+    Bill.basic_fields
+  end
+  
+  def self.amendment_fields
+    Amendment.basic_fields
+  end
+  
+  def self.committee_fields
+    [:name, :chamber, :committee_id]
+  end
+  
+  def self.document_for(document, fields)
+    attributes = document.attributes
+    allowed_keys = fields.map {|f| f.to_s}
     attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
     attributes
   end
   
+  def self.legislator_for(legislator)
+    document_for legislator, legislator_fields
+  end
+  
+  def self.amendment_for(amendment)
+    document_for amendment, amendment_fields
+  end
+  
+  def self.committee_for(committee)
+    document_for committee, committee_fields
+  end
+  
+  # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
-    bill_fields = Bill.basic_fields
-    
-    bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-    
-    if bill
-      attributes = bill.attributes
-      allowed_keys = bill_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
+    if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
+      document_for bill, bill_fields
     else
       nil
     end
   end
-
+  
+  # known discrepancies between us and GovTrack
+  def self.committee_id_for(govtrack_id)
+    if govtrack_id == "HLIG"
+      "HSIG"
+    else
+      govtrack_id
+    end
+  end
 end

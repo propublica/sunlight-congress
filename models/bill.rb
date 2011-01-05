@@ -16,6 +16,10 @@ class Bill
   index :awaiting_signature
   index :sponsor_id
   index :cosponsor_ids
+  index :amendments_count
+  index :cosponsors_count
+  index :keywords
+  index :committee_ids
   
   index :introduced_at
   index :last_action_at
@@ -23,13 +27,6 @@ class Bill
   index :passed_at
   index :awaiting_signature_since
   index :enacted_at
-  
-  validates_presence_of :bill_id
-  validates_presence_of :bill_type
-  validates_presence_of :code
-  validates_presence_of :chamber
-  validates_presence_of :session
-  validates_presence_of :state
   
   def self.unique_keys
     [:bill_id]
@@ -43,12 +40,16 @@ class Bill
     [
       :bill_id, :bill_type, :code, :number, :session, :chamber, :last_updated, :state, 
       :short_title, :official_title, :popular_title,
-      :sponsor_id, :cosponsors_count, :passage_votes_count, :last_action_at, :last_vote_at, 
+      :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_vote_at, 
       :introduced_at, :house_result, :house_result_at, :senate_result, :senate_result_at, :passed, :passed_at,
       :vetoed, :vetoed_at, :override_house_result, :override_house_result_at,
       :override_senate_result, :override_senate_result_at, 
       :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
     ]
+  end
+  
+  def self.search_fields
+    [:short_title, :official_title, :popular_title, :summary, :keywords]
   end
   
 end

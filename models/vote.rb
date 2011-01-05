@@ -16,6 +16,7 @@ class Vote
   index :number
   index :how
   index :bill_id
+  index :amendment_id
   
   field :roll_id
   validates_uniqueness_of :roll_id, :allow_nil => true
@@ -29,7 +30,11 @@ class Vote
   end
   
   def self.basic_fields
-    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :text, :vote_type, :passage_type]
+    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :text, :vote_type, :passage_type, :amendment_id]
+  end
+  
+  def self.search_fields
+    [:text, :question, :description]
   end
   
 end

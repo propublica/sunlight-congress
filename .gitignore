@@ -1,7 +1,6 @@
 /config.ru
 /config/config.yml
 /data
-*.swp
 /vendor/gems
 /.bundle
 
@@ -10,3 +9,6 @@
 /log
 
 /virt
+
+*.swp
+*.pyc

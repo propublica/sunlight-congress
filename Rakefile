@@ -4,6 +4,9 @@ task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require 'config/environment'
+  
+  require 'tasks/report'
+  require 'pony'
 end
 
 namespace :development do
@@ -23,15 +26,37 @@ end
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
   require 'analytics/api_key'
-  require 'tasks/report'
   
-  models = Dir.glob('models/*.rb').map do |file|
-    File.basename(file, File.extname(file)).camelize.constantize
-  end + [ApiKey, Report]
+  begin
+    models = Dir.glob('models/*.rb').map do |file|
+      File.basename(file, File.extname(file)).camelize.constantize
+    end + [ApiKey, Report]
+    
+    models.each do |model| 
+      model.create_indexes
+      puts "Created indexes for #{model}"
+    end
+  rescue Exception => ex
+    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}
+    puts "Error creating indexes, emailed report."
+  end
+end
+
+desc "Set the crontab in place for this environment"
+task :set_crontab => :environment do
+  environment = ENV['environment']
+  current_path = ENV['current_path']
   
-  models.each do |model| 
-    model.create_indexes
-    puts "Created indexes for #{model}"
+  if environment.blank? or current_path.blank?
+    puts "No environment or current path given, exiting."
+    exit
+  end
+  
+  if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
+    puts "Successfully overwrote crontab."
+  else
+    email "Crontab overwriting failed on deploy."
+    puts "Unsuccessful in overwriting crontab, emailed report."
   end
 end
 
@@ -48,20 +73,20 @@ end
 
 
 def run_task(name)
-  require 'tasks/report'
   require 'tasks/utils'
-
-  require 'pony'
   
-
-  load "tasks/#{name}/#{name}.rb"
   task_name = name.camelize
-  task = task_name.constantize
   
   start = Time.now
   
   begin
-    task.run :config => config, :args => ARGV[1..-1]
+    if File.exist? "tasks/#{name}/#{name}.rb"
+      run_ruby name
+    elsif File.exist? "tasks/#{name}/#{name}.py"
+      run_python name
+    else
+      raise Exception.new "Couldn't locate task file"
+    end
     
   rescue Exception => ex
     Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
@@ -80,12 +105,53 @@ def run_task(name)
 
 end
 
-def email(report)
+def run_ruby(name)
+  load "tasks/#{name}/#{name}.rb"
+  name.camelize.constantize.run :config => config, :args => ARGV[1..-1]
+end
+
+def run_python(name)
+  system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
+end
+
+def email(report, exception = nil)
   if config[:email][:to] and config[:email][:to].any?
     begin
-      Pony.mail config[:email].merge(:subject => report.to_s, :body => report.attributes.inspect)
+      if report.is_a?(Report)
+        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report))
+      else
+        Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
+      end
     rescue Errno::ECONNREFUSED
       puts "Couldn't email report, connection refused! Check system settings."
     end
   end
+end
+
+def email_subject(report)
+  "[#{report.status}] #{report.source} | #{report.message}"
+end
+
+def email_body(report)
+  msg = ""
+  msg += exception_message(report[:exception]) if report[:exception]
+  
+  attrs = attributes.dup
+  [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
+  
+  msg += attrs.inspect
+  msg
+end
+
+def exception_message(exception)
+  msg = ""
+  msg += "#{exception['type']}: #{exception['message']}" 
+  msg += "\n\n"
+  
+  if exception['backtrace'] and exception['backtrace'].respond_to?(:each)
+    exception['backtrace'].each {|line| msg += "#{line}\n"}
+    msg += "\n\n"
+  end
+  
+  msg
 end

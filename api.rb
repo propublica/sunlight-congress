@@ -36,7 +36,11 @@ get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
   
   criteria = model.where(conditions).only(fields).order_by(order)
   
-  results = results_for model, criteria, conditions
+  if params[:explain] == 'true'
+    results = explain_for criteria, conditions, fields, order
+  else
+    results = results_for model, criteria, conditions, fields
+  end
   
   if format == 'json'
     json results
@@ -76,10 +80,11 @@ helpers do
         "__lte" => :lte, 
         "__ne" => :ne,
         "__match" => :match,
-        "__match_i" => :match_i,
+        "__match_s" => :match_s,
         "__exists" => :exists,
         "__in" => :in,
-        "__nin" => :nin
+        "__nin" => :nin,
+        "__all" => :all
       }
       
       operator = nil
@@ -91,26 +96,26 @@ helpers do
       if !magic_fields.include? key.to_sym
         
         # transform 'value' to the correct type for this key if needed
-        if [:nin, :in].include?(operator)
+        if [:nin, :in, :all].include?(operator)
           value = value.split("|").map {|v| value_for v, model.fields[key]}
         else
           value = value_for value, model.fields[key]
         end
         
-        puts
-        puts "value: #{value.inspect} (#{value.class})"
+#         puts
+#         puts "value: #{value.inspect} (#{value.class})"
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             # error point: invalid regexp, check now
             conditions[key] ||= {}
             
-            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :exists].include?(operator)
+            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
               conditions[key]["$#{operator}"] = value 
             elsif operator == :match
-              conditions[key] = /#{value}/ rescue nil # avoid RegexpError
-            elsif operator == :match_i
-              conditions[key] = /#{value}/i rescue nil # avoid RegexpError
+              conditions[key] = regex_for value
+            elsif operator == :match_s
+              conditions[key] = regex_for value, false
             end
           else
             # let it fall, someone already assigned the filter directly
@@ -124,13 +129,20 @@ helpers do
       end
     end
     
-    puts
-    puts "conditions: #{conditions.inspect}"
-    puts
+    if params[:search].present? and model.respond_to?(:search_fields)
+      conditions["$or"] = model.search_fields.map do |key|
+        {key => regex_for(params[:search])}
+      end
+    end
 
     conditions
   end
   
+  def regex_for(value, i = true)
+    regex_value = value.dup
+    %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
+    i ? /#{regex_value}/i : /#{regex_value}/
+  end
   
   def value_for(value, field)
     # type overridden in model
@@ -140,7 +152,7 @@ helpers do
       elsif field.type == Integer
         value.to_i
       elsif [Date, Time, DateTime].include?(field.type)
-        Time.parse value
+        Time.parse(value) rescue nil
       else
         value
       end
@@ -152,7 +164,7 @@ helpers do
       elsif value =~ /^\d+$/
         value.to_i
       elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
-        Time.parse value
+        Time.parse(value) rescue nil
       else
         value
       end
@@ -174,13 +186,7 @@ helpers do
       sort = :desc
     end
     
-    # meant to break ties in a predictable manner
-    total_sort = [[key, sort]]
-    if model.respond_to?(:unique_keys) and model.unique_keys.any? and model.unique_keys.first != key
-      total_sort << [model.unique_keys.first, :desc]
-    end
-    
-    total_sort
+    [[key, sort]]
   end
 
   def pagination_for(params)
@@ -200,30 +206,46 @@ helpers do
     {:per_page => per_page, :page => page}
   end
 
-  def attributes_for(document)
+  def attributes_for(document, fields)
     attributes = document.attributes
-    [:_id, :created_at, :updated_at].each {|key| attributes.delete key}
+    [:_id, :created_at, :updated_at].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
     attributes
   end
   
-  def results_for(model, criteria, conditions)
+  def results_for(model, criteria, conditions, fields)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     
-    # documents is a Mongoid::Criteria, so it hasn't been lazily executed yet
-    # #count will not trigger it, #paginate will
-    total_count = criteria.count
     documents = criteria.paginate pagination
     
     {
-      key => documents.map {|document| attributes_for document},
-      :count => total_count,
+      key => documents.map {|document| attributes_for document, fields},
+      :count => documents.total_entries,
       :page => {
-        :count => documents.size,
+        :count => documents.count,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
-      },
-      :conditions => conditions
+      }
+    }
+  end
+  
+  def explain_for(criteria, conditions, fields, order)
+    pagination = pagination_for params
+    skip = pagination[:per_page] * (pagination[:page]-1)
+    limit = pagination[:per_page]
+    
+    cursor = criteria.skip(skip).limit(limit).execute
+    
+    {
+      :conditions => conditions,
+      :fields => fields,
+      :order => order,
+      :explain => cursor.explain,
+      :count => cursor.count,
+      :page => {
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }
     }
   end
   
@@ -235,7 +257,6 @@ helpers do
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.delete :conditions # operators with $'s are invalid XML
     results.to_xml :root => 'results'
   end
   

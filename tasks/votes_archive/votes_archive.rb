@@ -1,4 +1,4 @@
-require 'hpricot'
+require 'nokogiri'
 
 class VotesArchive
 
@@ -26,7 +26,7 @@ class VotesArchive
     
     # make lookups faster later by caching a hash of legislators from which we can lookup govtrack_ids
     legislators = {}
-    Legislator.only(Utils.voter_fields).all.each do |legislator|
+    Legislator.only(Utils.legislator_fields).all.each do |legislator|
       legislators[legislator.govtrack_id] = legislator
     end
     
@@ -34,11 +34,11 @@ class VotesArchive
     # Debug helpers
     rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
     
-    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2010-165.xml"
+    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2009-884.xml"
     # rolls = rolls.first 20
     
     rolls.each do |path|
-      doc = Hpricot::XML open(path)
+      doc = Nokogiri::XML open(path)
       
       filename = File.basename path
       matches = filename.match /^([hs])(\d+)-(\d+)\.xml/
@@ -50,11 +50,10 @@ class VotesArchive
       vote = Vote.find_or_initialize_by(:roll_id => roll_id)
       
       bill_id = bill_id_for doc
+      amendment_id = amendment_id_for doc, bill_id
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
-      party_vote_breakdown = Utils.vote_breakdown_for voters
-      vote_breakdown = party_vote_breakdown.delete :total
       
-      roll_type = doc.at(:type).inner_text
+      roll_type = doc.at(:type).text
       vote_type = Utils.vote_type_for roll_type
       
       vote.attributes = {
@@ -63,19 +62,42 @@ class VotesArchive
         :chamber => doc.root['where'],
         :year => year,
         :number => number,
+        
         :session => session,
-        :result => doc.at(:result).inner_text,
-        :bill_id => bill_id,
-        :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
+        
         :roll_type => roll_type,
-        :question => doc.at(:question).inner_text,
-        :required => doc.at(:required).inner_text,
-        :bill => Utils.bill_for(bill_id),
+        :question => doc.at(:question).text,
+        :result => doc.at(:result).text,
+        :required => doc.at(:required).text,
+        
+        :voted_at => Utils.govtrack_time_for(doc.root['datetime']),
         :voter_ids => voter_ids,
         :voters => voters,
-        :vote_breakdown => vote_breakdown,
-        :party_vote_breakdown => party_vote_breakdown
+        :vote_breakdown => Utils.vote_breakdown_for(voters)
       }
+      
+      if bill_id
+        if bill = Utils.bill_for(bill_id)
+          vote.attributes = {
+            :bill_id => bill_id,
+            :bill => bill
+          }
+        else
+          Report.warning self, "On roll #{roll_id}, found bill_id #{bill_id}, which isn't in the database."
+        end
+      end
+      
+      if amendment_id
+        if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+          vote.attributes = {
+            :amendment_id => amendment_id,
+            :amendment => Utils.amendment_for(amendment)
+          }
+        else
+          Report.warning self, "On roll #{roll_id}, found amendment_id #{amendment_id}, which isn't in the database."
+        end
+      end
+      
       
       if vote.save
         count += 1
@@ -178,7 +200,21 @@ class VotesArchive
   
   def self.bill_id_for(doc)
     if bill = doc.at(:bill)
-      bill_id = "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
+      "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
+    end
+  end
+  
+  def self.amendment_id_for(doc, bill_id)
+    if amendment = doc.at(:amendment)
+      if bill_id and (amendment['ref'] == "bill-serial")
+        
+        if result = Amendment.where(:bill_id => bill_id, :bill_sequence => amendment['number'].to_i).only(:amendment_id).first
+          result['amendment_id']
+        end
+        
+      else
+        "#{amendment['number']}-#{amendment['session']}"
+      end
     end
   end
   
@@ -202,7 +238,7 @@ class VotesArchive
       govtrack_id = elem['id']
       
       if legislators[govtrack_id]
-        voter = Utils.voter_for legislators[govtrack_id]
+        voter = Utils.legislator_for legislators[govtrack_id]
         bioguide_id = voter[:bioguide_id]
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}

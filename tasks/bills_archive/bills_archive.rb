@@ -1,4 +1,4 @@
-require 'hpricot'
+require 'nokogiri'
 
 class BillsArchive
   
@@ -8,34 +8,41 @@ class BillsArchive
     session = options[:session] || Utils.current_session
     count = 0
     missing_ids = []
+    missing_committees = []
     bad_bills = []
     
     FileUtils.mkdir_p "data/govtrack/#{session}/bills"
     unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/bills/ data/govtrack/#{session}/bills/")
-      Report.failure self, "Couldn't rsync to Govtrack.us."
+      Report.failure self, "Couldn't rsync to Govtrack.us for bills."
       return
     end
     
-    # make lookups faster later by caching a hash of legislators from which we can lookup govtrack_ids
-    legislators = {}
-    Legislator.only(sponsor_fields).all.each do |legislator|
-      legislators[legislator.govtrack_id] = legislator
+    unless system("rsync -az govtrack.us::govtrackdata/us/committees.xml data/govtrack/committees.xml")
+      Report.failure self, "Couldn't rsync to Govtrack.us for committees.xml."
+      return
     end
     
     
+    # legislator cache
+    legislators = {}
+    Legislator.only(Utils.legislator_fields).all.each do |legislator|
+      legislators[legislator.govtrack_id] = Utils.legislator_for legislator
+    end
+    
+    cached_committees = cached_committees_for session, Nokogiri::XML(open("data/govtrack/committees.xml"))
     
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
-    # bills = Dir.glob "data/govtrack/#{session}/bills/hr103.xml"
     # bills = bills.first 20
+    # bills = Dir.glob "data/govtrack/111/bills/h4173.xml"
     
     bills.each do |path|
-      doc = Hpricot::XML open(path)
+      doc = Nokogiri::XML open(path)
       
       filename = File.basename path
-      type = Utils.bill_type_for doc.root.attributes['type']
-      number = doc.root.attributes['number'].to_i
+      type = Utils.bill_type_for doc.root['type']
+      number = doc.root['number'].to_i
       code = "#{type}#{number}"
       
       bill_id = "#{code}-#{session}"
@@ -44,6 +51,9 @@ class BillsArchive
       
       sponsor = sponsor_for filename, doc, legislators, missing_ids
       cosponsors = cosponsors_for filename, doc, legislators, missing_ids
+      committees = committees_for filename, doc, cached_committees, missing_committees
+      related_bills = related_bills_for doc
+      
       actions = actions_for doc
       titles = titles_for doc
       state = state_for doc
@@ -66,15 +76,18 @@ class BillsArchive
         :sponsor => sponsor,
         :sponsor_id => sponsor ? sponsor[:bioguide_id] : nil,
         :cosponsors => cosponsors,
-        :cosponsor_ids => cosponsors ? cosponsors.map {|c| c[:bioguide_id]} : nil,
-        :cosponsors_count => cosponsors ? cosponsors.size : 0,
+        :cosponsor_ids => cosponsors.map {|c| c[:bioguide_id]},
+        :cosponsors_count => cosponsors.size,
         :actions => actions,
         :last_action => actions.last,
         :last_action_at => actions.last ? actions.last[:acted_at] : nil,
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
         :last_vote_at => last_vote_at,
-        :introduced_at => introduced_at
+        :introduced_at => introduced_at,
+        :keywords => keywords_for(doc),
+        :committees => committees,
+        :related_bills => related_bills
       }
       
       timeline = timeline_for doc, state, passage_votes
@@ -94,6 +107,11 @@ class BillsArchive
       Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs, attached.", {:missing_ids => missing_ids}
     end
     
+    if missing_committees.any?
+      missing_committees = missing_committees.uniq
+      Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names, attached.", {:missing_committees => missing_committees}
+    end
+    
     if bad_bills.any?
       Report.failure self, "Failed to save #{bad_bills.size} bills. Attached the last failed bill's attributes and errors.", :bill => bad_bills.last
     end
@@ -102,26 +120,41 @@ class BillsArchive
   end
   
   
-  
   def self.state_for(doc)
-    doc.at(:state) ? doc.at(:state).inner_text : "UNKNOWN"
+    doc.at(:state) ? doc.at(:state).text : "UNKNOWN"
   end
   
   def self.summary_for(doc)
-    summary = doc.at(:summary).inner_text.strip
+    summary = doc.at(:summary).text.strip
     summary.present? ? summary : nil
   end
   
   def self.sponsor_for(filename, doc, legislators, missing_ids)
     sponsor = doc.at :sponsor
-    sponsor and sponsor['id'] and !sponsor['withdrawn'] ? legislator_for(filename, sponsor['id'], legislators, missing_ids) : nil
+    if sponsor and sponsor['id'] and !sponsor['withdrawn']
+      if legislators[sponsor['id']]
+        legislators[sponsor['id']]
+      else
+        missing_ids << [sponsor['id'], filename]
+        nil
+      end
+    end
   end
   
   def self.cosponsors_for(filename, doc, legislators, missing_ids)
-    cosponsors = (doc/:cosponsor).map do |cosponsor| 
-      cosponsor and cosponsor['id'] and !cosponsor['withdrawn'] ? legislator_for(filename, cosponsor['id'], legislators, missing_ids) : nil
-    end.compact
-    cosponsors.any? ? cosponsors : nil
+    cosponsors = []
+    
+    (doc/:cosponsor).each do |cosponsor| 
+      if cosponsor and cosponsor['id'] and !cosponsor['withdrawn']
+        if legislators[cosponsor['id']]
+          cosponsors << legislators[cosponsor['id']]
+        else
+          missing_ids << [cosponsor['id'], filename]
+        end
+      end
+    end
+    
+    cosponsors
   end
   
   def self.titles_for(doc)
@@ -204,7 +237,7 @@ class BillsArchive
   end
   
   def self.actions_for(doc)
-    doc.search('//actions/*').reject {|a| a.class == Hpricot::Text}.map do |action|
+    doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
       {
         :acted_at => Utils.govtrack_time_for(action['datetime']),
         :text => (action/:text).inner_text,
@@ -237,24 +270,62 @@ class BillsArchive
     end
   end
   
-  def self.legislator_for(filename, govtrack_id, legislators, missing_ids)
-    legislator = legislators[govtrack_id]
-    
-    if legislator
-      attributes = legislator.attributes
-      allowed_keys = sponsor_fields.map {|f| f.to_s}
-      attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
-      attributes
-    else
-      missing_ids << [govtrack_id, filename] if missing_ids
-      nil
-    end
+  def self.keywords_for(doc)
+    doc.search('//subjects/term').map {|term| term['name']}
   end
   
+  def self.committees_for(filename, doc, cached_committees, missing_committees)
+    committees = {}
+    
+    doc.search("//committees/committee").each do |elem|
+      activity = elem['activity'].split(/, ?/).map {|a| a.downcase}
+      committee_name = elem['name']
+      subcommittee_name = elem['subcommittee']
+      
+      if subcommittee_name.blank? # we're not getting subcommittees, way too hard to match them up
+        if committee = committee_match(committee_name, cached_committees)
+          committees[committee['committee_id']] = {
+            :activity => activity,
+            :committee => Utils.committee_for(committee)
+          }
+        else
+          missing_committees << [committee_name, filename]
+        end
+      end
+    end
+    
+    committees
+  end
   
-  # fields of legislator to include on sponsor fields
-  def self.sponsor_fields
-    [:first_name, :nickname, :last_name, :name_suffix, :title, :chamber, :state, :party, :district, :govtrack_id, :bioguide_id]
+  def self.committee_match(name, cached_committees)
+    Committee.where(:committee_id => cached_committees[name]).first
+  end
+  
+  def self.cached_committees_for(session, doc)
+    committees = {}
+    
+    doc.search("/committees/committee/thomas-names/name[@session=#{session}]").each do |elem|
+      committees[elem.text] = Utils.committee_id_for(elem.parent.parent['code'])
+    end
+    
+    committees
+  end
+  
+  # known relations
+  # supersedes, superseded, identical, rule, unknown
+  def self.related_bills_for(doc)
+    related_bills = {}
+    
+    doc.search("//relatedbills/bill").map do |elem|
+      relation = elem['relation']
+      type = Utils.bill_type_for elem['type']
+      bill_id = "#{type}#{elem['number']}-#{elem['session']}"
+      
+      related_bills[relation] ||= []
+      related_bills[relation] << bill_id
+    end
+    
+    related_bills
   end
 
 end

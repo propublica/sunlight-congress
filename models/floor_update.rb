@@ -12,4 +12,8 @@ class FloorUpdate
     [:chamber, :legislative_day, :timestamp, :events]
   end
   
+  def self.search_fields
+    [:events]
+  end
+  
 end

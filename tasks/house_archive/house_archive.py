@@ -1,44 +1,19 @@
 #main driver for daily scrape.  scrapes daily meta information for a house proceeding and saves to mongo if record doesn't already exist
 
-from pymongo.collection import Collection
-from pymongo.connection import Connection
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 from urlparse import urlparse
 import datetime, time
 import urllib2
 import re
-import sys
-import traceback
 import feedparser
 
 PARSING_ERRORS = []
 
-
-def file_report(db, status, message, source):
-    db['reports'].insert({'status': status, 'read': False, 'message':message, 'source': source, 'created_at': datetime.datetime.now() })
-
-
-def get_or_create_video(coll, video_id, clip_id=None):
-    if clip_id:
-        objs = coll.find({'clip_id': clip_id})
-    else:
-        objs = coll.find({'video_id':video_id})
-    if objs.count() > 0:
-        return objs[0]
-    else:
-        if not clip_id:
-            return {'video_id':video_id}
-        else:
-            return {'clip_id': clip_id}
-
-def get_or_create_floor_update(conn, timestamp, legislative_day):
-    coll = conn.floor_updates
-    objs = coll.find({'timestamp': timestamp, 'legislative_day': legislative_day, 'chamber': 'house'})
-    if objs.count() > 0:
-        return objs[0]
-    else:
-        return {'timestamp':timestamp, 'legislative_day': legislative_day, 'chamber': 'house'}
-        
+def run(db):
+    grab_daily_meta(db)
+    #pull_wmv_rss(db['videos'])
+    if PARSING_ERRORS:
+        db.warning(PARSING_ERRORS)
 
 def get_mms_url(clip_id):
     clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
@@ -68,6 +43,9 @@ def grab_daily_meta(db):
 
     rows = link.findAll('tr')
     print "got page"
+    
+    count = 0
+    
     for row in rows:
         try:
             cols = row.findAll('td')
@@ -76,7 +54,10 @@ def grab_daily_meta(db):
                 this_date = datetime.datetime.fromtimestamp(float(unix_time))
                 date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
                 timestamp_key = int(time.mktime(date_key.timetuple()))
-                fd = get_or_create_video(db['videos'], 'house-' + str(timestamp_key))
+                
+                video_id = 'house-' + str(timestamp_key)
+                fd = db.get_or_initialize('videos', {'video_id': video_id})
+                
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
                 fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
@@ -107,14 +88,18 @@ def grab_daily_meta(db):
                         else:
                             fd['clip_urls'] = { 'mms':mms_url }
 
-                fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd)
+                fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd, db)
                 db['videos'].save(fd)
+                
+                count += 1
         except Exception as e:
 #            print "exception! %s " % e
-            file_report(db, 'WARNING', e, "house_archive")
+            db.warning(e)
             continue
+    
+    db.success("Updated or created %s legislative days for House video" % count)
                             
-def grab_daily_events(full_video):
+def grab_daily_events(full_video, db):
     
     def get_timestamp(item, date, am_or_pm):
         try:
@@ -272,11 +257,19 @@ def grab_daily_events(full_video):
                 
                 timestamp, date, am_or_pm = get_timestamp(group, date, am_or_pm)
                 fe = {'offset': offset, 'time': timestamp}
-                fu = get_or_create_floor_update(db['floor_updates'], timestamp, full_video['legislative_day'])
+                
+                legislative_day = full_video['legislative_day']
+                
+                
+                fu = db.get_or_initialize('floor_updates', {
+                  'timestamp': timestamp, 
+                  'legislative_day': legislative_day, 
+                  'chamber': 'house'
+                })
+                
                 fu['created_at'] = add_date
                 fu['timestamp'] = timestamp
                 
-
                 #figure out the duration for smaller clips
                 if last_clip is None: 
                     #first clip read, which is last clip of day
@@ -322,7 +315,9 @@ def pull_wmv_rss(coll):
         try:
             link = video.link
             clip_id = re.findall('(?<=clip_id=)\d+', link)[0]
-            vid = get_or_create_video(coll, None, int(clip_id))
+            
+            vid = db.get_or_initialize('videos', {'clip_id': clip_id})
+            
             if vid.has_key("timestamp_id"):
                 wmv_url= video.enclosures[0]['url']
                 if vid.has_key('clip_urls'):
@@ -333,29 +328,3 @@ def pull_wmv_rss(coll):
                 coll.save(vid) 
         except:
             continue 
-   
-if __name__ == "__main__": 
-    if len(sys.argv) > 2:
-        db_host = sys.argv[1]
-        db_name = sys.argv[2]
-        
-        # further command line arguments will come in as sys.argv[3] and on up
-        # e.g. 'all' will be sys.argv[3]
-        
-        conn = Connection(host=db_host)
-        db = conn[db_name]
-        try:
-            grab_daily_meta(db)
-            #pull_wmv_rss(db['videos'])
-            if PARSING_ERRORS:
-                file_report(db, "WARNING", PARSING_ERRORS, "grab_videos")
-
-        except Exception as e:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            print "%s %s" % (e, traceback.extract_tb(exc_traceback))
-            file_report(db, "FAILURE", "Fatal Error - %s - %s" % (e, traceback.extract_tb(exc_traceback)), "grab_videos")
-
-    else:
-        print 'Not enough arguments passed'
-        sys.exit()
-                            
