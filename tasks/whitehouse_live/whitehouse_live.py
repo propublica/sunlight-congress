@@ -51,8 +51,7 @@ def run(db):
                 video_obj['start_time'] = timestamp
                 video_obj['status'] = "live"
                 video_obj['pubdate'] = timestamp.strftime("%Y-%m-%dT%H:%M%z")
-
-            
+                
                 # get full href from a_tag and pull that page, then parse the video tag on that page
                 this_url = "http://whitehouse.gov" + link
                 vid_page = urllib2.urlopen(this_url)

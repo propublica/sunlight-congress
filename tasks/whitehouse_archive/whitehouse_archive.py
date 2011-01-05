@@ -38,22 +38,25 @@ def run(db):
             video_id = 'whitehouse-' + str(timestamp) + "-" + slug
             
             video_obj = db.get_or_initialize('videos', {'video_id': video_id})
+            try:
+                url = video.enclosures[0]['url']
+                video_obj['title'] = video.title
+                video_obj['description'] = video.description
+                if video_obj.has_key('clip_urls'):
+                    video_obj['clip_urls']['mp4'] = url
+                else:
+                    video_obj['clip_urls'] = {'mp4' : url }
+                video_obj['created_at'] = add_date
+                video_obj['chamber'] = 'whitehouse'
+                video_obj['pubdate'] = date_obj.strftime("%Y-%m-%dT%H:%M%z")
+                video_obj['category'] = cats[feeds.index(f)]
+                video_obj['status'] = "archived"
+                db['videos'].save(video_obj)
             
-            url = video.enclosures[0]['url']
-            video_obj['title'] = video.title
-            video_obj['description'] = video.description
-            if video_obj.has_key('clip_urls'):
-                video_obj['clip_urls']['mp4'] = url
-            else:
-                video_obj['clip_urls'] = {'mp4' : url }
-            video_obj['created_at'] = add_date
-            video_obj['chamber'] = 'whitehouse'
-            video_obj['pubdate'] = date_obj.strftime("%Y-%m-%dT%H:%M%z")
-            video_obj['category'] = cats[feeds.index(f)]
-            video_obj['status'] = "archived"
-            db['videos'].save(video_obj)
-            
-            # print "Saved White House video for %s" % video_obj['pubdate']
-            count += 1
+                # print "Saved White House video for %s" % video_obj['pubdate']
+                count += 1
+
+            except Exception:
+                continue
                 
     db.success("Updated or created %s White House videos" % count)
