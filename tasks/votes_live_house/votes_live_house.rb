@@ -10,7 +10,7 @@ class VotesLiveHouse
     count = 0
     missing_ids = []
     bad_votes = []
-    timed_out = []
+    bad_fetches = []
     
     # make lookups faster later by caching a hash of legislators from which we can lookup bioguide_ids
     legislators = {}
@@ -34,7 +34,7 @@ class VotesLiveHouse
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_new_roll-49).upto(latest_new_roll) do |number|
-      if Vote.where(:roll_id => "h#{number}-#{year}").first == nil
+      if (number > 0) and (Vote.where(:roll_id => "h#{number}-#{year}").first == nil)
         to_fetch << number
       end
     end
@@ -55,7 +55,7 @@ class VotesLiveHouse
       doc = nil
       begin
         doc = Nokogiri::XML open(url)
-      rescue Timeout::Error
+      rescue Timeout::Error, OpenURI::HTTPError
         doc = nil
       end
       
@@ -121,7 +121,7 @@ class VotesLiveHouse
         end
         
       else
-        timed_out << [number]
+        bad_fetches << {:number => number, :url => url}
       end
     end
     
@@ -134,8 +134,8 @@ class VotesLiveHouse
       Report.warning self, "Found #{missing_ids.size} missing Bioguide IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {:missing_ids => missing_ids}
     end
     
-    if timed_out.any?
-      Report.warning self, "Timeout error on fetching #{timed_out.size} House roll(s), skipping and going onto the next one.", :timed_out => timed_out
+    if bad_fetches.any?
+      Report.warning self, "Error on fetching #{bad_fetches.size} House roll(s), skipping and going onto the next one. Last number: #{bad_fetches.last[:number]}, last URL: #{bad_fetches.last[:url]}", :bad_fetches => bad_fetches
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the House Clerk website."
