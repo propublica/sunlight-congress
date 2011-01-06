@@ -17,7 +17,7 @@ def senate_hearings(db):
     try:
       page = urllib2.urlopen("http://www.senate.gov/general/committee_schedules/hearings.xml")
     except:
-      db.report("Couldn't load Senate hearings feed, can't proceed")
+      db.warning("Couldn't load Senate hearings feed, can't proceed")
       
     else:
       soup = BeautifulStoneSoup(page)
