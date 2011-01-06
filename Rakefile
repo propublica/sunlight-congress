@@ -89,7 +89,11 @@ def run_task(name)
     end
     
   rescue Exception => ex
-    Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+    if ENV['raise'] == "true"
+      raise ex
+    else
+      Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+    end
     
   else
     complete = Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
