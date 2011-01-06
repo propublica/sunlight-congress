@@ -16,6 +16,9 @@ class VotesArchive
     missing_ids = []
     bad_rolls = []
     
+    missing_bill_ids = []
+    missing_amendment_ids = []
+    
     
     FileUtils.mkdir_p "data/govtrack/#{session}/rolls"
     unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/rolls/ data/govtrack/#{session}/rolls/")
@@ -83,7 +86,7 @@ class VotesArchive
             :bill => bill
           }
         else
-          Report.warning self, "On roll #{roll_id}, found bill_id #{bill_id}, which isn't in the database."
+          missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
         end
       end
       
@@ -94,7 +97,7 @@ class VotesArchive
             :amendment => Utils.amendment_for(amendment)
           }
         else
-          Report.warning self, "On roll #{roll_id}, found amendment_id #{amendment_id}, which isn't in the database."
+          missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
         end
       end
       
@@ -115,6 +118,14 @@ class VotesArchive
     if missing_ids.any?
       missing_ids = missing_ids.uniq
       Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {:missing_ids => missing_ids}
+    end
+    
+    if missing_bill_ids.any?
+      Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
+    end
+    
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
     end
     
     Report.success self, "Synced #{count} roll calls for session ##{session} from GovTrack.us."
