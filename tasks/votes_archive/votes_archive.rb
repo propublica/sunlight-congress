@@ -124,9 +124,9 @@ class VotesArchive
       Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
     end
     
-    if missing_amendment_ids.any?
-      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
-    end
+#     if missing_amendment_ids.any?
+#       Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
+#     end
     
     Report.success self, "Synced #{count} roll calls for session ##{session} from GovTrack.us."
   end
