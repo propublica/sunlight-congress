@@ -26,7 +26,13 @@ def house_dem(db, notice_type, source):
         if hasattr(item, 'updated_parsed'):
             posted_at = datetime.datetime(*item.updated_parsed[:6])
       
-        notice = get_or_create_notice('house', posted_at, 'D', notice_type)
+        notice = db.get_or_initialize("whip_notices", {
+          "chamber": 'house', 
+          "posted_at": posted_at, 
+          "party": 'D', 
+          "notice_type": notice_type
+        })
+        
         notice['url'] = url
         db['whip_notices'].save(notice)
         
