@@ -70,7 +70,7 @@ def grab_daily_meta(db):
                 mms_url = get_mms_url(fd['clip_id'])
                 try:
                     if fd.has_key('clip_urls'):
-                        fd['clip_urls']['mp3'] = cols[4].a['href'],
+                        fd['clip_urls']['mp3'] = cols[4].a['href']
                         fd['clip_urls']['mp4'] = cols[4].a['href'].replace('.mp3', '.mp4')
                         fd['clip_urls']['mms'] = mms_url
                     else:
@@ -89,6 +89,7 @@ def grab_daily_meta(db):
                             fd['clip_urls'] = { 'mms':mms_url }
 
                 fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd, db)
+                print fd['clip_urls']
                 db['videos'].save(fd)
                 
                 count += 1
