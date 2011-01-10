@@ -201,7 +201,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>chamber</dt>
 <dd>Chamber the vote took place in. Either "house" or "senate".</dd>
 
-##### committees
+#### committees
 
 A hash, keyed by committee ID, relating some basic information about the committee to what roles the committee had in relation to the bill.
 
