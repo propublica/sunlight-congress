@@ -8,7 +8,7 @@ def run(db):
         page = urllib2.urlopen("http://republican.senate.gov/public/index.cfm?FuseAction=FloorUpdates.Home").read()
         
     except:
-        db.warning("Couldn't load floor updates URL, can't go on")
+        db.note("Couldn't load floor updates URL, can't go on")
         exit()
     
     count = 0
