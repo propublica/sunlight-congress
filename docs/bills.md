@@ -359,7 +359,7 @@ This is an example for H.R. 3590, from the 111th Congress. Details have been tri
           "enacted_at": "2010-03-23T12:00:00Z",
           "house_result": "pass",
           "senate_result": "pass",
-          "summary": "3/23/2010--Public Law. (This measure has not been amended since it was passed by the Senate on December 24, 2009. The summary of that version is repeated here.) Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans - Subtitle A: Immediate Improvements in Health Care Coverage for All Americans - (Sec. 1001, as modified by Sec. 10101) Amends the Public Health Service Act to prohibit a health plan (\"health plan” under this subtitle excludes any “grandfathered health plan” as defined in section 1251) from establishing lifetime limits or annual limits on the dollar value of benefits for any participant or beneficiary after January 1, 2014.",
+          "summary": "3/23/2010--Public Law. Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans",
           "cosponsor_ids": [
             "F000116",
             "M000312"
