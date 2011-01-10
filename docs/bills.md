@@ -10,7 +10,7 @@ For example, H.R. 4173 from the 111th Congress would be "hr4173-111".
 
 ### Guaranteed fields
 
-The only fields you can absolutely count on to be present in a bill are:
+The only fields you can assume are present on a bill are:
 
 * **bill_id**
 * **bill_type**
