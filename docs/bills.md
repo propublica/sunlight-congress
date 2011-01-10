@@ -119,6 +119,9 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>last_passage_vote_at</dt>
 <dd>(timestamp) Last time a passage vote was taken on a bill.</dd>
 
+<dt>related_bills</dt>
+<dd>A hash where the keys are the type of relation, and the values are arrays of bill IDs.</dd>
+
 <dt>introduced_at</dt>
 <dd>(timestamp) When a bill was introduced.</dd>
 
@@ -164,3 +167,46 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>enacted_at</dt>
 <dd>(timestamp) When a bill was enacted, if it was.</dd>
 
+##### actions
+
+<dt>text</dt>
+<dd>Text describing the action that occurred to the bill.</dd>
+
+<dt>acted_at</dt>
+<dd>(timestamp) Date or time the action occurred.</dd>
+
+<dt>type</dt>
+<dd>Type of action that occurred. Usually this is "action", but can be "vote", "vote2", "vote-aux", "signed", "topresident", "enacted", and potentially other unforeseen values.</dd>
+
+##### passage_votes
+
+<dt>result</dt>
+<dd>Result of the vote. Either "pass" or "fail".</dd>
+
+<dt>voted_at</dt>
+<dd>(timestamp) When the vote occurred.</dd>
+
+<dt>passage_type</dt>
+<dd>What this vote signifies. Can be "vote", "vote2", "vote-aux", or "pingpong".</dd>
+
+<dt>text</dt>
+<dd>Text describing the vote.</dd>
+
+<dt>how</dt>
+<dd>How the vote was taken. Can be "roll" if it was a roll call vote, or one of several forms indicating a voice vote or unanimous consent.</dd>
+
+<dt>roll_id</dt>
+<dd>If the vote was a roll call vote, the associated roll call ID.</dd>
+
+<dt>chamber</dt>
+<dd>Chamber the vote took place in. Either "house" or "senate".</dd>
+
+###### committees
+
+A hash, keyed by committee ID, relating some basic information about the committee to what roles the committee had in relation to the bill.
+
+<dt>activity</dt>
+<dd>An array of activities this committee has in relation to this bill.</dd>
+
+<dt>committee</dt>
+<dd>Basic information about the committee.</dd>
