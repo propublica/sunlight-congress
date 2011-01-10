@@ -1,4 +1,4 @@
-The **whip_notices** collection holds daily and weekly digests of chamber schedules published by House and Senate leadership.
+The **whip_notices** collection holds daily and weekly digests of chamber schedules published by House and Senate leadership of each party.
 
 The contents of whip notices are not kept in the API. Each notice contains a URL to access the original document.
 
