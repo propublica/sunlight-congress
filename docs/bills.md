@@ -123,7 +123,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>A hash where the keys are the type of relation, and the values are arrays of bill IDs.</dd>
 
 <dt>introduced_at</dt>
-<dd>(timestamp) When a bill was introduced.</dd>
+<dd>(timestamp) When a bill was introduced. **Default order for this collection.**</dd>
 
 <dt>senate_result</dt>
 <dd>The result of a Senate passage vote on the bill, if one was taken. "pass", "fail", or null.</dd>

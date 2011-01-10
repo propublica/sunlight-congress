@@ -87,7 +87,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>The fraction of the body which must vote Yea for the vote to pass. (e.g. "1/2", "3/5")</dd>
 
 <dt>voted_at</dt>
-<dd>(timestamp) The time at which the vote took place.</dd>
+<dd>(timestamp) The time at which the vote took place. **Default order for this collection.**</dd>
 
 <dt>how</dt>
 <dd>How the vote was taken. Can be "roll" if it was a roll call vote, or one of several forms indicating a voice vote or unanimous consent.</dd>
