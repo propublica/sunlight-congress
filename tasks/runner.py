@@ -51,6 +51,9 @@ class Database():
     def warning(self, message, additional=None):
         self.report("WARNING", message, additional)
     
+    def note(self, message, additional=None):
+        self.report("NOTE", message, additional)
+    
     def failure(self, message, additional=None):
         self.report("FAILURE", message, additional)
         
