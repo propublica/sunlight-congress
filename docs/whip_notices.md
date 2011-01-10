@@ -17,4 +17,4 @@ The contents of whip notices are not kept in the API. Each notice contains a URL
 <dd>Chamber the notice is about, either "house" or "senate".</dd>
 
 <dt>posted_at</dt>
-<dd>(timestamp) Date or time the whip notice was posted.</dd>
+<dd>(timestamp) Date or time the whip notice was posted. **Default order for this collection.**</dd>

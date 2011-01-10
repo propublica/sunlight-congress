@@ -36,7 +36,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>The current state of the amendment. One of "fail", "offered", "pass", or "withdrawn".</dd>
 
 <dt>offered_at</dt>
-<dd>(timestamp) Time the amendment was offered.</dd>
+<dd>(timestamp) Time the amendment was offered. **Default order for this collection.**</dd>
 
 <dt>description</dt>
 <dd>Official description of the amendment. Not clear what distinguishes this from the "purpose" field.</dd>

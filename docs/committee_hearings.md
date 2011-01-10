@@ -27,7 +27,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>(date) The day of the hearing.</dd>
 
 <dt>occurs_at</dt>
-<dd>(timestamp) The time of the hearing.</dd>
+<dd>(timestamp) The time of the hearing. **Default order for this collection.**</dd>
 
 <dt>time_of_day</dt>
 <dd>The time of day the hearing is scheduled for. Could also be "TBD".</dd>
