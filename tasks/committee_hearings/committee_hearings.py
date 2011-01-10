@@ -135,12 +135,12 @@ def house_hearings(db):
             hearing = db.get_or_initialize('committee_hearings', {
                 'chamber': 'house', 
                 'committee_id': committee_id, 
-                'occurs_at': occurs_at,
+                'legislative_day': legislative_day
             })
             
             hearing.update({
                 'description': description, 
-                'legislative_day': legislative_day, 
+                'occurs_at': occurs_at,
                 'time_of_day': time_of_day
             })
             
