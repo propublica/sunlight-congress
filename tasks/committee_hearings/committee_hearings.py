@@ -17,7 +17,7 @@ def senate_hearings(db):
     try:
       page = urllib2.urlopen("http://www.senate.gov/general/committee_schedules/hearings.xml")
     except:
-      db.warning("Couldn't load Senate hearings feed, can't proceed")
+      db.note("Couldn't load Senate hearings feed, can't proceed")
       
     else:
       soup = BeautifulStoneSoup(page)
@@ -26,7 +26,7 @@ def senate_hearings(db):
       count = 0
       
       for meeting in meetings:
-          if re.search("No committee hearings scheduled", meeting.matter.contents[0]):
+          if re.search("^No.*?scheduled\.?$", meeting.matter.contents[0]):
             continue
             
           committee_id = meeting.cmte_code.contents[0].strip()
