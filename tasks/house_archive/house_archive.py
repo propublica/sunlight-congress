@@ -270,7 +270,7 @@ def grab_daily_events(full_video, db):
                 
                 fu['created_at'] = add_date
                 fu['timestamp'] = timestamp
-                
+                fu['events'] = [] 
                 #figure out the duration for smaller clips
                 if last_clip is None: 
                     #first clip read, which is last clip of day
