@@ -1,6 +1,6 @@
 The Real Time Congress (RTC) API is a RESTful API over the artifacts of Congress, in as close to real-time as possible. There is no original data; all data is taken automatically from other sources.
 
-RTC is essentially a very thin layer over MongoDB. If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
+RTC is essentially a very thin layer over [MongoDB](http://www.mongodb.org/). If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
 
 ### Getting Started
 
@@ -23,13 +23,13 @@ This is version 1 of the API. New data and methods may be added to it without no
 
 There are 7 collections in the Real Time Congress API. Select any of them to see a definition of each field. 
 
-* Bills
-* Votes
-* Amendments
-* Videos
-* Floor Updates
-* Committee Hearings
-* Whip Notices
+* bills
+* votes
+* amendments
+* videos
+* floor_updates
+* committee_hearings
+* whip_notices
 
 ### Responses
 
@@ -111,9 +111,9 @@ For example, on the bills collection, this will search through the three title f
 
 __example__
 
-This is meant to be a general "relevance" search, something that you can feed user input directly into and return the "best" search results, without worrying much about the details. 
+This is meant to be a general relevance search, something that you can feed user input directly into and return the "best" search results, without worrying much about the details. 
 
-We may change what fields are searched over time, or the entire implementation (possibly introducing a document search engine like Solr, or "native" full text search if Mongo ever adds it). The syntax for searching, however, will remain the same.
+We may change what fields are searched over time, or the entire backend implementation. The syntax for searching, however, will remain the same.
 
 ### Explaining queries
 
@@ -128,8 +128,7 @@ This returns several fields:
 
 __example__
 
-See the official MongoDB documentation about explaining queries for more detail about the contents of the "explain" field.
-http://www.mongodb.org/display/DOCS/Optimization#Optimization-Explain
+See the official [MongoDB documentation](http://www.mongodb.org/display/DOCS/Optimization#Optimization-Explain) for more detail about the contents of the "explain" field.
 
 ### JSONP
 
@@ -145,7 +144,7 @@ Though all the examples here are in JSON, you can get the same results in XML by
 
 **IMPORTANT:** XML responses transform underscores in field names to dashes, by XML convention. However, if you use a field name in the URL, for partial responses or for filtering, **you must use underscores**, even if you are requesting an XML response.
 
-Additionally, the "explain" feature can be used with XML, but the dollar signs in keys will make it technically invalid.
+Additionally, the "explain" feature can be used with XML, but the dollar signs in keys will make it technically invalid XML.
 
 ### "Or" queries
 
