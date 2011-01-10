@@ -23,7 +23,7 @@ class Database():
         Use the success, warning, and failure methods instead of this method directly.
         """
         
-        document= {
+        document = {
           'status': status, 
           'read': False, 
           'message': str(message), 
