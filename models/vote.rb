@@ -34,7 +34,7 @@ class Vote
   end
   
   def self.search_fields
-    [:text, :question, :description]
+    [:text, :question]
   end
   
 end
