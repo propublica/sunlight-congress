@@ -5,12 +5,13 @@ require 'tzinfo'
 class VotesLiveSenate
   
   def self.run(options = {})
-    year = Time.now.year
-    
     count = 0
     missing_legislators = []
     bad_votes = []
     timed_out = []
+    
+    missing_bill_ids = []
+    missing_amendment_ids = []
     
     # will be referenced by LIS ID as a cache built up as we parse through votes
     legislators = {}
@@ -20,8 +21,13 @@ class VotesLiveSenate
     subsession = nil
     begin
       latest_roll, session, subsession = latest_roll_info
-    rescue Timeout::Error
-      Report.warning self, "Timeout error on fetching the listing page, can't go on."
+    rescue Timeout::Error, Errno::ECONNRESET
+      Report.note self, "Timeout error on fetching the listing page, can't go on."
+      return
+    end
+    
+    if session != Utils.current_session
+      Report.note self, "Senate hasn't had a roll call for the current session (#{Utils.current_session}) yet, still on the #{session}th."
       return
     end
     
@@ -30,9 +36,9 @@ class VotesLiveSenate
       return
     end
     
-    # check last 20 rolls, see if any are missing from our database
+    # check last 50 rolls, see if any are missing from our database
     to_fetch = []
-    (latest_roll-100).upto(latest_roll) do |number|
+    (latest_roll-50).upto(latest_roll) do |number|
       if (number > 0) and Vote.where(:roll_id => "s#{number}-#{year}").first.nil?
         to_fetch << number
       end
@@ -59,6 +65,9 @@ class VotesLiveSenate
       end
       
       if doc
+        year = doc.at("congress_year").text.to_i
+        puts year
+        
         roll_id = "s#{number}-#{year}"
         bill_id = bill_id_for doc, session
         amendment_id = amendment_id_for doc, session
@@ -96,7 +105,7 @@ class VotesLiveSenate
               :bill => bill
             }
           else
-            Report.warning self, "On Senate roll no. #{number}, found bill_id #{bill_id}, which isn't in the database."
+            missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
           end
         end
         
@@ -107,7 +116,7 @@ class VotesLiveSenate
               :amendment => Utils.amendment_for(amendment)
             }
           else
-            Report.warning self, "On Senate roll no. #{number}, found amendment_id #{amendment_id}, which isn't in the database."
+            missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
           end
         end
         
@@ -131,6 +140,14 @@ class VotesLiveSenate
     if missing_legislators.any?
       Report.warning self, "Couldn't look up #{missing_legislators.size} legislators in Senate roll call listing. Vote counts on roll calls may be inaccurate until these are fixed.", {:missing_legislators => missing_legislators}
     end
+    
+    if missing_bill_ids.any?
+      Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
+    end
+    
+#     if missing_amendment_ids.any?
+#       Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
+#     end
     
     if timed_out.any?
       Report.warning self, "Timeout error on fetching #{timed_out.size} Senate roll(s), skipping and going onto the next one.", :timed_out => timed_out

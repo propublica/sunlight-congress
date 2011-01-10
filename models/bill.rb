@@ -23,7 +23,7 @@ class Bill
   
   index :introduced_at
   index :last_action_at
-  index :last_vote_at
+  index :last_passage_vote_at
   index :passed_at
   index :awaiting_signature_since
   index :enacted_at
@@ -40,7 +40,7 @@ class Bill
     [
       :bill_id, :bill_type, :code, :number, :session, :chamber, :last_updated, :state, 
       :short_title, :official_title, :popular_title,
-      :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_vote_at, 
+      :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_passage_vote_at, 
       :introduced_at, :house_result, :house_result_at, :senate_result, :senate_result_at, :passed, :passed_at,
       :vetoed, :vetoed_at, :override_house_result, :override_house_result_at,
       :override_senate_result, :override_senate_result_at, 

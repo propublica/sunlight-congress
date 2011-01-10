@@ -23,7 +23,7 @@ class Database():
         Use the success, warning, and failure methods instead of this method directly.
         """
         
-        document= {
+        document = {
           'status': status, 
           'read': False, 
           'message': str(message), 
@@ -50,6 +50,9 @@ class Database():
         
     def warning(self, message, additional=None):
         self.report("WARNING", message, additional)
+    
+    def note(self, message, additional=None):
+        self.report("NOTE", message, additional)
     
     def failure(self, message, additional=None):
         self.report("FAILURE", message, additional)

@@ -33,6 +33,10 @@ class Report
     file 'WARNING', source, message, objects
   end
   
+  def self.note(source, message, objects = {})
+    file 'NOTE', source, message, objects
+  end
+  
   def self.complete(source, message, objects = {})
     file 'COMPLETE', source, message, objects.merge(:read => true)
   end

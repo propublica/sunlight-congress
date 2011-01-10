@@ -13,7 +13,7 @@ def run(db):
     grab_daily_meta(db)
     #pull_wmv_rss(db['videos'])
     if PARSING_ERRORS:
-        db.warning(PARSING_ERRORS)
+        db.note("Errors while parsing timestamps", {errors: PARSING_ERRORS})
 
 def get_mms_url(clip_id):
     clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()

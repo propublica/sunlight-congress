@@ -58,7 +58,7 @@ class BillsArchive
       titles = titles_for doc
       state = state_for doc
       passage_votes = passage_votes_for doc
-      last_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
+      last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
       introduced_at = Utils.govtrack_time_for doc.at(:introduced)['datetime']
       
       bill.attributes = {
@@ -83,7 +83,7 @@ class BillsArchive
         :last_action_at => actions.last ? actions.last[:acted_at] : nil,
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
-        :last_vote_at => last_vote_at,
+        :last_passage_vote_at => last_passage_vote_at,
         :introduced_at => introduced_at,
         :keywords => keywords_for(doc),
         :committees => committees,
