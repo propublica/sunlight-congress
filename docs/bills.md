@@ -1,6 +1,6 @@
 The **bills** collection holds all introduced bills and resolutions in Congress. 
 
-#### Bill IDs
+### Bill IDs
 
 Bill identifiers are a combination of the type of bill, the bill number, and the session of Congress a bill was introduced in.  They are of the format: 
 
@@ -8,7 +8,7 @@ Bill identifiers are a combination of the type of bill, the bill number, and the
 
 For example, H.R. 4173 from the 111th Congress would be "hr4173-111".
 
-#### Guaranteed fields
+### Guaranteed fields
 
 The only fields you can absolutely count on to be present in a bill are:
 
@@ -18,7 +18,7 @@ The only fields you can absolutely count on to be present in a bill are:
 * **session**
 * **chamber**
 
-#### Text search fields
+### Text search fields
 
 If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is applied to the following fields:
 
@@ -28,7 +28,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 * **keywords**
 * **summary**
 
-#### Types of Bills
+### Types of Bills
 
 * **hr** - House bills ("H.R.")
 * **hres** - House resolutions ("H.Res")
@@ -39,7 +39,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 * **sjres** - Senate joint resolutions ("S.J.Res")
 * **scres** - Senate concurrent resolutions ("S.C.Res" or "S.Con.Res")
 
-#### Fields
+### Fields
 
 <dt>bill_id</dt>
 <dd>Unique ID. (See above list for how to construct the ID.)</dd>
@@ -167,7 +167,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>enacted_at</dt>
 <dd>(timestamp) When a bill was enacted, if it was.</dd>
 
-##### actions
+#### actions
 
 <dt>text</dt>
 <dd>Text describing the action that occurred to the bill.</dd>
@@ -178,7 +178,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>type</dt>
 <dd>Type of action that occurred. Usually this is "action", but can be "vote", "vote2", "vote-aux", "signed", "topresident", "enacted", and potentially other unforeseen values.</dd>
 
-##### passage_votes
+#### passage_votes
 
 <dt>result</dt>
 <dd>Result of the vote. Either "pass" or "fail".</dd>
@@ -201,7 +201,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>chamber</dt>
 <dd>Chamber the vote took place in. Either "house" or "senate".</dd>
 
-###### committees
+##### committees
 
 A hash, keyed by committee ID, relating some basic information about the committee to what roles the committee had in relation to the bill.
 
