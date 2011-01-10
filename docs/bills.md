@@ -213,7 +213,7 @@ A hash, keyed by committee ID, relating some basic information about the committ
 
 ### Example
 
-This is an example for H.R. 3590, from the 111th Congress. Details have been trimmed, all fields that apply to this bill are present.
+This is an example for H.R. 3590, from the 111th Congress. Details have been trimmed, but all fields that apply to this bill are present.
 
     {
       "bills": [
@@ -406,11 +406,5 @@ This is an example for H.R. 3590, from the 111th Congress. Details have been tri
             "Women's health"
           ]
         }
-      ],
-      "page": {
-        "page": 1,
-        "count": 1,
-        "per_page": 20
-      },
-      "count": 1
+      ]
     }
