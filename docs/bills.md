@@ -2,7 +2,7 @@ The **bills** collection holds all introduced bills and resolutions in Congress.
 
 ### Bill IDs
 
-Bill identifiers are a combination of the type of bill, the bill number, and the session of Congress a bill was introduced in.  They are of the format: 
+Bill IDs are a combination of the type of bill, the bill number, and the session of Congress a bill was introduced in.  They are of the format: 
 
 [type][number]-[session]
 
@@ -10,7 +10,7 @@ For example, H.R. 4173 from the 111th Congress would be "hr4173-111".
 
 ### Guaranteed fields
 
-The only fields you can assume are present on a bill are:
+The only fields you can assume are present are:
 
 * **bill_id**
 * **bill_type**
@@ -102,7 +102,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>An array of official keywords and phrases that categorize the bill.</dd>
 
 <dt>actions</dt>
-<dd>An array of all actions upon a bill, in sequence.</dd>
+<dd>An array of all actions upon a bill, in sequence. Fields described below.</dd>
 
 <dt>last_action</dt>
 <dd>The last action to happen to a bill.</dd>
@@ -111,7 +111,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>(timestamp) The time of the last action to happen to a bill.</dd>
 
 <dt>passage_votes</dt>
-<dd>An array of objects containing details on passage votes taken on the bill.</dd>
+<dd>An array of objects containing details on passage votes taken on the bill. Fields described below.</dd>
 
 <dt>passage_votes_count</dt>
 <dd>The number of passage votes taken on this bill.</dd>
