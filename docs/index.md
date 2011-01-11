@@ -23,13 +23,13 @@ This is version 1 of the API. New data and methods may be added to it without no
 
 There are 7 collections in the Real Time Congress API. Select any of them to see a definition of each field. 
 
-* bills
-* votes
-* amendments
-* videos
-* floor_updates
-* committee_hearings
-* whip_notices
+* [bills](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/bills/)
+* [votes](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/votes/)
+* [amendments](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/amendments/)
+* [videos](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/videos/)
+* [floor_updates](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/floor_updates/)
+* [committee_hearings](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/committee_hearings/)
+* [whip_notices](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/whip_notices/)
 
 ### Responses
 
@@ -43,7 +43,7 @@ To control pagination, use "page" and "per_page" parameters to specify how many 
 
 In addition to the requested documents, each response includes a "count" field, and a "page" object with its own fields.
 
-__example__
+<script src="https://gist.github.com/773822.js?file=pagination.json"></script>
 
 * **count** - Total number of documents in the collection which matched the parameters, ignoring pagination. Can be more than the number of results returned.
 * **page.count** - The number of results returned. This will be less than or equal to the **page.per_page** field.
@@ -54,17 +54,18 @@ __example__
 
 To filter results, pass the field to filter, and the value to filter it on, on the query string. You can supply multiple filters.
 
-__example using bill_id__
+Results containing only H.R. 3590 from the 111th Congress: 
 
-__example using enacted and chamber__
+    /api/v1/bills.json?apikey=[yourKey]&bill_id=hr3590-111
+
+All bills enacted into law during the 111th Congress: 
+
+    /api/v1/bills.json?apikey=[yourKey]&enacted=true&session=111
+
 
 **Note**: The API will try to automatically infer the type of values you supply. A value of "true" or "false" will be treated as a boolean, and any value with all digits will be treated as an integer.
 
 You can also use various operators to perform more powerful queries, by appending "__[operator]" to the end of the field name you are filtering on.
-
-For example, to see all House bills with at least 10 cosponsors:
-
-__example__
 
 Supported operators, all used by appending "__[operator]" to the end of a field name, are:
 
@@ -80,9 +81,15 @@ Supported operators, all used by appending "__[operator]" to the end of a field 
 * **nin** - Checks whether the field is not within the given set of values
 * **all** - Checks whether the field contains every item in the given set of values
 
-Operators which use filter on a list of values (nin, in, and all) require their values to be separated by pipes ("|"), like so:
+Operators which use filter on a list of values (nin, in, and all) require their values to be separated by pipes ("|").
 
-__example__
+For example, to see all roll call votes on passage of bills in the 111th Congress that went onto become law, that got no more than 1 Republican vote:
+
+    /api/v1/votes.json?apikey=sunlight9&how=roll&vote_type=passage&bill.enacted=true&party_vote_breakdown.party.R.Yea__lte=1
+
+Or all bills in the 111th Congress which got at least one passage vote, but never became law
+
+    /api/v1/bills.json?apikey=[yourKey]&session=111&bill_type__in=h|s|hjres|sjres&passage_votes_count__gte=1&enacted=false
 
 ### Ordering
 
@@ -97,23 +104,23 @@ Sorting on multiple fields is not supported.
 
 Use the "sections" parameter to retrieve a subset of fields from each document in the list. Provide a comma-separated list of fields to retrieve only those fields. Use dot notation to specify fields in subobjects.
 
-__example__
+    /api/v1/votes.json?apikey=[yourKey]&sections=question,vote_breakdown
 
 You can also use the special "basic" section to get the most central, common fields for a given document. This can be combined with other fields.
 
-__example__
+    /api/v1/bills.json?apikey=[yourKey]&sections=basic,voters.L000551
 
 ### Full text search
 
 The API provides a naive (not native) full text search feature. By passing a "search" key on the query string, it will perform an "or" query, using the given value as a case-insensitive regular expression, over a predefined set of fields. The fields that are searched are different for each collection.
 
-For example, on the bills collection, this will search through the three title fields, the summary, and the keywords array:
+For example, on the bills collection, this will search through the three title fields, the summary, and the keywords array for the pattern "health care":
 
-__example__
+    /api/v1/bills.json?apikey=[yourKey]&search=health%20care
 
 This is meant to be a general relevance search, something that you can feed user input directly into and return the "best" search results, without worrying much about the details. 
 
-We may change what fields are searched over time, or the entire backend implementation. The syntax for searching, however, will remain the same.
+We may change what fields get searched over time, or the entire backend implementation. The syntax for searching, however, will remain the same.
 
 ### Explaining queries
 
@@ -126,7 +133,9 @@ This returns several fields:
 * **order** - A two-element array of the sorting field, and the sorting direction.
 * **explain** - The hash of explain details as returned by MongoDB's native explain feature.
 
-__example__
+An explanation of what happens when you search for all passed amendments:
+
+    /api/v1/amendments.json?apikey=[yourKey]&state=pass&explain=true
 
 See the official [MongoDB documentation](http://www.mongodb.org/display/DOCS/Optimization#Optimization-Explain) for more detail about the contents of the "explain" field.
 
@@ -134,7 +143,7 @@ See the official [MongoDB documentation](http://www.mongodb.org/display/DOCS/Opt
 
 Pass a "callback" parameter to trigger a JSONP response, wrapped in the callback you provide.
 
-__example__
+<script src="https://gist.github.com/773822.js?file=jsonp.js"></script>
 
 Because every API call returns a list of search results, there are no 404s in the Real Time Congress API, unless you specify an invalid collection name. So, your JSONP request should always get its callback executed in your browser.
 
@@ -162,4 +171,4 @@ Each document is stripped of three fields before being returned in the response:
 
 They don't have anything to do with the actual data in the API, but if you want the fields for some reason, you can explicitly ask for them in the "sections" parameter and they will be returned.
 
-__example__
+<script src="https://gist.github.com/773822.js?file=database_fields.json"></script>
