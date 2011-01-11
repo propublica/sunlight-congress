@@ -40,3 +40,9 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 
 <dt>room</dt>
 <dd>The building and room code for where the hearing is taking place.</dd>
+
+### Example
+
+Below is an example of two Senate committee hearings, one from the 111th session of Congress and one from the 112th.
+
+<script src="https://gist.github.com/773645.js?file=committee_hearings.json"></script>

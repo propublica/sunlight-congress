@@ -34,3 +34,9 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 
 <dt>bills</dt>
 <dd>An array of IDs of bills mentions in this floor update.</dd>
+
+### Example
+
+Below is an example of three updates from the House floor, from the beginning of the 112th Congress.
+
+<script src="https://gist.github.com/773645.js?file=floor_updates.json"></script>

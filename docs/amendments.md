@@ -76,3 +76,9 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 
 <dt>type</dt>
 <dd>Type of action that occurred. One of "action", "vote", or "withdrawn".</dd>
+
+### Example
+
+Below is an example of Senate Amendment No. 4843 in the 111th Congress.
+
+<script src="https://gist.github.com/773645.js?file=amendment.json"></script>

@@ -18,3 +18,9 @@ The contents of whip notices are not kept in the API. Each notice contains a URL
 
 <dt>posted_at</dt>
 <dd>(timestamp) Date or time the whip notice was posted. **Default order for this collection.**</dd>
+
+### Example
+
+Below is an example of a few whip notices. (The URLs are for the 111th session of Congress and are no longer valid.)
+
+<script src="https://gist.github.com/773645.js?file=whip_notices.json"></script>
