@@ -10,7 +10,7 @@ class VotesArchive
   end
   
   def self.get_rolls(options)
-    session = options[:session]
+    session = options[:session].to_i
     
     count = 0
     missing_ids = []
