@@ -2,22 +2,22 @@ The **videos** collection currently holds videos from the U.S. House of Represen
 
 There are different fields available for White House Videos, Live White House Streams, and House video. These can be distinguished using the **chamber** field.
 
-### U.S. House of Representatives Video ( {chamber: "house"} )
+## U.S. House of Representatives Video ( {chamber: "house"} )
 
    HouseLive.gov provides full length videos of each legislative day. These videos can be extremely long, upwards of 14 hours sometimes. Each full length video has a video object in the RTC API. For videos that have time offsets in their corresponding floor updates, we have artificially broken up the video into a clips array. These clips have an offset (in seconds), duration, events array (iden
 
-##    Guaranteed Fields
+###    Guaranteed Fields
    The only fields guaranteed for house videos are 
-*    **video_id**
-*    **legislative_day**
-*    **clip_id**
-*    **chamber**
+*  **video_id**
+*  **legislative_day**
+*  **clip_id**
+*  **chamber**
 
-##    Text Search Fields
+###    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-*    **clips.events**
+*  **clips.events**
 
-##    Fields 
+###    Fields 
    <dt>video_id</dt>
    <dd>A unique id for this video in the api. It is constructed from the chamber name and the UTC timestamp on noon of the legislative day for this video</dd>
 
@@ -57,24 +57,24 @@ There are different fields available for White House Videos, Live White House St
    <dd>An object containing key value pairs for formats and URLs. Current keys include "mp4", "wmv", "mms", "mp3".</d>
 
 
-##  Example
+###  Example
 
 
-### White House Video ({ chamber: whitehouse })
+## White House Video ({ chamber: whitehouse })
    White House video is parsed from the White House website. Most videos are available as archived videos, but some are available as live videos. These videos tend to not have as many fields completed as archived videos but you can filter on the status field to get only live or archived videos.
 
-##    Guaranteed Fields
+###    Guaranteed Fields
    The only fields guaranteed for house videos are 
-*    **video_id**
-*    **chamber**
-*    **pubdate**
+*  **video_id**
+*  **chamber**
+*  **pubdate**
 
-##    Text Search Fields
+###    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-*    **title**
-*    **description**
+*  **title**
+*  **description**
 
-##    Fields
+###    Fields
    <dt>video_id</dt>
    <dd>A unique id for this video in the api. It is constructed from the chamber name and the slug on the White House site in the url for this video</dd>
 
@@ -100,7 +100,7 @@ There are different fields available for White House Videos, Live White House St
    <dd>An object containing key value pairs for formats and URLs. Current keys include "mp4", "m4v". Note that despite the m4v extensions, these files do not have DRM and are public domain.</dd>
 
 
-
+###   Examples
 
 
 
