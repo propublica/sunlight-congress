@@ -2,7 +2,7 @@ class Legislator
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  index :bioguide_id, :unique => true
+  index :bioguide_id
   index :govtrack_id
   index :in_office
   index :chamber
