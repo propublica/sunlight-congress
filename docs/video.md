@@ -8,14 +8,18 @@ There are different fields available for White House Videos, Live White House St
 
 ###    Guaranteed Fields
    The only fields guaranteed for house videos are 
-*  **video_id**
-*  **legislative_day**
-*  **clip_id**
-*  **chamber**
+
+
+*     **video_id**
+*     **legislative_day**
+*     **clip_id**
+*     **chamber**
 
 ###    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-*  **clips.events**
+
+
+*     **clips.events**
 
 ###    Fields 
    <dt>video_id</dt>
@@ -65,14 +69,18 @@ There are different fields available for White House Videos, Live White House St
 
 ###    Guaranteed Fields
    The only fields guaranteed for house videos are 
-*  **video_id**
-*  **chamber**
-*  **pubdate**
+
+
+*     **video_id**
+*     **chamber**
+*     **pubdate**
 
 ###    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-*  **title**
-*  **description**
+
+
+*     **title**
+*     **description**
 
 ###    Fields
    <dt>video_id</dt>
