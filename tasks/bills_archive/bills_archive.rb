@@ -90,8 +90,7 @@ class BillsArchive
         :related_bills => related_bills
       }
       
-      timeline = timeline_for doc, state, passage_votes
-      bill.attributes = timeline
+      bill.attributes = timeline_for doc, state, passage_votes
       
       if bill.save
         count += 1
@@ -175,24 +174,13 @@ class BillsArchive
     timeline = {}
     
     if house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:passage_type] != 'override'}.last
-      timeline[:house_result] = house_vote[:result]
-      timeline[:house_result_at] = house_vote[:voted_at]
+      timeline[:house_passage_result] = house_vote[:result]
+      timeline[:house_passage_result_at] = house_vote[:voted_at]
     end
     
     if senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:passage_type] != 'override'}.last
-      timeline[:senate_result] = senate_vote[:result]
-      timeline[:senate_result_at] = senate_vote[:voted_at]
-    end
-    
-    if concurring_vote = votes.select {|vote| vote[:passage_type] == 'vote2'}.last
-      if concurring_vote[:result] == 'pass' and state !~ /PASS_BACK/
-        timeline[:passed] = true
-        timeline[:passed_at] = concurring_vote[:voted_at]
-      else
-        timeline[:passed] = false
-      end
-    else
-      timeline[:passed] = false
+      timeline[:senate_passage_result] = senate_vote[:result]
+      timeline[:senate_passage_result_at] = senate_vote[:voted_at]
     end
     
     if vetoed_action = doc.at('//actions/vetoed')
@@ -203,13 +191,13 @@ class BillsArchive
     end
     
     if override_house_vote = votes.select {|vote| vote[:chamber] == 'house' and vote[:passage_type] == 'override'}.last
-      timeline[:override_house_result] = override_house_vote[:result]
-      timeline[:override_house_result_at] = override_house_vote[:voted_at]
+      timeline[:house_override_result] = override_house_vote[:result]
+      timeline[:house_override_result_at] = override_house_vote[:voted_at]
     end
     
     if override_senate_vote = votes.select {|vote| vote[:chamber] == 'senate' and vote[:passage_type] == 'override'}.last
-      timeline[:override_senate_result] = override_senate_vote[:result]
-      timeline[:override_senate_result_at] = override_senate_vote[:voted_at]
+      timeline[:senate_override_result] = override_senate_vote[:result]
+      timeline[:senate_override_result_at] = override_senate_vote[:voted_at]
     end
     
     if enacted_action = doc.at('//actions/enacted')
@@ -219,8 +207,19 @@ class BillsArchive
       timeline[:enacted] = false
     end
     
+    passed = nil
+    if concurring_vote = votes.select {|vote| vote[:passage_type] == 'vote2'}.last
+      if concurring_vote[:result] == 'pass' and state !~ /PASS_BACK/
+        passed = true
+      else
+        passed = false
+      end
+    else
+      passed = false
+    end
+    
     # finally, set the awaiting_signature flag, inferring it from the details above
-    if timeline[:passed] and !timeline[:vetoed] and !timeline[:enacted] and topresident_action = doc.search('//actions/topresident').last
+    if passed and !timeline[:vetoed] and !timeline[:enacted] and topresident_action = doc.search('//actions/topresident').last
       timeline[:awaiting_signature_since] = Utils.govtrack_time_for topresident_action['datetime']
       timeline[:awaiting_signature] = true
     else

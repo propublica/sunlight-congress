@@ -2,30 +2,33 @@ class Bill
   include Mongoid::Document
   include Mongoid::Timestamps
     
-  index :bill_id, :unique => true
+  index :bill_id
   index :bill_type
   index :code
   index :chamber
   index :session
-  index :passed
-  index :enacted
-  index :house_result
-  index :senate_result
-  index :override_house_result
-  index :override_senate_result
-  index :awaiting_signature
+  
   index :sponsor_id
   index :cosponsor_ids
   index :amendments_count
   index :cosponsors_count
   index :keywords
   index :committee_ids
-  
-  index :introduced_at
   index :last_action_at
   index :last_passage_vote_at
-  index :passed_at
+  
+  index :introduced_at
+  index :house_passage_result
+  index :house_passage_result_at
+  index :senate_passage_result
+  index :senate_passage_result_at
+  index :house_override_result
+  index :house_override_result_at
+  index :senate_override_result
+  index :senate_override_result_at
+  index :awaiting_signature
   index :awaiting_signature_since
+  index :enacted
   index :enacted_at
   
   def self.unique_keys
@@ -41,9 +44,9 @@ class Bill
       :bill_id, :bill_type, :code, :number, :session, :chamber, :last_updated, :state, 
       :short_title, :official_title, :popular_title,
       :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_passage_vote_at, 
-      :introduced_at, :house_result, :house_result_at, :senate_result, :senate_result_at, :passed, :passed_at,
-      :vetoed, :vetoed_at, :override_house_result, :override_house_result_at,
-      :override_senate_result, :override_senate_result_at, 
+      :introduced_at, :house_passage_result, :house_passage_result_at, :senate_passage_result, :senate_passage_result_at, 
+      :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
+      :senate_override_result, :senate_override_result_at, 
       :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
     ]
   end
