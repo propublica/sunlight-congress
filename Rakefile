@@ -111,7 +111,16 @@ end
 
 def run_ruby(name)
   load "tasks/#{name}/#{name}.rb"
-  name.camelize.constantize.run :config => config, :args => ARGV[1..-1]
+  
+  options = {:config => config}
+  ARGV[1..-1].each do |arg|
+    key, value = arg.split '='
+    if key.present? and value.present?
+      options[key.downcase.to_sym] = value
+    end
+  end
+  
+  name.camelize.constantize.run options
 end
 
 def run_python(name)

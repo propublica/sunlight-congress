@@ -5,7 +5,7 @@ class BillsArchive
   # options:
   #   session: The session of Congress to update
   def self.run(options = {})
-    session = options[:session] || Utils.current_session
+    session = options[:session] ? options[:session].to_i : Utils.current_session
     count = 0
     missing_ids = []
     missing_committees = []
