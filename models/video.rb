@@ -27,6 +27,6 @@ class Video
   end
   
   def self.search_fields
-    ["clips.events"]
+    ["clips.events", :title, :description ]
   end
 end
