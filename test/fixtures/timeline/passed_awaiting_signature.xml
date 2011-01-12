@@ -1,13 +1,15 @@
-<state datetime="2009-12-14T16:53:00-05:00">PASSED:BILL</state>
-<actions>
-  <vote date="1264654800" how="by Unanimous Consent" datetime="2010-01-28" where="s" type="vote" result="pass" ><text>Introduced in the Senate, read twice, considered, read the third time, and passed without amendment by Unanimous Consent.</text><reference label="consideration" ref="CR S349-351"/><reference label="text as passed Senate" ref="CR S350-351"/></vote>
-  <action datetime="2010-01-29"><text>Message on Senate action sent to the House.</text></action>
-  <action datetime="2010-01-29T12:03:00-05:00"><text>Received in the House.</text></action>
-  <action datetime="2010-01-29"><text>Referred to the House Committee on the Judiciary.</text></action>
-  <action datetime="2010-03-03T18:13:00-05:00"><text>Mr. Johnson (GA) moved to suspend the rules and pass the bill.</text></action>
-  <action datetime="2010-03-03T18:13:00-05:00"><text>Considered under suspension of the rules.</text><reference label="consideration" ref="CR H1079-1081"/></action>
-  <action datetime="2010-03-03T18:13:00-05:00"><text>DEBATE - The House proceeded with forty minutes of debate on S. 2968.</text></action>
-  <vote date="1267658400" how="by voice vote" datetime="2010-03-03T18:20:00-05:00" where="h" type="vote2" result="pass" ><text>On motion to suspend the rules and pass the bill Agreed to by voice vote.</text><reference label="text" ref="CR H1079-1080"/></vote>
-  <topresident date="1267592400" datetime="2010-03-03" ><text>Cleared for White House.</text></topresident>
-  <topresident date="1267765200" datetime="2010-03-05" ><text>Presented to President.</text></topresident>
-</actions>
+<bill session="112" type="h" number="21" updated="2011-01-07T06:11:13-05:00">
+  <state datetime="2009-12-14T16:53:00-05:00">PASSED:BILL</state>
+  <actions>
+    <vote date="1264654800" how="by Unanimous Consent" datetime="2010-01-28" where="s" type="vote" result="pass" ><text>Introduced in the Senate, read twice, considered, read the third time, and passed without amendment by Unanimous Consent.</text><reference label="consideration" ref="CR S349-351"/><reference label="text as passed Senate" ref="CR S350-351"/></vote>
+    <action datetime="2010-01-29"><text>Message on Senate action sent to the House.</text></action>
+    <action datetime="2010-01-29T12:03:00-05:00"><text>Received in the House.</text></action>
+    <action datetime="2010-01-29"><text>Referred to the House Committee on the Judiciary.</text></action>
+    <action datetime="2010-03-03T18:13:00-05:00"><text>Mr. Johnson (GA) moved to suspend the rules and pass the bill.</text></action>
+    <action datetime="2010-03-03T18:13:00-05:00"><text>Considered under suspension of the rules.</text><reference label="consideration" ref="CR H1079-1081"/></action>
+    <action datetime="2010-03-03T18:13:00-05:00"><text>DEBATE - The House proceeded with forty minutes of debate on S. 2968.</text></action>
+    <vote date="1267658400" how="by voice vote" datetime="2010-03-03T18:20:00-05:00" where="h" type="vote2" result="pass" ><text>On motion to suspend the rules and pass the bill Agreed to by voice vote.</text><reference label="text" ref="CR H1079-1080"/></vote>
+    <topresident date="1267592400" datetime="2010-03-03" ><text>Cleared for White House.</text></topresident>
+    <topresident date="1267765200" datetime="2010-03-05" ><text>Presented to President.</text></topresident>
+  </actions>
+</bill>

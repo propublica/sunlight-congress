@@ -1,32 +1,34 @@
-<state datetime="2009-12-14T16:53:00-05:00">PASS_BACK:SENATE</state>
-<actions>
-  <action datetime="2009-04-30"><text>Sponsor introductory remarks on measure. (CR E1033-1034)</text></action>
-  <action datetime="2009-04-30"><text>Referred to the Committee on Foreign Affairs, and in addition to the Committees on Financial Services, Oversight and Government Reform, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.</text></action>
-  <action datetime="2009-04-30"><text>Referred to House Foreign Affairs</text></action>
-  <action datetime="2009-04-30"><text>Referred to House Financial Services</text></action>
-  <action datetime="2009-04-30"><text>Referred to House Oversight and Government Reform</text></action>
-  <action datetime="2009-04-30"><text>Referred to House Ways and Means</text></action>
-  <action datetime="2009-10-28"><committee name="House Foreign Affairs"/><text>Committee Consideration and Mark-up Session Held.</text></action>
-  <calendar date="1256702400" datetime="2009-10-28" ><committee name="House Foreign Affairs"/><text>Ordered to be Reported (Amended) by Voice Vote.</text></calendar>
-  <action datetime="2009-11-19T19:00:00-05:00"><text>House Committee on Financial Services Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
-  <action datetime="2009-11-19T19:00:00-05:00"><text>Reported (Amended) by the Committee on Foreign Affairs. H. Rept. 111-342, Part I.</text></action>
-  <action datetime="2009-11-19T19:01:00-05:00"><text>House Committee on Oversight and Government Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
-  <action datetime="2009-11-19T19:02:00-05:00"><text>House Committee on Ways and Means Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
-  <action datetime="2009-12-04T11:12:00-05:00"><text>Committee on Financial Services discharged.</text></action>
-  <action datetime="2009-12-04T11:12:00-05:00"><text>Committee on Oversight and Government discharged.</text></action>
-  <action datetime="2009-12-04T11:12:00-05:00"><text>House Committee on Ways and Means Granted an extension for further consideration ending not later than Dec. 11, 2009.</text></action>
-  <calendar number="217" date="1260571020" datetime="2009-12-11T17:37:00-05:00" calendar="Union" ><text>Placed on the Union Calendar, Calendar No. 217.</text></calendar>
-  <action datetime="2009-12-11T17:37:00-05:00"><text>Committee on Ways and Means discharged.</text></action>
-  <action datetime="2009-12-15T15:00:00-05:00"><text>Mr. Berman moved to suspend the rules and pass the bill, as amended.</text></action>
-  <action datetime="2009-12-15T15:00:00-05:00"><text>Considered under suspension of the rules.</text><reference label="consideration" ref="CR H14921-14942"/></action>
-  <action datetime="2009-12-15T15:00:00-05:00"><text>DEBATE - The House proceeded with sixty minutes of debate on H.R. 2194.</text></action>
-  <action datetime="2009-12-15T16:33:00-05:00"><text>At the conclusion of debate, the chair put the question on the motion to suspend the rules. Mr. Berman objected to the vote on the grounds that a quorum was not present. Further proceedings on the motion were postponed. The point of no quorum was withdrawn.</text></action>
-  <action datetime="2009-12-15T17:01:00-05:00"><text>Considered as unfinished business.</text><reference label="consideration" ref="CR H14943"/></action>
-  <vote date="1260914880" how="roll" roll="975" datetime="2009-12-15T17:08:00-05:00" where="h" type="vote" suspension="1" result="pass" ><text>On motion to suspend the rules and pass the bill, as amended Agreed to by recorded vote (2/3 required): 412 - 12, 4 Present (Roll no. 975).</text><reference label="text" ref="CR H14921-14923"/></vote>
-  <action datetime="2009-12-16"><text>Received in the Senate and Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.</text></action>
-  <action datetime="2010-03-11"><text>Senate Committee on Banking, Housing, and Urban Affairs discharged by Unanimous Consent.</text></action>
-  <action datetime="2010-03-11"><text>Measure laid before Senate by unanimous consent.</text></action>
-  <vote date="1268283600" how="by Unanimous Consent" datetime="2010-03-11" where="s" type="vote2" result="pass" ><text>Passed Senate with an amendment by Unanimous Consent.</text></vote>
-  <action datetime="2010-03-11"><text>Senate insists on its amendment, asks for a conference, appoints conferees Dodd; Kerry; Lieberman; Menendez; Shelby; Bennett; Lugar.</text></action>
-  <action datetime="2010-03-11"><text>Message on Senate action sent to the House.</text></action>
-</actions>
+<bill>
+  <state datetime="2009-12-14T16:53:00-05:00">PASS_BACK:SENATE</state>
+  <actions>
+    <action datetime="2009-04-30"><text>Sponsor introductory remarks on measure. (CR E1033-1034)</text></action>
+    <action datetime="2009-04-30"><text>Referred to the Committee on Foreign Affairs, and in addition to the Committees on Financial Services, Oversight and Government Reform, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned.</text></action>
+    <action datetime="2009-04-30"><text>Referred to House Foreign Affairs</text></action>
+    <action datetime="2009-04-30"><text>Referred to House Financial Services</text></action>
+    <action datetime="2009-04-30"><text>Referred to House Oversight and Government Reform</text></action>
+    <action datetime="2009-04-30"><text>Referred to House Ways and Means</text></action>
+    <action datetime="2009-10-28"><committee name="House Foreign Affairs"/><text>Committee Consideration and Mark-up Session Held.</text></action>
+    <calendar date="1256702400" datetime="2009-10-28" ><committee name="House Foreign Affairs"/><text>Ordered to be Reported (Amended) by Voice Vote.</text></calendar>
+    <action datetime="2009-11-19T19:00:00-05:00"><text>House Committee on Financial Services Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
+    <action datetime="2009-11-19T19:00:00-05:00"><text>Reported (Amended) by the Committee on Foreign Affairs. H. Rept. 111-342, Part I.</text></action>
+    <action datetime="2009-11-19T19:01:00-05:00"><text>House Committee on Oversight and Government Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
+    <action datetime="2009-11-19T19:02:00-05:00"><text>House Committee on Ways and Means Granted an extension for further consideration ending not later than Dec. 4, 2009.</text></action>
+    <action datetime="2009-12-04T11:12:00-05:00"><text>Committee on Financial Services discharged.</text></action>
+    <action datetime="2009-12-04T11:12:00-05:00"><text>Committee on Oversight and Government discharged.</text></action>
+    <action datetime="2009-12-04T11:12:00-05:00"><text>House Committee on Ways and Means Granted an extension for further consideration ending not later than Dec. 11, 2009.</text></action>
+    <calendar number="217" date="1260571020" datetime="2009-12-11T17:37:00-05:00" calendar="Union" ><text>Placed on the Union Calendar, Calendar No. 217.</text></calendar>
+    <action datetime="2009-12-11T17:37:00-05:00"><text>Committee on Ways and Means discharged.</text></action>
+    <action datetime="2009-12-15T15:00:00-05:00"><text>Mr. Berman moved to suspend the rules and pass the bill, as amended.</text></action>
+    <action datetime="2009-12-15T15:00:00-05:00"><text>Considered under suspension of the rules.</text><reference label="consideration" ref="CR H14921-14942"/></action>
+    <action datetime="2009-12-15T15:00:00-05:00"><text>DEBATE - The House proceeded with sixty minutes of debate on H.R. 2194.</text></action>
+    <action datetime="2009-12-15T16:33:00-05:00"><text>At the conclusion of debate, the chair put the question on the motion to suspend the rules. Mr. Berman objected to the vote on the grounds that a quorum was not present. Further proceedings on the motion were postponed. The point of no quorum was withdrawn.</text></action>
+    <action datetime="2009-12-15T17:01:00-05:00"><text>Considered as unfinished business.</text><reference label="consideration" ref="CR H14943"/></action>
+    <vote date="1260914880" how="roll" roll="975" datetime="2009-12-15T17:08:00-05:00" where="h" type="vote" suspension="1" result="pass" ><text>On motion to suspend the rules and pass the bill, as amended Agreed to by recorded vote (2/3 required): 412 - 12, 4 Present (Roll no. 975).</text><reference label="text" ref="CR H14921-14923"/></vote>
+    <action datetime="2009-12-16"><text>Received in the Senate and Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.</text></action>
+    <action datetime="2010-03-11"><text>Senate Committee on Banking, Housing, and Urban Affairs discharged by Unanimous Consent.</text></action>
+    <action datetime="2010-03-11"><text>Measure laid before Senate by unanimous consent.</text></action>
+    <vote date="1268283600" how="by Unanimous Consent" datetime="2010-03-11" where="s" type="vote2" result="pass" ><text>Passed Senate with an amendment by Unanimous Consent.</text></vote>
+    <action datetime="2010-03-11"><text>Senate insists on its amendment, asks for a conference, appoints conferees Dodd; Kerry; Lieberman; Menendez; Shelby; Bennett; Lugar.</text></action>
+    <action datetime="2010-03-11"><text>Message on Senate action sent to the House.</text></action>
+  </actions>
+</bill>
