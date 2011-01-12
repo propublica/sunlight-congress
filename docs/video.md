@@ -6,18 +6,18 @@ There are different fields available for White House Videos, Live White House St
 
    HouseLive.gov provides full length videos of each legislative day. These videos can be extremely long, upwards of 14 hours sometimes. Each full length video has a video object in the RTC API. For videos that have time offsets in their corresponding floor updates, we have artificially broken up the video into a clips array. These clips have an offset (in seconds), duration, events array (iden
 
-   ## Guaranteed Fields
+##    Guaranteed Fields
    The only fields guaranteed for house videos are 
-   * **video_id**
-   * **legislative_day**
-   * **clip_id**
-   * **chamber**
+*    **video_id**
+*    **legislative_day**
+*    **clip_id**
+*    **chamber**
 
-   ## Text Search Fields
+##    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-   * **clips.events**
+*    **clips.events**
 
-   ## Fields 
+##    Fields 
    <dt>video_id</dt>
    <dd>A unique id for this video in the api. It is constructed from the chamber name and the UTC timestamp on noon of the legislative day for this video</dd>
 
@@ -44,37 +44,37 @@ There are different fields available for White House Videos, Live White House St
 
    <dt>clips</dt>
    <dd>An array of clip objects. Each clip object contains:
-       <dt>time</dt>
-       <dd>UTC timestamp marking the beginning of the clip</dd>
-       <dt>duration</dt>
-       <dd>The duration (in seconds) of this clip</dd>
-       <dt>events</dt>
-       <dd>An array of strings that are notes for this time in the house floor updates</dd>
-       <dt>offset</dt>
-       <dd>The offset (in seconds) from the beginning of the maing video to the start of this clip</dd>
+   <dt>time</dt>
+   <dd>UTC timestamp marking the beginning of the clip</dd>
+   <dt>duration</dt>
+   <dd>The duration (in seconds) of this clip</dd>
+   <dt>events</dt>
+   <dd>An array of strings that are notes for this time in the house floor updates</dd>
+   <dt>offset</dt>
+   <dd>The offset (in seconds) from the beginning of the maing video to the start of this clip</dd>
    </dd>   
    <dt>clip_urls</dt>
    <dd>An object containing key value pairs for formats and URLs. Current keys include "mp4", "wmv", "mms", "mp3".</d>
 
 
-   ## Example
+##  Example
 
 
 ### White House Video ({ chamber: whitehouse })
    White House video is parsed from the White House website. Most videos are available as archived videos, but some are available as live videos. These videos tend to not have as many fields completed as archived videos but you can filter on the status field to get only live or archived videos.
 
-   ## Guaranteed Fields
+##    Guaranteed Fields
    The only fields guaranteed for house videos are 
-   * **video_id**
-   * **chamber**
-   * **pubdate**
+*    **video_id**
+*    **chamber**
+*    **pubdate**
 
-   ## Text Search Fields
+##    Text Search Fields
    If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is        applied to the following fields:
-   * **title**
-   * **description**
+*    **title**
+*    **description**
 
-   ## Fields
+##    Fields
    <dt>video_id</dt>
    <dd>A unique id for this video in the api. It is constructed from the chamber name and the slug on the White House site in the url for this video</dd>
 
