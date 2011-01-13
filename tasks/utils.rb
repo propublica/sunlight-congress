@@ -107,6 +107,18 @@ module Utils
     end
   end
   
+  def self.format_bill_code(bill_type, number)
+    {
+      "hres" => "H. Res.",
+      "hjres" => "H. Joint Res.",
+      "hcres" => "H. Con. Res.",
+      "hr" => "H.R.",
+      "s" => "S.",
+      "sres" => "S. Res.",
+      "sjres" => "S. Joint Res.",
+      "scres" => "S. Con. Res."
+    }[bill_type] + " #{number}"
+  end
   
   # basic fields and common fetching of them for redundant data
   

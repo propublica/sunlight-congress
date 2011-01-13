@@ -132,7 +132,7 @@ class VotesArchive
   end
   
   def self.sort_passage_votes(options)
-    session = options[:session]
+    session = options[:session].to_i
     
     roll_count = 0
     voice_count = 0
@@ -164,7 +164,7 @@ class VotesArchive
             # puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote"
           else
             missing_rolls << {:bill_id => bill.bill_id, :roll_id => vote['roll_id']}
-            puts "[#{bill.bill_id} Couldn't find roll call #{vote['roll_id']}, which was mentioned in passage votes list for #{bill.bill_id}"
+            puts "[#{bill.bill_id}] Couldn't find roll call #{vote['roll_id']}, which was mentioned in passage votes list for #{bill.bill_id}"
           end
         else
           
@@ -178,7 +178,7 @@ class VotesArchive
             :how => vote['how'],
             :result => vote['result'],
             :voted_at => vote['voted_at'],
-            :text => vote['text'],
+            :question => question_for(bill),
             :chamber => vote['chamber'],
             
             :passage_type => vote['passage_type'],
@@ -213,6 +213,10 @@ class VotesArchive
     if bill = doc.at(:bill)
       "#{Utils.bill_type_for bill['type']}#{bill['number']}-#{bill['session']}"
     end
+  end
+  
+  def self.question_for(bill)
+    "On #{Utils.format_bill_code bill.bill_type, bill.number}"
   end
   
   def self.amendment_id_for(doc, bill_id)
