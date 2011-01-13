@@ -36,6 +36,7 @@ class VotesArchive
     
     # Debug helpers
     rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
+    # rolls = Dir.glob "data/govtrack/#{session}/rolls/s2010-26*.xml"
     
     # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2009-884.xml"
     # rolls = rolls.first 20
@@ -57,7 +58,9 @@ class VotesArchive
       voter_ids, voters = votes_for filename, doc, legislators, missing_ids
       
       roll_type = doc.at(:type).text
-      vote_type = Utils.vote_type_for roll_type
+      question = doc.at(:question).text
+      
+      vote_type = Utils.vote_type_for roll_type, question
       
       vote.attributes = {
         :vote_type => vote_type,
@@ -69,7 +72,7 @@ class VotesArchive
         :session => session,
         
         :roll_type => roll_type,
-        :question => doc.at(:question).text,
+        :question => question,
         :result => doc.at(:result).text,
         :required => doc.at(:required).text,
         

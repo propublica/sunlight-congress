@@ -79,7 +79,7 @@ class VotesLiveSenate
         
         vote = Vote.new :roll_id => roll_id
         vote.attributes = {
-          :vote_type => Utils.vote_type_for(roll_type),
+          :vote_type => Utils.vote_type_for(roll_type, question),
           :how => "roll",
           :chamber => "senate",
           :year => year,

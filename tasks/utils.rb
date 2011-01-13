@@ -66,7 +66,7 @@ module Utils
   # Used when processing roll call votes the first time.
   # "passage" will also reliably get set in the second half of votes_archive,
   # when it goes back over each bill and looks at its passage votes.
-  def self.vote_type_for(roll_type)
+  def self.vote_type_for(roll_type, question)
     case roll_type
     
     # senate only
@@ -76,6 +76,9 @@ module Utils
     # senate only
     when /^On the Nomination$/i
       "nomination"
+    
+    when /^Guilty or Not Guilty/i
+      "impeachment"
       
     # common
     when /^On Passage/i
@@ -101,9 +104,18 @@ module Utils
     when /^Election of the Speaker$/i
       "leadership"
     
-    # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
     else
-      "other"
+      # fall back to looking at the full question
+      case question
+        
+      # procedural motions surrounding impeachment (senate only)
+      when /Impeachment/i
+        "impeachment"
+      
+      # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
+      else
+        "other"
+      end
     end
   end
   

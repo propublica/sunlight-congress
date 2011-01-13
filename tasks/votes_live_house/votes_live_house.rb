@@ -71,7 +71,7 @@ class VotesLiveHouse
         
         vote = Vote.new :roll_id => roll_id
         vote.attributes = {
-          :vote_type => Utils.vote_type_for(roll_type),
+          :vote_type => Utils.vote_type_for(roll_type, roll_type),
           :how => "roll",
           :chamber => "house",
           :year => year,
