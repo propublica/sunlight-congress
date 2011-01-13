@@ -238,10 +238,12 @@ class VotesArchive
   
   def self.vote_mapping
     {
-      '-' => "Nay", 
-      '+' => "Yea", 
-      '0' => "Not Voting", 
-      'P' => "Present"
+      "Aye" => "Yea", 
+      "No" => "Nay", 
+      "Yea" => "Yea",
+      "Nay" => "Nay",
+      "Present" => "Present",
+      "Not Voting" => "Not Voting"
     }
   end
   
@@ -250,7 +252,7 @@ class VotesArchive
     voters = {}
     
     doc.search("//voter").each do |elem|
-      vote = elem['vote']
+      vote = elem['value']
       vote = vote_mapping[vote] || vote # check to see if it should be standardized
       
       govtrack_id = elem['id']
