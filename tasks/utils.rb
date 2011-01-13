@@ -79,6 +79,9 @@ module Utils
     
     when /^Guilty or Not Guilty/i
       "impeachment"
+    
+    when /^On the Resolution of Ratification/i
+      "treaty"
       
     # common
     when /^On Passage/i
@@ -104,18 +107,10 @@ module Utils
     when /^Election of the Speaker$/i
       "leadership"
     
+    # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
     else
-      # fall back to looking at the full question
-      case question
-        
-      # procedural motions surrounding impeachment (senate only)
-      when /Impeachment/i
-        "impeachment"
+      "other"
       
-      # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
-      else
-        "other"
-      end
     end
   end
   
