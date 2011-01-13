@@ -37,7 +37,7 @@ class VotesArchive
     # Debug helpers
     rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
     
-    # rolls = Dir.glob "data/govtrack/#{session}/rolls/s2010-198.xml"
+    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2009-829.xml"
     # rolls = rolls.first 20
     
     rolls.each do |path|

@@ -82,6 +82,9 @@ module Utils
     
     when /^On the Resolution of Ratification/i
       "treaty"
+    
+    when /^On (?:the )?Motion to Recommit/i
+      "recommit"
       
     # common
     when /^On Passage/i
