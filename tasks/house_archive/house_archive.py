@@ -19,7 +19,12 @@ def get_mms_url(clip_id):
     clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
     mms_url = re.search("(<REF HREF=\")([^\"]+)", clip_xml).groups()[1]
     return mms_url 
-    
+
+def current_session(year=None):
+  if not year:
+    year = datetime.datetime.now().year
+  return ((year + 1) / 2) - 894
+  
 def convert_duration(hours, minutes):
     hours = int(hours)
     minutes = int(minutes)

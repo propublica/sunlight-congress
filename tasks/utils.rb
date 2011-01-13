@@ -50,7 +50,6 @@ module Utils
       breakdown[:total][vote] += 1
     end
     
-    # initialize
     parties = breakdown[:party].keys
     votes = (breakdown[:total].keys + constant_vote_keys).uniq
     votes.each do |vote|
