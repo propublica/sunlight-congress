@@ -59,10 +59,11 @@ def grab_daily_meta(db):
                 this_date = datetime.datetime.fromtimestamp(float(unix_time))
                 date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
                 timestamp_key = int(time.mktime(date_key.timetuple()))
+                session = current_session(this_date.year)
                 
                 video_id = 'house-' + str(timestamp_key)
                 fd = db.get_or_initialize('videos', {'video_id': video_id})
-                
+                fd['session'] = session
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
                 fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
@@ -275,6 +276,7 @@ def grab_daily_events(full_video, db):
                 
                 fu['created_at'] = add_date
                 fu['timestamp'] = timestamp
+                fu['session'] = full_video['session']
                 fu['events'] = [] 
                 #figure out the duration for smaller clips
                 if last_clip is None: 
