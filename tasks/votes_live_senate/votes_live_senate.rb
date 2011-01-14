@@ -36,6 +36,8 @@ class VotesLiveSenate
       return
     end
     
+    year = Time.now.year
+    
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_roll-50).upto(latest_roll) do |number|
@@ -50,8 +52,8 @@ class VotesLiveSenate
     end
     
     # debug
-    # to_fetch = [2]
-    # year = 2009
+#     to_fetch = [289]
+#     year = 2010
     
     # get each new roll
     to_fetch.each do |number|
@@ -65,9 +67,6 @@ class VotesLiveSenate
       end
       
       if doc
-        year = doc.at("congress_year").text.to_i
-        puts year
-        
         roll_id = "s#{number}-#{year}"
         bill_id = bill_id_for doc, session
         amendment_id = amendment_id_for doc, session
@@ -104,12 +103,18 @@ class VotesLiveSenate
               :bill_id => bill_id,
               :bill => bill
             }
+          elsif bill = bill_from(bill_id, doc)
+            vote.attributes = {
+              :bill_id => bill_id,
+              :bill => bill
+            }
           else
             missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
           end
         end
         
-        if amendment_id
+        # for now, only bother with amendments on bills
+        if bill_id and amendment_id
           if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
             vote.attributes = {
               :amendment_id => amendment_id,
@@ -145,9 +150,9 @@ class VotesLiveSenate
       Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
     end
     
-#     if missing_amendment_ids.any?
-#       Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
-#     end
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
+    end
     
     if timed_out.any?
       Report.warning self, "Timeout error on fetching #{timed_out.size} Senate roll(s), skipping and going onto the next one.", :timed_out => timed_out
@@ -256,6 +261,28 @@ class VotesLiveSenate
     else
       nil
     end
+  end
+  
+  def self.bill_from(bill_id, doc)
+    bill = Utils.bill_from bill_id
+    bill.attributes = {:abbreviated => true}
+    
+    elem = doc.at 'amendment_to_document_short_title'
+    if elem and elem.text.present?
+      bill.attributes = {:short_title => elem.text.strip}
+    else
+      elem 
+      if (elem = doc.at 'document_short_title') and elem.text.present?
+        bill.attributes = {:short_title => elem.text.strip}
+      end
+      
+      if (elem = doc.at 'document_title') and elem.text.present?
+        bill.attributes = {:official_title => elem.text.strip}
+      end
+      
+    end
+    
+    Utils.bill_for bill
   end
   
   def self.amendment_id_for(doc, session)

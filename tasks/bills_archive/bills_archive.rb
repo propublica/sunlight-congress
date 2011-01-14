@@ -87,7 +87,8 @@ class BillsArchive
         :introduced_at => introduced_at,
         :keywords => keywords_for(doc),
         :committees => committees,
-        :related_bills => related_bills
+        :related_bills => related_bills,
+        :abbreviated => false
       }
       
       bill.attributes = timeline_for doc, state, passage_votes

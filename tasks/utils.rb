@@ -117,6 +117,33 @@ module Utils
     end
   end
   
+  # returns bill type, number, and session
+  def self.split_bill_id(bill_id)
+    type = bill_id.gsub /[^a-z]/, ''
+    number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
+    session = bill_id.match(/-(\d+)$/)[1].to_i
+    
+    code = "#{type}#{number}"
+    chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
+    
+    [type, number, session, code, chamber]
+  end
+  
+  def self.bill_from(bill_id)
+    type, number, session, code, chamber = split_bill_id bill_id
+    
+    bill = Bill.new :bill_id => bill_id
+    bill.attributes = {
+      :type => type,
+      :number => number,
+      :session => session,
+      :code => code,
+      :chamber => chamber
+    }
+    
+    bill
+  end
+  
   def self.format_bill_code(bill_type, number)
     {
       "hres" => "H. Res.",
@@ -173,10 +200,14 @@ module Utils
   
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
-    if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-      document_for bill, bill_fields
+    if bill_id.is_a?(Bill)
+      document_for bill_id, bill_fields
     else
-      nil
+      if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
+        document_for bill, bill_fields
+      else
+        nil
+      end
     end
   end
   
