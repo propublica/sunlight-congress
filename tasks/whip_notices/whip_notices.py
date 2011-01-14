@@ -13,7 +13,7 @@ def run(db):
     total_count += house_rep(db)
     
     db.success("Updated or created %s whip notices" % total_count)
-    
+
 
 def house_dem(db, notice_type, source):
     count = 0
@@ -22,9 +22,8 @@ def house_dem(db, notice_type, source):
     for item in items:
         url = '%s%s' % (PREFIX, item.link.replace('&amp;', '&').replace(PREFIX, ''))
         
-        posted_at = None
-        if hasattr(item, 'updated_parsed'):
-            posted_at = datetime.datetime(*item.updated_parsed[:6])
+        posted_at = datetime.datetime(*item.updated_parsed[:6])
+        session = current_session(posted_at.year)
       
         notice = db.get_or_initialize("whip_notices", {
           "chamber": 'house', 
@@ -34,6 +33,8 @@ def house_dem(db, notice_type, source):
         })
         
         notice['url'] = url
+        notice['session'] = session
+        
         db['whip_notices'].save(notice)
         
         count += 1
@@ -64,6 +65,7 @@ def house_rep(db):
             if weekly_re.match(title_str):
                 weekly_date_str = title_str.replace(weekly_title, '').strip()
                 weekly_date = datetime.datetime(*time.strptime(weekly_date_str, "%m/%d/%y")[0:6])
+                session = current_session(weekly_date.year)
                 weekly_url = "http://republicanwhip.house.gov/floor/%s.pdf" % single_digify(weekly_date.strftime("%m-%d-%y"))
                 
                 notice = db.get_or_initialize("whip_notices", {
@@ -74,6 +76,7 @@ def house_rep(db):
                 })
                 
                 notice['url'] = weekly_url
+                notice['session'] = session
                 
                 db['whip_notices'].save(notice)
                 
@@ -88,6 +91,8 @@ def house_rep(db):
               #daily_date = datetime.datetime(*time.strptime(daily_date_str, "%m/%d/%y")[0:6])
               #daily_url = "http://republicanwhip.house.gov/floor/%s.pdf" % single_digify(daily_date.strftime("%m-%d-%y"))
               
+              #session = current_session(daily_date.year)
+              
               #notice = db.get_or_initialize("whip_notices", {
                 #'chamber': "house", 
                 #'posted_at': daily_date, 
@@ -96,6 +101,7 @@ def house_rep(db):
               #})
               
               #notice ['url'] = daily_url
+              #notice['session'] = session
               #db['whip_notices'].save(notice)
       
 
@@ -114,3 +120,8 @@ def remove_extra_spaces(data):
 def remove_html_tags(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
+
+def current_session(year=None):
+  if not year:
+    year = datetime.datetime.now().year
+  return ((year + 1) / 2) - 894
