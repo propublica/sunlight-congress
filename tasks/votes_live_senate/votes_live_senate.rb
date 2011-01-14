@@ -104,9 +104,10 @@ class VotesLiveSenate
               :bill => bill
             }
           elsif bill = bill_from(bill_id, doc)
+            bill.save!
             vote.attributes = {
               :bill_id => bill_id,
-              :bill => bill
+              :bill => Utils.bill_for(bill)
             }
           else
             missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
@@ -120,6 +121,7 @@ class VotesLiveSenate
               :amendment_id => amendment_id,
               :amendment => Utils.amendment_for(amendment)
             }
+        #  elsif amendment = amendment_from(amendment_id, bill_id, doc)
           else
             missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
           end
@@ -282,7 +284,7 @@ class VotesLiveSenate
       
     end
     
-    Utils.bill_for bill
+    bill
   end
   
   def self.amendment_id_for(doc, session)
