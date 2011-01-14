@@ -2,6 +2,8 @@ The Real Time Congress (RTC) API is a RESTful API over the artifacts of Congress
 
 RTC is essentially a very thin layer over [MongoDB](http://www.mongodb.org/). If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
 
+This API is not a source of archival data. RTC will have up to date for the current Congress, and archival information for the previous Congress, but that's it. For archives of Congressional information, use [GovTrack.us](http://govtrack.us) or the [NYT Congress API](http://developer.nytimes.com/docs/congress_api).
+
 ### Getting Started
 
 * [Register for a Sunlight Services API Key](/accounts/register/)

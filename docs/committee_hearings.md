@@ -1,4 +1,4 @@
-The **committee_hearings** collection holds upcoming and past scheduled committee hearings in the House and Senate.
+The **committee_hearings** collection holds upcoming scheduled committee hearings in the House and Senate. Past committee hearings may remain in our database for some time, but this data could disappear at any time. Only count on it for upcoming hearings.
 
 ### Guaranteed Fields
 
