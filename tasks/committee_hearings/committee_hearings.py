@@ -39,6 +39,7 @@ def senate_hearings(db):
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6])
           legislative_day = occurs_at.strftime("%Y-%m-%d")
+          session = current_session(occurs_at.year)
           
           try:
             time_str = meeting.time.contents[0].strip()
@@ -65,7 +66,8 @@ def senate_hearings(db):
             'room': room, 
             'description': description, 
             'occurs_at': occurs_at, 
-            'time_of_day': time_of_day
+            'time_of_day': time_of_day,
+            'session': session
           })
           
           if committee:
@@ -116,6 +118,7 @@ def house_hearings(db):
             occurs_at = None
             legislative_day = None
             time_of_day = None
+            session = None
             description = full_description
             
             match = re.compile("^([^\.]+)\.").search(full_description)
@@ -125,12 +128,10 @@ def house_hearings(db):
                 occurs_at = datetime.datetime(*timestamp[:7])
                 legislative_day = occurs_at.strftime("%Y-%m-%d")
                 time_of_day = occurs_at.strftime("%I:%M %p")
+                session = current_session(occurs_at.year)
                 description = full_description.replace("%s. " % date_str, "")
             else:
-                db.warning("Couldn't parse date from committee description (%s), possible problem with parser" % date_str)
-                
-            #description = p.split(' -- ')[0].strip()
-            #date_str = p.split(' -- ')[1].replace(' at ', ' ').replace('a.m', 'AM').replace('p.m.', 'PM').replace('.', '').strip()
+                db.warning("Couldn't parse date from committee description (%s), problem with parser" % date_str)
             
             hearing = db.get_or_initialize('committee_hearings', {
                 'chamber': 'house', 
@@ -141,7 +142,8 @@ def house_hearings(db):
             hearing.update({
                 'description': description, 
                 'occurs_at': occurs_at,
-                'time_of_day': time_of_day
+                'time_of_day': time_of_day,
+                'session': session
             })
             
             if committee:
@@ -159,3 +161,8 @@ def committee_for(db, committee_id):
   if committee:
     del committee['_id']
   return committee
+  
+def current_session(year=None):
+  if not year:
+    year = datetime.datetime.now().year
+  return ((year + 1) / 2) - 894
