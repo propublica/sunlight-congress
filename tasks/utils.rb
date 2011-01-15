@@ -117,20 +117,13 @@ module Utils
     end
   end
   
-  # returns bill type, number, and session
-  def self.split_bill_id(bill_id)
+  def self.bill_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
     session = bill_id.match(/-(\d+)$/)[1].to_i
     
     code = "#{type}#{number}"
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
-    
-    [type, number, session, code, chamber]
-  end
-  
-  def self.bill_from(bill_id)
-    type, number, session, code, chamber = split_bill_id bill_id
     
     bill = Bill.new :bill_id => bill_id
     bill.attributes = {
@@ -142,6 +135,21 @@ module Utils
     }
     
     bill
+  end
+  
+  def self.amendment_from(amendment_id)
+    chamber = {'h' => 'house', 's' => 'senate'}[amendment_id.gsub(/[^a-z]/, '')]
+    number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
+    session = amendment_id.match(/-(\d+)$/)[1].to_i
+    
+    amendment = Amendment.new :amendment_id => amendment_id
+    amendment.attributes = {
+      :chamber => chamber,
+      :number => number,
+      :session => session
+    }
+    
+    amendment
   end
   
   def self.format_bill_code(bill_type, number)
