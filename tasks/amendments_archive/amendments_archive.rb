@@ -45,7 +45,6 @@ class AmendmentsArchive
       amendment_id = "#{chamber_type}#{number}-#{session}"
       state = state_for doc
       offered_at = Utils.govtrack_time_for doc.at(:offered)['datetime']
-      description = description_for doc
       purpose = purpose_for doc
       
       bill_id = bill_id_for doc, session
@@ -70,7 +69,6 @@ class AmendmentsArchive
         :chamber => chamber,
         :state => state,
         :offered_at => offered_at,
-        :description => description,
         :purpose => purpose,
         
         :actions => actions,
@@ -215,14 +213,6 @@ class AmendmentsArchive
         :text => (action/:text).inner_text,
         :type => action.name
       }
-    end
-  end
-  
-  def self.description_for(doc)
-    if elem = doc.at(:description) and elem.text.present?
-      elem.text
-    else
-      nil
     end
   end
   
