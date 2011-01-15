@@ -30,7 +30,7 @@ task :create_indexes => :environment do
   begin
     models = Dir.glob('models/*.rb').map do |file|
       File.basename(file, File.extname(file)).camelize.constantize
-    end + [ApiKey, Report]
+    end + [ApiKey, Report, Hit]
     
     models.each do |model| 
       model.create_indexes
