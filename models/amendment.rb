@@ -26,11 +26,11 @@ class Amendment
   end
   
   def self.basic_fields
-    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :description, :purpose]
+    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :purpose]
   end
   
   def self.search_fields
-    [:description, :purpose]
+    [:purpose]
   end
   
 end
