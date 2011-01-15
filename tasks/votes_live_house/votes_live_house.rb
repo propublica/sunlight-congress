@@ -12,6 +12,9 @@ class VotesLiveHouse
     bad_votes = []
     bad_fetches = []
     
+    missing_bill_ids = []
+    missing_amendment_ids = []
+    
     # make lookups faster later by caching a hash of legislators from which we can lookup bioguide_ids
     legislators = {}
     Legislator.only(Utils.legislator_fields).all.each do |legislator|
@@ -31,6 +34,7 @@ class VotesLiveHouse
       return
     end
     
+    
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_new_roll-49).upto(latest_new_roll) do |number|
@@ -39,24 +43,30 @@ class VotesLiveHouse
       end
     end
     
+    # debug (comment out above block and uncomment this one)
+#     to_fetch = [884]
+#     year = 2009
+    
     if to_fetch.empty?
       Report.success self, "No new rolls for the House for #{year}, latest one is #{latest_new_roll}."
       return
     end
     
-    # debug
-    # to_fetch = [884]
-    # year = 2009
     
     # get each new roll
     to_fetch.each do |number|
       url = "http://clerk.house.gov/evs/#{year}/roll#{zero_prefix number}.xml"
       
+      # debug: local file
+      # url = "roll884.xml"
+      
       doc = nil
+      exception = nil
       begin
         doc = Nokogiri::XML open(url)
-      rescue Timeout::Error, OpenURI::HTTPError
+      rescue Timeout::Error, OpenURI::HTTPError => ex
         doc = nil
+        exception = ex
       end
       
       if doc
@@ -96,8 +106,13 @@ class VotesLiveHouse
               :bill_id => bill_id,
               :bill => bill
             }
+          elsif bill = create_bill(bill_id, doc)
+            vote.attributes = {
+              :bill_id => bill_id,
+              :bill => Utils.bill_for(bill)
+            }
           else
-            Report.warning self, "Found bill_id #{bill_id} on House roll no. #{number}, which isn't in the database."
+            missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
           end
         end
         
@@ -108,7 +123,7 @@ class VotesLiveHouse
               :amendment => Utils.amendment_for(amendment)
             }
           else
-            Report.warning self, "On roll #{roll_id}, found amendment_id #{amendment_id}, which isn't in the database."
+            missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
           end
         end
         
@@ -121,7 +136,7 @@ class VotesLiveHouse
         end
         
       else
-        bad_fetches << {:number => number, :url => url}
+        bad_fetches << {:number => number, :url => url, :exception => {:message => exception.message, :type => exception.class.to_s}}
       end
     end
     
@@ -132,6 +147,14 @@ class VotesLiveHouse
     if missing_ids.any?
       missing_ids = missing_ids.uniq
       Report.warning self, "Found #{missing_ids.size} missing Bioguide IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {:missing_ids => missing_ids}
+    end
+    
+    if missing_bill_ids.any?
+      Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
+    end
+    
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
     end
     
     if bad_fetches.any?
@@ -199,6 +222,13 @@ class VotesLiveHouse
     end
     
     [voter_ids, voters]
+  end
+  
+  def self.create_bill(bill_id, doc)
+    bill = Utils.bill_from bill_id
+    bill.attributes = {:abbreviated => true}
+    bill.save!
+    bill
   end
   
   def self.bill_id_for(doc, session)
