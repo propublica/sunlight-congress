@@ -18,7 +18,8 @@ after do
       :format => params[:captures][1],
       :key => api_key,
       :user_agent => request.env['HTTP_USER_AGENT'],
-      :app_version => request.env['HTTP_X_OS_VERSION'],
+      :app_version => request.env['HTTP_X_APP_VERSION'],
+      :os_version => request.env['HTTP_X_OS_VERSION'],
       :query_hash => process_query_hash(request.env['rack.request.query_hash']),
       :created_at => Time.now.utc # don't need updated_at
     )
