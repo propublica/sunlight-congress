@@ -107,7 +107,6 @@ helpers do
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
-            # error point: invalid regexp, check now
             conditions[key] ||= {}
             
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
