@@ -153,8 +153,6 @@ Because every API call returns a list of search results, there are no 404s in th
 
 Though all the examples here are in JSON, you can get the same results in XML by using ".xml" instead of ".json" in the URL.
 
-**IMPORTANT:** XML responses transform underscores in field names to dashes, by XML convention. However, if you use a field name in the URL, for partial responses or for filtering, **you must use underscores**, even if you are requesting an XML response.
-
 Additionally, the "explain" feature can be used with XML, but the dollar signs in keys will make it technically invalid XML.
 
 ### "Or" queries

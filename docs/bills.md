@@ -17,6 +17,15 @@ The only fields you can assume are present are:
 * **number**
 * **session**
 * **chamber**
+* **abbreviated**
+
+### Abbreviated bills
+
+Since information on new votes is published much more quickly than information on new bills, it's possible that for bills quickly introduced and voted upon, we may encounter a vote on a bill whose full information is not available.
+
+In this case, as a convenience, we will create an "abbreviated" bill document with as much information as can be gleaned from the vote, and will set the "abbreviated" field to true. If "abbreviated" is false, then you can expect much more information to be present, such as sponsorship, timeline information, and Congressional actions.
+
+In practice, Senate vote information include the official and short titles of the bill being voted upon, so for some abbreviated bills, the "official_title" and "short_title" fields may also be present.
 
 ### Text search fields
 
@@ -125,16 +134,16 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>introduced_at</dt>
 <dd>(timestamp) When a bill was introduced. **Default order for this collection.**</dd>
 
-<dt>senate_result</dt>
+<dt>senate_passage_result</dt>
 <dd>The result of a Senate passage vote on the bill, if one was taken. "pass", "fail", or null.</dd>
 
-<dt>senate_result_at</dt>
+<dt>senate_passage_result_at</dt>
 <dd>(timestamp) When the Senate last voted on passage of the bill, if it did.</dd>
 
-<dt>house_result</dt>
+<dt>house_passage_result</dt>
 <dd>The result of a House passage vote on the bill, if one was taken. "pass", "fail", or null.</dd>
 
-<dt>house_result_at</dt>
+<dt>house_passage_result_at</dt>
 <dd>(timestamp) When the House last voted on passage of the bill, if it did.</dd>
 
 <dt>awaiting_signature</dt>
@@ -149,16 +158,16 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>vetoed_at</dt>
 <dd>(timestamp) When a bill was vetoed, if it was.</dd>
 
-<dt>override_senate_result</dt>
+<dt>senate_override_result</dt>
 <dd>The result of a Senate veto override vote, if one was taken. "pass", "fail", or null.</dd>
 
-<dt>override_senate_at</dt>
+<dt>senate_override_result_at</dt>
 <dd>(timestamp) When the Senate last voted to override a veto of the bill, if it did.</dd>
 
-<dt>override_house_result</dt>
+<dt>house_override_result</dt>
 <dd>The result of a House veto override vote, if one was taken. "pass", "fail", or null.</dd>
 
-<dt>override_house_at</dt>
+<dt>house_override_result_at</dt>
 <dd>(timestamp) When the House last voted to override a veto of the bill, if it did.</dd>
 
 <dt>enacted</dt>
@@ -215,4 +224,4 @@ A hash, keyed by committee ID, relating some basic information about the committ
 
 This is an example for H.R. 3590, from the 111th Congress. Details have been trimmed, but all fields that apply to this bill are present.
 
-<script src="https://gist.github.com/773645.js?file=bill-example.json"></script>
+<script src="https://gist.github.com/773645.js?file=bill.json"></script>

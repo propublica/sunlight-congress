@@ -5,7 +5,7 @@ The contents of whip notices are not kept in the API. Each notice contains a URL
 ### Fields
 
 <dt>notice_type</dt>
-<dd>Type of notice, either "daily" or "weekly".</dd>
+<dd>Type of notice, one of "daily", "nightly", or "weekly".</dd>
 
 <dt>url</dt>
 <dd>URL to the whip notice document.</dd>
@@ -20,7 +20,5 @@ The contents of whip notices are not kept in the API. Each notice contains a URL
 <dd>(timestamp) Date or time the whip notice was posted. **Default order for this collection.**</dd>
 
 ### Example
-
-Below is an example of a few whip notices. (The URLs are for the 111th session of Congress and are no longer valid.)
 
 <script src="https://gist.github.com/773645.js?file=whip_notices.json"></script>

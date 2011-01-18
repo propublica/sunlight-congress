@@ -2,7 +2,7 @@ The **videos** collection currently holds videos from the U.S. House of Represen
 
 There are different fields available for White House Videos, Live White House Streams, and House video. These can be distinguished using the **chamber** field.
 
-## House of Representatives video
+### House of Representatives video
 
 Filter the "chamber" field by "house" to retrieve videos from the House of Representatives.
 
@@ -10,13 +10,13 @@ HouseLive.gov provides full length videos of each legislative day. These videos 
 
 For videos that have time offsets in their corresponding floor updates, we have artificially broken up the video into an array of clip objects. These clips each have an offset (in seconds), duration, array of events covered in that clip, and extracted names and identifiers.
 
-### Legislator and bill extraction
+#### Legislator and bill extraction
 
 Each video document, as well as each clip within it, have had their text contents scanned for legislator names and bill codes. The "legislator_names", "bioguide_ids", and "bills" fields contain these values. When present on the top-level object, they contain all values found within any of the clips for that video. When present on a clip, they contain all values found within the events for that clip.
 
 Raw text is only added to this "legislator_names" field, and subsequently converted into bioguide IDs, if it can be matched with a representative. If a legislator name is ambiguous and could match more than one legislator, bioguide IDs for each match are added. So, the API may have "false positives" in its bioguide IDs, but it should rarely miss anyone.
 
-### Guaranteed Fields
+#### Guaranteed Fields
 
 The only fields guaranteed for House videos are:
 
@@ -25,13 +25,13 @@ The only fields guaranteed for House videos are:
 * **clip_id**
 * **chamber**
 
-###  Text Search Fields
+####  Text Search Fields
 
 If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is applied to the following fields:
 
 * **clips.events**
 
-###  Fields
+####  Fields
 
 <dt>video_id</dt>
 <dd>A unique id for this video in the api. It is constructed from the chamber name and the UTC timestamp on noon of the legislative day for this video</dd>
@@ -86,13 +86,13 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>bills</dt>
 <dd>An array of bill IDs for all bills mentioned in the events of this clip.</dd>
 
-## White House videos
+### White House videos
 
 Filter the "chamber" field by "house" to retrieve videos from the House of Representatives.
 
 White House video is parsed from [WhiteHouse.gov](http://www.whitehouse.gov/live). Most videos are available as "archived" videos, but some are available as "live" videos. Live videos tend to not have as many fields completed as archived videos but you can filter on the "status" field to get only live or archived videos.
 
-### Guaranteed Fields
+#### Guaranteed Fields
 
 The only fields guaranteed for house videos are 
 
@@ -100,7 +100,7 @@ The only fields guaranteed for house videos are
 * **chamber**
 * **pubdate**
 
-### Text Search Fields
+#### Text Search Fields
 
 If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is applied to the following fields:
 
@@ -133,9 +133,9 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>clip_urls</dt>
 <dd>An object containing key value pairs for formats and URLs. Current keys include "mp4", "m4v". Note that despite the m4v extensions, these files do not have DRM and are public domain.</dd>
 
-### Examples
+#### Examples
 
-An example of all three kinds of White House videos (upcoming, live, and archived) is below, followed by an example of an archived video from HouseLive.gov.
+An example of an archived video from HouseLive.gov is below, followed by an example of all three kinds of White House videos (upcoming, live, and archived):
 
 <script src="https://gist.github.com/773645.js?file=videos-house.json"></script>
 
