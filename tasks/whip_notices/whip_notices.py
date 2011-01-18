@@ -4,13 +4,16 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 import re
 import datetime, time
 
-PREFIX = 'http://majoritywhip.house.gov/'
+PREFIX = 'http://www.democraticwhip.gov/'
 
 def run(db):
     total_count = 0
-    total_count += house_dem(db, 'daily', "%s?a=RSS.Feed&Type=TheDailyWhipline" % PREFIX)
-    total_count += house_dem(db, 'weekly', "%s?a=RSS.Feed&Type=TheDailyWhipPack" % PREFIX)
-    total_count += house_rep(db)
+    total_count += house_dem(db, 'daily', "%srss/32/all" % PREFIX)
+    total_count += house_dem(db, 'nightly', "%srss/34/all" % PREFIX)
+    total_count += house_dem(db, 'weekly', "%srss/31/all" % PREFIX)
+    
+    # broken in the transition
+    # total_count += house_rep(db)
     
     db.success("Updated or created %s whip notices" % total_count)
 
