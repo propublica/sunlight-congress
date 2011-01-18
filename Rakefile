@@ -26,6 +26,7 @@ end
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
   require 'analytics/api_key'
+  require 'analytics/hits'
   
   begin
     models = Dir.glob('models/*.rb').map do |file|
