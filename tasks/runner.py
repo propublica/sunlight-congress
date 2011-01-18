@@ -92,6 +92,9 @@ class Database():
         """
         return self.db[collection]
 
+# set global HTTP timeouts to 10 seconds
+import socket
+socket.setdefaulttimeout(10)
 
 task_name = sys.argv[1]
 db_host = sys.argv[2]
