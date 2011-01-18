@@ -256,7 +256,7 @@ helpers do
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.to_xml :root => 'results'
+    results.to_xml :root => 'results', :dasherize => false
   end
   
 end
