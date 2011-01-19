@@ -9,7 +9,7 @@ def run(db):
         page = urllib2.urlopen("http://clerk.house.gov/floorsummary/floor.html").read()
         
     except:
-        db.warning("Couldn't load floor updates URL, can't go on")
+        db.note("Couldn't load floor updates URL, can't go on")
         exit()
     
     soup = BeautifulSoup(page)
