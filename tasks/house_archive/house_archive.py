@@ -295,7 +295,9 @@ def grab_daily_events(full_video, db):
                     #reverse our lists since they're read in backwards
                     fe['events'].reverse()
                     fu['events'].reverse()
-                    db['floor_updates'].save(fu)
+                    
+                    # disable, taken care of in a separate parser now
+                    # db['floor_updates'].save(fu)
           
                     #add unique bills to top level array 
                     bills = add_to_video_array(fe, 'bills', bills)
