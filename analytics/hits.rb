@@ -55,6 +55,7 @@ end
 class Hit
   include Mongoid::Document
   
+  index :created_at
   index :method
   index :key
   index :sections
