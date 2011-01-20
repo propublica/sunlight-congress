@@ -53,8 +53,8 @@ def run(db):
                 event['legislative_day'] = legislative_day
                 
                 event['bill_ids'] = rtc_utils.extract_bills(description, session)
-                event['roll_ids'] = rtc_utils.extract_rolls(description, year)
-                event['legislator_ids'] = rtc_utils.extract_legislators(description, db)[1]
+                event['roll_ids'] = rtc_utils.extract_rolls(description, 'house', year)
+                event['legislator_ids'] = rtc_utils.extract_legislators(description, 'house', db)[1]
                 
                 db['floor_updates'].save(event)
                 

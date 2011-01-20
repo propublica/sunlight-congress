@@ -172,9 +172,9 @@ def grab_daily_events(full_video, db):
                     fu = add_event(fu, text)
                     
                     bills.extend(rtc_utils.extract_bills(text, congress))
-                    rolls.extend(rtc_utils.extract_rolls(text, year))
+                    rolls.extend(rtc_utils.extract_rolls(text, 'house', year))
                     
-                    new_names, new_ids = rtc_utils.extract_legislators(text, db)
+                    new_names, new_ids = rtc_utils.extract_legislators(text, 'house', db)
                     legislator_names.extend(new_names)
                     bioguide_ids.extend(new_ids)
                     
