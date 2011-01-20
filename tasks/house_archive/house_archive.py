@@ -20,11 +20,6 @@ def get_mms_url(clip_id):
     clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
     mms_url = re.search("(<REF HREF=\")([^\"]+)", clip_xml).groups()[1]
     return mms_url 
-
-def current_session(year=None):
-  if not year:
-    year = datetime.datetime.now().year
-  return ((year + 1) / 2) - 894
   
 def convert_duration(hours, minutes):
     hours = int(hours)
@@ -60,7 +55,7 @@ def grab_daily_meta(db):
                 this_date = datetime.datetime.fromtimestamp(float(unix_time))
                 date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
                 timestamp_key = int(time.mktime(date_key.timetuple()))
-                session = current_session(this_date.year)
+                session = rtc_utils.current_session(this_date.year)
                 
                 video_id = 'house-' + str(timestamp_key)
                 fd = db.get_or_initialize('videos', {'video_id': video_id})
@@ -153,12 +148,14 @@ def grab_daily_events(full_video, db):
     
     def parse_group(group, clip, fu, db):
         global PARSING_ERRORS
-        bills = []
-        legislator_names = []
-        bioguide_ids = []
-        congress =  ((clip['time'].year + 1) / 2 ) - 894
+        year = clip['time'].year
+        congress =  rtc_utils.current_session(year)
         bill_re = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
         
+        bills = []
+        rolls = []
+        legislator_names = []
+        bioguide_ids = []
 
         pt = group.findNext('p')
         while pt.name == 'p':
@@ -174,15 +171,9 @@ def grab_daily_events(full_video, db):
                     clip = add_event(clip, text)
                     fu = add_event(fu, text)
                     
-                    #find bill text
-                    bill_matches = re.findall(bill_re, text)
-                    if bill_matches:
-                        for b in bill_matches:
-                            bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
-                            if bill_text not in bills:
-                                bills.append(bill_text)
+                    bills.extend(rtc_utils.extract_bills(text, congress))
+                    rolls.extend(rtc_utils.extract_rolls(text, year))
                     
-                    # find legislators for each one
                     new_names, new_ids = rtc_utils.extract_legislators(text, db)
                     legislator_names.extend(new_names)
                     bioguide_ids.extend(new_ids)
@@ -196,6 +187,9 @@ def grab_daily_events(full_video, db):
         if bills:
             clip['bills'] = bills
             fu['bills'] = bills
+        if rolls:
+            clip['rolls'] = rolls
+            fu['rolls'] = rolls
         if legislator_names:
             clip['legislator_names'] = legislator_names
             fu['legislator_names'] = legislator_names
