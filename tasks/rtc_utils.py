@@ -80,13 +80,6 @@ def extract_legislators(text, chamber, db):
 
 
 
-
-
-
-
-
-
-
 # string cleaning functions found at:
 # http://love-python.blogspot.com/2008/07/strip-html-tags-using-python.html
 
