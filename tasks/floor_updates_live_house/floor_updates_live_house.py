@@ -54,6 +54,7 @@ def run(db):
                 
                 event['bill_ids'] = rtc_utils.extract_bills(description, session)
                 event['roll_ids'] = rtc_utils.extract_rolls(description, year)
+                event['legislator_ids'] = rtc_utils.extract_legislators(description, db)[1]
                 
                 db['floor_updates'].save(event)
                 

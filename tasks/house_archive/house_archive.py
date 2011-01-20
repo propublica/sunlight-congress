@@ -6,6 +6,7 @@ import datetime, time
 import urllib2
 import re
 import feedparser
+import rtc_utils
 
 PARSING_ERRORS = []
 
@@ -157,7 +158,7 @@ def grab_daily_events(full_video, db):
         bioguide_ids = []
         congress =  ((clip['time'].year + 1) / 2 ) - 894
         bill_re = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
-        name_re = re.compile('((M(rs|s|r)\.){1}\s((\s?[A-Z]{1}[A-Za-z-]+){0,2})(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
+        
 
         pt = group.findNext('p')
         while pt.name == 'p':
@@ -180,30 +181,12 @@ def grab_daily_events(full_video, db):
                             bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
                             if bill_text not in bills:
                                 bills.append(bill_text)
-                    #find legislator names
-                    name_matches = re.findall(name_re, text)
-                    if name_matches:
-                        for n in name_matches:
-                            raw_name = n[0]
-                            query = {"chamber": "house"}
-                            if n[1]:
-                                if n[1] == "Mr." : query["gender"] = 'M'
-                                else: query['gender'] = 'F'
-                            if n[3]:
-                                query["last_name"] = n[3]
-                            if n[6]:
-                                query["first_name"] = n[6]
-                            if n[9]:
-                                query["state"] = n[9]
-                            elif n[11]:
-                                query["state"] = n[11]
-                            possibles = db['legislators'].find(query)
-                            if possibles.count() > 0:
-                                if text not in legislator_names:
-                                    legislator_names.append(raw_name)
-                            for p in possibles:
-                                if p['bioguide_id'] not in bioguide_ids:
-                                    bioguide_ids.append(p['bioguide_id'])
+                    
+                    # find legislators for each one
+                    new_names, new_ids = rtc_utils.extract_legislators(text, db)
+                    legislator_names.extend(new_names)
+                    bioguide_ids.extend(new_ids)
+                    
                 else:
                     PARSING_ERRORS.append((clip['legislative_day'].strftime("%Y-%m-%d"), "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
