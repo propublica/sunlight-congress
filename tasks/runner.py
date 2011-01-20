@@ -102,6 +102,7 @@ db_name = sys.argv[3]
 db = Database(task_name, db_host, db_name)
 
 try:
+    sys.path.append("tasks")
     sys.path.append("tasks/%s" % task_name)
     __import__(task_name).run(db)
 
