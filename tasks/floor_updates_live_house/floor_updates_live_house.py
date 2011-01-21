@@ -13,6 +13,11 @@ def run(db):
         db.note("Couldn't load floor updates URL, can't go on")
         exit()
     
+    # strip out bill link metadata and surrounding tags to make splitting events easier
+    page = re.compile("<dt><b>\s*<a[^>]+>([^<]+)</a>:</b><dd>", flags=re.I).sub("\\1: ", page)
+    page = re.compile("<A HREF=\"http://clerk.house.gov/cgi-bin/vote[^>]+>([^<]+)</a>", flags=re.I).sub("\\1", page)
+    page = re.compile("<a class=\"billInfo\"[^>]+>([^<]+)</a>", flags=re.I).sub("\\1", page)
+    
     soup = BeautifulSoup(page)
     
     date_field = soup.findAll(text=re.compile('LEGISLATIVE DAY OF'))[0].strip()
@@ -41,20 +46,28 @@ def run(db):
                 event_time = datetime.datetime(*event_time_components[0:5])
                 legislative_day = time.strftime("%Y-%m-%d", event_time_components)
                 
-                description = ''.join(row.findNextSibling().findAll(text=True))
-                description = rtc_utils.remove_extra_spaces(rtc_utils.remove_html_tags(description.replace("\n", ""))).strip()
+                events = []
+                maybe_events = row.findNextSibling().findAll(text=True)
+                for event in maybe_events:
+                    event = rtc_utils.remove_extra_spaces(event).strip()
+                    if event:
+                        events.append(event)
+                
+                # put in chronological order
+                events.reverse()
+                
+                all_events = "\n".join(events)
                 
                 event = db.get_or_initialize("floor_updates", {
                   'timestamp': event_time,
                   'chamber': 'house'
                 })
                 
-                event['events'] = [description]
+                event['events'] = events
                 event['legislative_day'] = legislative_day
-                
-                event['bill_ids'] = rtc_utils.extract_bills(description, session)
-                event['roll_ids'] = rtc_utils.extract_rolls(description, 'house', year)
-                event['legislator_ids'] = rtc_utils.extract_legislators(description, 'house', db)[1]
+                event['bill_ids'] = rtc_utils.extract_bills(all_events, session)
+                event['roll_ids'] = rtc_utils.extract_rolls(all_events, 'house', year)
+                event['legislator_ids'] = rtc_utils.extract_legislators(all_events, 'house', db)[1]
                 
                 db['floor_updates'].save(event)
                 
