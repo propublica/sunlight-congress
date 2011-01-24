@@ -17,7 +17,14 @@ def run(db):
 
     url = "http://www.whitehouse.gov/live"
     # url = "http://10.13.33.209/"
-    page = urllib2.urlopen(url)
+    
+    try:
+        page = urllib2.urlopen(url)
+        
+    except:
+        db.note("Couldn't load floor updates URL, can't go on")
+        exit()
+    
     soup = BeautifulSoup(page)
     
     content = soup.find('div', {"id" : "video-list-box"})
