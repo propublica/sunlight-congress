@@ -100,7 +100,7 @@ def house_hearings(db):
             if match:
               committee_id = match.group(1)
             else:
-              db.warning("Couldn't locate committee_id for committee hearing", {'committee_id': committee_id})
+              db.note("Couldn't locate committee_id for House committee hearing", {'committee_id': committee_id})
               continue
             
             committee = committee_for(db, committee_id)
