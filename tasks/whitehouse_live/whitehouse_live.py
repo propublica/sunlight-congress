@@ -19,7 +19,7 @@ def run(db):
     # url = "http://10.13.33.209/"
     
     try:
-        page = urllib2.urlopen(url)
+        page = urllib2.urlopen(url).read()
         
     except:
         db.note("Couldn't load floor updates URL, can't go on")
@@ -30,7 +30,7 @@ def run(db):
     content = soup.find('div', {"id" : "video-list-box"})
     
     if not content:
-      db.warning("Couldn't find video box on whitehouse.gov, couldn't proceed, html attached", {"html": content})
+      db.warning("Couldn't find video box on whitehouse.gov, couldn't proceed, html attached", {"html": page})
     else:
       vid_list = content.findAll('div', {"class": re.compile(r'\bviews-row\b')})
       
@@ -40,7 +40,15 @@ def run(db):
           for vid in vid_list:
               date = vid.find('div', "date")
               date_str = date.find("span")
-              timestr = vid.find('div', 'date').find('span').string
+              
+              time_obj = vid.find('div', 'date').find('span')
+              
+              if not time_obj:
+                db.warning("Couldn't find timestamp span tag for a whitehouse.gov video, can't proceed, video html attached", {"vid": vid.string})
+                exit()
+              
+              timestr = time_obj.string
+              
               try:
                   tz = re.findall("[A-Z]{3}", timestr)[0]
               except:
