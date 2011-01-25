@@ -20,7 +20,12 @@ def run(db):
     
     soup = BeautifulSoup(page)
     
-    date_field = soup.findAll(text=re.compile('LEGISLATIVE DAY OF'))[0].strip()
+    date_objs = soup.findAll(text=re.compile('LEGISLATIVE DAY OF'))
+    if not date_objs:
+        db.warning("Couldn't find date while parsing the House floor updates, bailing out, html attached", {"html": page})
+        exit()
+        
+    date_field = date_objs[0].strip()
     
     day_of_pieces = time.strptime(date_field.replace('LEGISLATIVE DAY OF ', ''), "%B %d, %Y")
     day_of_string = time.strftime("%m/%d/%Y", day_of_pieces)
