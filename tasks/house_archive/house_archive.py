@@ -91,7 +91,7 @@ def grab_daily_meta(db):
                             fd['clip_urls'] = { 'mms':mms_url }
 
                 fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd, db)
-                print fd['clip_urls']
+                # print fd['clip_urls']
                 db['videos'].save(fd)
                 
                 count += 1
