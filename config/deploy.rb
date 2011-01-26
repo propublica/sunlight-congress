@@ -62,7 +62,10 @@ namespace :deploy do
   desc "Install Ruby gems and Python eggs"
   task :bundle_install, :roles => :app, :except => {:no_release => true} do
     run "cd #{release_path} && bundle install --local"
-    run "cd #{release_path} && pip install -r requirements.txt"
+    
+    if environment != 'api'
+      run "cd #{release_path} && pip install -r requirements.txt"
+    end
   end
   
   # current_path is correct here because this happens after deploy, not after deploy:update_code
