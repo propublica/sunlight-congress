@@ -32,7 +32,8 @@ def house_dem(db, notice_type, source):
       
         for_date = posted_at.strftime("%Y-%m-%d")
       
-        notice = db.get_or_initialize("whip_notices", {
+        notice = db.get_or_initialize("documents", {
+          "document_type": "whip_notice",
           "chamber": 'house', 
           'for_date': for_date,
           "party": 'D', 
@@ -43,7 +44,7 @@ def house_dem(db, notice_type, source):
         notice['url'] = url
         notice['session'] = session
         
-        db['whip_notices'].save(notice)
+        db['documents'].save(notice)
         
         count += 1
     
@@ -94,7 +95,8 @@ def house_rep(db, notice_type, source):
         url = url_results[0]['href']
         
         
-        notice = db.get_or_initialize("whip_notices", {
+        notice = db.get_or_initialize("documents", {
+          "document_type": "whip_notice",
           'chamber': "house", 
           'for_date': for_date,
           'party': "R", 
@@ -105,7 +107,7 @@ def house_rep(db, notice_type, source):
         notice['url'] = url
         notice['session'] = session
         
-        db['whip_notices'].save(notice)
+        db['documents'].save(notice)
                 
         return 1
 
