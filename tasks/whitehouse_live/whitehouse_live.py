@@ -74,7 +74,14 @@ def run(db):
                   
                   # get full href from a_tag and pull that page, then parse the video tag on that page
                   this_url = "http://whitehouse.gov" + link
-                  vid_page = urllib2.urlopen(this_url)
+                  
+                  try:
+                      vid_page = urllib2.urlopen(this_url).read()
+                  
+                  except:
+                      db.warning("Error loading video URL, url attached, going on to next one", {url: this_url})
+                      continue
+                  
                   vid_soup = BeautifulSoup(vid_page)
                   vid_tag = vid_soup.find('video')
                   if vid_tag:
