@@ -3,17 +3,19 @@ import urllib2
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 import re
 import datetime, time
+import rtc_utils
 
-PREFIX = 'http://www.democraticwhip.gov/'
+HOUSE_DEM_URL = 'http://www.democraticwhip.gov/rss/%s/all'
+HOUSE_REP_URL = 'http://www.majorityleader.house.gov/floor/%s.html'
 
 def run(db):
     total_count = 0
-    total_count += house_dem(db, 'daily', "%srss/32/all" % PREFIX)
-    total_count += house_dem(db, 'nightly', "%srss/34/all" % PREFIX)
-    total_count += house_dem(db, 'weekly', "%srss/31/all" % PREFIX)
+    total_count += house_dem(db, 'daily', HOUSE_DEM_URL % "32")
+    total_count += house_dem(db, 'nightly', HOUSE_DEM_URL % "34")
+    total_count += house_dem(db, 'weekly', HOUSE_DEM_URL % "31")
     
-    # broken in the transition
-    # total_count += house_rep(db)
+    total_count += house_rep(db, 'daily', HOUSE_REP_URL % "daily")
+    total_count += house_rep(db, 'weekly', HOUSE_REP_URL % "weekly")
     
     db.success("Updated or created %s whip notices" % total_count)
 
@@ -23,18 +25,21 @@ def house_dem(db, notice_type, source):
     doc = feedparser.parse(source)
     items = doc['items']
     for item in items:
-        url = '%s%s' % (PREFIX, item.link.replace('&amp;', '&').replace(PREFIX, ''))
+        url = item.link
         
         posted_at = datetime.datetime(*item.updated_parsed[:6])
-        session = current_session(posted_at.year)
+        session = rtc_utils.current_session(posted_at.year)
+      
+        for_date = posted_at.strftime("%Y-%m-%d")
       
         notice = db.get_or_initialize("whip_notices", {
           "chamber": 'house', 
-          "posted_at": posted_at, 
+          'for_date': for_date,
           "party": 'D', 
           "notice_type": notice_type
         })
         
+        notice['posted_at'] = posted_at
         notice['url'] = url
         notice['session'] = session
         
@@ -45,86 +50,68 @@ def house_dem(db, notice_type, source):
     return count
 
 
-def house_rep(db):
+def house_rep(db, notice_type, source):
     try:
-        page = urllib2.urlopen("http://republicanwhip.house.gov/floor/")
+        page = urllib2.urlopen(source)
     except:
-        db.warning("Couldn't load Republican Whip house floor page, skipping")
+        db.warning("Couldn't load Republican House floor page, skipping")
         
     else:
         soup = BeautifulSoup(page)
-        titles = soup.findAll('span', {'class':'h2a'})
+        content = soup.find("div", id="news_text")
         
-        daily_title = 'The Whipping Post - '
-        weekly_title = 'The Whip Notice - Week of '
+        if notice_type == "daily":
+          # example date_str: WEDNESDAY, JANUARY 26TH
+          date_str = content.findAll("b")[0].text.strip()
+          # strip off the ordinal
+          date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
+          date_format = "%A, %B %d"
+        else:
+          date_str = content.findAll("b")[1].text.strip().replace("WEEK OF ", "")
+          date_format = "%B %d"
         
-        count = 0
         
-        for title in titles:
-            daily_re = re.compile(daily_title)
-            weekly_re = re.compile(weekly_title)
-            title_str = title.contents[0].strip()
-            
-            if weekly_re.match(title_str):
-                weekly_date_str = title_str.replace(weekly_title, '').strip()
-                weekly_date = datetime.datetime(*time.strptime(weekly_date_str, "%m/%d/%y")[0:6])
-                session = current_session(weekly_date.year)
-                weekly_url = "http://republicanwhip.house.gov/floor/%s.pdf" % single_digify(weekly_date.strftime("%m-%d-%y"))
+        # starts with a year of 1900
+        posted_at = datetime.datetime(*time.strptime(date_str, date_format)[0:6])
+        
+        # set the time to this year, unless we're clearly at the edge of the year
+        now = datetime.datetime.now()
+        if now.month == 1 and posted_at.month == 12:
+          posted_at = posted_at.replace(now.year - 1)
+        else:
+          posted_at = posted_at.replace(now.year)
+        
+        for_date = posted_at.strftime("%Y-%m-%d")
+        session = rtc_utils.current_session(posted_at.year)
+        
+        
+        # daily or weekly
+        url_results = content.findAll("a", attrs={"href": re.compile("\.pdf$")})
+        if not url_results:
+          db.warning("Couldn't find URL for PDF of the %s Republican whip notice, can't go on, div attached" % notice_type, {html: content.text})
+          return 0
+        
+        url = url_results[0]['href']
+        
+        
+        notice = db.get_or_initialize("whip_notices", {
+          'chamber': "house", 
+          'for_date': for_date,
+          'party': "R", 
+          'notice_type': notice_type
+        })
+        
+        notice['posted_at'] = posted_at
+        notice['url'] = url
+        notice['session'] = session
+        
+        db['whip_notices'].save(notice)
                 
-                notice = db.get_or_initialize("whip_notices", {
-                  'chamber': "house", 
-                  'posted_at': weekly_date, 
-                  'party': "R", 
-                  'notice_type': "weekly"
-                })
-                
-                notice['url'] = weekly_url
-                notice['session'] = session
-                
-                db['whip_notices'].save(notice)
-                
-                count += 1
-                
-        return count
-      
-          # Daily PDFs appear to have been removed
-          
-          #elif daily_re.match(title_str):
-              #daily_date_str = title_str.replace(daily_title, '').strip()
-              #daily_date = datetime.datetime(*time.strptime(daily_date_str, "%m/%d/%y")[0:6])
-              #daily_url = "http://republicanwhip.house.gov/floor/%s.pdf" % single_digify(daily_date.strftime("%m-%d-%y"))
-              
-              #session = current_session(daily_date.year)
-              
-              #notice = db.get_or_initialize("whip_notices", {
-                #'chamber': "house", 
-                #'posted_at': daily_date, 
-                #'party': "R", 
-                #'notice_type': "daily"
-              #})
-              
-              #notice ['url'] = daily_url
-              #notice['session'] = session
-              #db['whip_notices'].save(notice)
-      
+        return 1
 
 
 def single_digify(date_str):
     m_str = date_str.split('-')[0].lstrip('0')
     d_str = date_str.split('-')[1].lstrip('0')
     y_str = date_str.split('-')[2]
-    return "%s-%s-%s" % (m_str, d_str, y_str)     
-
-#handy string cleaning functions found at http://love-python.blogspot.com/2008/07/strip-html-tags-using-python.html
-def remove_extra_spaces(data):
-    p = re.compile(r'\s+')
-    return p.sub(' ', data)
-
-def remove_html_tags(data):
-    p = re.compile(r'<.*?>')
-    return p.sub('', data)
-
-def current_session(year=None):
-  if not year:
-    year = datetime.datetime.now().year
-  return ((year + 1) / 2) - 894
+    return "%s-%s-%s" % (m_str, d_str, y_str)
