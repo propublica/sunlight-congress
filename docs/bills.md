@@ -15,6 +15,7 @@ The only fields you can assume are present are:
 * **bill_id**
 * **bill_type**
 * **number**
+* **code**
 * **session**
 * **chamber**
 * **abbreviated**
