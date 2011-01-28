@@ -8,7 +8,7 @@ class VotesLiveSenate
     count = 0
     missing_legislators = []
     bad_votes = []
-    timed_out = []
+    http_errors = []
     
     missing_bill_ids = []
     missing_amendment_ids = []
@@ -60,10 +60,12 @@ class VotesLiveSenate
       url = url_for number, session, subsession
       
       doc = nil
+      exception = nil
       begin
         doc = Nokogiri::XML open(url)
-      rescue Timeout::Error
+      rescue Timeout::Error, OpenURI::HTTPError => e
         doc = nil
+        exception = e
       end
       
       if doc
@@ -134,7 +136,7 @@ class VotesLiveSenate
         end
         
       else
-        timed_out << [number]
+        http_errors << {:number => number, :exception => exception.message}
       end
     end
     
@@ -154,8 +156,8 @@ class VotesLiveSenate
       Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
     end
     
-    if timed_out.any?
-      Report.warning self, "Timeout error on fetching #{timed_out.size} Senate roll(s), skipping and going onto the next one.", :timed_out => timed_out
+    if http_errors.any?
+      Report.warning self, "HTTP error on fetching #{http_errors.size} Senate roll(s), skipped them.", :http_errors => http_errors
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the Senate website."
