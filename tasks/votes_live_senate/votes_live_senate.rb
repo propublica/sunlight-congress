@@ -26,13 +26,13 @@ class VotesLiveSenate
       return
     end
     
-    if session != Utils.current_session
-      Report.note self, "Senate hasn't had a roll call for the current session (#{Utils.current_session}) yet, still on the #{session}th."
+    unless latest_roll and session and subsession
+      Report.warning self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting.\nlatest_roll: #{latest_roll}, session: #{session}, subsession: #{subsession}"
       return
     end
     
-    unless latest_roll and session and subsession
-      Report.failure self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting.\nlatest_roll: #{latest_roll}, session: #{session}, subsession: #{subsession}"
+    if session != Utils.current_session
+      Report.note self, "Senate hasn't had a roll call for the current session (#{Utils.current_session}) yet."
       return
     end
     
@@ -171,7 +171,12 @@ class VotesLiveSenate
     element = doc.css("td.contenttext a").first
     if element and element.text.present?
       number = element.text.to_i
+      
       href = element['href']
+      if href.blank?
+        return nil
+      end
+      
       session = href.match(/congress=(\d+)/i)[1].to_i
       subsession = href.match(/session=(\d+)/i)[1].to_i
       
