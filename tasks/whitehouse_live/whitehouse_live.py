@@ -30,7 +30,7 @@ def run(db):
     content = soup.find('div', {"id" : "video-list-box"})
     
     if not content:
-      db.warning("Couldn't find video box on whitehouse.gov, couldn't proceed, html attached", {"html": page})
+      db.note("Couldn't find video box on whitehouse.gov, couldn't proceed, html attached", {"html": page})
     else:
       vid_list = content.findAll('div', {"class": re.compile(r'\bviews-row\b')})
       
