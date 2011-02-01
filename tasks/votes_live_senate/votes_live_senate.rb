@@ -177,8 +177,12 @@ class VotesLiveSenate
         return nil
       end
       
-      session = href.match(/congress=(\d+)/i)[1].to_i
-      subsession = href.match(/session=(\d+)/i)[1].to_i
+      if session = href.match(/congress=(\d+)/i)
+        session = session[1].to_i
+      end
+      if subsession = href.match(/session=(\d+)/i)
+        subsession = subsession[1].to_i
+      end
       
       if number > 0 and session > 0 and subsession > 0
         return number, session, subsession
