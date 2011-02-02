@@ -170,7 +170,7 @@ class VotesLiveSenate
     doc = Nokogiri::HTML open(url)
     element = doc.css("td.contenttext a").first
     if element and element.text.present?
-      number = element.text.to_i
+      return nil unless number = element.text.to_i
       
       href = element['href']
       if href.blank?
