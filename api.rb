@@ -249,7 +249,7 @@ helpers do
   end
   
   def json(results)
-    response['Content-Type'] = 'application/json'    
+    response['Content-Type'] = 'application/json'
     json = results.to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
