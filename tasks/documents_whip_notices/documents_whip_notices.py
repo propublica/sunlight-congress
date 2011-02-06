@@ -68,8 +68,9 @@ def house_rep(db, notice_type, source):
           date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
           date_format = "%A, %B %d"
         else:
-          date_str = content.findAll("b")[1].text.strip().replace("WEEK OF ", "")
-          date_format = "%B %d"
+          date_str = content.findAll("b")[0].text.strip()
+          date_str = re.compile("^.*?WEEK OF ").sub("", date_str)
+          date_format = "%B %d, %Y"
         
         
         # starts with a year of 1900
