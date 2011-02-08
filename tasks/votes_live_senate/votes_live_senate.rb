@@ -169,26 +169,24 @@ class VotesLiveSenate
     url = "http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm"
     doc = Nokogiri::HTML open(url)
     element = doc.css("td.contenttext a").first
+    
     if element and element.text.present?
-      return nil unless number = element.text.to_i
+      number = element.text.to_i
       
-      href = element['href']
-      if href.blank?
-        return nil
-      end
+      return nil unless href = element['href']
       
       if session = href.match(/congress=(\d+)/i)
         session = session[1].to_i
       end
+      
       if subsession = href.match(/session=(\d+)/i)
         subsession = subsession[1].to_i
       end
       
-      if number > 0 and session > 0 and subsession > 0
-        return number, session, subsession
-      else
-        nil
-      end
+      return nil unless number and session and subsession
+      return nil unless number > 0 and session > 0 and subsession > 0
+       
+      return number, session, subsession
     else
       nil
     end
