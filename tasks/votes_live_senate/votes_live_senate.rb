@@ -157,7 +157,7 @@ class VotesLiveSenate
     end
     
     if http_errors.any?
-      Report.warning self, "HTTP error on fetching #{http_errors.size} Senate roll(s), skipped them.", :http_errors => http_errors
+      Report.note self, "HTTP error on fetching #{http_errors.size} Senate roll(s), skipped them.", :http_errors => http_errors
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the Senate website."
