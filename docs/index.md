@@ -31,7 +31,7 @@ There are 7 collections in the Real Time Congress API. Select any of them to see
 * [videos](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/videos/)
 * [floor_updates](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/floor_updates/)
 * [committee_hearings](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/committee_hearings/)
-* [whip_notices](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/whip_notices/)
+* [documents](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/documents/)
 
 ### Responses
 
