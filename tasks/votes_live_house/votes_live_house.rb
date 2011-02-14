@@ -168,7 +168,14 @@ class VotesLiveHouse
   # latest roll number on the House Clerk's listing of latest votes
   def self.latest_new_roll(year)
     url = "http://clerk.house.gov/evs/#{year}/index.asp"
-    doc = Nokogiri::HTML open(url)
+    
+    doc = nil
+    begin
+      doc = Nokogiri::HTML open(url)
+    rescue Timeout::Error, OpenURI::HTTPError => ex
+      return nil
+    end
+    
     element = doc.css("tr td a").first
     if element and element.text.present?
       number = element.text.to_i

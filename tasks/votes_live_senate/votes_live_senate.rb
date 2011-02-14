@@ -167,7 +167,13 @@ class VotesLiveSenate
   # find the latest roll call number listed on the Senate roll call vote page
   def self.latest_roll_info
     url = "http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm"
-    doc = Nokogiri::HTML open(url)
+    
+    begin
+      doc = Nokogiri::HTML open(url)
+    rescue Timeout::Error, OpenURI::HTTPError => ex
+      return nil
+    end
+    
     element = doc.css("td.contenttext a").first
     
     if element and element.text.present?
