@@ -1,1 +1,1 @@
-0 6 * * *   cd /projects/rtc/current && rake analytics:report
+0 6 * * *   cd /projects/rtc/current && rake analytics:report > /projects/rtc/shared/analytics.log 2>&1
