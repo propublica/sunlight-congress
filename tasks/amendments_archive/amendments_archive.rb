@@ -3,7 +3,7 @@ require 'nokogiri'
 class AmendmentsArchive
   
   def self.run(options = {})
-    options[:session] ||= Utils.current_session
+    options[:session] = (options[:session] ? options[:session].to_i : Utils.current_session)
     load_amendments options
     update_bills options
   end
