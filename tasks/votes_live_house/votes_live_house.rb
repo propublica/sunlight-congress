@@ -25,7 +25,7 @@ class VotesLiveHouse
     begin
       latest_new_roll = latest_new_roll year
     rescue Timeout::Error
-      Report.warning self, "Timeout error on fetching the listing page, can't go on."
+      Report.note self, "Timeout error on fetching the listing page, can't go on."
       return
     end
     
