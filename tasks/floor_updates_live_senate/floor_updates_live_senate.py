@@ -5,7 +5,7 @@ import re
 
 
 def run(db, options = {}):    
-    if options['day']:
+    if options.has_key('day'):
       day = datetime.datetime(*time.strptime(options['day'], "%Y-%m-%d")[0:6])
     else:
       day = datetime.datetime.now()
@@ -25,8 +25,7 @@ def run(db, options = {}):
     headers = soup.findAll('h3')
     
     for header in headers:
-        
-        # name for the section if one exists
+        fallback_time = section_time(header)
         
         section = header.parent.findAll('tr')[-1]
         items = section.findChild("td").findChildren("p")
@@ -44,26 +43,29 @@ def run(db, options = {}):
         # go over each p tag, find the substantive ones, record it as an event
         for item in items:
           str = item.text.strip()
+          str = re.sub("^o?(?:&[^;]+;)*", "", str) # eliminate all starting special chars
+          str = re.sub("^o?SUMMARY", "", str) # not sure why the o and the SUMMARY appear
           
-          # first, check if it's a name and time line
-          new_name, new_time = name_and_time(str, day)
-          if new_name and new_time:
-            # if so, save any events we've been accruing, if there are any
-            if current_events:
-              save_update(db, current_time, legislative_day, current_events)
+          if str:
+            # first, check if it's a name and time line
+            new_name, new_time = name_and_time(str, day)
+            if new_name and new_time:
+              # if so, save any events we've been accruing, if there are any
+              if current_events:
+                save_update(db, current_time, legislative_day, current_events)
+              
+              # then clear the accruing events and start a new one with the new name and timestamp
+              current_events = []
+              current_name = new_name
+              current_time = new_time
+              continue
             
-            # then clear the accruing events and start a new one with the new name and timestamp
-            current_events = []
-            current_name = new_name
-            current_time = new_time
-            continue
-          
-          # otherwise, if there's content, add it to the accruing events for this person and this time
-          elif current_name and current_time:
-            str = re.sub("^o?(?:&[^;]+;)*", "", str) # eliminate all starting special chars
-            str = re.sub("^o?SUMMARY", "", str) # not sure why the o and the SUMMARY appear
-            if str:
+            # otherwise, if there's content, add it to the accruing events for this person and this time
+            elif current_name and current_time:
               current_events.append("%s: %s" % (current_name, decode_htmlentities(str)))
+            
+            else:
+              print "No name, no time, no prior recorded name or time: %s" % str
         
         # if there were any left when we're all done, save them
         if current_events:
@@ -107,22 +109,33 @@ def name_and_time(text, day):
     return (None, None)
 
 
+# return timestamp from a whole section of updates
+def section_time(header, day):
+  date_str = header.nextSibling.nextSibling.strip()
+  match = re.search("\d+:\d+ (?:AM|PM)$", date_str)
+  
+  if match:
+    time_str = match.group()
+    time_of_day = time.strptime(time_str, "%I:%M %p")
+    timestamp = datetime.datetime(day.year, day.month, day.day, time_of_day.tm_hour, time_of_day.tm_min)
+    return timestamp
+
 # html entity decoding
 
 from htmlentitydefs import name2codepoint as n2cp
 
 def substitute_entity(match):
-    ent = match.group(2)
-    if match.group(1) == "#":
-        return unichr(int(ent))
-    else:
-        cp = n2cp.get(ent)
+  ent = match.group(2)
+  if match.group(1) == "#":
+    return unichr(int(ent))
+  else:
+    cp = n2cp.get(ent)
 
-        if cp:
-            return unichr(cp)
-        else:
-            return match.group()
+    if cp:
+      return unichr(cp)
+    else:
+      return match.group()
 
 def decode_htmlentities(string):
-    entity_re = re.compile("&(#?)(\d{1,5}|\w{1,8});")
-    return entity_re.subn(substitute_entity, string)[0]
+  entity_re = re.compile("&(#?)(\d{1,5}|\w{1,8});")
+  return entity_re.subn(substitute_entity, string)[0]
