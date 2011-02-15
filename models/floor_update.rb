@@ -7,6 +7,8 @@ class FloorUpdate
   index :bill_ids
   index :legislator_ids
   
+  field :legislative_day
+  
   def self.default_order
     :timestamp
   end
