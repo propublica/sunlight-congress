@@ -4,7 +4,7 @@ import datetime, time
 import re
 
 
-def run(db, options = {}):    
+def run(db, options = {}): 
     if options.has_key('day'):
       day = datetime.datetime(*time.strptime(options['day'], "%Y-%m-%d")[0:6])
     else:

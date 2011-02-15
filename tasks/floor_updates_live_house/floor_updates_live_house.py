@@ -5,7 +5,7 @@ import re
 import rtc_utils
 
 
-def run(db):
+def run(db, options = {}):
     try:
         page = urllib2.urlopen("http://clerk.house.gov/floorsummary/floor.html").read()
         

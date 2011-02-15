@@ -5,7 +5,7 @@ import urllib2
 import datetime, time
 
 
-def run(db):
+def run(db, options = {}):
     senate_count = senate_hearings(db)
     house_count = house_hearings(db)
       

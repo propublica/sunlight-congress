@@ -8,7 +8,7 @@ import rtc_utils
 HOUSE_DEM_URL = 'http://www.democraticwhip.gov/rss/%s/all'
 HOUSE_REP_URL = 'http://www.majorityleader.house.gov/floor/%s.html'
 
-def run(db):
+def run(db, options = {}):
     total_count = 0
     total_count += house_dem(db, 'daily', HOUSE_DEM_URL % "32")
     total_count += house_dem(db, 'nightly', HOUSE_DEM_URL % "34")

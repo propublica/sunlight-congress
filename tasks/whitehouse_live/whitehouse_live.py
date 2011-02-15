@@ -8,7 +8,7 @@ import re
 
 tzs = {"EST" : "America/New_York", "CST": "America/Chicago", "MST": "America/Denver", "PST": "America/Los_Angeles"}
 
-def run(db):
+def run(db, options = {}):
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects

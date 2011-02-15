@@ -10,7 +10,7 @@ import rtc_utils
 
 PARSING_ERRORS = []
 
-def run(db):
+def run(db, options = {}):
     grab_daily_meta(db)
     #pull_wmv_rss(db['videos'])
     if PARSING_ERRORS:
