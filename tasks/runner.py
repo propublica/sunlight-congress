@@ -101,10 +101,17 @@ db_host = sys.argv[2]
 db_name = sys.argv[3]
 db = Database(task_name, db_host, db_name)
 
+options = {}
+args = sys.argv[4:]
+for arg in args:
+  key, value = arg.split('=')
+  if key and value:
+    options[key.lower()] = value
+
 try:
     sys.path.append("tasks")
     sys.path.append("tasks/%s" % task_name)
-    __import__(task_name).run(db)
+    __import__(task_name).run(db, options)
 
 except Exception as exception:
     db.failure(exception)
