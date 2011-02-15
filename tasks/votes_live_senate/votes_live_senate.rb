@@ -27,7 +27,7 @@ class VotesLiveSenate
     end
     
     unless latest_roll and session and subsession
-      Report.warning self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting.\nlatest_roll: #{latest_roll}, session: #{session}, subsession: #{subsession}"
+      Report.warning self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting", {:latest_roll => latest_roll, :session => session, :subsession => subsession}
       return
     end
     
