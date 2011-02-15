@@ -149,6 +149,8 @@ Pass a "callback" parameter to trigger a JSONP response, wrapped in the callback
 
 Because every API call returns a list of search results, there are no 404s in the Real Time Congress API, unless you specify an invalid collection name. So, your JSONP request should always get its callback executed in your browser.
 
+If you want to make sure the browser doesn't cache the results of a particular query, you can attach a timestamp to a lone underscore parameter (e.g. "_=1234567890"), which will be ignored by the API. This is what jQuery does by default.
+
 ### XML
 
 Though all the examples here are in JSON, you can get the same results in XML by using ".xml" instead of ".json" in the URL.
