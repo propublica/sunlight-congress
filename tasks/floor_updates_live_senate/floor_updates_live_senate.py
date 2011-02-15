@@ -65,7 +65,7 @@ def run(db, options = {}):
               if new_state:
                 current_name = "Sen. %s (%s)" % (new_name, new_state)
               else:
-                current_name = new_name
+                current_name = "Sen. %s" % new_name
               current_time = new_time
               current_bioguide_id = new_bioguide_id
               continue
