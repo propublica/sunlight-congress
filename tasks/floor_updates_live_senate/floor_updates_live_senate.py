@@ -63,17 +63,26 @@ def run(db, options = {}):
               # then clear the accruing events and start a new one with the new name and timestamp
               current_events = []
               if new_state:
-                current_name = "Sen. %s (%s)" % (new_name, new_state)
+                current_name = "%s (%s)" % (new_name, new_state)
               else:
-                current_name = "Sen. %s" % new_name
+                current_name = "%s" % new_name
+              current_events.append(current_name)
               current_time = new_time
               current_bioguide_id = new_bioguide_id
               continue
             
             # otherwise, if there's content, add it to the accruing events for this person and this time
             elif current_name and current_time:
-              current_events.append("%s: %s" % (current_name, decode_htmlentities(str)))
-            
+              # ignore first-level items (mildly editorialized items)
+              #if re.search("mso-list: l\d level1", item['style']):
+              
+              # ignore quotes
+              # if re.search("^&quot;", str):
+              
+                # print "Ignoring: %s" % str
+              # else:
+                # current_events.append(decode_htmlentities(str))                
+              pass
             else:
               print "No name, no time, no prior recorded name or time: %s" % str
         
@@ -96,7 +105,7 @@ def save_update(db, timestamp, legislative_day, events, bioguide_id):
   
   event['bioguide_ids'] = [bioguide_id]
   
-  event['events'] = [events]
+  event['events'] = events
   event['legislative_day'] = legislative_day
   
   db['floor_updates'].save(event)
