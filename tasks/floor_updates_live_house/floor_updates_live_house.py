@@ -22,7 +22,7 @@ def run(db, options = {}):
     
     date_objs = soup.findAll(text=re.compile('LEGISLATIVE DAY OF'))
     if not date_objs:
-        db.warning("Couldn't find date while parsing the House floor updates, bailing out, html attached", {"html": page})
+        db.note("Couldn't find date while parsing the House floor updates, bailing out, html attached", {"html": page})
         exit()
         
     date_field = date_objs[0].strip()
