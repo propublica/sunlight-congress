@@ -104,6 +104,8 @@ def save_update(db, timestamp, legislative_day, events, bioguide_id):
   })
   
   event['legislator_ids'] = [bioguide_id]
+  event['roll_ids'] = []
+  event['bill_ids'] = []
   
   event['events'] = events
   event['legislative_day'] = legislative_day
