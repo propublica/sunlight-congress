@@ -2,7 +2,7 @@ from BeautifulSoup import BeautifulSoup
 import urllib2
 import datetime, time
 import re
-
+import rtc_utils
 
 def run(db, options = {}): 
     if options.has_key('day'):
