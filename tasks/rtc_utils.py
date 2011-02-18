@@ -14,7 +14,7 @@ RTC_MAP = {'hr':'hr', 'hres':'hres', 'hjres':'hjres', 'hconres':'hcres', 's':'s'
 def extract_rolls(data, chamber, year):
     roll_ids = []
     
-    roll_re = re.compile('Roll no. (\d+)')
+    roll_re = re.compile('Roll (?:no.|Call) (\d+)', flags=re.IGNORECASE)
     roll_matches = roll_re.findall(data)
     
     if roll_matches:
