@@ -62,13 +62,13 @@ def grab_daily_meta(db):
                 fd['session'] = session
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-                fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
+                fd['created_at'] = add_date
                 duration_hours = cols[1].contents[0]
                 duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
                 fd['duration'] = convert_duration(duration_hours, duration_minutes)
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
                 fd['chamber'] = 'house'
-                fd['pubdate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+                fd['pubdate'] = date_key
                 mms_url = get_mms_url(fd['clip_id'])
                 try:
                     if fd.has_key('clip_urls'):
@@ -129,7 +129,7 @@ def grab_daily_events(full_video, db):
                 hours = 0  #12 am is 0 on 24 hours clock
             am_or_pm = 'AM'
         
-        return (datetime.datetime(date.year, date.month, date.day, hours, minutes), date, am_or_pm)
+        return (datetime.datetime(date.year, date.month, date.day, hours, minutes, tzinfo=rtc_utils.EST()), date, am_or_pm)
     
     def add_to_video_array(floor_event, key, vid_array):
             if floor_event.has_key(key): 

@@ -1,5 +1,14 @@
 import re
+from dateutil import tz
 
+def EST():
+  return tz.gettz("America/New_York")
+
+def UTC(dt):
+  return dt.astimezone(tz.gettz("GMT"))
+
+def format(dt):
+  return UTC(dt).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def current_session(year=None):
   if not year:

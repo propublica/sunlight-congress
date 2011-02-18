@@ -32,7 +32,7 @@ def run(db, options = {}):
         for video in rss.entries:
             slug = video.link[video.link.rfind("/") + 1:]
             date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
-            date_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, date_obj.hour, date_obj.minute, tzinfo=gettz("America/New_York"))
+            date_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, date_obj.hour, date_obj.minute, tzinfo=gettz("GMT"))
             timestamp = int(time.mktime(date_obj.timetuple()))
             
             video_id = 'whitehouse-' + str(timestamp) + "-" + slug
@@ -48,7 +48,7 @@ def run(db, options = {}):
                     video_obj['clip_urls'] = {'mp4' : url }
                 video_obj['created_at'] = add_date
                 video_obj['chamber'] = 'whitehouse'
-                video_obj['pubdate'] = date_obj.strftime("%Y-%m-%dT%H:%M%z")
+                video_obj['pubdate'] = date_obj
                 video_obj['category'] = cats[feeds.index(f)]
                 video_obj['status'] = "archived"
                 db['videos'].save(video_obj)

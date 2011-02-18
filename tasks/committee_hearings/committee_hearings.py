@@ -3,6 +3,7 @@ import feedparser
 import re
 import urllib2
 import datetime, time
+import rtc_utils
 
 
 def run(db, options = {}):
@@ -37,7 +38,7 @@ def senate_hearings(db):
             db.warning("Couldn't locate committee by committee_id while parsing Senate committee hearings", {'committee_id': committee_id})
           
           date_string = meeting.date.contents[0].strip()
-          occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6])
+          occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
           legislative_day = occurs_at.strftime("%Y-%m-%d")
           session = current_session(occurs_at.year)
           
@@ -125,7 +126,7 @@ def house_hearings(db):
             if match:
                 date_str = match.group(1)
                 timestamp = time.strptime(date_str, "%a, %b %d, %Y %I:%M %p")
-                occurs_at = datetime.datetime(*timestamp[:7])
+                occurs_at = datetime.datetime(*timestamp[:7], tzinfo=rtc_utils.EST())
                 legislative_day = occurs_at.strftime("%Y-%m-%d")
                 time_of_day = occurs_at.strftime("%I:%M %p")
                 session = current_session(occurs_at.year)

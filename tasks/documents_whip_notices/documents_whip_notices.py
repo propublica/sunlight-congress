@@ -74,7 +74,8 @@ def house_rep(db, notice_type, source):
         
         
         # starts with a year of 1900
-        posted_at = datetime.datetime(*time.strptime(date_str, date_format)[0:6])
+        time_obj = time.strptime(date_str, date_format)
+        posted_at = datetime.datetime(time_obj.tm_year, time_obj.tm_mon, time_obj.tm_mday, 12, 0, 0) # noon UTC
         
         # set the time to this year, unless we're clearly at the edge of the year
         now = datetime.datetime.now()

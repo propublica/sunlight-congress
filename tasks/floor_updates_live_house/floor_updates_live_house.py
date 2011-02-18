@@ -48,7 +48,7 @@ def run(db, options = {}):
                 time_string = "%s %s" % (day_of_string, time_string)
                 
                 event_time_components = time.strptime(time_string, "%m/%d/%Y %I:%M %p")
-                event_time = datetime.datetime(*event_time_components[0:5])
+                event_time = datetime.datetime(*event_time_components[0:5], tzinfo=rtc_utils.EST())
                 legislative_day = time.strftime("%Y-%m-%d", event_time_components)
                 
                 events = []
