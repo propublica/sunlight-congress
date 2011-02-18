@@ -21,7 +21,7 @@ class VotesLiveSenate
     subsession = nil
     begin
       latest_roll, session, subsession = latest_roll_info
-    rescue Timeout::Error, Errno::ECONNRESET
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.note self, "Timeout error on fetching the listing page, can't go on."
       return
     end

@@ -24,7 +24,7 @@ class VotesLiveHouse
     latest_new_roll = nil
     begin
       latest_new_roll = latest_new_roll year
-    rescue Timeout::Error, Errno::ECONNRESET
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.note self, "Timeout error on fetching the listing page, can't go on."
       return
     end
