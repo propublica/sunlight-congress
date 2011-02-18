@@ -32,8 +32,11 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>bioguide_ids</dt>
 <dd>An array of bioguide IDs of legislators mentioned in this floor update. **Note**: if the name is ambiguous and could refer to more than one person, bioguide IDs for all possible candidates will be listed. There could be false positives, but no one should be missed.</dd>
 
-<dt>bills</dt>
-<dd>An array of IDs of bills mentions in this floor update.</dd>
+<dt>bill_ids</dt>
+<dd>An array of IDs of bills mentioned in this floor update.</dd>
+
+<dt>roll_ids</dt>
+<dd>An array of IDs of roll call votes mentioned in this floor update.</dd>
 
 ### Example
 
