@@ -134,7 +134,7 @@ def name_and_time(db, text, day):
     
     # I have observed clashing timestamps once, but in that case the Senate had made a mistake and the
     # entries were duplicates of each other.
-    timestamp = datetime.datetime(day.year, day.month, day.day, time_of_day.tm_hour, time_of_day.tm_min)
+    timestamp = datetime.datetime(day.year, day.month, day.day, time_of_day.tm_hour, time_of_day.tm_min, tzinfo=rtc_utils.EST())
   
     return (name, state, timestamp, bioguide_id)
     
