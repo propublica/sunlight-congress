@@ -1,19 +1,37 @@
 import re
+import iso8601
 from dateutil import tz
 
 def EST():
   return tz.gettz("America/New_York")
 
+def in_est(dt):
+  return dt.astimezone(EST())
+
 def current_session(year=None):
   if not year:
     year = datetime.datetime.now().year
   return ((year + 1) / 2) - 894
-  
+
+# parse an iso 8601 timestamp and convert it to UTC
+def parse_iso8601(timestamp):
+  return iso8601.parse_date(timestamp).astimezone(tz.gettz('GMT'))
+
+# known discrepancies between us and GovTrack
+def committee_id_for(govtrack_id):
+  if govtrack_id == "HLIG":
+    return "HSIG"
+  else:
+    return govtrack_id
 
 
 RTC_MAP = {'hr':'hr', 'hres':'hres', 'hjres':'hjres', 'hconres':'hcres', 's':'s', 'sres':'sres', 'sjres':'sjres', 'sconres':'scres'}
-    
-    
+
+GT_MAP = {'h':'hr', 'hr':'hres', 'hj': 'hjres', 'hc': 'hcres', 's':'s', 'sj':'sjres', 'sc':'scres', 'sr':'sres'}
+
+def bill_type_for(govtrack_type):
+    return GT_MAP[govtrack_type]
+
 def extract_rolls(data, chamber, year):
     roll_ids = []
     
