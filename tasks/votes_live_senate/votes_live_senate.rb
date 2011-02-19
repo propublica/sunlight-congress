@@ -268,10 +268,10 @@ class VotesLiveSenate
       
       type.gsub! "hconres", "hcres" # house uses H CON RES
       
-      if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
-        nil
-      else
+      if ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
         "#{type}#{number}-#{session}"
+      else
+        nil
       end
     else
       nil
