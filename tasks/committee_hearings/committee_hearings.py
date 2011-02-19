@@ -8,7 +8,7 @@ import rtc_utils
 
 def run(db, options = {}):
     senate_count = senate_hearings(db)
-    house_count = house_hearings(db)
+    # house_count = house_hearings(db)
       
     db.success("Updated or created %s House and %s Senate committee hearings" % (house_count, senate_count))
 
