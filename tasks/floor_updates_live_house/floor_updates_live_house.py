@@ -6,8 +6,14 @@ import rtc_utils
 
 
 def run(db, options = {}):
+    url = "http://clerk.house.gov/floorsummary/floor.html"
+    
+    if options.has_key('day'):
+      day = datetime.datetime.strptime(options['day'], "%Y-%m-%d")
+      url = "%s?day=%s" % (url, day.strftime("%Y%m%d"))
+      
     try:
-        page = urllib2.urlopen("http://clerk.house.gov/floorsummary/floor.html").read()
+        page = urllib2.urlopen(url).read()
         
     except:
         db.note("Couldn't load floor updates URL, can't go on")
