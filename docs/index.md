@@ -93,6 +93,18 @@ Or all bills in the 111th Congress which got at least one passage vote, but neve
 
     /api/v1/bills.json?apikey=[yourKey]&session=111&bill_type__in=h|s|hjres|sjres&passage_votes_count__gte=1&enacted=false
 
+#### Filtering on times
+
+All timestamps in the API are shown in UTC, and appear in the format YYYY-MM-DDTHH:MM:SSZ, where the "T" and "Z" are the literal characters "T" and "Z".
+
+When filtering on a time, provide the timestamp in the same format, and in UTC. Bear in mind that even though times are shown and should be filtered in UTC, that times of day should still be in relation to Eastern time, which is Congress' time.
+
+So to search for all bills introduced within a given day for Congress (between midnight EST of one day and the next), you might use:
+
+    /api/v1/bills.json?apikey=[yourKey]&introduced_at__gte=2011-02-17T05:00:00Z&introduced_at__lt=2011-02-18T05:00:00
+    
+It's advised that you use a library that handles for you the calculation of UTC in relation to EST, and takes into account Daylight Savings Time.
+
 ### Ordering
 
 The following query string parameters govern sorting:

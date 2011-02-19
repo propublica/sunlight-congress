@@ -1,5 +1,7 @@
 The **floor_updates** collection holds updates from the floor of each chamber of Congress.
 
+**NOTE**: The quality of floor updates for the Senate is not good. It pulls a list of speakers for the day from a page maintained by the [Republican Senate Caucus](http://republican.senate.gov/public/index.cfm?FuseAction=FloorUpdates.Home), but doesn't pull any of the descriptions or quotes therein.
+
 ### Guaranteed fields
 
 The only fields you can assume are present are:
