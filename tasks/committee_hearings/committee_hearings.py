@@ -85,7 +85,10 @@ def senate_hearings(db):
 
 def house_hearings(db):
     today = datetime.date.today()
-  
+    
+    #session = rtc_utils.current_session(today.year)
+    #url = "http://www.govtrack.us/data/us/%s/committeeschedule.xml" % session
+    
     doc = feedparser.parse("http://www.govtrack.us/users/events-rss2.xpd?monitors=misc:allcommittee")
     items = doc['items']
     
