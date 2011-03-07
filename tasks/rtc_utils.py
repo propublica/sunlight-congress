@@ -18,8 +18,17 @@ def parse_iso8601(timestamp):
   return iso8601.parse_date(timestamp).astimezone(tz.gettz('GMT'))
 
 # known discrepancies between us and GovTrack
-def committee_id_for(govtrack_id):
-  if govtrack_id == "HLIG":
+def committee_id_for(govtrack_id, govtrack_name = None):
+  if not govtrack_id and govtrack_name != None:
+    govtrack_name = govtrack_name.replace(";", "")
+    if govtrack_name == "House Transportation":
+      return "HSPW"
+    elif govtrack_name == "House Natural Resources":
+      return "HSII"
+    else:
+      return None
+      
+  elif govtrack_id == "HLIG":
     return "HSIG"
   else:
     return govtrack_id

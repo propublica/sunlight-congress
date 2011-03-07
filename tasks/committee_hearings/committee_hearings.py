@@ -34,10 +34,12 @@ def senate_hearings(db):
           
           # resolve discrepancies between Sunlight and GovTrack
           committee_id = rtc_utils.committee_id_for(committee_id)
+          if not committee_id:
+            continue
           
           committee = committee_for(db, committee_id)
           if not committee:
-            db.warning("Couldn't locate committee by committee_id while parsing Senate committee hearings", {'committee_id': committee_id})
+            db.warning("Couldn't locate committee by committee_id \"%s\" while parsing Senate committee hearings" % committee_id, {'committee_id': committee_id})
           
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
@@ -103,8 +105,11 @@ def house_hearings(db):
           if meeting['where'] != 'h':
               continue
           
-          committee_id = rtc_utils.committee_id_for(meeting['committee-id'])
-          
+          committee_id = rtc_utils.committee_id_for(meeting['committee-id'], meeting['committee'])
+          if not committee_id:
+              db.warning("Blank committee ID for %s, can't add meeting like this" % meeting['committee'])
+              continue
+              
           committee = committee_for(db, committee_id)
           if not committee:
               db.warning("Couldn't locate committee by committee_id while parsing House committee hearings", {'committee_id': committee_id})
