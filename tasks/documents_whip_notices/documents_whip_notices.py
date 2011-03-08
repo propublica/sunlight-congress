@@ -53,7 +53,7 @@ def house_dem(db, notice_type, source):
 
 def house_rep(db, notice_type, source):
     try:
-        page = urllib2.urlopen(source)
+        page = urllib2.urlopen(source).read()
     except:
         db.warning("Couldn't load Republican House floor page, skipping")
         
@@ -68,8 +68,8 @@ def house_rep(db, notice_type, source):
           date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
           date_format = "%A, %B %d"
         else:
-          date_str = content.findAll("b")[0].text.strip()
-          date_str = re.compile("^.*?WEEK OF ").sub("", date_str)
+          date_str = content.findAll("b")[1].text.strip()
+          date_str = date_str.replace("WEEK OF ", "")
           date_format = "%B %d, %Y"
         
         
