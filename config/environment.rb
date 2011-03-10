@@ -7,6 +7,7 @@ def config
 end
 
 configure do
+  config[:mongoid][:logger] = Logger.new config[:log_file] if config[:log_file]
   Mongoid.configure {|c| c.from_hash config[:mongoid]}
   
   # This is for when people search by date (with no time), or a time that omits the time zone

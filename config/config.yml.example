@@ -9,7 +9,8 @@
   host: localhost
   database: rtc
   raise_not_found_error: false
-  logger: # leaving blank suppresses logging, to enable delete this line
+
+:log_file: /dev/null
 
 :email:
   :via: :smtp
