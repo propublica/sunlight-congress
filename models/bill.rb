@@ -33,10 +33,6 @@ class Bill
   
   index :abbreviated
   
-  def self.unique_keys
-    [:bill_id]
-  end
-  
   def self.default_order
     :introduced_at
   end

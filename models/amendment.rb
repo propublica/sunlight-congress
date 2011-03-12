@@ -17,10 +17,6 @@ class Amendment
   field :amendment_id
   validates_uniqueness_of :amendment_id
   
-  def self.unique_keys
-    [:amendment_id]
-  end
-  
   def self.default_order
     :offered_at
   end

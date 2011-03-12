@@ -13,11 +13,7 @@ class Video
   index :"clips.bills"
   index :"clips.legislator_names"
   index :"clips.bioguide_ids"
-  
-  def self.unique_keys
-    [:video_id]
-  end
-  
+    
   def self.default_order
     :pubdate
   end
