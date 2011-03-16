@@ -6,7 +6,16 @@ import urllib2
 import re 
 
 
-tzs = {"EST" : "America/New_York", "CST": "America/Chicago", "MST": "America/Denver", "PST": "America/Los_Angeles"}
+tzs = {
+      "EST" : "America/New_York",
+      "EDT" : "America/New_York", 
+      "CST": "America/Chicago", 
+      "CDT": "America/Chicago", 
+      "MST": "America/Denver", 
+      "MDT": "America/Denver", 
+      "PST": "America/Los_Angeles",
+      "PDT": "America/Los_Angeles"
+      }
 
 def run(db, options = {}):
     add_date = datetime.datetime.now()
@@ -52,7 +61,9 @@ def run(db, options = {}):
               try:
                   tz = re.findall("[A-Z]{3}", timestr)[0]
               except:
-                  tz = "EST"
+                  db.warning("Couldn't find timezone abbreviation for an upcoming/live whitehouse.gov video, skipping this video", {"timestr": timestr})
+                  continue
+                  
               timestamp = datetime.datetime.strptime(timestr.replace(tz, "").strip(), "%B %d, %Y %I:%M %p" )
               timestamp = datetime.datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, tzinfo=gettz(tzs[tz])) #use this because datetime.replace not working for tzinfo???
               a_tag = vid.find('h3').find('a')
