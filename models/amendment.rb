@@ -17,20 +17,16 @@ class Amendment
   field :amendment_id
   validates_uniqueness_of :amendment_id
   
-  def self.unique_keys
-    [:amendment_id]
-  end
-  
   def self.default_order
     :offered_at
   end
   
   def self.basic_fields
-    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :description, :purpose]
+    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :purpose]
   end
   
   def self.search_fields
-    [:description, :purpose]
+    [:purpose]
   end
   
 end

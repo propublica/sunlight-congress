@@ -107,7 +107,6 @@ helpers do
         
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
-            # error point: invalid regexp, check now
             conditions[key] ||= {}
             
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
@@ -250,14 +249,14 @@ helpers do
   end
   
   def json(results)
-    response['Content-Type'] = 'application/json'    
+    response['Content-Type'] = 'application/json'
     json = results.to_json
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.to_xml :root => 'results'
+    results.to_xml :root => 'results', :dasherize => false
   end
   
 end

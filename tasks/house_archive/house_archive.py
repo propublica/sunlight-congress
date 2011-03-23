@@ -6,10 +6,11 @@ import datetime, time
 import urllib2
 import re
 import feedparser
+import rtc_utils
 
 PARSING_ERRORS = []
 
-def run(db):
+def run(db, options = {}):
     grab_daily_meta(db)
     #pull_wmv_rss(db['videos'])
     if PARSING_ERRORS:
@@ -19,11 +20,6 @@ def get_mms_url(clip_id):
     clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
     mms_url = re.search("(<REF HREF=\")([^\"]+)", clip_xml).groups()[1]
     return mms_url 
-
-def current_session(year=None):
-  if not year:
-    year = datetime.datetime.now().year
-  return ((year + 1) / 2) - 894
   
 def convert_duration(hours, minutes):
     hours = int(hours)
@@ -59,20 +55,20 @@ def grab_daily_meta(db):
                 this_date = datetime.datetime.fromtimestamp(float(unix_time))
                 date_key = datetime.datetime(this_date.year, this_date.month, this_date.day, 12, 0, 0)
                 timestamp_key = int(time.mktime(date_key.timetuple()))
-                session = current_session(this_date.year)
+                session = rtc_utils.current_session(this_date.year)
                 
                 video_id = 'house-' + str(timestamp_key)
                 fd = db.get_or_initialize('videos', {'video_id': video_id})
                 fd['session'] = session
                 legislative_day = datetime.datetime.strptime(cols[0].contents[1] + " 12:00", '%B %d, %Y %H:%M')
                 fd['legislative_day'] = legislative_day.strftime("%Y-%m-%d")
-                fd['created_at'] = add_date.strftime("%Y-%m-%dT%H:%MZ")
+                fd['created_at'] = add_date
                 duration_hours = cols[1].contents[0]
                 duration_minutes = cols[1].contents[2].replace('&nbsp;', '')
                 fd['duration'] = convert_duration(duration_hours, duration_minutes)
                 fd['clip_id'] = locate_clip_id(cols[3].contents[2]['href'])
                 fd['chamber'] = 'house'
-                fd['pubdate'] = date_key.strftime("%Y-%m-%dT%H:%Mz")
+                fd['pubdate'] = date_key
                 mms_url = get_mms_url(fd['clip_id'])
                 try:
                     if fd.has_key('clip_urls'):
@@ -95,7 +91,7 @@ def grab_daily_meta(db):
                             fd['clip_urls'] = { 'mms':mms_url }
 
                 fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd, db)
-                print fd['clip_urls']
+                # print fd['clip_urls']
                 db['videos'].save(fd)
                 
                 count += 1
@@ -133,7 +129,7 @@ def grab_daily_events(full_video, db):
                 hours = 0  #12 am is 0 on 24 hours clock
             am_or_pm = 'AM'
         
-        return (datetime.datetime(date.year, date.month, date.day, hours, minutes), date, am_or_pm)
+        return (datetime.datetime(date.year, date.month, date.day, hours, minutes, tzinfo=rtc_utils.EST()), date, am_or_pm)
     
     def add_to_video_array(floor_event, key, vid_array):
             if floor_event.has_key(key): 
@@ -152,12 +148,14 @@ def grab_daily_events(full_video, db):
     
     def parse_group(group, clip, fu, db):
         global PARSING_ERRORS
+        year = clip['time'].year
+        congress =  rtc_utils.current_session(year)
+        bill_re = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
+        
         bills = []
+        rolls = []
         legislator_names = []
         bioguide_ids = []
-        congress =  ((clip['time'].year + 1) / 2 ) - 894
-        bill_re = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
-        name_re = re.compile('((M(rs|s|r)\.){1}\s((\s?[A-Z]{1}[A-Za-z-]+){0,2})(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
 
         pt = group.findNext('p')
         while pt.name == 'p':
@@ -173,37 +171,13 @@ def grab_daily_events(full_video, db):
                     clip = add_event(clip, text)
                     fu = add_event(fu, text)
                     
-                    #find bill text
-                    bill_matches = re.findall(bill_re, text)
-                    if bill_matches:
-                        for b in bill_matches:
-                            bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
-                            if bill_text not in bills:
-                                bills.append(bill_text)
-                    #find legislator names
-                    name_matches = re.findall(name_re, text)
-                    if name_matches:
-                        for n in name_matches:
-                            raw_name = n[0]
-                            query = {"chamber": "house"}
-                            if n[1]:
-                                if n[1] == "Mr." : query["gender"] = 'M'
-                                else: query['gender'] = 'F'
-                            if n[3]:
-                                query["last_name"] = n[3]
-                            if n[6]:
-                                query["first_name"] = n[6]
-                            if n[9]:
-                                query["state"] = n[9]
-                            elif n[11]:
-                                query["state"] = n[11]
-                            possibles = db['legislators'].find(query)
-                            if possibles.count() > 0:
-                                if text not in legislator_names:
-                                    legislator_names.append(raw_name)
-                            for p in possibles:
-                                if p['bioguide_id'] not in bioguide_ids:
-                                    bioguide_ids.append(p['bioguide_id'])
+                    bills.extend(rtc_utils.extract_bills(text, congress))
+                    rolls.extend(rtc_utils.extract_rolls(text, 'house', year))
+                    
+                    new_names, new_ids = rtc_utils.extract_legislators(text, 'house', db)
+                    legislator_names.extend(new_names)
+                    bioguide_ids.extend(new_ids)
+                    
                 else:
                     PARSING_ERRORS.append((clip['legislative_day'].strftime("%Y-%m-%d"), "Couldn't parse text: %s" % pt.contents))
             if hasattr(pt.nextSibling, 'name'):
@@ -213,6 +187,9 @@ def grab_daily_events(full_video, db):
         if bills:
             clip['bills'] = bills
             fu['bills'] = bills
+        if rolls:
+            clip['rolls'] = rolls
+            fu['rolls'] = rolls
         if legislator_names:
             clip['legislator_names'] = legislator_names
             fu['legislator_names'] = legislator_names
@@ -295,7 +272,9 @@ def grab_daily_events(full_video, db):
                     #reverse our lists since they're read in backwards
                     fe['events'].reverse()
                     fu['events'].reverse()
-                    db['floor_updates'].save(fu)
+                    
+                    # disable, taken care of in a separate parser now
+                    # db['floor_updates'].save(fu)
           
                     #add unique bills to top level array 
                     bills = add_to_video_array(fe, 'bills', bills)

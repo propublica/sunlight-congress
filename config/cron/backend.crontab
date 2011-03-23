@@ -7,7 +7,6 @@
 # video
 0 7 * * *    /projects/rtc/shared/cron/task.sh whitehouse_archive
 0 9 * * *    /projects/rtc/shared/cron/task.sh house_archive
-0 2 * * *    /projects/rtc/shared/cron/task.sh house_live
 */5 * * * *  /projects/rtc/shared/cron/task.sh whitehouse_live
 
 # live roll call votes
@@ -15,10 +14,11 @@
 */5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
 
 # floor updates
-*/5 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
+*/2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
+*/2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
 
 # whip notices
-0 15 * * *   /projects/rtc/shared/cron/task.sh whip_notices
+0 15 * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
 
 # committee hearings
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings

@@ -1,4 +1,4 @@
-The **committee_hearings** collection holds upcoming and past scheduled committee hearings in the House and Senate.
+The **committee_hearings** collection holds upcoming scheduled committee hearings in the House and Senate. Past committee hearings may remain in our database for some time, but this data could disappear at any time. Only count on it for upcoming hearings.
 
 ### Guaranteed Fields
 
@@ -23,14 +23,14 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>description</dt>
 <dd>The subject matter of the hearing.</dd>
 
-<dt>legislative_day</dt>
-<dd>(date) The day of the hearing.</dd>
-
 <dt>occurs_at</dt>
 <dd>(timestamp) The time of the hearing. **Default order for this collection.**</dd>
 
+<dt>legislative_day</dt>
+<dd>(date) The day of the hearing, **in Eastern time**.</dd>
+
 <dt>time_of_day</dt>
-<dd>The time of day the hearing is scheduled for. Could also be "TBD".</dd>
+<dd>The time of day the hearing is scheduled for, **in Eastern time**. Could also be "TBD".</dd>
 
 <dt>committee_id</dt>
 <dd>The ID of the committee that is holding the hearing.</dd>

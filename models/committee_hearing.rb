@@ -6,6 +6,8 @@ class CommitteeHearing
   index :committee_id
   index :occurs_at
   
+  field :legislative_day
+  
   def self.default_order
     :occurs_at
   end

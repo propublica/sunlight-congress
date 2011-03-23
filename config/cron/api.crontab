@@ -1,1 +1,1 @@
-# intentionally empty, no crontasks run on the production machine that hosts the API frontend and mongodb
+0 6 * * *  /projects/rtc/shared/analytics.sh

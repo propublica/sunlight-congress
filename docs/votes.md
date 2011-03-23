@@ -53,6 +53,7 @@ For roll call votes, the following additional fields are always present:
 * **required**
 * **roll_id**
 * **roll_type**
+* **vote_breakdown** - Only the "total" sub-object is guaranteed. The "party" sub-object may be filled in later.
 
 ### Text search fields
 

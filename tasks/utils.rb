@@ -117,6 +117,41 @@ module Utils
     end
   end
   
+  def self.bill_from(bill_id)
+    type = bill_id.gsub /[^a-z]/, ''
+    number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
+    session = bill_id.match(/-(\d+)$/)[1].to_i
+    
+    code = "#{type}#{number}"
+    chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
+    
+    bill = Bill.new :bill_id => bill_id
+    bill.attributes = {
+      :bill_type => type,
+      :number => number,
+      :session => session,
+      :code => code,
+      :chamber => chamber
+    }
+    
+    bill
+  end
+  
+  def self.amendment_from(amendment_id)
+    chamber = {'h' => 'house', 's' => 'senate'}[amendment_id.gsub(/[^a-z]/, '')]
+    number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
+    session = amendment_id.match(/-(\d+)$/)[1].to_i
+    
+    amendment = Amendment.new :amendment_id => amendment_id
+    amendment.attributes = {
+      :chamber => chamber,
+      :number => number,
+      :session => session
+    }
+    
+    amendment
+  end
+  
   def self.format_bill_code(bill_type, number)
     {
       "hres" => "H. Res.",
@@ -173,10 +208,14 @@ module Utils
   
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
-    if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-      document_for bill, bill_fields
+    if bill_id.is_a?(Bill)
+      document_for bill_id, bill_fields
     else
-      nil
+      if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
+        document_for bill, bill_fields
+      else
+        nil
+      end
     end
   end
   

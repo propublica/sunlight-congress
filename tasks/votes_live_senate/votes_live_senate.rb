@@ -8,7 +8,7 @@ class VotesLiveSenate
     count = 0
     missing_legislators = []
     bad_votes = []
-    timed_out = []
+    http_errors = []
     
     missing_bill_ids = []
     missing_amendment_ids = []
@@ -21,20 +21,22 @@ class VotesLiveSenate
     subsession = nil
     begin
       latest_roll, session, subsession = latest_roll_info
-    rescue Timeout::Error, Errno::ECONNRESET
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.note self, "Timeout error on fetching the listing page, can't go on."
       return
     end
     
-    if session != Utils.current_session
-      Report.note self, "Senate hasn't had a roll call for the current session (#{Utils.current_session}) yet, still on the #{session}th."
+    unless latest_roll and session and subsession
+      Report.warning self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting", {:latest_roll => latest_roll, :session => session, :subsession => subsession}
       return
     end
     
-    unless latest_roll and session and subsession
-      Report.failure self, "Couldn't figure out latest roll, or session, or subsession, from the Senate page, aborting.\nlatest_roll: #{latest_roll}, session: #{session}, subsession: #{subsession}"
+    if session != Utils.current_session
+      Report.note self, "Senate hasn't had a roll call for the current session (#{Utils.current_session}) yet."
       return
     end
+    
+    year = Time.now.year
     
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
@@ -50,24 +52,23 @@ class VotesLiveSenate
     end
     
     # debug
-    # to_fetch = [2]
-    # year = 2009
+#     to_fetch = [289]
+#     year = 2010
     
     # get each new roll
     to_fetch.each do |number|
       url = url_for number, session, subsession
       
       doc = nil
+      exception = nil
       begin
         doc = Nokogiri::XML open(url)
-      rescue Timeout::Error
+      rescue Timeout::Error, OpenURI::HTTPError => e
         doc = nil
+        exception = e
       end
       
       if doc
-        year = doc.at("congress_year").text.to_i
-        puts year
-        
         roll_id = "s#{number}-#{year}"
         bill_id = bill_id_for doc, session
         amendment_id = amendment_id_for doc, session
@@ -104,12 +105,18 @@ class VotesLiveSenate
               :bill_id => bill_id,
               :bill => bill
             }
+          elsif bill = create_bill(bill_id, doc)
+            vote.attributes = {
+              :bill_id => bill_id,
+              :bill => Utils.bill_for(bill)
+            }
           else
             missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
           end
         end
         
-        if amendment_id
+        # for now, only bother with amendments on bills
+        if bill_id and amendment_id
           if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
             vote.attributes = {
               :amendment_id => amendment_id,
@@ -129,7 +136,7 @@ class VotesLiveSenate
         end
         
       else
-        timed_out << [number]
+        http_errors << {:number => number, :exception => exception.message}
       end
     end
     
@@ -145,12 +152,12 @@ class VotesLiveSenate
       Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {:missing_bill_ids => missing_bill_ids}
     end
     
-#     if missing_amendment_ids.any?
-#       Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
-#     end
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {:missing_amendment_ids => missing_amendment_ids}
+    end
     
-    if timed_out.any?
-      Report.warning self, "Timeout error on fetching #{timed_out.size} Senate roll(s), skipping and going onto the next one.", :timed_out => timed_out
+    if http_errors.any?
+      Report.note self, "HTTP error on fetching #{http_errors.size} Senate roll(s), skipped them.", :http_errors => http_errors
     end
     
     Report.success self, "Fetched #{count} new live roll calls from the Senate website."
@@ -160,19 +167,32 @@ class VotesLiveSenate
   # find the latest roll call number listed on the Senate roll call vote page
   def self.latest_roll_info
     url = "http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm"
-    doc = Nokogiri::HTML open(url)
+    
+    begin
+      doc = Nokogiri::HTML open(url)
+    rescue Timeout::Error, OpenURI::HTTPError => ex
+      return nil
+    end
+    
     element = doc.css("td.contenttext a").first
+    
     if element and element.text.present?
       number = element.text.to_i
-      href = element['href']
-      session = href.match(/congress=(\d+)/i)[1].to_i
-      subsession = href.match(/session=(\d+)/i)[1].to_i
       
-      if number > 0 and session > 0 and subsession > 0
-        return number, session, subsession
-      else
-        nil
+      return nil unless href = element['href']
+      
+      if session = href.match(/congress=(\d+)/i)
+        session = session[1].to_i
       end
+      
+      if subsession = href.match(/session=(\d+)/i)
+        subsession = subsession[1].to_i
+      end
+      
+      return nil unless number and session and subsession
+      return nil unless number > 0 and session > 0 and subsession > 0
+       
+      return number, session, subsession
     else
       nil
     end
@@ -248,14 +268,38 @@ class VotesLiveSenate
       
       type.gsub! "hconres", "hcres" # house uses H CON RES
       
-      if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
-        nil
-      else
+      if ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
         "#{type}#{number}-#{session}"
+      else
+        nil
       end
     else
       nil
     end
+  end
+  
+  def self.create_bill(bill_id, doc)
+    bill = Utils.bill_from bill_id
+    bill.attributes = {:abbreviated => true}
+    
+    elem = doc.at 'amendment_to_document_short_title'
+    if elem and elem.text.present?
+      bill.attributes = {:short_title => elem.text.strip}
+    else
+      elem 
+      if (elem = doc.at 'document_short_title') and elem.text.present?
+        bill.attributes = {:short_title => elem.text.strip}
+      end
+      
+      if (elem = doc.at 'document_title') and elem.text.present?
+        bill.attributes = {:official_title => elem.text.strip}
+      end
+      
+    end
+    
+    bill.save!
+    
+    bill
   end
   
   def self.amendment_id_for(doc, session)

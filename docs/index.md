@@ -2,6 +2,8 @@ The Real Time Congress (RTC) API is a RESTful API over the artifacts of Congress
 
 RTC is essentially a very thin layer over [MongoDB](http://www.mongodb.org/). If you are familiar with MongoDB's philosophy and search operators, you will be very comfortable with the Real Time Congress API. If you're not, you'll find it's very simple to learn.
 
+This API is not a source of archival data. RTC will have up to date for the current Congress, and archival information for the previous Congress, but that's it. For archives of Congressional information, use [GovTrack.us](http://govtrack.us) or the [NYT Congress API](http://developer.nytimes.com/docs/congress_api).
+
 ### Getting Started
 
 * [Register for a Sunlight Services API Key](/accounts/register/)
@@ -29,7 +31,7 @@ There are 7 collections in the Real Time Congress API. Select any of them to see
 * [videos](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/videos/)
 * [floor_updates](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/floor_updates/)
 * [committee_hearings](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/committee_hearings/)
-* [whip_notices](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/whip_notices/)
+* [documents](http://services.sunlightlabs.com/docs/Real_Time_Congress_API/documents/)
 
 ### Responses
 
@@ -91,6 +93,18 @@ Or all bills in the 111th Congress which got at least one passage vote, but neve
 
     /api/v1/bills.json?apikey=[yourKey]&session=111&bill_type__in=h|s|hjres|sjres&passage_votes_count__gte=1&enacted=false
 
+#### Filtering on times
+
+All timestamps in the API are shown in UTC, and appear in the format YYYY-MM-DDTHH:MM:SSZ, where the "T" and "Z" are the literal characters "T" and "Z".
+
+When filtering on a time, provide the timestamp in the same format, and in UTC. Bear in mind that even though times are shown and should be filtered in UTC, that times of day should still be in relation to Eastern time, which is Congress' time.
+
+So to search for all bills introduced within a given day for Congress (between midnight EST of one day and the next), you might use:
+
+    /api/v1/bills.json?apikey=[yourKey]&introduced_at__gte=2011-02-17T05:00:00Z&introduced_at__lt=2011-02-18T05:00:00
+    
+It's advised that you use a library that handles for you the calculation of UTC in relation to EST, and takes into account Daylight Savings Time.
+
 ### Ordering
 
 The following query string parameters govern sorting:
@@ -147,11 +161,11 @@ Pass a "callback" parameter to trigger a JSONP response, wrapped in the callback
 
 Because every API call returns a list of search results, there are no 404s in the Real Time Congress API, unless you specify an invalid collection name. So, your JSONP request should always get its callback executed in your browser.
 
+If you want to make sure the browser doesn't cache the results of a particular query, you can attach a timestamp to a lone underscore parameter (e.g. "_=1234567890"), which will be ignored by the API. This is what jQuery does by default.
+
 ### XML
 
 Though all the examples here are in JSON, you can get the same results in XML by using ".xml" instead of ".json" in the URL.
-
-**IMPORTANT:** XML responses transform underscores in field names to dashes, by XML convention. However, if you use a field name in the URL, for partial responses or for filtering, **you must use underscores**, even if you are requesting an XML response.
 
 Additionally, the "explain" feature can be used with XML, but the dollar signs in keys will make it technically invalid XML.
 

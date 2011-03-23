@@ -8,7 +8,7 @@ import time
 
 rss_url = "http://houselive.gov/VPodcast.php?view_id=2"
 
-def run(db):
+def run(db, options = {}):
     add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%Mz")
     rss = feedparser.parse(rss_url)
     count = 0

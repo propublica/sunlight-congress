@@ -26,11 +26,12 @@ end
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
   require 'analytics/api_key'
+  require 'analytics/hits'
   
   begin
     models = Dir.glob('models/*.rb').map do |file|
       File.basename(file, File.extname(file)).camelize.constantize
-    end + [ApiKey, Report]
+    end + [ApiKey, Report, Hit]
     
     models.each do |model| 
       model.create_indexes
@@ -124,6 +125,8 @@ def run_ruby(name)
 end
 
 def run_python(name)
+  options = {}
+  
   system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
 end
 
