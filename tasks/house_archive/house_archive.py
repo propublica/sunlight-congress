@@ -70,6 +70,11 @@ def grab_daily_meta(db):
                 fd['chamber'] = 'house'
                 fd['pubdate'] = date_key
                 mms_url = get_mms_url(fd['clip_id'])
+                guid_matches = re.findall("clerkhouse_([\-|\w|\d]*)\.mp4", cols[4].a['href'])
+                if guid_matches:
+                    guid = guid_matches[0]
+                else:
+                    guid = None
                 try:
                     if fd.has_key('clip_urls'):
                         fd['clip_urls']['mp3'] = cols[4].a['href']
@@ -90,6 +95,9 @@ def grab_daily_meta(db):
                         else:
                             fd['clip_urls'] = { 'mms':mms_url }
 
+                #hls url
+                if guid:
+                    fd['clip_urls']['hls'] = "http://207.7.154.46:1935/OnDemand/_definst_/mp4:clerkhouse/clerkhouse_%s.mp4/playlist.m3u8" % guid
                 fd['clips'], fd['bills'], fd['bioguide_ids'], fd['legislator_names'] = grab_daily_events(fd, db)
                 # print fd['clip_urls']
                 db['videos'].save(fd)
