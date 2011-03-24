@@ -71,8 +71,6 @@ def grab_daily_meta(db):
                 fd['pubdate'] = date_key
                 mms_url = get_mms_url(fd['clip_id'])
                 guid_matches = re.findall("clerkhouse_([\-|\w|\d]*)\.mp3", cols[4].a['href'])
-                print cols[4].a['href']
-                print guid_matches
                 if guid_matches:
                     guid = guid_matches[0]
                 else:
