@@ -6,7 +6,7 @@ import rtc_utils
 
 
 def run(db, options = {}):
-    url = "http://clerk.house.gov/floorsummary/floor.html"
+    url = "http://clerk.house.gov/floorsummary/floor.aspx"
     
     if options.has_key('day'):
       day = datetime.datetime.strptime(options['day'], "%Y-%m-%d")
