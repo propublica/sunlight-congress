@@ -62,19 +62,29 @@ def house_rep(db, notice_type, source):
         content = soup.find("div", id="news_text")
         
         if notice_type == "daily":
+          date_format = "%A, %B %d"
+          
           # example date_str: WEDNESDAY, JANUARY 26TH
           date_str = content.findAll("b")[0].text.strip()
           # strip off the ordinal
           date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
-          date_format = "%A, %B %d"
+          time_obj = time.strptime(date_str, date_format)
         else:
-          date_str = content.findAll("b")[0].text.strip()
-          date_str = re.compile("^.*?WEEK OF", flags=re.I).sub("", date_str).strip()
           date_format = "%B %d, %Y"
+          # the publishers seem to alternate randomly and freely between these two formats
+          try:
+            date_str = content.findAll("b")[0].text.strip()
+            date_str = re.compile("^.*?WEEK OF", flags=re.I).sub("", date_str).strip()
+            time_obj = time.strptime(date_str, date_format)
+          except ValueError:
+            date_str = content.findAll("b")[1].text.strip()
+            date_str = date_str.replace("WEEK OF ", "")
+            time_obj = time.strptime(date_str, date_format)
+          
         
         
         # starts with a year of 1900
-        time_obj = time.strptime(date_str, date_format)
+        
         posted_at = datetime.datetime(time_obj.tm_year, time_obj.tm_mon, time_obj.tm_mday, 12, 0, 0) # noon UTC
         
         # set the time to this year, unless we're clearly at the edge of the year
