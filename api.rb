@@ -207,7 +207,7 @@ helpers do
 
   def attributes_for(document, fields)
     attributes = document.attributes
-    [:_id, :created_at, :updated_at].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
+    ['_id', 'created_at', 'updated_at'].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
     attributes
   end
   
