@@ -214,14 +214,18 @@ helpers do
   def results_for(model, criteria, conditions, fields)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
+    skip = pagination[:per_page] * (pagination[:page]-1)
+    limit = pagination[:per_page]
     
-    documents = criteria.paginate pagination
+    
+    count = criteria.count
+    documents = criteria.skip(skip).limit(limit).to_a
     
     {
       key => documents.map {|document| attributes_for document, fields},
-      :count => documents.total_entries,
+      :count => count,
       :page => {
-        :count => documents.count,
+        :count => documents.size,
         :per_page => pagination[:per_page],
         :page => pagination[:page]
       }

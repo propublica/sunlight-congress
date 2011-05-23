@@ -216,7 +216,7 @@ class VotesLiveHouse
       
       if legislators[bioguide_id]
         voter = legislators[bioguide_id]
-        bioguide_id = voter[:bioguide_id]
+        bioguide_id = voter['bioguide_id']
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else

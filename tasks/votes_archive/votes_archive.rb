@@ -258,7 +258,7 @@ class VotesArchive
       
       if legislators[govtrack_id]
         voter = Utils.legislator_for legislators[govtrack_id]
-        bioguide_id = voter[:bioguide_id]
+        bioguide_id = voter['bioguide_id']
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else

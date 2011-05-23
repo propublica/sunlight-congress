@@ -79,7 +79,7 @@ class AmendmentsArchive
         amendment.attributes = {
           :sponsor => sponsor,
           :sponsor_type => sponsor_type,
-          :sponsor_id => (sponsor_type == 'legislator' ? sponsor[:bioguide_id] : sponsor[:committee_id])
+          :sponsor_id => (sponsor_type == 'legislator' ? sponsor['bioguide_id'] : sponsor[:committee_id])
         }
       end
       

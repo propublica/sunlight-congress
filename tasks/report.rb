@@ -18,7 +18,7 @@ class Report
   scope :unread , :where => {:read => false}
   
   def self.file(status, source, message, rest = {})
-    Report.create!({:source => source, :status => status, :message => message}.merge(rest))
+    Report.create!({:source => source.to_s, :status => status, :message => message}.merge(rest))
   end
   
   def self.success(source, message, objects = {})
