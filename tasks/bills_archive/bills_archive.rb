@@ -41,8 +41,6 @@ class BillsArchive
       govtrack_type = Utils.govtrack_type_for type
       bills = Dir.glob "data/govtrack/#{session}/bills/#{govtrack_type}#{number}.xml"
     end
-    # bills = bills.first 20
-    # bills = Dir.glob "data/govtrack/111/bills/h4173.xml"
     
     bills.each do |path|
       doc = Nokogiri::XML open(path)
