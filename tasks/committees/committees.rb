@@ -10,8 +10,9 @@ class Committees
     
     senate = Sunlight::Committee.all_for_chamber 'Senate'
     house = Sunlight::Committee.all_for_chamber 'House'
+    joint = Sunlight::Committee.all_for_chamber 'Joint'
     
-    (senate + house).each do |api_committee|
+    (senate + house + joint).each do |api_committee|
       committee = Committee.find_or_initialize_by :committee_id => api_committee.id
       
       committee.attributes = attributes_for api_committee
