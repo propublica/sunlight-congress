@@ -330,6 +330,7 @@ class BillsArchive
     
     # hardcode in a fix to a usual problem, sigh
     committees["House Ethics"] = "HSSO"
+    committees["Senate Caucus on International Narcotics Control"] = "SCNC"
     
     committees
   end
