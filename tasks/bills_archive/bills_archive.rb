@@ -34,6 +34,13 @@ class BillsArchive
     bills = Dir.glob "data/govtrack/#{session}/bills/*.xml"
     
     # debug helpers
+    if options[:limit]
+      bills = bills.first options[:limit].to_i
+    elsif options[:bill_id]
+      type, number, session, code, chamber = Utils.bill_fields_from options[:bill_id]
+      govtrack_type = Utils.govtrack_type_for type
+      bills = Dir.glob "data/govtrack/#{session}/bills/#{govtrack_type}#{number}.xml"
+    end
     # bills = bills.first 20
     # bills = Dir.glob "data/govtrack/111/bills/h4173.xml"
     
@@ -61,6 +68,8 @@ class BillsArchive
       last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
       introduced_at = Utils.govtrack_time_for doc.at(:introduced)['datetime']
       
+      last_action = last_action_for actions
+      
       bill.attributes = {
         :bill_type => type,
         :number => number,
@@ -79,8 +88,8 @@ class BillsArchive
         :cosponsor_ids => cosponsors.map {|c| c['bioguide_id']},
         :cosponsors_count => cosponsors.size,
         :actions => actions,
-        :last_action => actions.last,
-        :last_action_at => actions.last ? actions.last[:acted_at] : nil,
+        :last_action => last_action,
+        :last_action_at => last_action ? last_action[:acted_at] : nil,
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
         :last_passage_vote_at => last_passage_vote_at,
@@ -244,6 +253,19 @@ class BillsArchive
         :type => action.name
       }
     end
+  end
+  
+  # go through the actions and find the last one that is in the past
+  # (some bills will have future scheduled committee hearings as "actions")
+  def self.last_action_for(actions)
+    return nil if actions.size == 0
+    
+    now = Time.now
+    actions.reverse.each do |action|
+      return action if action[:acted_at] < Time.now
+    end
+    
+    nil
   end
   
   def self.passage_votes_for(doc)

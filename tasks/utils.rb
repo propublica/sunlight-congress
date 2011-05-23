@@ -31,6 +31,19 @@ module Utils
     }[govtrack_type.to_sym]
   end
   
+  def self.govtrack_type_for(bill_type)
+    {
+      'hr' => 'h',
+      'hres' => 'hr',
+      'hjres' => 'hj',
+      'hcres' => 'hc',
+      's' => 's',
+      'sres' => 'sr',
+      'sjres' => 'sj',
+      'scres' => 'sc'
+    }[bill_type.to_s]
+  end
+  
   def self.constant_vote_keys
     ["Yea", "Nay", "Not Voting", "Present"]
   end
@@ -118,12 +131,7 @@ module Utils
   end
   
   def self.bill_from(bill_id)
-    type = bill_id.gsub /[^a-z]/, ''
-    number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
-    session = bill_id.match(/-(\d+)$/)[1].to_i
-    
-    code = "#{type}#{number}"
-    chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
+    type, number, session, code, chamber = bill_fields_from bill_id
     
     bill = Bill.new :bill_id => bill_id
     bill.attributes = {
@@ -135,6 +143,17 @@ module Utils
     }
     
     bill
+  end
+  
+  def self.bill_fields_from(bill_id)
+    type = bill_id.gsub /[^a-z]/, ''
+    number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
+    session = bill_id.match(/-(\d+)$/)[1].to_i
+    
+    code = "#{type}#{number}"
+    chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
+    
+    [type, number, session, code, chamber]
   end
   
   def self.amendment_from(amendment_id)
