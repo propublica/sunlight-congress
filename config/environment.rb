@@ -29,3 +29,23 @@ def magic_fields
    :explain 
   ]
 end
+
+def main_route
+  models = []
+  Dir.glob('models/*.rb').each do |filename|
+    model_name = File.basename filename, File.extname(filename)
+    model = model_name.camelize.constantize
+    models << model_name unless model.respond_to?(:api?) and !model.api?
+  end
+  models
+  
+  @main_route ||= /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/
+end
+
+# reload in development without starting server
+configure(:development) do |config|
+  require 'sinatra/reloader'
+  config.also_reload "config/environment.rb"
+  config.also_reload "analytics/*.rb"
+  config.also_reload "models/*.rb"
+end

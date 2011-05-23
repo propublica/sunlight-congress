@@ -2,31 +2,12 @@
 
 require 'config/environment'
 
-# reload in development without starting server
-configure(:development) do |config|
-  require 'sinatra/reloader'
-  config.also_reload "config/environment.rb"
-  config.also_reload "analytics/*.rb"
-  config.also_reload "models/*.rb"
-end
-
-
-set :logging, false
-
 require 'analytics/api_key'
 require 'analytics/hits'
 
+set :logging, false
 
-# load all models and prepare them to be API-ized
-models = []
-Dir.glob('models/*.rb').each do |filename|
-  model_name = File.basename filename, File.extname(filename)
-  model = model_name.camelize.constantize
-  models << model_name unless model.respond_to?(:api?) and !model.api?
-end
-
-
-get /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/ do
+get main_route do
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
   

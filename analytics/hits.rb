@@ -4,26 +4,28 @@ def api_key
   params[:apikey] || request.env['HTTP_X_APIKEY']
 end
 
-after do
-  if request.get? and params[:captures]
-    query_hash = request.env['rack.request.query_hash']
-    
-    # kept separately, don't need reproduced
-    query_hash.delete 'sections'
-    query_hash.delete 'apikey'
-    
-    Hit.create(
-      :sections => (params[:sections] || '').split(','),
-      :method => params[:captures][0],
-      :format => params[:captures][1],
-      :key => api_key,
-      :user_agent => request.env['HTTP_USER_AGENT'],
-      :app_version => request.env['HTTP_X_APP_VERSION'],
-      :os_version => request.env['HTTP_X_OS_VERSION'],
-      :query_hash => process_query_hash(request.env['rack.request.query_hash']),
-      :created_at => Time.now.utc # don't need updated_at
-    )
-  end
+after main_route do
+  query_hash = request.env['rack.request.query_hash']
+  
+  # kept separately, don't need reproduced
+  query_hash.delete 'sections'
+  query_hash.delete 'apikey'
+  
+  # don't care about keeping pagination info
+  query_hash.delete 'per_page'
+  query_hash.delete 'page'
+  
+  hit = Hit.create(
+    :sections => (params[:sections] || '').split(','),
+    :method => params[:captures][0],
+    :format => params[:captures][1],
+    :key => api_key,
+    :user_agent => request.env['HTTP_USER_AGENT'],
+    :app_version => request.env['HTTP_X_APP_VERSION'],
+    :os_version => request.env['HTTP_X_OS_VERSION'],
+    :query_hash => process_query_hash(request.env['rack.request.query_hash']),
+    :created_at => Time.now.utc # don't need updated_at
+  )
 end
 
 # split out any dot separated fields into their appropriate hash structures
