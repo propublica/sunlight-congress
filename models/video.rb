@@ -13,6 +13,8 @@ class Video
   index :"clips.bills"
   index :"clips.legislator_names"
   index :"clips.bioguide_ids"
+  
+  field :legislative_day
     
   def self.default_order
     :pubdate
