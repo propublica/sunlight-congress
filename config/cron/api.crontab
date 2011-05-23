@@ -1,1 +1,1 @@
-0 6 * * *  /projects/rtc/shared/analytics.sh
+0 6 * * *  /projects/rtc/shared/cron/analytics.sh
