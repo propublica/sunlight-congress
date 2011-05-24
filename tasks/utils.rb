@@ -31,6 +31,7 @@ module Utils
     }[govtrack_type.to_sym]
   end
   
+  # map RTC type to GovTrack type
   def self.govtrack_type_for(bill_type)
     {
       'hr' => 'h',
