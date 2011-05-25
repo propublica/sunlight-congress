@@ -19,14 +19,15 @@ Dir.glob(File.join(File.dirname(__FILE__), "../models/*.rb")) {|filename| load f
 
 # special fields used by the system, cannot be used on a model (on the top level)
 def magic_fields
-  [:apikey, 
-   :sections, 
-   :order, :sort, 
-   :captures, # Sinatra keyword to do route parsing
-   :page, :per_page,
-   :callback, :_, # jsonp support (_ is to allow cache-busting)
-   :search, 
-   :explain 
+  [
+    :apikey, 
+    :sections, 
+    :order, :sort, 
+    :captures, # Sinatra keyword to do route parsing
+    :page, :per_page,
+    :callback, :_, # jsonp support (_ is to allow cache-busting)
+    :search, 
+    :explain 
   ]
 end
 
