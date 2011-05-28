@@ -39,7 +39,7 @@ class Bill
   
   def self.basic_fields
     [
-      :bill_id, :bill_type, :code, :number, :session, :chamber, :last_updated, 
+      :bill_id, :bill_type, :code, :number, :session, :chamber, 
       :short_title, :official_title, :popular_title,
       :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_passage_vote_at, :abbreviated,
       :introduced_at, :house_passage_result, :house_passage_result_at, :senate_passage_result, :senate_passage_result_at, 
