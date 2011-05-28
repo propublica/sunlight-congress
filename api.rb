@@ -7,20 +7,27 @@ require 'analytics/hits'
 
 set :logging, false
 
+configure(:development) do |config|
+  require 'sinatra/reloader'
+  config.also_reload "config/environment.rb"
+  config.also_reload "analytics/*.rb"
+  config.also_reload "models/*.rb"
+end
+
+
+
 get main_route do
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
-  
+
   fields = fields_for model, params
   conditions = filter_conditions_for model, params
   order = order_for model, params
   
-  criteria = model.where(conditions).only(fields).order_by(order)
-  
   if params[:explain] == 'true'
-    results = explain_for criteria, conditions, fields, order
+    results = explain_for model, conditions, fields, order
   else
-    results = results_for model, criteria, conditions, fields
+    results = results_for model, conditions, fields, order
   end
   
   if format == 'json'
@@ -192,13 +199,13 @@ helpers do
     attributes
   end
   
-  def results_for(model, criteria, conditions, fields)
+  def results_for(model, conditions, fields, order)
     key = model.to_s.underscore.pluralize
     pagination = pagination_for params
     skip = pagination[:per_page] * (pagination[:page]-1)
     limit = pagination[:per_page]
     
-    
+    criteria = model.where(conditions).only(fields).order_by(order)
     count = criteria.count
     documents = criteria.skip(skip).limit(limit).to_a
     
@@ -213,19 +220,22 @@ helpers do
     }
   end
   
-  def explain_for(criteria, conditions, fields, order)
+  def explain_for(model, conditions, fields, order)
     pagination = pagination_for params
     skip = pagination[:per_page] * (pagination[:page]-1)
     limit = pagination[:per_page]
     
+    criteria = model.where(conditions).only(fields).order_by(order)
+    
     cursor = criteria.skip(skip).limit(limit).execute
+    count = cursor.count
     
     {
       :conditions => conditions,
       :fields => fields,
       :order => order,
       :explain => cursor.explain,
-      :count => cursor.count,
+      :count => count,
       :page => {
         :per_page => pagination[:per_page],
         :page => pagination[:page]

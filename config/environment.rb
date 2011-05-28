@@ -31,22 +31,22 @@ def magic_fields
   ]
 end
 
-def main_route
-  models = []
-  Dir.glob('models/*.rb').each do |filename|
-    model_name = File.basename filename, File.extname(filename)
-    model = model_name.camelize.constantize
-    models << model_name unless model.respond_to?(:api?) and !model.api?
-  end
-  models
-  
-  @main_route ||= /^\/(#{models.map(&:pluralize).join "|"})\.(json|xml)$/
+
+@all_models = []
+Dir.glob('models/*.rb').each do |filename|
+  load filename
+  model_name = File.basename filename, File.extname(filename)
+  @all_models << model_name.camelize.constantize
 end
 
-# reload in development without starting server
-configure(:development) do |config|
-  require 'sinatra/reloader'
-  config.also_reload "config/environment.rb"
-  config.also_reload "analytics/*.rb"
-  config.also_reload "models/*.rb"
+def all_models
+  @all_models
+end
+
+def public_models
+  @public_models ||= all_models.reject {|model| model.respond_to?(:api?) and !model.api?}
+end
+
+def main_route
+  @main_route ||= /^\/(#{public_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
 end
