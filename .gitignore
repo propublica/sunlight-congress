@@ -12,3 +12,5 @@
 
 *.swp
 *.pyc
+
+/snippets.txt
