@@ -30,4 +30,19 @@ class QueryableTest < Test::Unit::TestCase
     assert_nil Queryable.fields_for Person, {}
   end
   
+  def test_fields_for_splits_on_a_comma
+    fields = Queryable.fields_for Person, :sections => "name,whatever,sox"
+    assert_equal ['name', 'whatever', 'sox'].sort, fields.sort
+  end
+  
+  def test_fields_for_breaks_out_basic_fields
+    fields = Queryable.fields_for Person, :sections => "basic,whatever,sox"
+    assert_equal ["name", "bio", "born_at", "whatever", "sox"].sort, fields.sort
+  end
+  
+  def test_fields_for_eliminates_dupes
+    fields = Queryable.fields_for Person, :sections => "basic,name,name,sox,bio"
+    assert_equal ["name", "bio", "born_at", "sox"].sort, fields.sort
+  end
+    
 end

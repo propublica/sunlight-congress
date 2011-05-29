@@ -205,7 +205,7 @@ module Queryable
   
   def self.original_magic_fields
     [
-      :sections, 
+      :sections, :basic,
       :order, :sort, 
       :page, :per_page,
       :search, 
