@@ -4,9 +4,9 @@ require 'test/unit'
 require 'rubygems'
 require 'bundler/setup'
 
-require File.join File.dirname(__FILE__), "../config/environment"
-require File.join File.dirname(__FILE__), "../tasks/utils"
-require File.join File.dirname(__FILE__), "../tasks/bills_archive/bills_archive"
+require File.join File.dirname(__FILE__), "../../config/environment"
+require File.join File.dirname(__FILE__), "../../tasks/utils"
+require File.join File.dirname(__FILE__), "../../tasks/bills_archive/bills_archive"
 
 class BillTest < Test::Unit::TestCase
   
@@ -190,7 +190,7 @@ class BillTest < Test::Unit::TestCase
   end
   
   def fixture(path)
-    File.join File.dirname(__FILE__), "fixtures", path
+    File.join File.dirname(__FILE__), "../fixtures", path
   end
   
 end
