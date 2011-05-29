@@ -239,8 +239,8 @@ module Queryable
         end
       end
       
-      def api_type
-        :queryable
+      def queryable?
+        true
       end
     end
     

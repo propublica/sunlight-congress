@@ -52,7 +52,7 @@ end
 
 
 def queryable_models
-  @queryable_models ||= all_models.reject {|model| model.respond_to?(:api?) and !model.api?}
+  @queryable_models ||= all_models.select {|model| model.respond_to?(:queryable?) and model.queryable?}
 end
 
 def queryable_route
