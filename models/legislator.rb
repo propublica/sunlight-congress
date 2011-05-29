@@ -10,8 +10,4 @@ class Legislator
   validates_presence_of :bioguide_id
   validates_inclusion_of :in_office, :in => [true, false]
   validates_presence_of :chamber
-  
-  def self.api?
-    false
-  end
 end

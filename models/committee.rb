@@ -7,8 +7,4 @@ class Committee
   
   validates_presence_of :committee_id
   validates_presence_of :chamber
-  
-  def self.api?
-    false
-  end
 end

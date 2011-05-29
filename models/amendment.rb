@@ -1,4 +1,15 @@
 class Amendment
+  
+  include Queryable::Model
+  
+  default_order :offered_at
+  
+  basic_fields :sponsor_id, :chamber, :number, :session, 
+    :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :purpose
+  
+  search_fields :purpose
+  
+  
   include Mongoid::Document
   include Mongoid::Timestamps
   
@@ -16,17 +27,5 @@ class Amendment
   
   field :amendment_id
   validates_uniqueness_of :amendment_id
-  
-  def self.default_order
-    :offered_at
-  end
-  
-  def self.basic_fields
-    [:sponsor_id, :chamber, :number, :session, :amendment_id, :state, :bill_id, :offered_at, :last_action_at, :purpose]
-  end
-  
-  def self.search_fields
-    [:purpose]
-  end
   
 end

@@ -1,7 +1,27 @@
 class Bill
+  
+  # queryable behavior
+  
+  include Queryable::Model
+  
+  default_order :introduced_at
+  
+  basic_fields :bill_id, :bill_type, :code, :number, :session, :chamber, 
+    :short_title, :official_title, :popular_title,
+    :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_passage_vote_at, :abbreviated,
+    :introduced_at, :house_passage_result, :house_passage_result_at, :senate_passage_result, :senate_passage_result_at, 
+    :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
+    :senate_override_result, :senate_override_result_at, 
+    :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
+    
+  search_fields :short_title, :official_title, :popular_title, :summary, :keywords
+  
+  
+  # MongoDB behavior
+  
   include Mongoid::Document
   include Mongoid::Timestamps
-    
+  
   index :bill_id
   index :bill_type
   index :code
@@ -32,25 +52,4 @@ class Bill
   index :enacted_at
   
   index :abbreviated
-  
-  def self.default_order
-    :introduced_at
-  end
-  
-  def self.basic_fields
-    [
-      :bill_id, :bill_type, :code, :number, :session, :chamber, 
-      :short_title, :official_title, :popular_title,
-      :sponsor_id, :cosponsors_count, :amendments_count, :passage_votes_count, :last_action_at, :last_passage_vote_at, :abbreviated,
-      :introduced_at, :house_passage_result, :house_passage_result_at, :senate_passage_result, :senate_passage_result_at, 
-      :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
-      :senate_override_result, :senate_override_result_at, 
-      :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
-    ]
-  end
-  
-  def self.search_fields
-    [:short_title, :official_title, :popular_title, :summary, :keywords]
-  end
-  
 end

@@ -1,4 +1,15 @@
 class FloorUpdate
+
+  include Queryable::Model
+  
+  default_order :timestamp
+  
+  basic_fields :chamber, :legislative_day, :timestamp, 
+    :events, :roll_ids, :bill_ids, :legislator_ids
+  
+  search_fields :events
+  
+  
   include Mongoid::Document
   
   index :chamber
@@ -8,17 +19,4 @@ class FloorUpdate
   index :legislator_ids
   
   field :legislative_day
-  
-  def self.default_order
-    :timestamp
-  end
-  
-  def self.basic_fields
-    [:chamber, :legislative_day, :timestamp, :events, :roll_ids, :bill_ids, :legislator_ids]
-  end
-  
-  def self.search_fields
-    [:events]
-  end
-  
 end

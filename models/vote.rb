@@ -1,4 +1,16 @@
 class Vote
+  
+  include Queryable::Model
+  
+  default_order :voted_at
+  
+  basic_fields :how, :roll_id, :number, :year, :chamber, :session, 
+    :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, 
+    :required, :vote_type, :passage_type, :amendment_id, :vote_breakdown
+  
+  search_fields :question
+  
+  
   include Mongoid::Document
   include Mongoid::Timestamps
   
@@ -20,17 +32,4 @@ class Vote
   
   field :roll_id
   validates_uniqueness_of :roll_id, :allow_nil => true
-    
-  def self.default_order
-    :voted_at
-  end
-  
-  def self.basic_fields
-    [:how, :roll_id, :number, :year, :chamber, :session, :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, :required, :vote_type, :passage_type, :amendment_id, :vote_breakdown]
-  end
-  
-  def self.search_fields
-    [:question]
-  end
-  
 end

@@ -1,4 +1,12 @@
 class Document
+  
+  include Queryable::Model
+  
+  default_order :posted_at
+  
+  basic_fields :posted_at, :document_type, :url
+  
+  
   include Mongoid::Document
   include Mongoid::Timestamps
   
@@ -11,12 +19,4 @@ class Document
   index :party
   index :chamber
   index :for_date
-  
-  def self.default_order
-    :posted_at
-  end
-  
-  def self.basic_fields
-    [:posted_at, :document_type, :url]
-  end
 end

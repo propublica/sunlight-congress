@@ -2,6 +2,9 @@ require 'sinatra'
 require 'mongoid'
 require 'tzinfo'
 
+
+# app-wide configuration
+
 def config
   @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
 end
@@ -15,22 +18,26 @@ configure do
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
 end
 
-Dir.glob(File.join(File.dirname(__FILE__), "../models/*.rb")) {|filename| load filename}
-
 # special fields used by the system, cannot be used on a model (on the top level)
 def magic_fields
   [
     :apikey, 
+    :callback, :_, # jsonp support (_ is to allow cache-busting)
+    :captures, # Sinatra keyword to do route parsing
+    
+    # the Queryable module uses these
     :sections, 
     :order, :sort, 
-    :captures, # Sinatra keyword to do route parsing
     :page, :per_page,
-    :callback, :_, # jsonp support (_ is to allow cache-busting)
     :search, 
     :explain 
   ]
 end
 
+
+# load in models
+require 'queryable'
+Queryable.magic_fields = magic_fields
 
 @all_models = []
 Dir.glob('models/*.rb').each do |filename|
@@ -43,10 +50,11 @@ def all_models
   @all_models
 end
 
-def public_models
-  @public_models ||= all_models.reject {|model| model.respond_to?(:api?) and !model.api?}
+
+def queryable_models
+  @queryable_models ||= all_models.reject {|model| model.respond_to?(:api?) and !model.api?}
 end
 
-def main_route
-  @main_route ||= /^\/(#{public_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
+def queryable_route
+  @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
 end

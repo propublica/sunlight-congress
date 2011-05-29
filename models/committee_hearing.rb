@@ -1,4 +1,14 @@
 class CommitteeHearing
+  
+  include Queryable::Model
+  
+  default_order :occurs_at
+  
+  basic_fields :chamber, :committee_id, :occurs_at, :description, :room
+  
+  search_fields :description
+  
+  
   include Mongoid::Document
   include Mongoid::Timestamps
   
@@ -7,16 +17,4 @@ class CommitteeHearing
   index :occurs_at
   
   field :legislative_day
-  
-  def self.default_order
-    :occurs_at
-  end
-  
-  def self.basic_fields
-    [:chamber, :committee_id, :occurs_at, :description, :room]
-  end
-  
-  def self.search_fields
-    [:description]
-  end
 end

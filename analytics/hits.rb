@@ -4,7 +4,7 @@ def api_key
   params[:apikey] || request.env['HTTP_X_APIKEY']
 end
 
-after main_route do
+after queryable_route do
   query_hash = request.env['rack.request.query_hash']
   
   # kept separately, don't need reproduced

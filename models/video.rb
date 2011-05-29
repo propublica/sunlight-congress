@@ -1,4 +1,14 @@
 class Video
+  
+  include Queryable::Model
+  
+  default_order :pubdate
+  
+  basic_fields :duration, :legislative_day, :video_id, :clip_urls, :status, :pubdate, :category, :title, :description, :chamber, :start_time
+  
+  search_fields "clips.events", :title, :description
+  
+  
   include Mongoid::Document
   
   index :video_id
@@ -15,16 +25,4 @@ class Video
   index :"clips.bioguide_ids"
   
   field :legislative_day
-    
-  def self.default_order
-    :pubdate
-  end
-  
-  def self.basic_fields
-    [:duration, :legislative_day, :video_id, :clip_urls, :status, :pubdate, :category, :title, :description, :chamber, :start_time]
-  end
-  
-  def self.search_fields
-    ["clips.events", :title, :description ]
-  end
 end
