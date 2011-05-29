@@ -203,12 +203,22 @@ module Queryable
     }
   end
   
-  def self.magic_fields=(fields)
-    @magic_fields = fields
+  def self.original_magic_fields
+    [
+      :sections, 
+      :order, :sort, 
+      :page, :per_page,
+      :search, 
+      :explain
+    ]
+  end
+  
+  def self.add_magic_fields(fields)
+    @extra_magic_fields = fields
   end
   
   def self.magic_fields
-    @magic_fields
+    (@extra_magic_fields || []) + original_magic_fields
   end
   
   # inside a queryable model, do:

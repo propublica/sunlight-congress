@@ -23,21 +23,14 @@ def magic_fields
   [
     :apikey, 
     :callback, :_, # jsonp support (_ is to allow cache-busting)
-    :captures, # Sinatra keyword to do route parsing
-    
-    # the Queryable module uses these
-    :sections, 
-    :order, :sort, 
-    :page, :per_page,
-    :search, 
-    :explain 
+    :captures # Sinatra keyword to do route parsing
   ]
 end
 
 
-# load in models
+# load in models and model REST helpers
 require 'queryable'
-Queryable.magic_fields = magic_fields
+Queryable.add_magic_fields magic_fields
 
 @all_models = []
 Dir.glob('models/*.rb').each do |filename|
