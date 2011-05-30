@@ -37,8 +37,12 @@ task :create_indexes => :environment do
     end + [ApiKey, Report, Hit]
     
     models.each do |model| 
-      model.create_indexes
-      puts "Created indexes for #{model}"
+      if model.respond_to? :create_indexes
+        model.create_indexes 
+        puts "Created indexes for #{model}"
+      else
+        puts "Skipping #{model}, not a Mongoid model"
+      end
     end
   rescue Exception => ex
     email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}
