@@ -14,11 +14,14 @@ namespace :development do
   task :api_key => :environment do
     require 'analytics/api_key'
     
-    if ApiKey.where(:key => "development", :email => "nobody@example.com").first.nil?
-      ApiKey.create! :status => "A", :email => "nobody@example.com", :key => "development"
-      puts "Created 'development' API key"
+    key = ENV['key'] || "development"
+    email = ENV['email'] || "#{key}@example.com"
+    
+    if ApiKey.where(:key => key).first.nil?
+      ApiKey.create! :status => "A", :email => email, :key => key
+      puts "Created '#{key}' API key under email #{email}"
     else
-      puts "'development' API key already exists"
+      puts "'#{key}' API key already exists"
     end
   end
 end
