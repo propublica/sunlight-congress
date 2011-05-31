@@ -40,8 +40,10 @@ class BillsFulltextArchive
         code[".txt"] = ""
         
         full_text = File.read file
+        bill_version_id = "#{bill.bill_id}-#{code}"
         
         document = {
+          :bill_version_id => bill_version_id,
           :version_code => code,
           :full_text => full_text,
           :bill => Utils.bill_for(bill.bill_id) # basic fields
@@ -50,7 +52,7 @@ class BillsFulltextArchive
         # commit the version to the version index
         versions_client.index(
           document,
-          :id => "#{bill.bill_id}-#{code}"
+          :id => bill_version_id
         )
         
         puts "[#{bill.bill_id}][#{code}] Indexed." if options[:debug]
