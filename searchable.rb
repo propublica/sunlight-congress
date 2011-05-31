@@ -97,7 +97,8 @@ module Searchable
       
       highlight = {
         :fields => {},
-        :order => "score"
+        :order => "score",
+        :fragment_size => 300
       }
       
       search_fields.each {|field| highlight[:fields][field] = {}}
