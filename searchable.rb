@@ -3,15 +3,19 @@ module Searchable
   def self.conditions_for(model, params)
     query = params[:query]
     
-    {
-      :text => {
-        :_all => {
-          :query => query,
-          :type => "phrase",
-          :operator => "and"
-        }
-      }
+    conditions = {
+      :text => {}
     }
+    
+    model.searchable_fields.each do |field|
+      conditions[:text][field] = {
+        :query => query,
+        :type => "phrase"
+      }
+    end
+    
+    conditions
+    # then assemble the filters (TODO)
   end
   
   def self.order_for(model, params)
