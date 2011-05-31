@@ -50,11 +50,12 @@ get searchable_route do
   conditions = Searchable.conditions_for model, params
   order = Searchable.order_for model, params
   pagination = Searchable.pagination_for params
+  other = Searchable.other_options_for params
   
   if params[:explain] == 'true'
-    results = Searchable.explain_for model, conditions, fields, order, pagination
+    results = Searchable.explain_for model, conditions, fields, order, pagination, other
   else
-    results = Searchable.results_for model, conditions, fields, order, pagination
+    results = Searchable.results_for model, conditions, fields, order, pagination, other
   end
   
   if format == 'json'

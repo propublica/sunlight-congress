@@ -45,11 +45,11 @@ module Searchable
     end
   end
   
-  def self.results_for(model, conditions, fields, order, pagination)
+  def self.results_for(model, conditions, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
-    options = options_for conditions, fields, order, pagination
-    results = search_for mapping, options
+    request = request_for conditions, fields, order, pagination, other
+    results = search_for mapping, request
     
     documents = results.hits.map {|hit| attributes_for hit, model, fields}
     
@@ -64,39 +64,50 @@ module Searchable
     }
   end
   
-  def self.explain_for(model, conditions, fields, order, pagination)
+  def self.explain_for(model, conditions, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
-    options = options_for conditions, fields, order, pagination
-    results = search_for mapping, options
+    # turn on explanation fields on each hit, for the discerning debugger
+    other[:explain] = true
+    
+    request = request_for conditions, fields, order, pagination, other
+    results = search_for mapping, request
     
     {
-      :options => options,
+      :request => request,
       :mapping => mapping,
       :count => results.total_entries,
       :response => results.response
     }
   end
   
-  def self.search_for(mapping, options)
-    client = client_for mapping
-    client.search options[0], options[1]
+  def self.other_options_for(params)
+    {}
   end
   
-  def self.options_for(conditions, fields, order, pagination)
+  def self.search_for(mapping, request)
+    client = client_for mapping
+    client.search request[0], request[1]
+  end
+  
+  def self.request_for(conditions, fields, order, pagination, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
     
-    [{
-      :query => conditions,
-      :sort => order,
-      :fields => fields.map {|field| "_source.#{field}"},
-      :explain => true,
-      :track_scores => true # compute a score even if the sort is not on the score
-    }, {
-      :from => from,
-      :size => size
-    }]
+    [
+      {
+        :query => conditions,
+        :sort => order,
+        :fields => fields.map {|field| "_source.#{field}"},
+        :track_scores => true # compute a score even if the sort is not on the score
+      }.merge(other), 
+     
+      # pagination info has to go into the second hash or rubberband messes it up
+      {
+        :from => from,
+        :size => size
+      }
+    ]
   end
   
   def self.attributes_for(hit, model, fields)
