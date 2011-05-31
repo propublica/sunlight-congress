@@ -113,7 +113,7 @@ module Queryable
     criteria = criteria_for model, conditions, fields, order, pagination
     
     count = criteria.count
-    documents = criteria.skip(skip).limit(limit).to_a
+    documents = criteria.to_a
     
     key = model.to_s.underscore.pluralize
     
@@ -131,7 +131,7 @@ module Queryable
   def self.explain_for(model, conditions, fields, order, pagination)
     criteria = criteria_for model, conditions, fields, order, pagination
     
-    cursor = criteria.skip(skip).limit(limit).execute
+    cursor = criteria.execute
     count = cursor.count
     
     {
@@ -150,7 +150,8 @@ module Queryable
   def self.criteria_for(model, conditions, fields, order, pagination)
     skip = pagination[:per_page] * (pagination[:page]-1)
     limit = pagination[:per_page]
-    model.where(conditions).only(fields).order_by(order)
+    
+    model.where(conditions).only(fields).order_by(order).skip(skip).limit(limit)
   end
   
   def self.pagination_for(params)
