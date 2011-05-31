@@ -1,6 +1,7 @@
 module Searchable
 
-  def self.conditions_for(model, params)
+  
+  def self.conditions_for(model, params, search_fields)
     term = params[:query].strip.downcase
     
     conditions = {
@@ -9,7 +10,7 @@ module Searchable
       }
     }
     
-    model.searchable_fields.each do |field|
+    search_fields.each do |field|
       conditions[:dis_max][:queries] << {
         :text => {
           field => {
@@ -22,6 +23,10 @@ module Searchable
     
     conditions
     # then assemble the filters (TODO)
+  end
+  
+  def self.search_fields_for(model, params)
+    model.searchable_fields.map &:to_s
   end
   
   def self.order_for(model, params)
@@ -67,9 +72,6 @@ module Searchable
   def self.explain_for(model, conditions, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
-    # turn on explanation fields on each hit, for the discerning debugger
-    other[:explain] = true
-    
     request = request_for conditions, fields, order, pagination, other
     results = search_for mapping, request
     
@@ -81,8 +83,34 @@ module Searchable
     }
   end
   
-  def self.other_options_for(params)
-    {}
+  def self.other_options_for(model, params, search_fields)
+    
+    options = {
+      # turn on explanation fields on each hit, for the discerning debugger
+      :explain => params[:explain].present?,
+      
+      # compute a score even if the sort is not on the score
+      :track_scores => true 
+    }
+      
+    if params[:highlight] == "true"
+      
+      highlight = {
+        :fields => {},
+        :order => "score"
+      }
+      
+      search_fields.each {|field| highlight[:fields][field] = {}}
+      options[:highlight] = highlight
+      
+      if params[:highlight_tags].present?
+        pre, post = params[:highlight_tags].split ','
+        highlight[:pre_tags] = [pre]
+        highlight[:post_tags] = [post]
+      end
+    end
+    
+    options
   end
   
   def self.search_for(mapping, request)
@@ -98,8 +126,7 @@ module Searchable
       {
         :query => conditions,
         :sort => order,
-        :fields => fields.map {|field| "_source.#{field}"},
-        :track_scores => true # compute a score even if the sort is not on the score
+        :fields => fields.map {|field| "_source.#{field}"}
       }.merge(other), 
      
       # pagination info has to go into the second hash or rubberband messes it up
@@ -111,24 +138,23 @@ module Searchable
   end
   
   def self.attributes_for(hit, model, fields)
-    attributes = {:search => {
-      # TODO: highlighting
-      :score => hit._score
-    }}
+    attributes = {}
+    search = {:score => hit._score}
+    
+    if hit.highlight
+      search[:highlight] = hit.highlight
+    end
     
     hit.fields.each do |key, value| 
       field = key.sub "_source.", ""
-      if !fields.include?(field)
-        attributes[:search][:match_data][field] = value
-      else
-        attributes[field] = value
-      end
+      #TODO: break down dot notation into a hash?
+      attributes[field] = value
     end
     
-    attributes
+    attributes.merge :search => search
   end
   
-  def self.pagination_for(params)
+  def self.pagination_for(model, params)
     default_per_page = 20
     max_per_page = 500
     max_page = 200000000 # let's keep it realistic
@@ -179,7 +205,8 @@ module Searchable
       :order, :sort, 
       :page, :per_page,
       :search, :query,
-      :explain
+      :explain,
+      :highlight, :highlight_tags
     ]
   end
   
