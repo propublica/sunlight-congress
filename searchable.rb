@@ -4,13 +4,19 @@ module Searchable
     query = params[:query]
     
     conditions = {
-      :text => {}
+      :dis_max => {
+        :queries => []
+      }
     }
     
     model.searchable_fields.each do |field|
-      conditions[:text][field] = {
-        :query => query,
-        :type => "phrase"
+      conditions[:dis_max][:queries] << {
+        :text => {
+          field => {
+            :query => query,
+            :type => "phrase"
+          }
+        }
       }
     end
     
@@ -80,7 +86,8 @@ module Searchable
     [{
       :query => conditions,
       :sort => order,
-      :fields => fields.map {|field| "_source.#{field}"}
+      :fields => fields.map {|field| "_source.#{field}"},
+      :explain => true
     }, {
       :from => from,
       :size => size
