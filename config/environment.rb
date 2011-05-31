@@ -2,6 +2,8 @@ require 'sinatra'
 require 'mongoid'
 require 'tzinfo'
 
+require 'elasticsearch'
+
 
 # app-wide configuration
 
@@ -28,9 +30,13 @@ def magic_fields
 end
 
 
-# load in models and model REST helpers
+# load in REST helpers and models
 require 'queryable'
 Queryable.add_magic_fields magic_fields
+require 'searchable'
+Searchable.add_magic_fields magic_fields
+Searchable.config = config
+
 
 @all_models = []
 Dir.glob('models/*.rb').each do |filename|
@@ -50,4 +56,12 @@ end
 
 def queryable_route
   @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
+end
+
+def searchable_models
+  @search_models ||= all_models.select {|model| model.respond_to?(:searchable?) and model.searchable?}
+end
+
+def searchable_route
+  @search_route ||= /^\/search\/(#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
 end

@@ -12,7 +12,7 @@ module Queryable
     sections.uniq
   end
   
-  def self.filter_conditions_for(model, params)
+  def self.conditions_for(model, params)
     conditions = {}
     
     params.each do |key, value|
@@ -85,6 +85,91 @@ module Queryable
     conditions
   end
   
+  def self.order_for(model, params)
+    key = nil
+    if params[:order].present?
+      key = params[:order].to_sym
+    else
+      key = model.default_order
+    end
+    
+    sort = nil
+    if params[:sort].present? and [:desc, :asc].include?(params[:sort].downcase.to_sym)
+      sort = params[:sort].downcase.to_sym
+    else
+      sort = :desc
+    end
+    
+    [[key, sort]]
+  end
+
+  def self.attributes_for(document, fields)
+    attributes = document.attributes
+    ['_id', 'created_at', 'updated_at'].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
+    attributes
+  end
+  
+  def self.results_for(model, conditions, fields, order, pagination)
+    criteria = criteria_for model, conditions, fields, order, pagination
+    
+    count = criteria.count
+    documents = criteria.skip(skip).limit(limit).to_a
+    
+    key = model.to_s.underscore.pluralize
+    
+    {
+      key => documents.map {|document| attributes_for document, fields},
+      :count => count,
+      :page => {
+        :count => documents.size,
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }
+    }
+  end
+  
+  def self.explain_for(model, conditions, fields, order, pagination)
+    criteria = criteria_for model, conditions, fields, order, pagination
+    
+    cursor = criteria.skip(skip).limit(limit).execute
+    count = cursor.count
+    
+    {
+      :conditions => conditions,
+      :fields => fields,
+      :order => order,
+      :explain => cursor.explain,
+      :count => count,
+      :page => {
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
+      }
+    }
+  end
+  
+  def self.criteria_for(model, conditions, fields, order, pagination)
+    skip = pagination[:per_page] * (pagination[:page]-1)
+    limit = pagination[:per_page]
+    model.where(conditions).only(fields).order_by(order)
+  end
+  
+  def self.pagination_for(params)
+    default_per_page = 20
+    max_per_page = 500
+    max_page = 200000000 # let's keep it realistic
+    
+    # rein in per_page to somewhere between 1 and the max
+    per_page = (params[:per_page] || default_per_page).to_i
+    per_page = default_per_page if per_page <= 0
+    per_page = max_per_page if per_page > max_per_page
+    
+    # valid page number, please
+    page = (params[:page] || 1).to_i
+    page = 1 if page <= 0 or page > max_page
+    
+    {:per_page => per_page, :page => page}
+  end
+  
   def self.regex_for(value, i = true)
     regex_value = value.dup
     %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
@@ -116,91 +201,6 @@ module Queryable
         value
       end
     end
-  end
-  
-  def self.order_for(model, params)
-    key = nil
-    if params[:order].present?
-      key = params[:order].to_sym
-    else
-      key = model.default_order
-    end
-    
-    sort = nil
-    if params[:sort].present? and [:desc, :asc].include?(params[:sort].downcase.to_sym)
-      sort = params[:sort].downcase.to_sym
-    else
-      sort = :desc
-    end
-    
-    [[key, sort]]
-  end
-
-  def self.pagination_for(params)
-    default_per_page = 20
-    max_per_page = 500
-    max_page = 200000000 # let's keep it realistic
-    
-    # rein in per_page to somewhere between 1 and the max
-    per_page = (params[:per_page] || default_per_page).to_i
-    per_page = default_per_page if per_page <= 0
-    per_page = max_per_page if per_page > max_per_page
-    
-    # valid page number, please
-    page = (params[:page] || 1).to_i
-    page = 1 if page <= 0 or page > max_page
-    
-    {:per_page => per_page, :page => page}
-  end
-
-  def self.attributes_for(document, fields)
-    attributes = document.attributes
-    ['_id', 'created_at', 'updated_at'].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
-    attributes
-  end
-  
-  def self.results_for(model, conditions, fields, order, pagination)
-    skip = pagination[:per_page] * (pagination[:page]-1)
-    limit = pagination[:per_page]
-    
-    criteria = model.where(conditions).only(fields).order_by(order)
-    
-    count = criteria.count
-    documents = criteria.skip(skip).limit(limit).to_a
-    
-    key = model.to_s.underscore.pluralize
-    
-    {
-      key => documents.map {|document| attributes_for document, fields},
-      :count => count,
-      :page => {
-        :count => documents.size,
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
-      }
-    }
-  end
-  
-  def self.explain_for(model, conditions, fields, order, pagination)
-    skip = pagination[:per_page] * (pagination[:page]-1)
-    limit = pagination[:per_page]
-    
-    criteria = model.where(conditions).only(fields).order_by(order)
-    
-    cursor = criteria.skip(skip).limit(limit).execute
-    count = cursor.count
-    
-    {
-      :conditions => conditions,
-      :fields => fields,
-      :order => order,
-      :explain => cursor.explain,
-      :count => count,
-      :page => {
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
-      }
-    }
   end
   
   def self.original_magic_fields

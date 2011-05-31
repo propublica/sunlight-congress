@@ -1,3 +1,7 @@
+require 'searchable'
+require 'models/bill'
+require 'models/bill_version'
+
 class BillsFulltextArchive
   
   def self.run(options = {})
@@ -15,15 +19,15 @@ class BillsFulltextArchive
     end
     
     
-#     client = elastic_search_for 'bills', 'bill_text'
+    versions_client = Searchable.client_for 'bill_versions'
+    bills_client = Searchable.client_for 'bills'
     
     
-    fields = Bill.basic_fields + [:summary]
-    bills = Bill.where(:session => session, :abbreviated => false).only(fields)
-    
+    bills = Bill.where(:session => session, :abbreviated => false).only(:bill_type, :number, :bill_id)
       
-    # debug
-    bills = bills.limit(5)
+    if options[:limit]
+      bills = bills.limit options[:limit].to_i
+    end
     
     bills.all.each do |bill|
       type = Utils.govtrack_type_for bill.bill_type
@@ -35,23 +39,21 @@ class BillsFulltextArchive
         code["#{type}#{bill.number}"] = ""
         code[".txt"] = ""
         
-#         full_text = File.read file
-#         
-#         document = {
-#           :version_code => code,
-#           :full_text => full_text
-#         }
-#         
-#         fields.each do |field|
-#           document.merge! field => bill.attributes[field.to_s]
-#         end
-#         
-#         client.index(
-#           document,
-#           :id => "#{bill.bill_id}-#{code}"
-#         )
-#         
-#         puts "[#{bill.bill_id}][#{code}] Indexed." if options[:debug]
+        full_text = File.read file
+        
+        document = {
+          :version_code => code,
+          :full_text => full_text,
+          :bill => Utils.bill_for(bill.bill_id) # basic fields
+        }
+        
+        # commit the version to the version index
+        versions_client.index(
+          document,
+          :id => "#{bill.bill_id}-#{code}"
+        )
+        
+        puts "[#{bill.bill_id}][#{code}] Indexed." if options[:debug]
         
         version_count += 1
       end
@@ -59,8 +61,8 @@ class BillsFulltextArchive
       bill_count += 1
     end
     
-#     # make sure queries are ready
-#     client.refresh
+    # make sure queries are ready
+    versions_client.refresh
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
   end

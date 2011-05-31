@@ -10,6 +10,11 @@
   database: rtc
   raise_not_found_error: false
 
+:elastic_search:
+  :host: localhost
+  :port: 9200
+  :index: rtc
+
 :log_file: /dev/null
 
 :email:

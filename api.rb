@@ -13,6 +13,7 @@ configure(:development) do |config|
   config.also_reload "analytics/*.rb"
   config.also_reload "models/*.rb"
   config.also_reload "queryable.rb"
+  config.also_reload "searchable.rb"
 end
 
 
@@ -21,7 +22,7 @@ get queryable_route do
   format = params[:captures][1]
 
   fields = Queryable.fields_for model, params
-  conditions = Queryable.filter_conditions_for model, params
+  conditions = Queryable.conditions_for model, params
   order = Queryable.order_for model, params
   pagination = Queryable.pagination_for params
   
@@ -29,6 +30,31 @@ get queryable_route do
     results = Queryable.explain_for model, conditions, fields, order, pagination
   else
     results = Queryable.results_for model, conditions, fields, order, pagination
+  end
+  
+  if format == 'json'
+    json results
+  elsif format == 'xml'
+    xml results
+  end
+end
+
+
+get searchable_route do
+  model = params[:captures][0].singularize.camelize.constantize
+  format = params[:captures][1]
+  
+  halt 400, "You must provide a search term with the 'query' parameter." unless params[:query]
+
+  fields = Searchable.fields_for model, params
+  conditions = Searchable.conditions_for model, params
+  order = Searchable.order_for model, params
+  pagination = Searchable.pagination_for params
+  
+  if params[:explain] == 'true'
+    results = Searchable.explain_for model, conditions, fields, order, pagination
+  else
+    results = Searchable.results_for model, conditions, fields, order, pagination
   end
   
   if format == 'json'
