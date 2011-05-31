@@ -66,5 +66,8 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal([{"anything" => "asc"}], Searchable.order_for(Person, {:order => "anything", :sort => "ASC"}))
     assert_equal([{"anything" => "desc"}], Searchable.order_for(Person, {:order => "anything", :sort => "ASCII"}))
   end
-    
+  
+  def test_order_for_can_sort_score_in_desc
+    assert_equal([{"_score" => "asc"}], Searchable.order_for(Person, {:order => "_score", :sort => "asc"}))
+  end
 end
