@@ -38,7 +38,11 @@ module Searchable
   end
   
   def self.fields_for(model, params)
-    model.result_fields.map {|field| field.to_s}
+    if params[:sections].blank?
+      model.result_fields.map {|field| field.to_s}
+    else
+      params[:sections].split(',').uniq
+    end
   end
   
   def self.results_for(model, conditions, fields, order, pagination)
@@ -87,7 +91,8 @@ module Searchable
       :query => conditions,
       :sort => order,
       :fields => fields.map {|field| "_source.#{field}"},
-      :explain => true
+      :explain => true,
+      :track_scores => true # compute a score even if the sort is not on the score
     }, {
       :from => from,
       :size => size
