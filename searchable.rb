@@ -1,7 +1,7 @@
 module Searchable
 
   def self.conditions_for(model, params)
-    query = params[:query]
+    term = params[:query].strip.downcase
     
     conditions = {
       :dis_max => {
@@ -13,7 +13,7 @@ module Searchable
       conditions[:dis_max][:queries] << {
         :text => {
           field => {
-            :query => query,
+            :query => term,
             :type => "phrase"
           }
         }
