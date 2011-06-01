@@ -39,8 +39,17 @@ class BillsFulltextArchive
         code["#{type}#{bill.number}"] = ""
         code[".txt"] = ""
         
-        full_text = File.read file
         bill_version_id = "#{bill.bill_id}-#{code}"
+        
+        if versions_client.get(bill_version_id, {:fields => "_id"})
+          unless options[:refresh]
+            puts "Skipping #{bill_version_id}, already in the system." if options[:debug]
+            next
+          end
+        end
+        
+        full_text = File.read file
+        full_text = clean_text full_text
         
         document = {
           :bill_version_id => bill_version_id,
@@ -67,6 +76,24 @@ class BillsFulltextArchive
     versions_client.refresh
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
+  end
+  
+  def self.clean_text(text)
+    # Remove the interspersed self-referential bill code lines (i.e. •SRES 115 IS)
+    text.gsub! /•[^\n]+/, ''
+    
+    # remove the line and page numbers
+    text.gsub! /\s{2,}\d+\s{2,}(\d+\s{2,})?/, ' '
+    
+    # remove unneeded whitespace
+    text.gsub! "\n", " "
+    text.gsub! "\t", " "
+    text.gsub! /\s{2,}/, ' '
+    
+    # de-hyphenate words broken up over multiple lines
+    text.gsub!(/(\w)\-\s+(\w)/) {$1 + $2}
+    
+    text
   end
   
 end
