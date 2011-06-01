@@ -23,7 +23,7 @@ class BillsFulltextArchive
     bills_client = Searchable.client_for 'bills'
     
     
-    bills = Bill.where(:session => session, :abbreviated => false).only(:bill_type, :number, :bill_id)
+    bills = Bill.where(:session => session, :abbreviated => false).only(:bill_type, :number, :bill_id, :_id)
       
     if options[:limit]
       bills = bills.limit options[:limit].to_i
@@ -31,6 +31,13 @@ class BillsFulltextArchive
     
     bills.all.each do |bill|
       type = Utils.govtrack_type_for bill.bill_type
+      
+      bill_basic = Utils.bill_for bill.bill_id
+      
+      # accumulate a massive string
+      bill_versions = ""
+      # accumulate an array of version codes
+      bill_version_codes = [] 
       
       # find all the versions of text for that bill, load them in
       version_files = Dir.glob("data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}[a-z]*.txt")
@@ -41,12 +48,12 @@ class BillsFulltextArchive
         
         bill_version_id = "#{bill.bill_id}-#{code}"
         
-        if versions_client.get(bill_version_id, {:fields => "_id"})
-          unless options[:refresh]
-            puts "Skipping #{bill_version_id}, already in the system." if options[:debug]
-            next
-          end
-        end
+#         if versions_client.get(bill_version_id, {:fields => "_id"})
+#           unless options[:refresh]
+#             puts "Skipping #{bill_version_id}, already in the system." if options[:debug]
+#             next
+#           end
+#         end
         
         full_text = File.read file
         full_text = clean_text full_text
@@ -55,7 +62,7 @@ class BillsFulltextArchive
           :bill_version_id => bill_version_id,
           :version_code => code,
           :full_text => full_text,
-          :bill => Utils.bill_for(bill.bill_id) # basic fields
+          :bill => bill_basic # basic fields
         }
         
         # commit the version to the version index
@@ -67,13 +74,39 @@ class BillsFulltextArchive
         puts "[#{bill.bill_id}][#{code}] Indexed." if options[:debug]
         
         version_count += 1
+        
+        # store in the bill object for redundant storage on bill object itself
+        bill_versions << full_text
+        bill_version_codes << code
       end
+      
+      document = bill_basic.merge(
+        :versions => bill_versions,
+        :version_codes => bill_version_codes,
+        :versions_count => bill_version_codes.size
+      )
+      
+      bills_client.index(
+        document,
+        :id => bill.bill_id
+      )
+      
+      puts "[#{bill.bill_id}] Indexed versions for whole bill." if options[:debug]
+      
+      # Update the bill document in Mongo with an array of version codes
+      bill.attributes = {
+        :version_codes => bill_version_codes,
+        :versions_count => bill_version_codes.size
+      }
+      bill.save!
+      puts "[#{bill.bill_id}] Updated bill with version codes." if options[:debug]
       
       bill_count += 1
     end
     
     # make sure queries are ready
     versions_client.refresh
+    bills_client.refresh
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
   end
@@ -93,7 +126,7 @@ class BillsFulltextArchive
     # de-hyphenate words broken up over multiple lines
     text.gsub!(/(\w)\-\s+(\w)/) {$1 + $2}
     
-    text
+    text.strip
   end
   
 end
