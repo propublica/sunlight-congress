@@ -90,7 +90,7 @@ module Searchable
       :explain => params[:explain].present?,
       
       # compute a score even if the sort is not on the score
-      :track_scores => true 
+      :track_scores => true
     }
       
     if params[:highlight] == "true"
