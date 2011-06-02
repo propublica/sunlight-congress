@@ -14,7 +14,7 @@ class SearchableTest < Test::Unit::TestCase
     include Searchable::Model
     
     result_fields :name, :born_at, :ssn
-    searchable_fields :name, :bio
+    searchable_fields :name, :bio, :personal
   end
   
   def test_fields_for_returns_result_fields_if_sections_is_blank
@@ -69,6 +69,26 @@ class SearchableTest < Test::Unit::TestCase
   
   def test_order_for_can_sort_score_in_desc
     assert_equal([{"_score" => "asc"}], Searchable.order_for(Person, {:order => "_score", :sort => "asc"}))
+  end
+  
+  def test_search_fields_for_parses_search_parameter
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,bio"}).sort
+  end
+  
+  def test_search_fields_for_excludes_unspecified_fields
+    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {:search => "name,ssn,born"}).sort
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,ssn,bio"}).sort
+  end
+  
+  def test_search_fields_for_removes_duplicates
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,name,bio"}).sort
+    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {:search => "name,name"}).sort
+  end
+  
+  def test_search_fields_defaults_to_all_fields
+    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => ""}).sort
+    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => nil}).sort
+    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {}).sort
   end
   
 end

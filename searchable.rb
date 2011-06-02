@@ -26,7 +26,12 @@ module Searchable
   end
   
   def self.search_fields_for(model, params)
-    model.searchable_fields.map &:to_s
+    default_fields = model.searchable_fields.map {|field| field.to_s}
+    if params[:search].blank?
+      default_fields
+    else
+      params[:search].split(',').uniq.select {|field| default_fields.include? field}
+    end
   end
   
   def self.order_for(model, params)
@@ -141,6 +146,8 @@ module Searchable
   def self.attributes_for(hit, model, fields)
     attributes = {}
     search = {:score => hit._score}
+    
+    hit.fields ||= {}
     
     if hit.highlight
       search[:highlight] = hit.highlight
