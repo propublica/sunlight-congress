@@ -23,16 +23,18 @@ class BillsFulltextArchive
     bills_client = Searchable.client_for 'bills'
     
     
-    bills = Bill.where(:session => session, :abbreviated => false).only(:bill_type, :number, :bill_id, :_id)
+    bill_ids = Bill.where(:session => session, :abbreviated => false).distinct :bill_id
       
     if options[:limit]
-      bills = bills.limit options[:limit].to_i
+      bill_ids = bill_ids.first options[:limit].to_i
     end
     
-    bills.all.each do |bill|
-      type = Utils.govtrack_type_for bill.bill_type
+    bill_ids.each do |bill_id|
+      bill = Bill.where(:bill_id => bill_id).only(Utils.bill_fields + [:summary, :keywords]).first
       
-      bill_basic = Utils.bill_for bill.bill_id
+      bill_basic = Utils.bill_for bill
+      
+      type = Utils.govtrack_type_for bill.bill_type
       
       # accumulate a massive string
       bill_versions = ""
@@ -82,6 +84,11 @@ class BillsFulltextArchive
       
       document = bill_basic.merge(
         :versions => bill_versions,
+        :summary => bill.summary,
+        :keywords => bill.keywords,
+        # basic fields includes other searchable fields 
+        # i.e. popular title, official title, short title
+        
         :version_codes => bill_version_codes,
         :versions_count => bill_version_codes.size
       )

@@ -13,7 +13,7 @@ class Bill
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
     :version_codes, :versions_count
   
-  searchable_fields :versions
+  searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title
   
   # queryable behavior
   

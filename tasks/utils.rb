@@ -208,7 +208,7 @@ module Utils
   end
   
   def self.document_for(document, fields)
-    attributes = document.attributes
+    attributes = document.attributes.dup
     allowed_keys = fields.map {|f| f.to_s}
     attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
     attributes
