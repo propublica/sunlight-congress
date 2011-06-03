@@ -30,11 +30,29 @@ module Searchable
   end
   
   def self.filter_for(model, params)
+    fields = params.keys.select do |key| 
+      !magic_fields.include?(key.to_sym) and params[key].present?
+    end
     
+    if fields.any?
+      {
+        :and => fields.map {|field| subfilter_for model, field, params[field]}
+      }
+    else
+      nil
+    end
   end
   
-  def self.subfilter_for(key, value)
-    
+  def self.subfilter_for(model, field, value)
+    parsed = value_for value, model.field_type(field)
+    {
+      :query => {
+        :query_string => {
+          :fields => [field.to_s],
+          :query => parsed
+        }
+      }
+    }
   end
   
   def self.search_fields_for(model, params)

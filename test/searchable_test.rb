@@ -19,6 +19,9 @@ class SearchableTest < Test::Unit::TestCase
     field_type :prisoner_id, String # override a number to be a string
   end
   
+  
+  # partial responses
+  
   def test_fields_for_returns_result_fields_if_sections_is_blank
     fields = Person.result_fields.map &:to_s
     assert_equal fields.sort, Searchable.fields_for(Person, {:sections => ""}).sort
@@ -50,6 +53,9 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal ["name.first", "born_at", "ssn.section1.prefix"].sort, fields.sort
   end
   
+  
+  # ordering
+  
   def test_order_for_defaults_to_score_desc
     assert_equal([{"_score" => "desc"}], Searchable.order_for(Person, {}))
     assert_equal([{"_score" => "desc"}], Searchable.order_for(Person, {:order => ""}))
@@ -73,6 +79,9 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal([{"_score" => "asc"}], Searchable.order_for(Person, {:order => "_score", :sort => "asc"}))
   end
   
+  
+  # specifying which fields to search with the query
+  
   def test_search_fields_for_parses_search_parameter
     assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,bio"}).sort
   end
@@ -93,6 +102,9 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {}).sort
   end
   
+  
+  # querying
+  
   def test_query_for_uses_dis_max_query
     conditions = Searchable.query_for Person, {:query => "sideburns"}, ['bio']
     assert_not_nil conditions[:dis_max]
@@ -111,29 +123,72 @@ class SearchableTest < Test::Unit::TestCase
     assert subqueries.include?(Searchable.subquery_for(term, 'name')), "No name subquery."
   end
   
-  def test_filter_for_parses_string_filters
+  
+  # filtering
+  
+  def test_filter_for_parses_filters_into_anded_subfilters
+    filter = Searchable.filter_for Person, {:favorite_drug => "opium", :fingers => "9"}
     
-  end
-  
-  def test_filter_for_parses_integer_filters
-  end
-  
-  def test_filter_for_parses_boolean_filters
-  end
-  
-  def test_filter_for_parses_date_and_time_filters
+    assert_not_nil filter[:and]
+    assert filter[:and].is_a?(Array)
+    
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'fingers', "9"))
   end
   
   def test_filter_for_doesnt_know_about_operators
+    filter = Searchable.filter_for Person, {:fingers__gt => "9"}
+    assert_equal Searchable.subfilter_for(Person, "fingers__gt", "9"), filter[:and][0]
   end
   
   def test_filter_for_allows_subfields_in_filters
+    filter = Searchable.filter_for Person, {'fingers.left' => "9"}
+    assert_equal Searchable.subfilter_for(Person, "fingers.left", "9"), filter[:and][0]
   end
   
   def test_filter_for_ignores_magic_fields_in_filters
+    field = "hands"
+    assert !Searchable.magic_fields.include?(field)
+    
+    filter = Searchable.filter_for Person, {"hands" => "two", Searchable.magic_fields.first => "anything"}
+    assert_equal 1, filter[:and].size
+    assert_equal Searchable.subfilter_for(Person, "hands", "two"), filter[:and][0]
   end
   
-  def test_filter_for_allows_override_of_type
+  def test_filter_for_with_no_valid_filters_yields_nil
+    assert_nil Searchable.filter_for(Person, {})
+    assert_nil Searchable.filter_for(Person, {Searchable.magic_fields.first => "anything"})
+    assert_nil Searchable.filter_for(Person, {:whatev => ""})
+  end
+  
+  def test_subfilter_for_strings
+    field = "water"
+    value = "good"
+    filter = {
+      :query => {
+        :query_string => {
+          :fields => [field],
+          :query => value
+        }
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+  end
+  
+  def test_subfilter_for_integers
+  end
+  
+  def test_subfilter_for_booleans
+  end
+  
+  def test_subfilter_for_dates
+  end
+  
+  def test_subfilter_for_times
+  end
+  
+  def test_subfilter_for_allows_override_of_type
   end
   
 end
