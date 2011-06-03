@@ -220,7 +220,8 @@ class VotesLiveHouse
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else
-        missing_ids << bioguide_id
+        number = doc.at("rollcall-num").text
+        missing_ids << [bioguide_id, number]
       end
     end
     
