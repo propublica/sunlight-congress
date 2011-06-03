@@ -1,7 +1,7 @@
 module Searchable
 
   
-  def self.conditions_for(model, params, search_fields)
+  def self.query_for(model, params, search_fields)
     term = params[:query].strip.downcase
     
     conditions = {
@@ -11,18 +11,30 @@ module Searchable
     }
     
     search_fields.each do |field|
-      conditions[:dis_max][:queries] << {
+      conditions[:dis_max][:queries] << subquery_for(term, field)
+    end
+    
+    conditions
+  end
+  
+  # factored out mainly for ease of unit testing
+  def self.subquery_for(term, field)
+    {
         :text => {
           field => {
             :query => term,
             :type => "phrase"
           }
         }
-      }
-    end
+    }
+  end
+  
+  def self.filter_for(model, params)
     
-    conditions
-    # then assemble the filters (TODO)
+  end
+  
+  def self.subfilter_for(key, value)
+    
   end
   
   def self.search_fields_for(model, params)
@@ -55,10 +67,10 @@ module Searchable
     end
   end
   
-  def self.results_for(model, conditions, fields, order, pagination, other)
+  def self.results_for(model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
-    request = request_for conditions, fields, order, pagination, other
+    request = request_for query, filter, fields, order, pagination, other
     results = search_for mapping, request
     
     documents = results.hits.map {|hit| attributes_for hit, model, fields}
@@ -74,10 +86,10 @@ module Searchable
     }
   end
   
-  def self.explain_for(model, conditions, fields, order, pagination, other)
+  def self.explain_for(model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
-    request = request_for conditions, fields, order, pagination, other
+    request = request_for query, filter, fields, order, pagination, other
     results = search_for mapping, request
     
     {
@@ -124,13 +136,18 @@ module Searchable
     client.search request[0], request[1]
   end
   
-  def self.request_for(conditions, fields, order, pagination, other)
+  def self.request_for(query, filter, fields, order, pagination, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
     
+    if filter
+      other[:filter] = filter
+    end
+    
     [
       {
-        :query => conditions,
+        :query => query,
+        #:filter => nil,
         :sort => order,
         :fields => fields.map {|field| "_source.#{field}"}
       }.merge(other), 

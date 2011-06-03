@@ -15,6 +15,8 @@ class SearchableTest < Test::Unit::TestCase
     
     result_fields :name, :born_at, :ssn
     searchable_fields :name, :bio, :personal
+    
+    field_type :prisoner_id, String # override a number to be a string
   end
   
   def test_fields_for_returns_result_fields_if_sections_is_blank
@@ -89,6 +91,49 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => ""}).sort
     assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => nil}).sort
     assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {}).sort
+  end
+  
+  def test_query_for_uses_dis_max_query
+    conditions = Searchable.query_for Person, {:query => "sideburns"}, ['bio']
+    assert_not_nil conditions[:dis_max]
+    assert_not_nil conditions[:dis_max][:queries]
+    assert conditions[:dis_max][:queries].is_a?(Array)
+  end
+  
+  def test_query_for_incorporates_search_query
+    search_fields = ['bio', 'name']
+    term = "sideburns"
+    
+    query = Searchable.query_for Person, {:query => term}, search_fields
+    subqueries = query[:dis_max][:queries]
+    assert_equal 2, subqueries.size
+    assert subqueries.include?(Searchable.subquery_for(term, 'bio')), "No bio subquery."
+    assert subqueries.include?(Searchable.subquery_for(term, 'name')), "No name subquery."
+  end
+  
+  def test_filter_for_parses_string_filters
+    
+  end
+  
+  def test_filter_for_parses_integer_filters
+  end
+  
+  def test_filter_for_parses_boolean_filters
+  end
+  
+  def test_filter_for_parses_date_and_time_filters
+  end
+  
+  def test_filter_for_doesnt_know_about_operators
+  end
+  
+  def test_filter_for_allows_subfields_in_filters
+  end
+  
+  def test_filter_for_ignores_magic_fields_in_filters
+  end
+  
+  def test_filter_for_allows_override_of_type
   end
   
 end
