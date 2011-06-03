@@ -220,11 +220,7 @@ class VotesLiveHouse
         voter_ids[bioguide_id] = vote
         voters[bioguide_id] = {:vote => vote, :voter => voter}
       else
-        if bioguide_id.to_i == 0
-          missing_ids << [bioguide_id, filename]
-        else
-          missing_ids << bioguide_id
-        end
+        missing_ids << bioguide_id
       end
     end
     
