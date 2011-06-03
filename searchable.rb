@@ -71,33 +71,50 @@ module Searchable
     mapping = model.to_s.underscore.pluralize
     
     request = request_for query, filter, fields, order, pagination, other
-    results = search_for mapping, request
-    
-    documents = results.hits.map {|hit| attributes_for hit, model, fields}
-    
-    {
-      mapping => documents,
-      :count => results.total_entries,
-      :page => {
-        :count => documents.size,
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
+
+    begin  
+      results = search_for mapping, request
+      documents = results.hits.map {|hit| attributes_for hit, model, fields}
+      
+      {
+        mapping => documents,
+        :count => results.total_entries,
+        :page => {
+          :count => documents.size,
+          :per_page => pagination[:per_page],
+          :page => pagination[:page]
+        }
       }
-    }
+    rescue ElasticSearch::RequestError => exc
+      error_from exc
+    end
   end
   
   def self.explain_for(model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
-    
     request = request_for query, filter, fields, order, pagination, other
-    results = search_for mapping, request
     
-    {
-      :request => request,
-      :mapping => mapping,
-      :count => results.total_entries,
-      :response => results.response
-    }
+    begin
+      results = search_for mapping, request
+      
+      {
+        :request => request,
+        :mapping => mapping,
+        :count => results.total_entries,
+        :response => results.response
+      }
+    rescue ElasticSearch::RequestError => exc
+      {
+        :request => request,
+        :mapping => mapping,
+        :error => error_from(exc)
+      }
+    end
+  end
+  
+  # remove the status code from the beginning and parse it as JSON
+  def self.error_from(exception)
+    JSON.parse exception.message.sub(/^\(\d+\)\s*/, '')
   end
   
   def self.other_options_for(model, params, search_fields)
@@ -147,7 +164,6 @@ module Searchable
     [
       {
         :query => query,
-        #:filter => nil,
         :sort => order,
         :fields => fields.map {|field| "_source.#{field}"}
       }.merge(other), 

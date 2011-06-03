@@ -54,6 +54,7 @@ get searchable_route do
   pagination = Searchable.pagination_for model, params
   other = Searchable.other_options_for model, params, search_fields
   
+  
   if params[:explain] == 'true'
     results = Searchable.explain_for model, query, filter, fields, order, pagination, other
   else
