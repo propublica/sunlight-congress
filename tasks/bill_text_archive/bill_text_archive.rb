@@ -1,3 +1,4 @@
+# not necessary with the current impl, but let's start making it explicit what each task depends on
 require 'searchable'
 require 'models/bill'
 require 'models/bill_version'
