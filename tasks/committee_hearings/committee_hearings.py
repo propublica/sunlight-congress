@@ -100,6 +100,8 @@ def house_hearings(db):
       
       count = 0
       
+      problems = []
+      
       meetings = soup.findAll('meeting')
       for meeting in meetings:
           if meeting['where'] != 'h':
@@ -107,12 +109,12 @@ def house_hearings(db):
           
           committee_id = rtc_utils.committee_id_for(meeting['committee-id'], meeting['committee'])
           if not committee_id:
-              db.warning("Blank committee ID for %s, can't add meeting like this" % meeting['committee'])
+              problems.append("Blank committee ID for %s" % meeting['committee'])
               continue
               
           committee = committee_for(db, committee_id)
           if not committee:
-              db.warning("Couldn't locate committee by committee_id while parsing House committee hearings", {'committee_id': committee_id})
+              problems.append("Couldn't locate committee by committee_id (%s) while parsing House committee hearings" % committee_id)
           
           
           bill_ids = []
@@ -149,6 +151,9 @@ def house_hearings(db):
           
           count += 1
       
+      if len(problems) > 0:
+        db.warning("%i problems while going through House committee hearings" % len(problems), {'messages': problems})
+        
       return count
 
 def committee_for(db, committee_id):
