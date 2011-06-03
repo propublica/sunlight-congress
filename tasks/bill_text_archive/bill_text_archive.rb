@@ -2,7 +2,7 @@ require 'searchable'
 require 'models/bill'
 require 'models/bill_version'
 
-class BillsFulltextArchive
+class BillTextArchive
   
   def self.run(options = {})
     session = options[:session] ? options[:session].to_i : Utils.current_session
