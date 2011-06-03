@@ -45,14 +45,44 @@ module Searchable
   
   def self.subfilter_for(model, field, value)
     parsed = value_for value, model.field_type(field)
-    {
-      :query => {
-        :query_string => {
-          :fields => [field.to_s],
-          :query => parsed
+    
+    if parsed.is_a?(String)
+      {
+        :query => {
+          :query_string => {
+            :fields => [field.to_s],
+            :query => parsed.to_s
+          }
         }
       }
-    }
+    elsif parsed.is_a?(Fixnum)
+      {
+        :numeric_range => {
+          field.to_s => {
+            :from => parsed.to_s,
+            :to => parsed.to_s
+          }
+        }
+      }
+    elsif parsed.is_a?(Boolean)
+      {
+        :term => {
+          field.to_s => parsed.to_s
+        }
+      }
+    elsif parsed.is_a?(Time)
+      from = parsed.midnight
+      to = from + 1.day
+      {
+        :range => {
+          field.to_s => {
+            :from => from.iso8601,
+            :to => to.iso8601,
+            :include_upper => false
+          }
+        }
+      }
+    end
   end
   
   def self.search_fields_for(model, params)

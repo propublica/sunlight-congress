@@ -177,18 +177,86 @@ class SearchableTest < Test::Unit::TestCase
   end
   
   def test_subfilter_for_integers
+    field = "fingers"
+    value = "9" # it will start out as a string in the params
+    
+    filter = {
+      :numeric_range => {
+        field.to_s => {
+          :from => value,
+          :to => value
+        }
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
   
   def test_subfilter_for_booleans
+    field = "right_handed"
+    value = "true"
+    
+    filter = {
+      :term => {
+        field.to_s => value
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
   
   def test_subfilter_for_dates
+    field = "born_at"
+    value = "2011-05-06"
+    from = Time.parse value
+    to = from + 1.day
+    
+    filter = {
+      :range => {
+        field.to_s => {
+          :from => from.iso8601,
+          :to => to.iso8601,
+          :include_upper => false
+        }
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
   
+  # should act like dates, until we support ranges
   def test_subfilter_for_times
+    field = "born_at"
+    value = "2011-05-06T07:00:00Z"
+    from = Time.parse(value).midnight
+    to = from + 1.day
+    
+    filter = {
+      :range => {
+        field.to_s => {
+          :from => from.iso8601,
+          :to => to.iso8601,
+          :include_upper => false
+        }
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
   
   def test_subfilter_for_allows_override_of_type
+    field = "prisoner_id"
+    value = "1"
+    filter = {
+      :query => {
+        :query_string => {
+          :fields => [field],
+          :query => value
+        }
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
   
 end
