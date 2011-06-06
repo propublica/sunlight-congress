@@ -18,6 +18,7 @@ class BillTextArchive
       Report.failure self, "Couldn't rsync to Govtrack.us for bill text."
       return
     end
+    puts "Finished rsync to GovTrack." if options[:debug]
     
     
     versions_client = Searchable.client_for 'bill_versions'
@@ -50,13 +51,6 @@ class BillTextArchive
         code[".txt"] = ""
         
         bill_version_id = "#{bill.bill_id}-#{code}"
-        
-#         if versions_client.get(bill_version_id, {:fields => "_id"})
-#           unless options[:refresh]
-#             puts "Skipping #{bill_version_id}, already in the system." if options[:debug]
-#             next
-#           end
-#         end
         
         full_text = File.read file
         full_text = clean_text full_text
