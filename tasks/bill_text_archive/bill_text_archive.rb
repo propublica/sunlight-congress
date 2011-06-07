@@ -24,10 +24,11 @@ class BillTextArchive
     versions_client = Searchable.client_for 'bill_versions'
     bills_client = Searchable.client_for 'bills'
     
-    
     bill_ids = Bill.where(:session => session, :abbreviated => false).distinct :bill_id
-      
-    if options[:limit]
+    
+    if options[:bill_id]
+      bill_ids = [options[:bill_id]]
+    elsif options[:limit]
       bill_ids = bill_ids.first options[:limit].to_i
     end
     
