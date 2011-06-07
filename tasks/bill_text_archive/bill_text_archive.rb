@@ -12,13 +12,15 @@ class BillTextArchive
     version_count = 0
     
     
-    puts "Rsyncing to GovTrack for bill text..." if options[:debug]
-    FileUtils.mkdir_p "data/govtrack/#{session}/bill_text"
-    unless system("rsync -az govtrack.us::govtrackdata/us/bills.text/#{session}/ data/govtrack/#{session}/bill_text/")
-      Report.failure self, "Couldn't rsync to Govtrack.us for bill text."
-      return
+    unless options[:skip_sync]
+      puts "Rsyncing to GovTrack for bill text..." if options[:debug]
+      FileUtils.mkdir_p "data/govtrack/#{session}/bill_text"
+      unless system("rsync -az govtrack.us::govtrackdata/us/bills.text/#{session}/ data/govtrack/#{session}/bill_text/")
+        Report.failure self, "Couldn't rsync to Govtrack.us for bill text."
+        return
+      end
+      puts "Finished rsync to GovTrack." if options[:debug]
     end
-    puts "Finished rsync to GovTrack." if options[:debug]
     
     
     versions_client = Searchable.client_for 'bill_versions'
@@ -46,6 +48,7 @@ class BillTextArchive
       
       # find all the versions of text for that bill, load them in
       version_files = Dir.glob("data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}[a-z]*.txt")
+      
       version_files.each do |file|
         code = File.basename file
         code["#{type}#{bill.number}"] = ""
@@ -80,8 +83,8 @@ class BillTextArchive
       
       document = bill_basic.merge(
         :versions => bill_versions,
-        :summary => bill.summary,
-        :keywords => bill.keywords,
+        :summary => bill['summary'],
+        :keywords => bill['keywords'],
         # basic fields includes other searchable fields 
         # i.e. popular title, official title, short title
         
