@@ -66,13 +66,13 @@ class BillTextArchive
           :bill => bill_basic # basic fields
         }
         
+        puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
+        
         # commit the version to the version index
         versions_client.index(
           document,
           :id => bill_version_id
         )
-        
-        puts "[#{bill.bill_id}][#{code}] Indexed." if options[:debug]
         
         version_count += 1
         
