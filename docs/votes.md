@@ -105,6 +105,12 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>bill</dt>
 <dd>Basic information about a related bill, if there is one.</dd>
 
+<dt>amendment_id</dt>
+<dd>ID of a related amendment, if there is one.</dd>
+
+<dt>amendment</dt>
+<dd>Basic information about a related amendment, if there is one.</dd>
+
 <dt>voter_ids</dt>
 <dd>A hash where the keys are bioguide IDs, and the values are individual votes.</dd>
 
