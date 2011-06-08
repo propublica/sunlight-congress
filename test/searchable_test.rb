@@ -105,8 +105,16 @@ class SearchableTest < Test::Unit::TestCase
   
   # querying
   
+  def test_term_for_strips
+    assert_equal "whatever", Searchable.term_for({:query => "  \nwhatever\t"})
+  end
+  
+  def test_term_for_downcases
+    assert_equal "whatever", Searchable.term_for({:query => "WHAteveR"})
+  end
+  
   def test_query_for_uses_dis_max_query
-    conditions = Searchable.query_for Person, {:query => "sideburns"}, ['bio']
+    conditions = Searchable.query_for "sideburns", Person, {}, ['bio']
     assert_not_nil conditions[:dis_max]
     assert_not_nil conditions[:dis_max][:queries]
     assert conditions[:dis_max][:queries].is_a?(Array)
@@ -116,7 +124,7 @@ class SearchableTest < Test::Unit::TestCase
     search_fields = ['bio', 'name']
     term = "sideburns"
     
-    query = Searchable.query_for Person, {:query => term}, search_fields
+    query = Searchable.query_for term, Person, {}, search_fields
     subqueries = query[:dis_max][:queries]
     assert_equal 2, subqueries.size
     assert subqueries.include?(Searchable.subquery_for(term, 'bio')), "No bio subquery."

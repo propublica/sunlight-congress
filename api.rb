@@ -46,9 +46,10 @@ get searchable_route do
   
   halt 400, "You must provide a search term with the 'query' parameter." unless params[:query]
 
+  term = Searchable.term_for params
   fields = Searchable.fields_for model, params
   search_fields = Searchable.search_fields_for model, params
-  query = Searchable.query_for model, params, search_fields
+  query = Searchable.query_for term, model, params, search_fields
   filter = Searchable.filter_for model, params
   order = Searchable.order_for model, params
   pagination = Searchable.pagination_for model, params
@@ -56,9 +57,9 @@ get searchable_route do
   
   
   if params[:explain] == 'true'
-    results = Searchable.explain_for model, query, filter, fields, order, pagination, other
+    results = Searchable.explain_for term, model, query, filter, fields, order, pagination, other
   else
-    results = Searchable.results_for model, query, filter, fields, order, pagination, other
+    results = Searchable.results_for term, model, query, filter, fields, order, pagination, other
   end
   
   if format == 'json'

@@ -1,8 +1,10 @@
 module Searchable
 
+  def self.term_for(params)
+    params[:query].strip.downcase
+  end
   
-  def self.query_for(model, params, search_fields)
-    term = params[:query].strip.downcase
+  def self.query_for(term, model, params, search_fields)
     
     conditions = {
       :dis_max => {
@@ -115,14 +117,14 @@ module Searchable
     end
   end
   
-  def self.results_for(model, query, filter, fields, order, pagination, other)
+  def self.results_for(term, model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     
     request = request_for query, filter, fields, order, pagination, other
 
     begin  
       results = search_for mapping, request
-      documents = results.hits.map {|hit| attributes_for hit, model, fields}
+      documents = results.hits.map {|hit| attributes_for term, hit, model, fields}
       
       {
         mapping => documents,
@@ -138,7 +140,7 @@ module Searchable
     end
   end
   
-  def self.explain_for(model, query, filter, fields, order, pagination, other)
+  def self.explain_for(term, model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
     request = request_for query, filter, fields, order, pagination, other
     
@@ -147,6 +149,7 @@ module Searchable
       
       {
         :request => request,
+        :query => term,
         :mapping => mapping,
         :count => results.total_entries,
         :response => results.response
@@ -224,9 +227,9 @@ module Searchable
     ]
   end
   
-  def self.attributes_for(hit, model, fields)
+  def self.attributes_for(term, hit, model, fields)
     attributes = {}
-    search = {:score => hit._score}
+    search = {:score => hit._score, :query => term}
     
     hit.fields ||= {}
     
