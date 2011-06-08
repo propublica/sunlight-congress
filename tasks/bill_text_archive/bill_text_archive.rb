@@ -35,7 +35,7 @@ class BillTextArchive
     end
     
     bill_ids.each do |bill_id|
-      bill = Bill.where(:bill_id => bill_id).only(Utils.bill_fields + [:summary, :keywords]).first
+      bill = Bill.where(:bill_id => bill_id).only(Utils.bill_fields + [:sponsor, :summary, :keywords]).first
       
       bill_basic = Utils.bill_for bill
       
@@ -85,6 +85,7 @@ class BillTextArchive
         :versions => bill_versions,
         :summary => bill['summary'],
         :keywords => bill['keywords'],
+        :sponsor => bill['sponsor'],
         # basic fields includes other searchable fields 
         # i.e. popular title, official title, short title
         

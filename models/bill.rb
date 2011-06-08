@@ -11,7 +11,8 @@ class Bill
     :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
     :senate_override_result, :senate_override_result_at, 
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
-    :version_codes, :versions_count
+    :version_codes, :versions_count, 
+    :sponsor
   
   searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title
   
