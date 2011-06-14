@@ -185,17 +185,22 @@ module Searchable
       highlight = {
         :fields => {},
         :order => "score",
-        :fragment_size => 300
+        :fragment_size => 200
       }
       
       search_fields.each {|field| highlight[:fields][field] = {}}
-      options[:highlight] = highlight
       
       if params[:highlight_tags].present?
         pre, post = params[:highlight_tags].split ','
         highlight[:pre_tags] = [pre]
         highlight[:post_tags] = [post]
       end
+      
+      if params[:highlight_size].present?
+        highlight[:fragment_size] = params[:highlight_size].to_i
+      end
+      
+      options[:highlight] = highlight
     end
     
     options
@@ -300,7 +305,7 @@ module Searchable
       :page, :per_page,
       :search, :query,
       :explain,
-      :highlight, :highlight_tags
+      :highlight, :highlight_tags, :highlight_size
     ]
   end
   
