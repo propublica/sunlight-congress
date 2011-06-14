@@ -51,9 +51,11 @@ module Searchable
     if parsed.is_a?(String)
       {
         :query => {
-          :query_string => {
-            :fields => [field.to_s],
-            :query => parsed.to_s
+          :text => {
+            field.to_s => {
+              :query => parsed,
+              :type => "phrase"
+            }
           }
         }
       }

@@ -174,9 +174,11 @@ class SearchableTest < Test::Unit::TestCase
     value = "good"
     filter = {
       :query => {
-        :query_string => {
-          :fields => [field],
-          :query => value
+        :text => {
+          field => {
+            :query => value,
+            :type => "phrase"
+          }
         }
       }
     }
@@ -257,9 +259,11 @@ class SearchableTest < Test::Unit::TestCase
     value = "1"
     filter = {
       :query => {
-        :query_string => {
-          :fields => [field],
-          :query => value
+        :text => {
+          field => {
+            :query => value,
+            :type => "phrase"
+          }
         }
       }
     }
