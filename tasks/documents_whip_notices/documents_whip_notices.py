@@ -10,12 +10,15 @@ HOUSE_REP_URL = 'http://www.majorityleader.house.gov/floor/%s.html'
 
 def run(db, options = {}):
     total_count = 0
-    total_count += house_dem(db, 'daily', HOUSE_DEM_URL % "32")
-    total_count += house_dem(db, 'nightly', HOUSE_DEM_URL % "34")
-    total_count += house_dem(db, 'weekly', HOUSE_DEM_URL % "31")
     
-    total_count += house_rep(db, 'daily', HOUSE_REP_URL % "daily")
-    total_count += house_rep(db, 'weekly', HOUSE_REP_URL % "weekly")
+    if not ('party' in options and options['party'] == 'r'):
+      total_count += house_dem(db, 'daily', HOUSE_DEM_URL % "32")
+      total_count += house_dem(db, 'nightly', HOUSE_DEM_URL % "34")
+      total_count += house_dem(db, 'weekly', HOUSE_DEM_URL % "31")
+    
+    if not ('party' in options and options['party'] == 'd'):
+      total_count += house_rep(db, 'daily', HOUSE_REP_URL % "daily")
+      total_count += house_rep(db, 'weekly', HOUSE_REP_URL % "weekly")
     
     db.success("Updated or created %s whip notices" % total_count)
 
@@ -70,16 +73,18 @@ def house_rep(db, notice_type, source):
           date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
           time_obj = time.strptime(date_str, date_format)
         else:
-          date_format = "%B %d, %Y"
           # the publishers seem to alternate randomly and freely between these two formats
-          try:
+          #try:
+            date_format = "%B %d"
             date_str = content.findAll("b")[0].text.strip()
             date_str = re.compile("^.*?WEEK OF", flags=re.I).sub("", date_str).strip()
+            date_str = re.compile("[a-zA-Z]+$", flags=re.I).sub("", date_str).strip()
             time_obj = time.strptime(date_str, date_format)
-          except ValueError:
-            date_str = content.findAll("b")[1].text.strip()
-            date_str = date_str.replace("WEEK OF ", "")
-            time_obj = time.strptime(date_str, date_format)
+          #except ValueError:
+            #date_format = "%B %d, %Y"
+            #date_str = content.findAll("b")[1].text.strip()
+            #date_str = date_str.replace("WEEK OF ", "")
+            #time_obj = time.strptime(date_str, date_format)
           
         
         
