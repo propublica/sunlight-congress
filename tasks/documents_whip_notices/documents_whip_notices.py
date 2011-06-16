@@ -104,7 +104,7 @@ def house_rep(db, notice_type, source):
         
         
         # daily or weekly
-        url_results = content.findAll("a", attrs={"href": re.compile("\.pdf$")})
+        url_results = content.findAll("a", attrs={"href": re.compile("majorityleader.gov.*\.pdf$")})
         if not url_results:
           db.warning("Couldn't find URL for PDF of the %s Republican whip notice, can't go on, div attached" % notice_type, {html: content.text})
           return 0
