@@ -25,10 +25,6 @@
       "summary": {
         "type": "string",
         "store": "yes"
-      },
-      "passage_votes_count": {
-        "type": "integer",
-        "store": "no"
       }
     }
   }
