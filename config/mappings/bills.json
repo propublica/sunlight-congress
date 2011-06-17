@@ -1,0 +1,35 @@
+{
+  "bills": {
+    "properties": {
+      "versions": {
+        "type": "string",
+        "store": "yes",
+        "term_vector": "with_positions_offsets"
+      },
+      "short_title": {
+        "type": "string",
+        "store": "yes"
+      },
+      "official_title": {
+        "type": "string",
+        "store": "yes"
+      },
+      "popular_title": {
+        "type": "string",
+        "store": "yes"
+      },
+      "keywords": {
+        "type": "string",
+        "store": "yes"
+      },
+      "summary": {
+        "type": "string",
+        "store": "yes"
+      },
+      "passage_votes_count": {
+        "type": "integer",
+        "store": "no"
+      }
+    }
+  }
+}
