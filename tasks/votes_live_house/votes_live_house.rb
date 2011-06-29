@@ -70,6 +70,10 @@ class VotesLiveHouse
       end
       
       if doc
+        # 404s for missing votes return an HTML doc that won't make sense
+        # example of this: there is no roll 484 in 2011, due to procedural foulup
+        next unless doc.at(:congress) 
+        
         roll_id = "h#{number}-#{year}"
         session = doc.at(:congress).inner_text.to_i
         
