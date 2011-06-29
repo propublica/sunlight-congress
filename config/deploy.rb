@@ -35,7 +35,7 @@ after "deploy", "deploy:set_cron"
 namespace :deploy do
   task :start do
     if environment != 'backend'
-      run "cd #{current_path} && unicorn -D -l #{shared_path}/#{sock}"
+      run "cd #{current_path} && unicorn -D -l #{shared_path}/#{sock} -c #{current_path}/unicorn.rb"
     end
   end
   
@@ -50,7 +50,7 @@ namespace :deploy do
   desc "Restart the server"
   task :restart, :roles => :app, :except => {:no_release => true} do
     if environment != 'backend'
-      run "killall -HUP unicorn"
+      run "kill -HUP `cat #{shared_path}/unicorn.pid`"
     end
   end
   
@@ -78,6 +78,7 @@ namespace :deploy do
   task :shared_links, :roles => [:web, :app] do
     run "ln -nfs #{shared_path}/config.yml #{release_path}/config/config.yml"
     run "ln -nfs #{shared_path}/config.ru #{release_path}/config.ru"
+    run "ln -nfs #{shared_path}/unicorn.rb #{release_path}/unicorn.rb"
     run "ln -nfs #{shared_path}/data #{release_path}/data"
     run "rm -rf #{File.join release_path, 'tmp'}"
     run "rm #{File.join release_path, 'public', 'system'}"

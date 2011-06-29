@@ -1,0 +1,7 @@
+# See http://unicorn.bogomips.org/Unicorn/Configurator.html for complete
+# documentation.
+
+worker_processes 2 # this should be >= nr_cpus
+pid "/path/to/unicorn.pid"
+stderr_path "/path/to/unicorn.log"
+stdout_path "/path/to/unicorn.log"
