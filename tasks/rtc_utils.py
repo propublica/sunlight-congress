@@ -17,14 +17,23 @@ def current_session(year=None):
 def parse_iso8601(timestamp):
   return iso8601.parse_date(timestamp).astimezone(tz.gettz('GMT'))
 
-# known discrepancies between us and GovTrack
+# hacky hardcoded fix to deal with GovTrack committee ID issues
 def committee_id_for(govtrack_id, govtrack_name = None):
   if not govtrack_id and govtrack_name != None:
     govtrack_name = govtrack_name.replace(";", "")
+    govtrack_name = govtrack_name.replace(", ", "")
     if govtrack_name == "House Transportation":
       return "HSPW"
     elif govtrack_name == "House Natural Resources":
       return "HSII"
+    elif govtrack_name == "House Agriculture":
+      return "HSAG"
+    elif govtrack_name == "House Armed Services":
+      return "HSAS"
+    elif govtrack_name == "House Foreign Affairs":
+      return "HSFA"
+    elif govtrack_name == "House Ways and Means":
+      return "HSWM"
     else:
       return None
       
