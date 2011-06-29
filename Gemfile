@@ -24,7 +24,5 @@ end
 gem 'sunlight', '1.1.0' # legislators, committees
 gem 'nokogiri', '1.4.4' # rolls_live_house, rolls_live_senate
 
-# for elasticsearch integration
-
-gem 'tire', '0.1.4'
+# elasticsearch
 gem 'rubberband', '0.0.12'
