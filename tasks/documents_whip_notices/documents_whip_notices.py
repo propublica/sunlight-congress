@@ -33,7 +33,9 @@ def house_dem(db, notice_type, source):
         posted_at = datetime.datetime(*item.updated_parsed[:6])
         session = rtc_utils.current_session(posted_at.year)
       
-        for_date = posted_at.strftime("%Y-%m-%d")
+        date_str = re.search("([a-zA-Z]+ \d+, \d+)$", item.title.strip()).groups()[0]
+        time_obj = time.strptime(date_str, "%B %d, %Y")
+        for_date = datetime.datetime(time_obj.tm_year, time_obj.tm_mon, time_obj.tm_mday).strftime("%Y-%m-%d")
       
         notice = db.get_or_initialize("documents", {
           "document_type": "whip_notice",
@@ -75,15 +77,16 @@ def house_rep(db, notice_type, source):
         else:
           # the publishers seem to alternate randomly and freely between these two formats
           #try:
-            date_format = "%B %d"
-            date_str = content.findAll("b")[0].text.strip()
-            date_str = re.compile("^.*?WEEK OF", flags=re.I).sub("", date_str).strip()
-            date_str = re.compile("[a-zA-Z]+$", flags=re.I).sub("", date_str).strip()
+            date_format = "%B %d, %Y"
+            date_str = content.findAll("b", text=re.compile('WEEK OF'))[0].strip()
+            
+            date_str = re.compile("^.*?(?:THE )?WEEK OF", flags=re.I).sub("", date_str).strip() # get rid of prefix
+            date_str = re.compile("[a-zA-Z]+$", flags=re.I).sub("", date_str).strip() # get rid of ordinals i.e. 'TH'
             time_obj = time.strptime(date_str, date_format)
           #except ValueError:
             #date_format = "%B %d, %Y"
             #date_str = content.findAll("b")[1].text.strip()
-            #date_str = date_str.replace("WEEK OF ", "")
+            #date_str = date_str.replace("THE WEEK OF ", "")
             #time_obj = time.strptime(date_str, date_format)
           
         
