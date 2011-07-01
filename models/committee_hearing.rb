@@ -15,6 +15,8 @@ class CommitteeHearing
   index :chamber
   index :committee_id
   index :occurs_at
+  index :legislative_day
+  index :session
   
   field :legislative_day
 end

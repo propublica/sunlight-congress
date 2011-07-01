@@ -17,6 +17,7 @@ class FloorUpdate
   index :roll_ids
   index :bill_ids
   index :legislator_ids
+  index :timestamp
   
   field :legislative_day
 end
