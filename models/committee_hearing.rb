@@ -4,7 +4,7 @@ class CommitteeHearing
   
   default_order :occurs_at
   
-  basic_fields :chamber, :committee_id, :occurs_at, :description, :room
+  basic_fields :session, :chamber, :committee_id, :occurs_at, :description, :room, :legislative_day, :time_of_day
   
   search_fields :description
   
