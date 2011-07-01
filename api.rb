@@ -74,7 +74,7 @@ helpers do
   
   def json(results)
     response['Content-Type'] = 'application/json'
-    json = results.to_json
+    json = JSON.fast_generate results
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   

@@ -1,13 +1,13 @@
 source 'http://rubygems.org'
 
-gem 'json', '1.4.2'
+gem 'json', '1.5.3'
 gem 'tzinfo', '0.3.23'
 
 gem 'sinatra', '1.2.6'
 
 gem "mongo", "1.3.1"
 gem "mongoid", '2.0.2'
-gem 'bson_ext', '1.3.1'
+gem 'bson_ext', '1.3.1' # mongo gem asks for this
 gem 'SystemTimer', '1.2.3' # mongo gem asks for this
 
 gem 'ruby-hmac', '0.4.0'
