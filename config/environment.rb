@@ -1,3 +1,5 @@
+# Intricate include order
+
 require 'json/ext'
 
 # hack to stop ActiveSupport from taking away my JSON C extension
@@ -18,6 +20,10 @@ require 'elasticsearch'
     alias_method :to_json, :to_json_from_gem
   end
 end
+
+
+# insist on my API-wide timestamp format
+Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
 
 
 # app-wide configuration
