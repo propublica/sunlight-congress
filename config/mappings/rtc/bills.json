@@ -25,6 +25,10 @@
       "summary": {
         "type": "string",
         "store": "yes"
+      },
+      "bill_id": {
+        "index": "not_analyzed",
+        "type": "String"
       }
     }
   }
