@@ -1,2 +1,12 @@
+# Cluster Settings
+cluster:
+  name: RealTimeCongress
+
 path:
   data: /var/lib/elasticsearch
+
+http:
+  port: 3145
+  
+bootstrap:
+  mlockall: true
