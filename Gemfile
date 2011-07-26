@@ -23,6 +23,7 @@ end
 
 gem 'sunlight', '1.1.0' # legislators, committees
 gem 'nokogiri', '1.4.4' # rolls_live_house, rolls_live_senate
+gem 'httparty', '0.7.8' # opencrs
 
 # elasticsearch
 gem 'rubberband', '0.0.12'

@@ -1,8 +1,11 @@
 # fill in from services.sunlightlabs.com
 :sunlight_api_key:
 
+# fill in from opencrs.com/api
+:opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
+
 :services:
-  :shared_secret: 
+  :shared_secret:
   :api_name: realtimecongress
 
 :mongoid:
@@ -19,14 +22,14 @@
 
 :email:
   :via: :smtp
-  :to: 
-    - 
-  :from: 
+  :to:
+    -
+  :from:
   :via_options:
-    :address: 
-    :port: 
-    :user_name: 
-    :password: 
+    :address:
+    :port:
+    :user_name:
+    :password:
     :authentication: plain
-    :domain: 
+    :domain:
     :enable_starttls_auto: false
