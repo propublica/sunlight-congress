@@ -32,6 +32,14 @@ def committee_id_for(govtrack_id, govtrack_name = None):
       return "HSAS"
     elif govtrack_name == "House Foreign Affairs":
       return "HSFA"
+    elif govtrack_name == "House Veterans' Affairs":
+      return "HSVR"
+    elif govtrack_name == "House Science, Space, and Technology":
+      return "HSSY"
+    elif govtrack_name == "House Appropriations":
+      return "HSAP"
+    elif govtrack_name == "House Energy and Commerce":
+      return "HSIF"
     elif govtrack_name == "House Ways and Means":
       return "HSWM"
     else:
