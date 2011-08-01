@@ -1,7 +1,7 @@
 # fill in from services.sunlightlabs.com
 :sunlight_api_key:
 
-# fill in from opencrs.com/api
+# this is the public OpenCRS API key, fill in yours from opencrs.com/api
 :opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
 
 :services:
