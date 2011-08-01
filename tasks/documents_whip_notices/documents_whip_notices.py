@@ -76,18 +76,20 @@ def house_rep(db, notice_type, source):
           time_obj = time.strptime(date_str, date_format)
         else:
           # the publishers seem to alternate randomly and freely between these two formats
-          #try:
+          try:
             date_format = "%B %d, %Y"
-            date_str = content.findAll("b", text=re.compile('WEEK OF'))[0].strip()
+            date_str = content.findAll("b")[0].text.strip()
             
+            date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
             date_str = re.compile("^.*?(?:THE )?WEEK OF", flags=re.I).sub("", date_str).strip() # get rid of prefix
             date_str = re.compile("[a-zA-Z]+$", flags=re.I).sub("", date_str).strip() # get rid of ordinals i.e. 'TH'
             time_obj = time.strptime(date_str, date_format)
-          #except ValueError:
-            #date_format = "%B %d, %Y"
-            #date_str = content.findAll("b")[1].text.strip()
-            #date_str = date_str.replace("THE WEEK OF ", "")
-            #time_obj = time.strptime(date_str, date_format)
+          except ValueError:
+            date_format = "%A, %B %d"
+            date_str = re.compile("[A-Z]{2}$", flags=re.I).sub("", date_str)
+            date_str = re.compile("^.*?(?:THE )?WEEK OF", flags=re.I).sub("", date_str).strip() # get rid of prefix
+            date_str = re.compile("[a-zA-Z]+$", flags=re.I).sub("", date_str).strip() # get rid of ordinals i.e. 'TH'
+            time_obj = time.strptime(date_str, date_format)
           
         
         
