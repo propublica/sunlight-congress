@@ -70,11 +70,16 @@ def grab_daily_meta(db):
                 fd['chamber'] = 'house'
                 fd['pubdate'] = date_key
                 mms_url = get_mms_url(fd['clip_id'])
-                guid_matches = re.findall("clerkhouse_([\-|\w|\d]*)\.mp3", cols[4].a['href'])
-                if guid_matches:
-                    guid = guid_matches[0]
+                
+                if cols and cols[4] and cols[4].a:
+                  guid_matches = re.findall("clerkhouse_([\-|\w|\d]*)\.mp3", cols[4].a['href'])
+                  if guid_matches:
+                      guid = guid_matches[0]
+                  else:
+                      guid = None
                 else:
-                    guid = None
+                  guid = None
+                  
                 try:
                     if fd.has_key('clip_urls'):
                         fd['clip_urls']['mp3'] = cols[4].a['href']
