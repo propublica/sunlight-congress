@@ -1,6 +1,6 @@
 require 'httparty'
 
-class CrsReports
+class DocumentsCrsReports
 
   def self.run(options = {})
     num_added = 0
