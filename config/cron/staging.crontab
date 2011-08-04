@@ -25,3 +25,6 @@
 
 # committee hearings
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings
+
+# CRS reports
+* * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
