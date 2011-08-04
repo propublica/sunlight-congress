@@ -41,7 +41,7 @@ namespace :deploy do
   
   task :stop do
     if environment != 'backend'
-      run "killall unicorn"
+      run "kill `cat #{shared_path}/unicorn.pid`"
     end
   end
   
