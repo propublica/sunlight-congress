@@ -17,6 +17,7 @@ gem 'pony', '1.0.1'
 group :development do
   gem 'sinatra-reloader', '0.5.0'
   gem 'wirble'
+  gem 'rack', '1.3.2'
 end
 
 # for individual tasks
