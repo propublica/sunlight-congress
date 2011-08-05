@@ -156,7 +156,7 @@ def email_recipients_for(report)
   
   recipients = config[:email][:to].dup # always begin with master recipients
   
-  if config[:task_owners][task]
+  if config[:task_owners] and config[:task_owners][task]
     recipients += config[:task_owners][task]
   end
   
