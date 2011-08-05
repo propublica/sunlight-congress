@@ -141,7 +141,7 @@ def email(report, exception = nil)
   if config[:email][:to] and config[:email][:to].any?
     begin
       if report.is_a?(Report)
-        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report))
+        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report), :to => email_recipients_for(report))
       else
         Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
       end
@@ -149,6 +149,18 @@ def email(report, exception = nil)
       puts "Couldn't email report, connection refused! Check system settings."
     end
   end
+end
+
+def email_recipients_for(report)
+  task = report.source.underscore.to_sym
+  
+  recipients = config[:email][:to].dup # always begin with master recipients
+  
+  if config[:task_owners][task]
+    recipients += config[:task_owners][task]
+  end
+  
+  recipients.uniq
 end
 
 def email_subject(report)

@@ -33,3 +33,8 @@
     :authentication: plain
     :domain:
     :enable_starttls_auto: false
+
+# to send emails to owners of specific tasks
+:task_owners:
+  # :bills_archive: 
+  #   - email@example.com
