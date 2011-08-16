@@ -28,3 +28,6 @@
 
 # CRS reports
 0 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
+
+# CBO cost estimates
+5 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
