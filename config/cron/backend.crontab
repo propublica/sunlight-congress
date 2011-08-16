@@ -32,3 +32,5 @@
 # CBO cost estimates
 5 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
 
+# GAO reports
+10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports

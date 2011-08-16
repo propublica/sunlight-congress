@@ -27,4 +27,7 @@ class Document
 
   # cbo_estimate
   index :estimate_id
+
+  # gao_report
+  index :gao_id
 end
