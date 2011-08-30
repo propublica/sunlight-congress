@@ -96,6 +96,7 @@ class Hit
   
   index :created_at
   index :method
+  index :method_type
   index :key
   index :sections
   index :format
