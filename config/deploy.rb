@@ -7,7 +7,7 @@ set :deploy_to, "/projects/#{user}/"
 set :sock, "#{user}.sock"
 
 if environment == 'api' # production api box
-  set :domain, 'api.realtimecongress.org'
+  set :domain, 'ec2-50-17-110-191.compute-1.amazonaws.com' # 'api.realtimecongress.org'
 elsif environment == 'backend' # production scraper box
   set :domain, 'takoma.sunlightlabs.net'
 else # environment == 'staging'
