@@ -35,9 +35,16 @@ class BillTextArchive
     end
     
     bill_ids.each do |bill_id|
-      bill = Bill.where(:bill_id => bill_id).only(Utils.bill_fields + [:sponsor, :summary, :keywords]).first
+      bill = Bill.where(:bill_id => bill_id).first
       
-      bill_basic = Utils.bill_for(bill).merge :sponsor => bill['sponsor']
+      # pick the subset of fields from the bill document that will appear on bills and bill_versions
+      # unlike the mongo-side of things, we pick a curated subset of fields
+      bill_fields = Utils.bill_for(bill).merge(
+        :sponsor => bill['sponsor'],
+        :summary => bill['summary'],
+        :keywords => bill['keywords'],
+        :last_action => bill['last_action']
+      )
       
       type = Utils.govtrack_type_for bill.bill_type
       
@@ -59,19 +66,18 @@ class BillTextArchive
         full_text = File.read file
         full_text = clean_text full_text
         
-        document = {
-          :bill_version_id => bill_version_id,
-          :version_code => code,
-          :full_text => full_text,
-          :bill => bill_basic, # basic fields,
-          :updated_at => Time.now
-        }
-        
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
         
         # commit the version to the version index
         versions_client.index(
-          document,
+          {
+            :updated_at => Time.now,
+            :bill_version_id => bill_version_id,
+            :version_code => code,
+            
+            :bill => bill_fields,
+            :full_text => full_text
+          },
           :id => bill_version_id
         )
         
@@ -82,21 +88,13 @@ class BillTextArchive
         bill_version_codes << code
       end
       
-      document = bill_basic.merge(
-        :versions => bill_versions,
-        :summary => bill['summary'],
-        :keywords => bill['keywords'],
-        #:sponsor => bill['sponsor'],
-        # basic fields includes other searchable fields 
-        # i.e. popular title, official title, short title
-        
-        :version_codes => bill_version_codes,
-        :versions_count => bill_version_codes.size,
-        :updated_at => Time.now
-      )
-      
       bills_client.index(
-        document,
+        bill_fields.merge(
+          :versions => bill_versions,
+          :version_codes => bill_version_codes,
+          :versions_count => bill_version_codes.size,
+          :updated_at => Time.now
+        ),
         :id => bill.bill_id
       )
       

@@ -89,6 +89,8 @@ module Searchable
     end
   end
   
+  # default to all the fields that the model declares as searchable,
+  # but allow the user to limit it to a smaller subset of those fields
   def self.search_fields_for(model, params)
     default_fields = model.searchable_fields.map {|field| field.to_s}
     if params[:search].blank?
