@@ -83,5 +83,12 @@ namespace :deploy do
     run "rm -rf #{File.join release_path, 'tmp'}"
     run "rm #{File.join release_path, 'public', 'system'}"
     run "rm #{File.join release_path, 'log'}"
+    
+    # elasticsearch files need to stay in a shared dir so that the symlink that points to them doesn't stay pointed
+    # to stale, old releases
+    if ['staging', 'elastic'].include?(environment)
+      run "cp #{release_path}/config/elasticsearch/#{environment}/*.yml #{shared_path}/elasticsearch/"
+      run "cp -r #{release_path}/config/mappings/ #{shared_path}/elasticsearch/"
+    end
   end
 end
