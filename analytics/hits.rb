@@ -49,7 +49,7 @@ after searchable_route do
     :key => api_key,
     
     :method_type => 'searchable',
-    :method => params[:captures][0],
+    :method => "search.#{params[:captures][0]}",
     :format => params[:captures][1],
     
     :query => params[:query],
