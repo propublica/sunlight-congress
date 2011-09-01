@@ -1,6 +1,6 @@
 # Cluster Settings
 cluster:
-  name: RealTimeCongress
+  name: elasticsearch
 
 path:
   data: /var/lib/elasticsearch
