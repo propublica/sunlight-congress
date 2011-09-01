@@ -8,5 +8,5 @@ path:
 http:
   port: 3145
   
-bootstrap:
-  mlockall: true
+#bootstrap:
+#  mlockall: true
