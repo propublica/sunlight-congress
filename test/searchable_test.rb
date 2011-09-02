@@ -19,6 +19,32 @@ class SearchableTest < Test::Unit::TestCase
     field_type :prisoner_id, String # override a number to be a string
   end
   
+  # represents an ElasticSearch Hit object
+  class FakeHit
+    # float, doc score
+    attr_accessor :_score
+    
+    # hash with keys that are fields and values that are arrays of highlighted text
+    attr_accessor :highlight
+    
+    # hash where each key is a requested field name prefaced by "_source."
+    attr_accessor :fields
+    
+    def self.default_score; 1.0; end
+    
+    def initialize(options = nil)
+      # default values
+      self._score = FakeHit.default_score
+      self.highlight = nil
+      
+      if options
+        self._score = options[:_score] if options[:_score]
+        self.highlight = options[:highlight] if options[:highlight]
+        self.fields = options[:fields] if options[:fields]
+      end
+    end
+  end
+  
   
   # partial responses
   
@@ -269,6 +295,113 @@ class SearchableTest < Test::Unit::TestCase
     }
     
     assert_equal filter, Searchable.subfilter_for(Person, field, value)
+  end
+  
+  
+  # attributes post-processing (transforming ElasticSearch responses into our responses)
+  
+  def test_attributes_for_retrieves_fields_from_hit
+    term = "anything"
+    hit = FakeHit.new(
+      :fields => {
+                  "_source.bill_version_id" => "s627-112-rs",
+                  "_source.version_code" => "rs"
+                 }
+    )
+    model = Person
+    fields = ["bill_version_id", "version_code"]
+    
+    attributes = {
+      :search => {
+                  :score => FakeHit.default_score,
+                  :query => term
+                 },
+      'bill_version_id' => "s627-112-rs",
+      'version_code' => "rs"
+    }
+    
+    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+  end
+  
+  def test_attributes_for_retrieves_score_from_hit
+    term = "anything"
+    hit = FakeHit.new(
+      :fields => {
+                  "_source.bill_version_id" => "s627-112-rs",
+                  "_source.version_code" => "rs"
+                 },
+      :_score => 2.0
+    )
+    model = Person
+    fields = ["bill_version_id", "version_code"]
+    
+    attributes = {
+      :search => {
+                  :score => 2.0,
+                  :query => term
+                 },
+      'bill_version_id' => "s627-112-rs",
+      'version_code' => "rs"
+    }
+    
+    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+  end
+  
+  def test_attributes_for_retrieves_highlight_from_hit
+    highlight = {
+      "full_text" => ["whatever", "whatever also"],
+      "bill.summary" => ["dot notation stays"]
+    }
+    
+    term = "anything"
+    hit = FakeHit.new(
+      :fields => {
+                  "_source.bill_version_id" => "s627-112-rs",
+                  "_source.version_code" => "rs"
+                 },
+      :highlight => highlight
+    )
+    model = Person
+    fields = ["bill_version_id", "version_code"]
+    
+    attributes = {
+      :search => {
+                  :score => FakeHit.default_score,
+                  :query => term,
+                  :highlight => highlight
+                 },
+      'bill_version_id' => "s627-112-rs",
+      'version_code' => "rs"
+    }
+    
+    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+  end
+  
+  def test_attributes_for_unwraps_dot_notation_in_fields
+    term = "anything"
+    hit = FakeHit.new(
+      :fields => {
+                  "_source.bill.bill_id" => "s627-112",
+                  "_source.bill.last_action.text" => "did stuff"
+                 }
+    )
+    model = Person
+    fields = ["bill.bill_id", "bill.last_action.text"]
+    
+    attributes = {
+      :search => {
+                  :score => FakeHit.default_score,
+                  :query => term
+                 },
+      'bill' => {
+                 'bill_id' => 's627-112',
+                 'last_action' => {
+                      'text' => "did stuff"
+                    }
+                 }
+    }
+    
+    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
   end
   
 end

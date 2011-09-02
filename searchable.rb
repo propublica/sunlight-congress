@@ -247,12 +247,27 @@ module Searchable
     end
     
     hit.fields.each do |key, value| 
-      field = key.sub "_source.", ""
-      #TODO: break down dot notation into a hash?
-      attributes[field] = value
+      field = key.sub /^_source\./, ""
+      
+      break_out attributes, field.split('.'), value
     end
     
     attributes.merge :search => search
+  end
+  
+  # helper function to recursively rewrite a hash to break out dot-separated fields into sub-documents
+  def self.break_out(hash, keys, final_value)
+    if keys.size > 1
+      first = keys.first
+      rest = keys[1..-1]
+      
+      # default to on
+      hash[first] ||= {}
+      
+      break_out hash[first], rest, final_value
+    else
+      hash[keys.first] = final_value
+    end
   end
   
   def self.pagination_for(model, params)
