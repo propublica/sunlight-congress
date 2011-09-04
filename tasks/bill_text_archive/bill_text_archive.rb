@@ -82,6 +82,8 @@ class BillTextArchive
           issued_on = issued_on_for mods_doc
           urls = urls_for mods_doc
         else
+          puts "No MODS data for #{bill_version_id}"
+          
           # backup attempt to get an issued_on, from the dublin core info of the bill doc itself
           # GovTrack adds this Dublin Core information, perhaps by extracting it from the XML
           # If we were ever to switch to GPO directly, this would have to be accounted for
