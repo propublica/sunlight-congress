@@ -12,7 +12,8 @@ class Bill
     :senate_override_result, :senate_override_result_at, 
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
     :sponsor, :last_action,
-    :version_codes, :versions_count
+    :versions_count,
+    :last_version, :last_version_on
   
   searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title
   
@@ -29,7 +30,8 @@ class Bill
     :introduced_at, :house_passage_result, :house_passage_result_at, :senate_passage_result, :senate_passage_result_at, 
     :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
     :senate_override_result, :senate_override_result_at, 
-    :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at
+    :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
+    :last_version_on
     
   search_fields :short_title, :official_title, :popular_title, :summary, :keywords
   
@@ -67,6 +69,8 @@ class Bill
   index :awaiting_signature_since
   index :enacted
   index :enacted_at
+  
+  index :last_version_on
   
   index :abbreviated
 end

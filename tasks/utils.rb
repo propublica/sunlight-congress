@@ -7,9 +7,14 @@ module Utils
     if timestamp =~ /:/
       Time.xmlschema timestamp
     else
-      time = Time.parse timestamp
-      time.getutc + (12-time.getutc.hour).hours
+      noon_utc_for timestamp
     end
+  end
+  
+  # given a timestamp of the form "2011-02-18", return noon UTC on that day
+  def self.noon_utc_for(timestamp)
+    time = Time.parse timestamp
+    time.getutc + (12-time.getutc.hour).hours
   end
   
   # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
@@ -43,6 +48,76 @@ module Utils
       'sjres' => 'sj',
       'scres' => 'sc'
     }[bill_type.to_s]
+  end
+  
+  # adapted from http://www.gpoaccess.gov/bills/glossary.html
+  def self.bill_version_name_for(version_code)
+    {
+      'ash' => "Additional Sponsors House",
+      'ath' => "Agreed to House",
+      'ats' => "Agreed to Senate",
+      'cdh' => "Committee Discharged House",
+      'cds' => "Committee Discharged Senate",
+      'cph' => "Considered and Passed House",
+      'cps' => "Considered and Passed Senate",
+      'eah' => "Engrossed Amendment House",
+      'eas' => "Engrossed Amendment Senate",
+      'eh' => "Engrossed in House",
+      'ehr' => "Engrossed in House-Reprint",
+      'eh_s' => "Engrossed in House (No.) Star Print [*]",
+      'enr' => "Enrolled Bill",
+      'es' => "Engrossed in Senate",
+      'esr' => "Engrossed in Senate-Reprint",
+      'es_s' => "Engrossed in Senate (No.) Star Print",
+      'fah' => "Failed Amendment House",
+      'fps' => "Failed Passage Senate",
+      'hdh' => "Held at Desk House",
+      'hds' => "Held at Desk Senate",
+      'ih' => "Introduced in House",
+      'ihr' => "Introduced in House-Reprint",
+      'ih_s' => "Introduced in House (No.) Star Print",
+      'iph' => "Indefinitely Postponed in House",
+      'ips' => "Indefinitely Postponed in Senate",
+      'is' => "Introduced in Senate",
+      'isr' => "Introduced in Senate-Reprint",
+      'is_s' => "Introduced in Senate (No.) Star Print",
+      'lth' => "Laid on Table in House",
+      'lts' => "Laid on Table in Senate",
+      'oph' => "Ordered to be Printed House",
+      'ops' => "Ordered to be Printed Senate",
+      'pch' => "Placed on Calendar House",
+      'pcs' => "Placed on Calendar Senate",
+      'pp' => "Public Print",
+      'rah' => "Referred w/Amendments House",
+      'ras' => "Referred w/Amendments Senate",
+      'rch' => "Reference Change House",
+      'rcs' => "Reference Change Senate",
+      'rdh' => "Received in House",
+      'rds' => "Received in Senate",
+      're' => "Reprint of an Amendment",
+      'reah' => "Re-engrossed Amendment House",
+      'renr' => "Re-enrolled",
+      'res' => "Re-engrossed Amendment Senate",
+      'rfh' => "Referred in House",
+      'rfhr' => "Referred in House-Reprint",
+      'rfh_s' => "Referred in House (No.) Star Print",
+      'rfs' => "Referred in Senate",
+      'rfsr' => "Referred in Senate-Reprint",
+      'rfs_s' => "Referred in Senate (No.) Star Print",
+      'rh' => "Reported in House",
+      'rhr' => "Reported in House-Reprint",
+      'rh_s' => "Reported in House (No.) Star Print",
+      'rih' => "Referral Instructions House",
+      'ris' => "Referral Instructions Senate",
+      'rs' => "Reported in Senate",
+      'rsr' => "Reported in Senate-Reprint",
+      'rs_s' => "Reported in Senate (No.) Star Print",
+      'rth' => "Referred to Committee House",
+      'rts' => "Referred to Committee Senate",
+      'sas' => "Additional Sponsors Senate",
+      'sc' => "Sponsor Change House",
+      's_p' => "Star (No.) Print of an Amendment"
+    }[version_code]
   end
   
   def self.constant_vote_keys
@@ -210,7 +285,11 @@ module Utils
   def self.document_for(document, fields)
     attributes = document.attributes.dup
     allowed_keys = fields.map {|f| f.to_s}
-    attributes.keys.each {|key| attributes.delete key unless allowed_keys.include?(key)}
+    
+    # for some reason, the 'sort' here causes more keys to get filtered out than without it
+    # without the 'sort', it is broken. I do not know why.
+    attributes.keys.sort.each {|key| attributes.delete(key) unless allowed_keys.include?(key)}
+    
     attributes
   end
   
