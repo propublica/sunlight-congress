@@ -142,7 +142,7 @@ class BillTextArchive
       end
       
       if bill_versions.size == 0
-        Report.warning self, "No versions with a valid date found for this bill, SKIPPING update of the bill entirely in ES and Mongo"
+        Report.warning self, "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo"
         next
       end
       
