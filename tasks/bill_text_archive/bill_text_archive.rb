@@ -39,6 +39,23 @@ class BillTextArchive
     bill_ids.each do |bill_id|
       bill = Bill.where(:bill_id => bill_id).first
       
+      type = Utils.govtrack_type_for bill.bill_type
+      
+      # find all the versions of text for that bill
+      version_files = Dir.glob("data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}[a-z]*.txt")
+      
+      if version_files.empty?
+        puts "[#{bill.bill_id}] Skipping bill, GPO has no version information for it" if options[:debug]
+        next
+      end
+      
+      
+      # accumulate a massive string
+      bill_version_text = ""
+      
+      # accumulate an array of version objects
+      bill_versions = [] 
+      
       # pick the subset of fields from the bill document that will appear on bills and bill_versions
       # -- unlike the mongo-side of things, we pick a curated subset of fields
       bill_fields = Utils.bill_for(bill).merge(
@@ -47,17 +64,6 @@ class BillTextArchive
         :keywords => bill['keywords'],
         :last_action => bill['last_action']
       )
-      
-      type = Utils.govtrack_type_for bill.bill_type
-      
-      # accumulate a massive string
-      bill_version_text = ""
-      
-      # accumulate an array of version objects
-      bill_versions = [] 
-      
-      # find all the versions of text for that bill, load them in
-      version_files = Dir.glob("data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}[a-z]*.txt")
       
       version_files.each do |file|
         # strip off the version code
@@ -82,7 +88,7 @@ class BillTextArchive
           issued_on = issued_on_for mods_doc
           urls = urls_for mods_doc
         else
-          puts "No MODS data for #{bill_version_id}"
+          puts "[#{bill.bill_id}][#{code}] No MODS data" if options[:debug]
           
           # backup attempt to get an issued_on, from the dublin core info of the bill doc itself
           # GovTrack adds this Dublin Core information, perhaps by extracting it from the XML
