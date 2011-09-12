@@ -41,7 +41,7 @@ class FloorUpdatesLiveSenate
           next
         end
         
-        updates[current_date].unshift clean_text(item.text)
+        updates[current_date] << clean_text(item.text)
         
       else
         Report.warning self, "Unexpected HTML, a p tag without alignment - may be worth checking"
