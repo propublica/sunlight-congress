@@ -10,7 +10,7 @@ class FloorUpdatesLiveSenate
     
     html = nil
     begin
-      html = open "http://www.senate.gov/galleries/pdcl/"
+      html = open "http://www.senate.gov/galleries/pdcl/?break_cache=#{Time.now.to_i}"
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.warning self, "Network error on fetching the floor log, can't go on."
       return
@@ -81,7 +81,7 @@ class FloorUpdatesLiveSenate
           puts "[#{floor_update.timestamp.strftime("%Y-%m-%d %H:%M:%S")}] New floor update on leg. day #{legislative_day}" if options[:debug]
           
           # sleep for a second so that if we discover multiple things at once on the same day it doesn't get the same timestamp
-          # sleep 1
+          sleep 1 unless options[:no_sleep]
         else
           failures << floor_update.attributes
           puts "Failed to save floor update, will file report"
