@@ -111,7 +111,7 @@ class FloorUpdatesLiveSenate
   end
   
   def self.extract_rolls(text)
-    []
+    [] # unsure how to do this, they never use the roll number that I can see!
   end
   
   def self.extract_legislators(text)
