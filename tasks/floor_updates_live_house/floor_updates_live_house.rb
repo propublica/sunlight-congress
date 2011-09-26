@@ -117,61 +117,62 @@ class FloorUpdatesLiveHouse
   end
   
   def self.legislator_ids_for(text)
-    []
+    legislator_ids = []
+    possibles = []
+    
+    matches = text.scan(/((M(?:rs|s|r)\.){1}\s((?:\s?[A-Z]{1}[A-Za-z-]+){0,2})(?:,\s?([A-Z]{1}[A-Za-z-]+))?(?:(?:\sof\s([A-Z]{2}))|(?:\s?\(([A-Z]{2})\)))?)/)
+    
+    query = {:chamber => "house"}
+    
+    matches.each do |match|
+      title = match[1]
+      last_name = match[2]
+      first_name = match[3]
+      state = match[4] || match[5]
+      
+      warning = false
+      
+      if title == "Mr."
+        query[:gender] = "M"
+      else
+        query[:gender] = "F"
+      end
+      
+      if last_name.present?
+        query[:last_name] = last_name
+      end
+      
+      if state.present?
+        query[:state] = state
+      end
+      
+      legislators = Legislator.where(query).all
+      if legislators.size == 0
+        warning = true
+      elsif legislators.size == 1
+        legislator_ids << legislators.first.bioguide_id
+      elsif legislators.size > 1
+        query[:first_name] = first_name
+        
+        legislators = Legislator.where(query).all
+        if legislators.size == 0
+          warning = true
+        elsif legislators.size  == 1
+          legislator_ids << legislators.first.bioguide_id
+        elsif legislators.size > 1
+          ids = legislators.map(&:bioguide_id)
+          Report.warning self, "Ambiguous legislator match for #{match[0]}, attached all matching results", :match => match, :legislator_ids => ids
+          legislator_ids += ids
+        end
+        
+      end
+      
+      if warning
+        Report.warning self, "Couldn't find legislator match for #{match[0]}", :match => match
+      end
+    end
+    
+    legislator_ids
   end
-  
-#   def extract_rolls(data, chamber, year):
-#     roll_ids = []
-#     
-#     roll_re = re.compile('Roll (?:no.|Call) (\d+)', flags=re.IGNORECASE)
-#     roll_matches = roll_re.findall(data)
-#     
-#     if roll_matches:
-#       for number in roll_matches:
-#           roll_id = "%s%s-%s" % (chamber[0], number, year)
-#           if roll_id not in roll_ids:
-#               roll_ids.append(roll_id)
-#     
-#     return roll_ids
-#     
-# 
-# def extract_legislators(text, chamber, db):
-#     legislator_names = []
-#     bioguide_ids = []
-#     
-#     possibles = []
-#     
-#     if chamber == "house":
-#         name_re = re.compile('((M(rs|s|r)\.){1}\s((\s?[A-Z]{1}[A-Za-z-]+){0,2})(,\s?([A-Z]{1}[A-Za-z-]+))?((\sof\s([A-Z]{2}))|(\s?\(([A-Z]{2})\)))?)')
-#       
-#         name_matches = re.findall(name_re, text)
-#         if name_matches:
-#             for n in name_matches:
-#                 raw_name = n[0]
-#                 query = {"chamber": "house"}
-#                 
-#                 if n[1]:
-#                     if n[1] == "Mr." : query["gender"] = 'M'
-#                     else: query['gender'] = 'F'
-#                 if n[3]:
-#                     query["last_name"] = n[3]
-#                 if n[6]:
-#                     query["first_name"] = n[6]
-#                 if n[9]:
-#                     query["state"] = n[9]
-#                 elif n[11]:
-#                     query["state"] = n[11]
-#                     
-#                 possibles = db['legislators'].find(query)
-#             
-#             if possibles.count() > 0:
-#                 if text not in legislator_names:
-#                     legislator_names.append(raw_name)
-#                     
-#             for p in possibles:
-#                 if p['bioguide_id'] not in bioguide_ids:
-#                     bioguide_ids.append(p['bioguide_id'])
-#     
-#     return (legislator_names, bioguide_ids)
   
 end
