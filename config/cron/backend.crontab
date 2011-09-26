@@ -18,7 +18,7 @@
 
 # floor updates
 */2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
-*/2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
+# */2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
 
 # whip notices
 0 15 * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
