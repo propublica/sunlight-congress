@@ -107,11 +107,13 @@ class FloorUpdatesLiveHouse
   end
   
   def self.roll_ids_for(text, year)
-    []
+    matches = text.scan(/Roll (?:no.|Call) (\d+)/i).map {|r| r.first}.uniq.compact
+    matches.map {|number| "h#{number}-#{year}"}
   end
   
   def self.bill_ids_for(text, session)
-    []
+    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
+    matches.map {|code| "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}" }
   end
   
   def self.legislator_ids_for(text)
@@ -132,19 +134,6 @@ class FloorUpdatesLiveHouse
 #     
 #     return roll_ids
 #     
-# def extract_bills(text, session):
-#     bill_ids = []
-#     
-#     p = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)', flags=re.IGNORECASE)
-#     bill_matches = p.findall(text)
-#     
-#     if bill_matches:
-#         for b in bill_matches:
-#             bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), session)
-#             if bill_text not in bill_ids:
-#                 bill_ids.append(bill_text)
-#     
-#     return bill_ids
 # 
 # def extract_legislators(text, chamber, db):
 #     legislator_names = []
