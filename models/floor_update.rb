@@ -5,7 +5,7 @@ class FloorUpdate
   default_order :timestamp
   
   basic_fields :chamber, :legislative_day, :timestamp, 
-    :events, :roll_ids, :bill_ids, :legislator_ids
+    :events, :roll_ids, :bill_ids, :legislator_ids, :session
   
   search_fields :events
   
@@ -18,6 +18,7 @@ class FloorUpdate
   index :bill_ids
   index :legislator_ids
   index :timestamp
+  index :session
   
   field :legislative_day
 end
