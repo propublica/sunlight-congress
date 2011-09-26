@@ -52,6 +52,8 @@ class FloorUpdatesLiveSenate
     # If it does exist...we leave it alone.
     # This is *not* an archival script, and the timestamps will also be inaccurate at first - we must accept this.
     
+    session = Utils.current_session
+    
     updates.keys.sort.each do |legislative_day|
       todays = FloorUpdate.where(:legislative_day => legislative_day).all.map {|u| u['events']}.flatten
       items = updates[legislative_day]
@@ -68,12 +70,13 @@ class FloorUpdatesLiveSenate
         
         floor_update = FloorUpdate.new(
           :chamber => "senate",
+          :session => session,
           :legislative_day => legislative_day,
           :timestamp => Time.now,
           :events => [item],
           :bill_ids => extract_bills(item),
           :roll_ids => extract_rolls(item),
-          :bioguide_ids => extract_legislators(item)
+          :legislator_ids => extract_legislators(item)
         )
         
         if floor_update.save
