@@ -44,7 +44,7 @@ class FloorUpdatesLiveHouse
       update.attributes = {
         :session => session,
         :legislative_day => legislative_day_stamp,
-        :bill_ids => bill_ids_for(item, session),
+        :bill_ids => bill_ids_for(action, item, session),
         :roll_ids => roll_ids_for(item, year),
         :legislator_ids => legislator_ids_for(item)
       }
@@ -111,9 +111,19 @@ class FloorUpdatesLiveHouse
     matches.map {|number| "h#{number}-#{year}"}
   end
   
-  def self.bill_ids_for(text, session)
+  def self.bill_ids_for(action, text, session)
     matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches.map {|code| "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}" }
+    matches = matches.map {|code| bill_code_to_id code, session}
+    
+    if action_item = action.at(:action_item)
+      matches << bill_code_to_id(action_item.text, session)
+    end
+    
+    matches.uniq
+  end
+    
+  def self.bill_code_to_id(code, session)
+    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
   end
   
   def self.legislator_ids_for(text)
