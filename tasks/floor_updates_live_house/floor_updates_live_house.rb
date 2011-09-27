@@ -37,8 +37,8 @@ class FloorUpdatesLiveHouse
       timestamp = Time.parse action.at("action_time")['for-search']
       item = action.at("action_description").inner_text.strip
       
-      unless update = FloorUpdate.where(:timestamp => timestamp, :chamber => chamber).first
-        update = FloorUpdate.new(:timestamp => timestamp, :chamber => chamber, :events => item)
+      unless update = FloorUpdate.where(:timestamp => timestamp, :chamber => chamber, :events => item).first
+        update = FloorUpdate.new(:timestamp => timestamp, :chamber => chamber, :events => [item])
       end
       
       update.attributes = {
