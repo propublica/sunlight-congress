@@ -20,6 +20,7 @@ def parse_iso8601(timestamp):
 # hacky hardcoded fix to deal with GovTrack committee ID issues
 def committee_id_for(govtrack_id, govtrack_name = None):
   if not govtrack_id and govtrack_name != None:
+    govtrack_name = govtrack_name.replace(": ", "")
     govtrack_name = govtrack_name.replace(";", "")
     govtrack_name = govtrack_name.replace(", ", "")
     if govtrack_name == "House Transportation":
