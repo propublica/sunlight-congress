@@ -3,17 +3,15 @@ import re
 import urllib2
 import datetime, time
 import rtc_utils
+import HTMLParser
 
 
 def run(db, options = {}):
     senate_count = senate_hearings(db)
-    house_count = house_hearings(db)
-      
-    db.success("Updated or created %s House and %s Senate committee hearings" % (house_count, senate_count))
+    db.success("Updated or created %s Senate committee hearings" % senate_count)
 
 
 def senate_hearings(db):
-    chamber = "senate"
     try:
       page = urllib2.urlopen("http://www.senate.gov/general/committee_schedules/hearings.xml")
     except:
@@ -22,6 +20,7 @@ def senate_hearings(db):
     else:
       soup = BeautifulStoneSoup(page)
       meetings = soup.findAll('meeting')
+      parser = HTMLParser.HTMLParser()
       
       count = 0
       
@@ -32,7 +31,7 @@ def senate_hearings(db):
           committee_id = meeting.cmte_code.contents[0].strip()
           committee_id = re.sub("(\d+)$", "", committee_id)
           
-          # resolve discrepancies between Sunlight and GovTrack
+          # resolve discrepancies between Sunlight and the Senate
           committee_id = rtc_utils.committee_id_for(committee_id)
           if not committee_id:
             continue
@@ -60,6 +59,8 @@ def senate_hearings(db):
               
           room = meeting.room.contents[0].strip()
           description = meeting.matter.contents[0].strip().replace('\n', '')
+          # content is double-escaped, e.g. &amp;quot;
+          description = parser.unescape(parser.unescape(description))
           
           hearing = db.get_or_initialize('committee_hearings', {
               'chamber': 'senate', 
