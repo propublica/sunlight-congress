@@ -171,14 +171,16 @@ class FloorUpdatesLiveHouse
           legislator_ids << legislators.first.bioguide_id
         elsif legislators.size > 1
           ids = legislators.map(&:bioguide_id)
-          Report.warning self, "Ambiguous legislator match for #{match[0]}, attached all matching results", :match => match, :legislator_ids => ids
+          # Report.warning self, "Ambiguous legislator match for #{match[0]}, attached all matching results", :match => match, :legislator_ids => ids
           legislator_ids += ids
         end
         
       end
       
       if warning
-        Report.warning self, "Couldn't find legislator match for #{match[0]}", :match => match
+        # occasionally non-members are actually mentioned in the floor feed, which causes a barrage of emails
+        # the code here works well enough that I'm comfortable commenting these out for a while
+        # Report.warning self, "Couldn't find legislator match for #{match[0]}", :match => match
       end
     end
     
