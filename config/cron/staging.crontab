@@ -24,7 +24,7 @@
 0 15 * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
 
 # committee hearings
-*/15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings
+*/15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_senate
 
 # CRS reports
 0 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
