@@ -13,13 +13,17 @@ module Utils
   
   # given a timestamp of the form "2011-02-18", return noon UTC on that day
   def self.noon_utc_for(timestamp)
-    time = Time.parse timestamp
+    time = timestamp.is_a?(String) ? Time.parse(timestamp) : timestamp
     time.getutc + (12-time.getutc.hour).hours
   end
   
   # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
   def self.current_session
-    ((Time.now.year + 1) / 2) - 894
+    session_for_year Time.now.year
+  end
+  
+  def self.session_for_year(year)
+    ((year + 1) / 2) - 894
   end
   
   # map govtrack type to RTC type
