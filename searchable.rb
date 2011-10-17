@@ -272,7 +272,7 @@ module Searchable
   
   def self.pagination_for(model, params)
     default_per_page = 20
-    max_per_page = 500
+    max_per_page = 50
     max_page = 200000000 # let's keep it realistic
     
     # rein in per_page to somewhere between 1 and the max
