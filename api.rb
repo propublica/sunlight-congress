@@ -89,7 +89,9 @@ helpers do
   def xml_exceptions(results)
     if results['votes']
       results['votes'].each do |vote|
-        vote['vote_breakdown'] = dasherize_hash vote['vote_breakdown']
+        if vote['vote_breakdown']
+          vote['vote_breakdown'] = dasherize_hash vote['vote_breakdown']
+        end
       end
     end
   end
