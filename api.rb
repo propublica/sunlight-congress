@@ -79,8 +79,35 @@ helpers do
   end
   
   def xml(results)
+    results = xml_exceptions results
     response['Content-Type'] = 'application/xml'
     results.to_xml :root => 'results', :dasherize => false
+  end
+  
+  # a hard-coded XML exception for vote names, which I foolishly made as keys
+  # this will be fixed in v2
+  def xml_exceptions(results)
+    if results['votes']
+      results['votes'].each do |vote|
+        vote['vote_breakdown'] = dasherize_hash vote['vote_breakdown']
+      end
+    end
+  end
+  
+  def dasherize_hash(original)
+    hash = original.dup
+    
+    hash.keys.each do |key|
+      value = hash.delete key
+      key = key.tr(' ', '-')
+      if value.is_a?(Hash)
+        hash[key] = dasherize_hash(value)
+      else
+        hash[key] = value
+      end
+    end
+    
+    hash
   end
   
 end
