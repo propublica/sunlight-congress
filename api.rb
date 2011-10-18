@@ -79,7 +79,7 @@ helpers do
   end
   
   def xml(results)
-    results = xml_exceptions results
+    xml_exceptions results
     response['Content-Type'] = 'application/xml'
     results.to_xml :root => 'results', :dasherize => false
   end
