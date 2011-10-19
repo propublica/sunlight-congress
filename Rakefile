@@ -72,6 +72,7 @@ end
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file
   
+  desc "runs #{name} task"
   namespace :task do
     task name.to_sym => :environment do
       run_task name
