@@ -16,12 +16,14 @@ class DocumentsWhipNotices
       total_count += house_dem 'weekly', HOUSE_DEM_URL % 31
     end
     
+    Report.success self, "Updated or created #{total_count} House Dem whip notices"
+    
     unless options[:party] == 'd'
-      total_count += house_rep 'daily', HOUSE_REP_URL % "daily"
-      total_count += house_rep 'weekly', HOUSE_REP_URL % "weekly"
+      house_rep 'daily', HOUSE_REP_URL % "daily"
+      house_rep 'weekly', HOUSE_REP_URL % "weekly"
     end
     
-    Report.success self, "Updated or created #{total_count} whip notices"
+    Report.success self, "Updated or created daily and weekly House Rep whip notices"
   end
   
   def self.house_dem(type, url)
@@ -111,9 +113,8 @@ class DocumentsWhipNotices
     }
     
     notice.save!
-            
-    1
   end
+  
   def self.content_for(url)
     begin
       open(url).read
