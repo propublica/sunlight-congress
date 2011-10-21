@@ -17,6 +17,9 @@
   :host: localhost
   :port: 9200
   :index: rtc
+  
+# turn on for extra debug info in task output
+:debug: false
 
 :log_file: /dev/null
 

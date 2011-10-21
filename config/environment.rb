@@ -39,6 +39,11 @@ configure do
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
+  
+  # inflection exceptions
+  ActiveSupport::Inflector.inflections do |i|
+    i.irregular 'upcoming', 'upcoming'
+  end
 end
 
 # special fields used by the system, cannot be used on a model (on the top level)
