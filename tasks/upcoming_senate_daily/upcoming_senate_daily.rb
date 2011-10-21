@@ -59,8 +59,7 @@ class UpcomingSenateDaily
           else
             upcoming_bills[legislative_day][bill_id] = {
               :session => session,
-              :upcoming_type => "bill",
-              :chamber => "house",
+              :chamber => "senate",
               :context => [text],
               :bill_id => bill_id,
               :legislative_day => legislative_day,
@@ -72,14 +71,13 @@ class UpcomingSenateDaily
         end
       end
       
-      schedule = Upcoming.find_or_initialize_by(
+      schedule = UpcomingSchedule.find_or_initialize_by(
         :source_type => "senate_daily",
-        :upcoming_type => "schedule",
         :legislative_day => legislative_day
       )
       
       schedule.attributes = {
-        :chamber => "house",
+        :chamber => "senate",
         :session => session,
         :legislative_day => legislative_day,
         :bill_ids => day_bill_ids.uniq,
@@ -100,8 +98,7 @@ class UpcomingSenateDaily
     # create any accumulated upcoming bills
     upcoming_bills.each do |legislative_day, bills|
       # clear out the previous items for that legislative day
-      Upcoming.where(
-        :upcoming_type => "bill",
+      UpcomingBill.where(
         :source_type => "senate_daily",
         :legislative_day => legislative_day
       ).delete_all
@@ -109,7 +106,7 @@ class UpcomingSenateDaily
       puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config[:debug]
       
       bills.each do |bill_id, bill|
-        Upcoming.create! bill
+        UpcomingBill.create! bill
         bill_count += 1
       end
       
