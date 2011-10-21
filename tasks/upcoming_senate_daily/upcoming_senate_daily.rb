@@ -1,5 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
+require 'htmlentities'
 
 class UpcomingSenateDaily
   
@@ -23,22 +24,30 @@ class UpcomingSenateDaily
     
     rss.entries.each do |entry|
       doc = Nokogiri::HTML entry.content
-      root = doc.at "/html/body/ul"
       
       legislative_date = Time.parse entry.title
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
       # don't care unless it's today or in the future
-      next if legislative_date.midnight < 2.days.ago.midnight # Time.now.midnight
+      next if legislative_date.midnight < Time.now.midnight
       
       upcoming_bills[legislative_day] = {}
       text_pieces = []
       day_bill_ids = []
       
-      root.xpath("li").each_with_index do |item, i|
+      items = nil
+      if root = doc.at("/html/body/ul")
+        items = root.xpath "li"
+      else
+        items = doc.at("/html/body").element_children
+      end
+      
+      items.each_with_index do |item, i|
         
-        text = item.text
+        text = Utils.strip_unicode item.text
+        
+        next unless text.present?
             
         # figure out the text item, including any following sub-items
         if item.next_element and item.next_element.name == "ul"
