@@ -60,7 +60,7 @@ class UpcomingSenateDaily
         
         text_pieces << text
         
-        bill_ids = Util.bill_ids_for text, session
+        bill_ids = Utils.bill_ids_for text, session
         day_bill_ids += bill_ids
         
         bill_ids.each do |bill_id|
