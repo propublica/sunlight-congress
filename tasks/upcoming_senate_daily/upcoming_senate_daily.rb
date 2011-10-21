@@ -60,7 +60,7 @@ class UpcomingSenateDaily
         
         text_pieces << text
         
-        bill_ids = bill_ids_for text, session
+        bill_ids = Util.bill_ids_for text, session
         day_bill_ids += bill_ids
         
         bill_ids.each do |bill_id|
@@ -123,16 +123,6 @@ class UpcomingSenateDaily
     end
     
     Report.success self, "Created or updated #{bill_count} upcoming bills"
-  end
-  
-  def self.bill_ids_for(text, session)
-    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches = matches.map {|code| bill_code_to_id code, session}
-    matches.uniq
-  end
-    
-  def self.bill_code_to_id(code, session)
-    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
   end
   
 end

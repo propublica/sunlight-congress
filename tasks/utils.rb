@@ -334,4 +334,14 @@ module Utils
   def self.committee_id_for(govtrack_id)
     govtrack_id
   end
+  
+  def self.bill_ids_for(text, session)
+    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
+    matches = matches.map {|code| bill_code_to_id code, session}
+    matches.uniq
+  end
+    
+  def self.bill_code_to_id(code, session)
+    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
+  end
 end
