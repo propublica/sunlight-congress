@@ -1,6 +1,5 @@
 require 'feedzirra'
 require 'nokogiri'
-require 'htmlentities'
 
 class UpcomingSenateDaily
   
