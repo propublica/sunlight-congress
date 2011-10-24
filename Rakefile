@@ -175,7 +175,7 @@ def email_body(report)
   attrs = report.attributes.dup
   [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
   
-  msg += attrs.inspect
+  msg += to_h(attrs).inspect
   msg
 end
 
@@ -190,4 +190,9 @@ def exception_message(exception)
   end
   
   msg
+end
+
+# converts a BSON::OrderedHash to a regular hash
+def to_h(hash)
+  hash.inject({}) { |acc, element| k,v = element; acc[k] = (if v.class == BSON::OrderedHash then to_h(v) else v end); acc }
 end
