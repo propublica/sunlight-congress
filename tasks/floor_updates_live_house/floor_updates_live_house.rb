@@ -34,7 +34,7 @@ class FloorUpdatesLiveHouse
     year = legislative_day.year
     
     (doc/:floor_action).each do |action|
-      timestamp = Time.parse action.at("action_time")['for-search']
+      timestamp = Utils.utc_parse action.at("action_time")['for-search']
       item = action.at("action_description").inner_text.strip
       
       unless update = FloorUpdate.where(:timestamp => timestamp, :chamber => chamber, :events => item).first
@@ -67,7 +67,7 @@ class FloorUpdatesLiveHouse
   
   def self.get_xml_url(options)
     if options[:day]
-      date = Time.parse(options[:day]).strftime("%Y%m%d")
+      date = Utils.utc_parse(options[:day]).strftime("%Y%m%d")
       "http://clerk.house.gov/floorsummary/Download.aspx?file=#{date}.xml"
     else
       
@@ -103,7 +103,7 @@ class FloorUpdatesLiveHouse
   end
   
   def self.legislative_day_for(doc)
-    Time.parse doc.at("legislative_day").text
+    Utils.utc_parse doc.at("legislative_day").text
   end
   
   def self.roll_ids_for(text, year)

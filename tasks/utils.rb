@@ -16,6 +16,10 @@ module Utils
     time = timestamp.is_a?(String) ? Time.parse(timestamp) : timestamp
     time.getutc + (12-time.getutc.hour).hours
   end
+
+  def self.utc_parse(timestamp)
+    Time.zone.parse(timestamp).utc
+  end
   
   # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
   def self.current_session

@@ -32,7 +32,7 @@ class FloorUpdatesLiveSenate
       next if ["senate floor proceedings", "today's senate floor log", "\302\240"].include?(item.text.strip.downcase)
       
       if item['align'] == 'center'
-        current_date = Time.parse(item.text).strftime "%Y-%m-%d"
+        current_date = Utils.utc_parse(item.text).strftime "%Y-%m-%d"
         updates[current_date] ||= []
       
       elsif item['align'] == 'left'

@@ -296,7 +296,7 @@ module Searchable
       elsif type == Integer
         value.to_i
       elsif [Date, Time, DateTime].include?(type)
-        Time.parse(value) rescue nil
+        Time.zone.parse(value).utc rescue nil
       else
         value
       end
@@ -308,7 +308,7 @@ module Searchable
       elsif value =~ /^\d+$/
         value.to_i
       elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
-        Time.parse(value) rescue nil
+        Time.zone.parse(value).utc rescue nil
       else
         value
       end
