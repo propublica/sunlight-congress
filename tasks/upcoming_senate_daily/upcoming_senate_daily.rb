@@ -24,11 +24,11 @@ class UpcomingSenateDaily
     rss.entries.each do |entry|
       doc = Nokogiri::HTML entry.content
       
-      legislative_date = Time.parse entry.title
+      legislative_date = Utils.utc_parse entry.title
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
-      since = options[:since] ? Time.parse(options[:since]) : Time.now
+      since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now
       
       # don't care unless it's today or in the future
       next if legislative_date.midnight < since.midnight

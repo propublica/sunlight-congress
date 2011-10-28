@@ -283,9 +283,9 @@ class VotesLiveHouse
     datestamp = doc.at("action-date").inner_text
     timestamp = doc.at("action-time").inner_text
     
+    # don't use Utils.utc_parse here, constructing a local time manually from two timestamps
     date = Time.parse datestamp
     time = Time.parse timestamp
-    
     Time.local date.year, date.month, date.day, time.hour, time.min, time.sec
   end
   

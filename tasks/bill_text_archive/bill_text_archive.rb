@@ -217,7 +217,7 @@ class BillTextArchive
   def self.issued_on_for(doc)
     timestamp = doc.at("dateIssued").text
     if timestamp.present?
-      Time.parse(timestamp).strftime "%Y-%m-%d"
+      Utils.utc_parse(timestamp).strftime "%Y-%m-%d"
     else
       nil
     end
@@ -227,7 +227,7 @@ class BillTextArchive
   def self.backup_issued_on_for(doc)
     timestamp = doc.xpath("//dc:date", "dc" => "http://purl.org/dc/elements/1.1/").text
     if timestamp.present?
-      Time.parse(timestamp).strftime "%Y-%m-%d"
+      Utils.utc_parse(timestamp).strftime "%Y-%m-%d"
     else
       nil
     end

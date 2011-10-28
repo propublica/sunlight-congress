@@ -316,7 +316,7 @@ class VotesLiveSenate
     # make sure we're set to EST
     Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
     
-    Time.parse doc.at("vote_date").text
+    Utils.utc_parse doc.at("vote_date").text
   end
   
 end

@@ -41,7 +41,7 @@ class DocumentsWhipNotices
       notice_url = entry.url
       posted_at = entry.published
       title = entry.title
-      for_date = Time.parse entry.title
+      for_date = Utils.utc_parse entry.title
       session = Utils.session_for_year for_date.year
     
       notice = Document.find_or_initialize_by(
