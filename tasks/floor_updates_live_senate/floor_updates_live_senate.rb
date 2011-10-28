@@ -119,7 +119,7 @@ class FloorUpdatesLiveSenate
   end
   
   def self.clean_text(text)
-    text.gsub("\342\200\231", "'").gsub("\302\240", " ").gsub("\342\200\234", "\"").gsub("\342\200\235", "\"").gsub(/\s+/, ' ').strip
+    text.gsub("\342\200\231", "'").gsub("\302\240", " ").gsub("\342\200\234", "\"").gsub("\342\200\235", "\"").gsub(/[ \t]+/, ' ').gsub("\n", "\n\n").strip
   end
   
 end
