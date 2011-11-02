@@ -4,7 +4,8 @@ class Document
 
   default_order :posted_at
 
-  basic_fields :posted_at, :document_type, :url
+  basic_fields :posted_at, :document_type, :url, :title
+  search_fields :title
 
 
   include Mongoid::Document
