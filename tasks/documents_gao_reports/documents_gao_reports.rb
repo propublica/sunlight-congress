@@ -8,10 +8,10 @@ class DocumentsGaoReports
     doc = Nokogiri::XML(open("http://www.gao.gov/rss/reports.xml"))
 
     doc.xpath('//item').each do |item|
-
       gao_id =  item.xpath('title').inner_text.split(',')[0]
+      
       if Document.first(:conditions => { :gao_id => gao_id })
-        break
+        next
       else
         num_added += 1
         Document.create(:document_type => 'gao_report',
