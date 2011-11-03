@@ -12,10 +12,18 @@ class UpcomingSenateDaily
     rss = nil
     begin
       rss = Feedzirra::Feed.fetch_and_parse url
-      raise Exception.new("Got a #{rss}") if rss.is_a?(Fixnum)
+
       # rss = Feedzirra::Feed.parse open("rss.xml").read
     rescue Exception => ex
       Report.warning self, "Network error on fetching Senate Daily Summary feed, can't go on.", :url => url
+      return
+    end
+
+    if rss.is_a?(Fixnum)
+      Report.warning self, "Got status code #{rss} from Senate Daily Summary feed, can't go on.", :url => url
+      return
+    elsif rss.nil?
+      Report.warning self, "Got a nil return value from Feedzirra from the Senate Daily Summary feed, can't go on.", :url => url
       return
     end
     
