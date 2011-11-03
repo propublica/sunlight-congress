@@ -12,6 +12,9 @@ class DocumentsGaoReports
       gao_id =  title.split(',')[0]
       plain_title = title.split(", ")[1...-2].join(", ")
 
+      # maybe someday GAO will notice us
+      url = item.xpath('link').inner_text.gsub(/source=ra$/, "source=sunlight")
+
       pdf_id = gao_id.gsub(/^GAO/, '').tr('-','').downcase
       pdf_url = "http://www.gao.gov/new.items/d#{pdf_id}.pdf"
 
@@ -20,7 +23,7 @@ class DocumentsGaoReports
       document.attributes = {
         :document_type => 'gao_report',
         :title => plain_title,
-        :url => item.xpath('link').inner_text,
+        :url => url,
         :pdf_url => pdf_url,
         :posted_at => Time.parse(item.xpath('pubDate').inner_text.gsub('00:00:00','13:00:00'))
       }
