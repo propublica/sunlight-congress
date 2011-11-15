@@ -37,7 +37,7 @@ class UpcomingSenateDaily
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
-      since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now
+      since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now.midnight.utc
       
       # don't care unless it's today or in the future
       next if legislative_date.midnight < since.midnight
