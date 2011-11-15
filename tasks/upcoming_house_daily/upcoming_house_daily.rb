@@ -67,7 +67,7 @@ class UpcomingHouseDaily
     
     # clear out existing upcoming bills for the day
     UpcomingBill.where(
-      :source_type => "senate_daily",
+      :source_type => "house_daily",
       :legislative_day => legislative_day
     ).delete_all
       
