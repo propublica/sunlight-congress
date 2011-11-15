@@ -71,21 +71,31 @@ class UpcomingHouseDaily
       :legislative_day => legislative_day
     ).delete_all
       
-    bill_count = 0
+    upcoming_count = 0
     bill_ids.each do |bill_id|
-      UpcomingBill.create!(
+      bill = Utils.bill_for bill_id
+
+      upcoming = UpcomingBill.new(
         :session => session,
         :chamber => "house",
         :legislative_day => legislative_day,
         :source_type => "house_daily",
         :source_url => url,
-        :bill_id => bill_id,
-        :bill => Utils.bill_for(bill_id)
+        :bill_id => bill_id
       )
-      bill_count += 1
+
+      if bill
+        upcoming.attributes = {
+          :bill => bill
+        }
+      end
+
+      upcoming.save!
+
+      upcoming_count += 1
     end
     
-    Report.success self, "Saved #{bill_count} upcoming bills for the House for #{legislative_day}"
+    Report.success self, "Saved #{upcoming_count} upcoming bills for the House for #{legislative_day}"
     
   end
   
