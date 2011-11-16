@@ -84,8 +84,10 @@ class UpcomingSenateDaily
               :legislative_day => legislative_day,
               :source_type => "senate_daily",
               :source_url => entry.url,
-              :bill => Utils.bill_for(bill_id)
             }
+            if bill = Utils.bill_for(bill_id)
+              upcoming_bills[legislative_day][bill_id][:bill] = bill
+            end
           end
         end
       end
@@ -125,7 +127,13 @@ class UpcomingSenateDaily
       puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config[:debug]
       
       bills.each do |bill_id, bill|
-        UpcomingBill.create! bill
+        upcoming = UpcomingBill.create! bill
+        
+        # sync to bill object
+        if upcoming[:bill]
+          Utils.update_bill_upcoming! bill_id, upcoming
+        end
+
         bill_count += 1
       end
       

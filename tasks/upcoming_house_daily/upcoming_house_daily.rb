@@ -88,6 +88,7 @@ class UpcomingHouseDaily
         upcoming.attributes = {
           :bill => bill
         }
+        Utils.update_bill_upcoming! bill_id, upcoming
       end
 
       upcoming.save!

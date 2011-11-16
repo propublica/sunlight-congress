@@ -4,7 +4,7 @@ class UpcomingBill
   
   default_order :legislative_day
   
-  basic_fields :chamber, :session, :legislative_day, :bill_id, :source_url, :source_type, :context
+  basic_fields :chamber, :session, :legislative_day, :bill_id, :source_url, :source_type, :context, :permalink
   
   
   include Mongoid::Document
