@@ -78,10 +78,11 @@ class UpcomingHouseDaily
       upcoming = UpcomingBill.new(
         :session => session,
         :chamber => "house",
+        :bill_id => bill_id,
         :legislative_day => legislative_day,
         :source_type => "house_daily",
         :source_url => url,
-        :bill_id => bill_id
+        :permalink => pdf_url
       )
 
       if bill

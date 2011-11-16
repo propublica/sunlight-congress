@@ -84,6 +84,7 @@ class UpcomingSenateDaily
               :legislative_day => legislative_day,
               :source_type => "senate_daily",
               :source_url => entry.url,
+              :permalink => entry.url
             }
             if bill = Utils.bill_for(bill_id)
               upcoming_bills[legislative_day][bill_id][:bill] = bill
@@ -104,7 +105,8 @@ class UpcomingSenateDaily
         :bill_ids => day_bill_ids.uniq,
         :items => text_pieces,
         :original => entry.content.strip,
-        :source_url => entry.url
+        :source_url => entry.url,
+        :permalink => entry.url
       }
       
       schedule.save!
