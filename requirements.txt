@@ -1,3 +1,4 @@
+httplib2
 BeautifulSoup==3.2.0
 anyjson==0.2.5
 feedparser==4.1

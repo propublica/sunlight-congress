@@ -1,62 +1,52 @@
-import re
-import feedparser
-import urllib2
-import datetime
-from dateutil.tz import *
-import time
-import re
+import json
+import urlparse
+import httplib2
 
-
-rss_url = "http://houselive.gov/VPodcast.php?view_id=2"
+API_PREFIX = 'http://govflix.com/api/'
+PARSING_ERRORS = []
 
 def run(db, options = {}):
-    add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%Mz")
-    rss = feedparser.parse(rss_url)
-    count = 0
     
-    for video in rss.entries:
-    
-        date_obj = datetime.datetime.strptime(re.sub("[-+]\d{4}", "", video.date, 1).strip(), "%a, %d %b %Y %H:%M:%S")
-        timestamp_obj = datetime.datetime(date_obj.year, date_obj.month, date_obj.day, 12, 0, 0, tzinfo=gettz("America/New_York"))
-        slug = int(time.mktime(timestamp_obj.timetuple()))
-        
-        video_id = 'house-' + str(slug)
-        
-        video_obj = db.get_or_initialize('videos', {'video_id': video_id})
-        
-        video_obj['pubdate'] = timestamp_obj.strftime("%Y-%m-%dT%H:%M%z")
-        video_obj['legislative_day'] = timestamp_obj.strftime("%Y-%m-%d")
-        url = video.enclosures[0]['url']
-        video_obj['title'] = video.title
-        video_obj['description'] = "HouseLive.gov feed for " + timestamp_obj.strftime("%B %d, %Y")
-        link = video.link
-        guid_matches = re.findall("clerkhouse_([\-|\w|\d]*)\.mp4", url)
-        if guid_matches:
-            guid = guid_matches[0]
-        else:
-            guid = None
-        clip_id = re.search("(clip_id=)(\d+)", link).groups()[1]
-        video_obj['clip_id'] = clip_id
-        if video_obj.has_key('clip_urls'):
-            video_obj['clip_urls']['mp4'] = url
-            if guid:
-                video_obj['clip_urls']['hls'] = "http://207.7.154.110:1935/OnDemand/_definst_/mp4:clerkhouse/clerkhouse_%s.mp4/playlist.m3u8" % guid
-        else:
-            video_obj['clip_urls'] = {'mp4' : url }
-            if guid:
-                video_obj['clip_urls']['hls'] = "http://207.7.154.110:1935/OnDemand/_definst_/mp4:clerkhouse/clerkhouse_%s.mp4/playlist.m3u8" % guid
+    get_videos(db, 'houselive.gov')
+    #add in senatelive.gov later I guess
 
-        video_obj['created_at'] = add_date
-        video_obj['chamber'] = 'house'
-        
-        db['videos'].save(video_obj)
-        
-        # print "Saved house video for %s" % video_obj['legislative_day']
-        count += 1
-            
-    db.success("Updated or created %s live House videos" % count)
+    if PARSING_ERRORS:
+        db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
 
-def get_mms_url(clip_id):
-    clip_xml = urllib2.urlopen("http://houselive.gov/asx.php?clip_id=%s&view_id=2&debug=1" % clip_id).read()
-    mms_url = re.search("(<REF HREF=\")([^\"]+)", clip_xml).groups()[1]
-    return mms_url
+
+
+def get_markers(db, chamber, vid_id=None):
+    api_url = API_PREFIX + chamber + '?type=marker&size=100000'
+    markers = query_api(db, api_url)
+
+
+
+
+def get_videos(db, chamber):
+    api_url = API_PREFIX + chamber + '?type=video&size=100000'
+    videos = query_api(db, api_url)
+    for vid in videos:
+        v = vid['_source']
+        clip_id = v['id']
+        mp4 = v['http']
+        hls = v['hls']
+        rtmp = v['hls']
+        print v['name']
+        legislative_day = v['name'][v['name'].index('OF')+2:]
+        print legislative_day
+
+
+
+def query_api(db, api_url):
+
+    h = httplib2.Http()
+    response, text = h.request(api_url)
+
+    if response.get('status') == '200':
+        items = json.loads(text)['hits']['hits']
+        return items
+
+    else:
+        PARSING_ERRORS.append('Got something other than 200 status:' % response.get('status'))
+
+
