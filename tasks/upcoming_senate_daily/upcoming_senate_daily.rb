@@ -37,7 +37,7 @@ class UpcomingSenateDaily
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
-      since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now
+      since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now.midnight.utc
       
       # don't care unless it's today or in the future
       next if legislative_date.midnight < since.midnight
@@ -84,8 +84,11 @@ class UpcomingSenateDaily
               :legislative_day => legislative_day,
               :source_type => "senate_daily",
               :source_url => entry.url,
-              :bill => Utils.bill_for(bill_id)
+              :permalink => entry.url
             }
+            if bill = Utils.bill_for(bill_id)
+              upcoming_bills[legislative_day][bill_id][:bill] = bill
+            end
           end
         end
       end
@@ -102,7 +105,8 @@ class UpcomingSenateDaily
         :bill_ids => day_bill_ids.uniq,
         :items => text_pieces,
         :original => entry.content.strip,
-        :source_url => entry.url
+        :source_url => entry.url,
+        :permalink => entry.url
       }
       
       schedule.save!
@@ -125,7 +129,13 @@ class UpcomingSenateDaily
       puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config[:debug]
       
       bills.each do |bill_id, bill|
-        UpcomingBill.create! bill
+        upcoming = UpcomingBill.create! bill
+        
+        # sync to bill object
+        if upcoming[:bill]
+          Utils.update_bill_upcoming! bill_id, upcoming
+        end
+
         bill_count += 1
       end
       
