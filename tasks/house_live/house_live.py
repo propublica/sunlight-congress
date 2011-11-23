@@ -1,6 +1,10 @@
 import json
 import urlparse
 import httplib2
+from datetime import datetime
+import time as timey
+from dateutil.parser import parse
+import pyes
 
 API_PREFIX = 'http://govflix.com/api/'
 PARSING_ERRORS = []
@@ -19,20 +23,29 @@ def get_markers(db, chamber, vid_id=None):
     api_url = API_PREFIX + chamber + '?type=marker&size=100000'
     markers = query_api(db, api_url)
 
-
-
+def try_key(data, key, name, new_data):
+    if data.has_key(key):
+        new_data[name] = data[key]
+        return new_data
+    else:
+        return new_data
 
 def get_videos(db, chamber):
     api_url = API_PREFIX + chamber + '?type=video&size=100000'
     videos = query_api(db, api_url)
     for vid in videos:
+        new_vid = {} 
         v = vid['_source']
-        clip_id = v['id']
-        mp4 = v['http']
-        hls = v['hls']
-        rtmp = v['hls']
-        print v['name']
-        legislative_day = v['name'][v['name'].index('OF')+2:]
+
+        new_vid = try_key(v, 'id', 'clip_id', new_vid)
+        new_vid = try_key(v, 'http', 'mp4', new_vid)
+        new_vid = try_key(v, 'hls', 'hls', new_vid)
+        new_vid = try_key(v, 'rtmp', 'rtmp', new_vid)
+        # Left off here - use pyes to query instead of httplib and change to an archive mode and a last 2 vids mode 
+        try:
+            legislative_day = datetime.strptime(v['name'][v['name'].index('OF')+2:], '%B %d %Y')
+        except:
+            legislative_day = parse(v['datetime'])
         print legislative_day
 
 
