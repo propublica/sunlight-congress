@@ -16,7 +16,6 @@ def run(db, options = {}):
         get_videos(db, 'houselive.gov', 'house', True )
     else:
         get_videos(db, 'houselive.gov', 'house', False)
-    #add in senatelive.gov later I guess
 
     if PARSING_ERRORS:
         db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
