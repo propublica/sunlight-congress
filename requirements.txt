@@ -1,3 +1,5 @@
+pysrt
+boto
 httplib2
 BeautifulSoup==3.2.0
 anyjson==0.2.5

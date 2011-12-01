@@ -1,3 +1,4 @@
+from pysrt import SubRipTime, SubRipItem, SubRipFile
 import json
 import rtc_utils
 import urlparse
@@ -6,11 +7,29 @@ from datetime import datetime
 import time as timey
 from dateutil.parser import parse as dateparse
 import pyes
+import re
+import os
+from htmlentitydefs import name2codepoint
+import subprocess
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
 
 API_PREFIX = 'http://govflix.com/api/'
 PARSING_ERRORS = []
+BILL_RE = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
+
+AWS_ACCESS_KEY_ID = None
+AWS_SECRET_ACCESS_KEY = None
+BUCKET_NAME = 's3://assets.realtimecongress.org'
 
 def run(db, options = {}):
+    
+    
+    if options.has_key('s3'):
+        global AWS_ACCESS_KEY_ID
+        global AWS_SECRET_ACCESS_KEY
+        AWS_ACCESS_KEY_ID = options['s3']['key']
+        AWS_SECRET_ACCESS_KEY = options['s3']['secret']
     
     if options.has_key('archive'):
         get_videos(db, 'houselive.gov', 'house', True )
@@ -21,23 +40,109 @@ def run(db, options = {}):
         db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
 
 
-def get_markers(db, client_name, clip_id):
+def htmlentitydecode(s):
+    return re.sub('&(%s);' % '|'.join(name2codepoint), lambda m: unichr(name2codepoint[m.group(1)]), s).replace('\n', ' ').replace('\r', ' ')
+
+
+def get_cap_end(caps, count):
+    c = None
+    for item in caps[count+1:]:
+        if item['type'] == 'text':
+            return float(item['time'])
+    return None
+
+def push_to_s3(filename, s3name):
+    conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    bucket = conn.create_bucket('assets.realtimecongress.org')
+    k = Key(bucket)
+    k.key = 'srt/%s' % s3name
+    k.set_contents_from_filename(filename)
+    k.set_acl('public-read')
+
+    return 'http://assets.realtimecongress.org.s3.amazonaws.com/srt/%s' % s3name
+    #text = subprocess.Popen('s3cmd put --acl-public --guess-mime-type %s s3://assets.realtimecongress.org/srt/%s' % (filename, s3name), shell=False, stdout=subprocess.PIPE)
+    #url =  text.communicate()[0].split('Public URL of the object is: ')[1]
+    #print url
+    #return url
+#    return text.split('Public URL of the object is: ')[1]
+
+def get_captions(client_name, clip_id):
+    h = httplib2.Http()
+    g_url = 'http://%s/JSON.php?clip_id=%s' % ( client_name, clip_id)
+    response, j = h.request(g_url)
+    if response.get('status') == '200':
+        filename = os.getcwd() + "/tasks/house_live/srt/%s/%s.srt" % (client_name, clip_id) 
+        subs = SubRipFile()
+        captions = []
+
+        try:
+            j = json.loads(j, strict=False)[0]
+        except ValueError:
+            ts = re.sub('([{,]\s+)([a-z]+)(: ")', lambda s: '%s"%s"%s' % (s.groups()[0], s.groups()[1], s.groups()[2]), j).replace("\\", "")
+            try:
+                j = json.loads(ts, strict=False)[0]
+            except UnicodeDecodeError:
+                ts = unicode(ts, errors='ignore')
+                j = json.loads(ts, strict=False)[0]
+        except:
+            j = False
+
+        sub_count = 0
+        for item in j: 
+            if item["type"] == "text":
+                cap = item["text"]
+                offset = float(item["time"])
+                captions.append({'time': offset, 'text': cap})        
+
+                subtitle = SubRipItem(index=sub_count, start=SubRipTime(seconds=offset), end=SubRipTime(seconds=get_cap_end(j, sub_count)), text=cap)
+                subs.append(subtitle)
+                sub_count = sub_count + 1
+        
+        subs.save(filename)
+        s3_url = push_to_s3(filename, '%s/%s.srt' % (client_name, clip_id))
+
+        return (captions, s3_url)
+    else:
+        return ([], '')
+         
+   
+
+
+def get_markers(db, client_name, clip_id, congress, chamber):
     api_url = API_PREFIX + client_name + '?type=marker&size=100000'
     data = '{"filter": { "term": { "video_id": %s}}, "sort": [{"offset":{"order":"asc"}}]}' % clip_id
     markers = query_api(db, api_url, data)
+
     clips = []
+    bills = []
+    legislators = []
+    bioguide_ids = []
+    rolls = []
+
     for m in markers:
         m_new = m['_source']
         c = {
             'offset': m_new['offset'],
-            'events': m_new['name']
+            'events': htmlentitydecode(m_new['name']),
+            'time': m_new['datetime']
         }
         if m != markers[-1]:  #if it's not the last one
             c['duration'] = markers[markers.index(m)+1]['_source']['offset'] - m_new['offset']
 
-        clips.append(c)        
-    
-    return clips
+        year = dateparse(m_new['datetime']).year
+
+        legis, bio_ids = rtc_utils.extract_legislators(c['events'], chamber, db)
+        b = rtc_utils.extract_bills(c['events'], congress)
+        r = rtc_utils.extract_rolls(c['events'], chamber, year)
+        
+        if legis: c['legislator_names'] = legis; legislators.extend(legis)
+        if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
+        if r: c['rolls'] = r; rolls.extend(r)
+        if b: c['bills'] = b; bills.extend(b)
+
+        clips.append(c)
+
+    return (clips, bills, legislators, bioguide_ids, rolls)
 
 def try_key(data, key, name, new_data):
     if data.has_key(key):
@@ -87,10 +192,15 @@ def get_videos(db, client_name, chamber, archive):
         new_vid['chamber'] = chamber
         new_vid['session'] =  rtc_utils.current_session(legislative_day.year)
 
-        new_vid['clips'] = get_markers(db, client_name, new_vid['clip_id'])
+        new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+
         #make sure the last clip has a duration
         new_vid['clips'][-1]['duration'] = new_vid['duration'] - new_vid['clips'][-1]['offset']
-        print new_vid
+        new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
+        print new_vid['caption_srt_file']
+        db['videos'].save(new_vid) 
+
+    #print  new_vid
 
 def query_api(db, api_url, data=None):
 

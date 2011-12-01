@@ -1,8 +1,10 @@
 from pymongo import Connection
 import sys
+import os
 import traceback
 import datetime
 import string
+import yaml
 
 class Database():
 
@@ -96,12 +98,16 @@ class Database():
 import socket
 socket.setdefaulttimeout(10)
 
+options = yaml.load(open(os.getcwd() + '/config/config.yml', 'r').read())
+
 task_name = sys.argv[1]
 db_host = sys.argv[2]
 db_name = sys.argv[3]
 db = Database(task_name, db_host, db_name)
 
-options = {}
+
+#these are being ignored now
+
 args = sys.argv[4:]
 for arg in args:
   key, value = arg.split('=')
