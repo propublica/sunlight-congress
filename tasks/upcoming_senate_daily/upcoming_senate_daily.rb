@@ -86,7 +86,7 @@ class UpcomingSenateDaily
               :source_url => entry.url,
               :permalink => entry.url
             }
-            if bill = Utils.bill_for(bill_id)
+            if bill = Utils.bill_for(bill_id) and bill['abbreviated'] != true
               upcoming_bills[legislative_day][bill_id][:bill] = bill
             end
           end
