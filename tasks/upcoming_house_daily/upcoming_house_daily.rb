@@ -85,7 +85,7 @@ class UpcomingHouseDaily
         :permalink => pdf_url
       )
 
-      if bill
+      if bill and bill['abbreviated'] != true
         upcoming.attributes = {
           :bill => bill
         }
