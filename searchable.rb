@@ -343,8 +343,8 @@ module Searchable
   end
   
   def self.client_for(mapping)
-    full_host = "#{config[:elastic_search][:host]}:#{config[:elastic_search][:port]}"
-    index = config[:elastic_search][:index]
+    full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+    index = config['elastic_search']['index']
     ElasticSearch.new "http://#{full_host}", :index => index, :type => mapping
   end
 

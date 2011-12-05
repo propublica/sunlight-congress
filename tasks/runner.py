@@ -101,14 +101,12 @@ socket.setdefaulttimeout(10)
 options = yaml.load(open(os.getcwd() + '/config/config.yml', 'r').read())
 
 task_name = sys.argv[1]
-db_host = sys.argv[2]
-db_name = sys.argv[3]
+db_host = options['mongoid']['host']
+db_name = options['mongoid']['database']
 db = Database(task_name, db_host, db_name)
 
 
-#these are being ignored now
-
-args = sys.argv[4:]
+args = sys.argv[2:]
 for arg in args:
   key, value = arg.split('=')
   if key and value:

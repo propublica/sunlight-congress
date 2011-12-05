@@ -4,7 +4,7 @@ class DocumentsCrsReports
 
   def self.run(options = {})
     num_added = 0
-    key = options[:config][:opencrs_api_key]
+    key = options[:config]['opencrs_api_key']
 
     (1..5).each do |page|
       response = HTTParty.get "http://opencrs.com/api/reports/list.json?key=#{key}&page=#{page}"

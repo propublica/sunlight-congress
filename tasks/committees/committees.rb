@@ -3,7 +3,7 @@ require 'sunlight'
 class Committees
   
   def self.run(options = {})
-    Sunlight::Base.api_key = options[:config][:sunlight_api_key]
+    Sunlight::Base.api_key = options[:config]['sunlight_api_key']
     
     bad_committees = []
     count = 0

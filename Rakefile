@@ -133,9 +133,7 @@ def run_ruby(name)
 end
 
 def run_python(name)
-  options = {}
-  
-  system "python tasks/runner.py #{name} #{config[:mongoid]['host']} #{config[:mongoid]['database']} #{ARGV[1..-1].join ' '}"
+  system "python tasks/runner.py #{name} #{ARGV[1..-1].join ' '}"
 end
 
 def email(report, exception = nil)

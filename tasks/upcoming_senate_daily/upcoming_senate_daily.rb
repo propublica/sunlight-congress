@@ -111,7 +111,7 @@ class UpcomingSenateDaily
       
       schedule.save!
       
-      puts "[#{legislative_day}][senate_daily][schedule] Created/updated schedule" if config[:debug]
+      puts "[#{legislative_day}][senate_daily][schedule] Created/updated schedule" if config['debug']
       count += 1
       
     end
@@ -126,7 +126,7 @@ class UpcomingSenateDaily
         :legislative_day => legislative_day
       ).delete_all
       
-      puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config[:debug]
+      puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config['debug']
       
       bills.each do |bill_id, bill|
         upcoming = UpcomingBill.create! bill

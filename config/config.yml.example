@@ -1,27 +1,26 @@
 # fill in from services.sunlightlabs.com
-:sunlight_api_key:
+sunlight_api_key:
 
 # this is the public OpenCRS API key, fill in yours from opencrs.com/api
-:opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
+opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
 
 :services:
   :shared_secret:
   :api_name: realtimecongress
 
-:mongoid:
+mongoid:
   host: localhost
   database: rtc
   raise_not_found_error: false
 
-:elastic_search:
-  :host: localhost
-  :port: 9200
-  :index: rtc
+elastic_search:
+  host: localhost
+  port: 9200
+  index: rtc
   
-# turn on for extra debug info in task output
-:debug: false
+debug: false
 
-:log_file: /dev/null
+log_file: /dev/null
 
 :email:
   :via: :smtp
