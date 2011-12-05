@@ -112,6 +112,8 @@ args = sys.argv[4:]
 for arg in args:
   key, value = arg.split('=')
   if key and value:
+    if value == 'True': value = True
+    elif value == 'False': value = False
     options[key.lower()] = value
 
 try:

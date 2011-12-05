@@ -1,3 +1,4 @@
+import re 
 from pysrt import SubRipTime, SubRipItem, SubRipFile
 import json
 import rtc_utils
@@ -6,8 +7,6 @@ import httplib2
 from datetime import datetime
 import time as timey
 from dateutil.parser import parse as dateparse
-import pyes
-import re
 import os
 from htmlentitydefs import name2codepoint
 import subprocess
@@ -16,11 +15,10 @@ from boto.s3.key import Key
 
 API_PREFIX = 'http://govflix.com/api/'
 PARSING_ERRORS = []
-BILL_RE = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)')
 
 AWS_ACCESS_KEY_ID = None
 AWS_SECRET_ACCESS_KEY = None
-BUCKET_NAME = 's3://assets.realtimecongress.org'
+BUCKET_NAME = 'assets.realtimecongress.org'
 
 def run(db, options = {}):
     
@@ -30,11 +28,14 @@ def run(db, options = {}):
         global AWS_SECRET_ACCESS_KEY
         AWS_ACCESS_KEY_ID = options['s3']['key']
         AWS_SECRET_ACCESS_KEY = options['s3']['secret']
-    
-    if options.has_key('archive'):
-        get_videos(db, 'houselive.gov', 'house', True )
-    else:
-        get_videos(db, 'houselive.gov', 'house', False)
+
+    archive = False
+    captions = False
+        
+    if options.has_key('archive'): archive = options['archive']
+    if options.has_key('captions'): captions = options['captions']
+
+    get_videos(db, 'houselive.gov', 'house', archive, captions )
 
     if PARSING_ERRORS:
         db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
@@ -53,28 +54,24 @@ def get_cap_end(caps, count):
 
 def push_to_s3(filename, s3name):
     conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-    bucket = conn.create_bucket('assets.realtimecongress.org')
+    bucket = conn.create_bucket(BUCKET_NAME)
     k = Key(bucket)
     k.key = 'srt/%s' % s3name
     k.set_contents_from_filename(filename)
     k.set_acl('public-read')
 
-    return 'http://assets.realtimecongress.org.s3.amazonaws.com/srt/%s' % s3name
-    #text = subprocess.Popen('s3cmd put --acl-public --guess-mime-type %s s3://assets.realtimecongress.org/srt/%s' % (filename, s3name), shell=False, stdout=subprocess.PIPE)
-    #url =  text.communicate()[0].split('Public URL of the object is: ')[1]
-    #print url
-    #return url
-#    return text.split('Public URL of the object is: ')[1]
+    return 'http://assets.realtimecongress.org/srt/%s' % s3name
 
 def get_captions(client_name, clip_id):
     h = httplib2.Http()
     g_url = 'http://%s/JSON.php?clip_id=%s' % ( client_name, clip_id)
     response, j = h.request(g_url)
-    if response.get('status') == '200':
-        filename = os.getcwd() + "/tasks/house_live/srt/%s/%s.srt" % (client_name, clip_id) 
-        subs = SubRipFile()
-        captions = []
+    dirname = os.getcwd() + "/data/granicus/srt/%s/" % client_name
+    filename = dirname + "%s.srt" % clip_id
+    subs = SubRipFile()
 
+    if response.get('status') == '200':
+        captions = []
         try:
             j = json.loads(j, strict=False)[0]
         except ValueError:
@@ -93,14 +90,20 @@ def get_captions(client_name, clip_id):
                 cap = item["text"]
                 offset = float(item["time"])
                 captions.append({'time': offset, 'text': cap})        
-
-                subtitle = SubRipItem(index=sub_count, start=SubRipTime(seconds=offset), end=SubRipTime(seconds=get_cap_end(j, sub_count)), text=cap)
-                subs.append(subtitle)
-                sub_count = sub_count + 1
+                end = get_cap_end(j, sub_count)
+                if end:
+                    subtitle = SubRipItem(index=sub_count, start=SubRipTime(seconds=offset), end=SubRipTime(seconds=end), text=cap)
+                    subs.append(subtitle)
+           
+            sub_count = sub_count + 1
         
-        subs.save(filename)
+        try:
+            subs.save(path=filename, encoding="utf-8")
+        except IOError:
+            subprocess.Popen('mkdir -p %s' % dirname, shell=True)
+            subs.save(path=filename, encoding="utf-8")
+            
         s3_url = push_to_s3(filename, '%s/%s.srt' % (client_name, clip_id))
-
         return (captions, s3_url)
     else:
         return ([], '')
@@ -151,7 +154,7 @@ def try_key(data, key, name, new_data):
     else:
         return new_data
 
-def get_videos(db, client_name, chamber, archive):
+def get_videos(db, client_name, chamber, archive=False, captions=False):
     api_url = API_PREFIX + client_name + '?type=video'
     data = '{ "sort": [ {"datetime": {"order": "desc" }} ]  }'
     if archive:
@@ -195,9 +198,13 @@ def get_videos(db, client_name, chamber, archive):
         new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
 
         #make sure the last clip has a duration
-        new_vid['clips'][-1]['duration'] = new_vid['duration'] - new_vid['clips'][-1]['offset']
-        new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
-        print new_vid['caption_srt_file']
+        if len(new_vid['clips']) > 0:
+            new_vid['clips'][-1]['duration'] = new_vid['duration'] - new_vid['clips'][-1]['offset']
+
+        if captions:
+            new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
+            print new_vid['caption_srt_file']
+        
         db['videos'].save(new_vid) 
 
     #print  new_vid
