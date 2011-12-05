@@ -100,7 +100,9 @@ def get_captions(client_name, clip_id):
         try:
             subs.save(path=filename, encoding="utf-8")
         except IOError:
-            subprocess.Popen('mkdir -p %s' % dirname, shell=True)
+            p = subprocess.Popen('mkdir -p %s' % dirname, shell=True, stdout=subprocess.PIPE)
+            t = p.wait()
+
             subs.save(path=filename, encoding="utf-8")
             
         s3_url = push_to_s3(filename, '%s/%s.srt' % (client_name, clip_id))
@@ -162,6 +164,7 @@ def get_videos(db, client_name, chamber, archive=False, captions=False):
     else:
         api_url += '&size=2'
     videos = query_api(db, api_url, data)
+    vcount = 0
     for vid in videos:
         
         v = vid['_source']
@@ -206,8 +209,9 @@ def get_videos(db, client_name, chamber, archive=False, captions=False):
             print new_vid['caption_srt_file']
         
         db['videos'].save(new_vid) 
+        vcount += 1
 
-    #print  new_vid
+    db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
 
 def query_api(db, api_url, data=None):
 

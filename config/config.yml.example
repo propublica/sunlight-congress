@@ -40,3 +40,8 @@ log_file: /dev/null
 :task_owners:
   # :bills_archive: 
   #   - email@example.com
+
+s3: 
+    secret:
+    key:
+
