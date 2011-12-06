@@ -169,10 +169,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         
         v = vid['_source']
 
-        try:
-            legislative_day = datetime.strptime(v['name'][v['name'].index('OF')+2:], '%B %d %Y')
-        except:
-            legislative_day = dateparse(v['datetime'])
+        legislative_day = dateparse(v['datetime'])
 
         video_id = chamber + '-' + str(int(timey.mktime(legislative_day.timetuple())))
         new_vid = db.get_or_initialize('videos', {'video_id': video_id}) 
