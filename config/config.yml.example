@@ -17,6 +17,10 @@ elastic_search:
   host: localhost
   port: 9200
   index: rtc
+
+s3: 
+    secret: 
+    key: 
   
 debug: false
 
@@ -40,8 +44,3 @@ log_file: /dev/null
 :task_owners:
   # :bills_archive: 
   #   - email@example.com
-
-s3: 
-    secret:
-    key:
-
