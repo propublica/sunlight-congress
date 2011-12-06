@@ -17,7 +17,7 @@ tzs = {
       "PDT": "America/Los_Angeles"
       }
 
-def run(db, options = {}):
+def run(db, es, options = {}):
     add_date = datetime.datetime.now()
 
     #Should start with setting live to false on all video objects

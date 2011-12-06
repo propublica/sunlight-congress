@@ -20,7 +20,7 @@ AWS_ACCESS_KEY_ID = None
 AWS_SECRET_ACCESS_KEY = None
 BUCKET_NAME = 'assets.realtimecongress.org'
 
-def run(db, options = {}):
+def run(db, es, options = {}):
     
     
     if options.has_key('s3'):
@@ -35,7 +35,7 @@ def run(db, options = {}):
     if options.has_key('archive'): archive = options['archive']
     if options.has_key('captions'): captions = options['captions']
 
-    get_videos(db, 'houselive.gov', 'house', archive, captions )
+    get_videos(db, es, 'houselive.gov', 'house', archive, captions )
 
     if PARSING_ERRORS:
         db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
@@ -156,7 +156,7 @@ def try_key(data, key, name, new_data):
     else:
         return new_data
 
-def get_videos(db, client_name, chamber, archive=False, captions=False):
+def get_videos(db, es, client_name, chamber, archive=False, captions=False):
     api_url = API_PREFIX + client_name + '?type=video'
     data = '{ "sort": [ {"datetime": {"order": "desc" }} ]  }'
     if archive:
@@ -206,6 +206,11 @@ def get_videos(db, client_name, chamber, archive=False, captions=False):
             print new_vid['caption_srt_file']
         
         db['videos'].save(new_vid) 
+        
+        # first one works, second one does not, gives a circular reference error
+        # es.save({"whooaa": "now"}, 'videos', new_vid['video_id'])
+        # es.save(new_vid, 'videos', new_vid['video_id'])
+
         vcount += 1
 
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))

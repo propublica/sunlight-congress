@@ -23,7 +23,7 @@ cats =  [   "Weekly Addresses",
             "Open For Questions"
         ]
 
-def run(db, options = {}):
+def run(db, es, options = {}):
     add_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%MZ")
     count = 0
     

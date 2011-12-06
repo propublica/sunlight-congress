@@ -6,7 +6,7 @@ import rtc_utils
 import HTMLParser
 
 
-def run(db, options = {}):
+def run(db, es, options = {}):
     senate_count = senate_hearings(db)
     db.success("Updated or created %s Senate committee hearings" % senate_count)
 
