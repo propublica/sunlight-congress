@@ -1,4 +1,5 @@
 from pymongo import Connection
+import pyes
 import sys
 import os
 import traceback
@@ -94,6 +95,25 @@ class Database():
         """
         return self.db[collection]
 
+
+class ElasticSearch():
+    
+    def __init__(self, host, port, index):
+        """
+        Initialize ElasticSearch connection.
+        host: hostname of elasticsearch daemon
+        port: port of elasticsearch daemon
+        """
+
+        self.connection = pyes.ES(["%s:%s" % (host, port)])
+        self.index = index
+    
+    def save(self, data, type, id):
+        response = self.connection.index(data, self.index, type, id)
+        return response
+    
+
+
 # set global HTTP timeouts to 10 seconds
 import socket
 socket.setdefaulttimeout(10)
@@ -104,6 +124,11 @@ task_name = sys.argv[1]
 db_host = options['mongoid']['host']
 db_name = options['mongoid']['database']
 db = Database(task_name, db_host, db_name)
+
+es_host = options['elastic_search']['host']
+es_port = options['elastic_search']['port']
+es_index = options['elastic_search']['index']
+es = ElasticSearch(es_host, es_port, es_index)
 
 
 args = sys.argv[2:]
@@ -117,7 +142,7 @@ for arg in args:
 try:
     sys.path.append("tasks")
     sys.path.append("tasks/%s" % task_name)
-    __import__(task_name).run(db, options)
+    __import__(task_name).run(db, es, options)
 
 except Exception as exception:
     db.failure(exception)
