@@ -78,17 +78,37 @@ class DocumentsWhipNotices
     links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
     a = links.first
     pdf_url = a['href']
-    date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
+
+    posted_at = nil
     
-    unless date_results.any? and date_results.first.any?
-      Report.warning self, "Couldn't find PDF date in Republican whip #{type} notice page, can't go on", :url => url
-      return
+    if type == 'daily'
+      date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
+      
+      unless date_results.any? and date_results.first.any?
+        Report.warning self, "Couldn't find PDF date in Republican whip #{type} notice page, can't go on", :url => url
+        return
+      end
+      
+      date_str = date_results.first.first
+      month, day, year = date_str.split "-"
+
+      unless month and day and year
+        Report.warning self, "Couldn't parse date from PDF filename in Republican whip #{type} notice page, can't go on", :url => url, :pdf_url => pdf_url
+        return
+      end
+      
+      posted_at = Utils.noon_utc_for Time.local(year, month, day)
+
+    elsif type == 'weekly'
+
+      unless date_text = (doc.at("#news_text") / :b).first.text
+        Report.warning self, "Couldn't find weekly report's date text on Republican notice page, can't go on", :url => url
+        return
+      end
+      posted_at = Utils.noon_utc_for Time.parse(date_text)
     end
-    
-    date_str = date_results.first.first
-    month, day, year = date_str.split "-"
-    
-    posted_at = Utils.noon_utc_for Time.local(year, month, day)
+
+
     for_date = posted_at.strftime("%Y-%m-%d")
     session = Utils.session_for_year posted_at.year
     
