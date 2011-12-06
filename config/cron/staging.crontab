@@ -21,7 +21,7 @@
 */5 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
 
 # whip notices
-0 15 * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
+*/15 * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
 
 # committee hearings
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_senate
