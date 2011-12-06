@@ -4,7 +4,7 @@ import json
 import rtc_utils
 import urlparse
 import httplib2
-from datetime import datetime
+from datetime import datetime, timedelta
 import time as timey
 from dateutil.parser import parse as dateparse
 import os
@@ -88,7 +88,7 @@ def get_captions(client_name, clip_id):
         for item in j: 
             if item["type"] == "text":
                 cap = item["text"]
-                offset = float(item["time"])
+                offset = round(float(item["time"]), 3)
                 captions.append({'time': offset, 'text': cap})        
                 end = get_cap_end(j, sub_count)
                 if end:
@@ -128,7 +128,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
         m_new = m['_source']
         c = {
             'offset': m_new['offset'],
-            'events': htmlentitydecode(m_new['name']),
+            'events': htmlentitydecode(m_new['name']).strip(),
             'time': m_new['datetime']
         }
         if m != markers[-1]:  #if it's not the last one
@@ -206,14 +206,49 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
             print new_vid['caption_srt_file']
         
         db['videos'].save(new_vid) 
-        
-        # first one works, second one does not, gives a circular reference error
-        # es.save({"whooaa": "now"}, 'videos', new_vid['video_id'])
-        # es.save(new_vid, 'videos', new_vid['video_id'])
-
         vcount += 1
 
+        #index clip objects in elastic search
+        for c in new_vid['clips']:
+            clip = {
+                    'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
+                    'video_id': new_vid['video_id'],
+                    'video_clip_id': new_vid['clip_id'],
+                    'offset': c['offset'],
+                    'duration': c['duration'],
+            }
+            clip = try_key(c, 'legislator_names', 'legislator_names', clip)
+            clip = try_key(c, 'rolls', 'rolls', clip)
+            clip = try_key(c, 'events', 'events', clip)
+            
+            if new_vid.has_key('caption_srt_file'):
+                clip['srt_link'] = new_vid['caption_srt_file'],
+
+            if new_vid.has_key('captions'):
+                clip['captions'] = get_clip_captions(new_vid, c)
+
+            resp = es.save(clip, 'clips', clip['id'])
+         
+        if resp['ok'] == False:
+            print resp
+            PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+
+
+    es.connection.refresh()
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
+
+def get_clip_captions(video, clip):
+
+    captions = []
+    for cap in video['captions']:
+        c_time = round(float(cap['time']), 3)
+        start = round(float(clip['offset']), 3)
+        end = round(float(clip['duration']) + start, 3)
+        if (c_time >= start and c_time < end) or (c_time < start):  # need the second condition to snag captions that begin before the first 'offset'
+            captions.append(cap)
+
+    return captions
+     
 
 def query_api(db, api_url, data=None):
 

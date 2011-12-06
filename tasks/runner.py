@@ -108,11 +108,9 @@ class ElasticSearch():
         self.connection = pyes.ES(["%s:%s" % (host, port)])
         self.index = index
     
-    def save(self, data, type, id):
-        response = self.connection.index(data, self.index, type, id)
+    def save(self, data, typ, o_id):
+        response = self.connection.index(data, self.index, typ, o_id)
         return response
-    
-
 
 # set global HTTP timeouts to 10 seconds
 import socket
