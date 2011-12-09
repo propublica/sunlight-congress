@@ -220,6 +220,8 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
             clip = try_key(c, 'legislator_names', 'legislator_names', clip)
             clip = try_key(c, 'rolls', 'rolls', clip)
             clip = try_key(c, 'events', 'events', clip)
+            clip = try_key(c, 'bills', 'bills', clip)
+            clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
             
             if new_vid.has_key('caption_srt_file'):
                 clip['srt_link'] = new_vid['caption_srt_file'],
