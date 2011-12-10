@@ -194,8 +194,8 @@ module Searchable
       
       if params[:highlight_tags].present?
         pre, post = params[:highlight_tags].split ','
-        highlight[:pre_tags] = [pre]
-        highlight[:post_tags] = [post]
+        highlight[:pre_tags] = [pre || '']
+        highlight[:post_tags] = [post || '']
       end
       
       if params[:highlight_size].present?
