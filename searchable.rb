@@ -75,7 +75,7 @@ module Searchable
         }
       }
     elsif parsed.is_a?(Time)
-      from = parsed.midnight
+      from = parsed
       to = from + 1.day
       {
         :range => {
@@ -307,8 +307,11 @@ module Searchable
         value == "true"
       elsif value =~ /^\d+$/
         value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+      elsif value =~ /^\d\d\d\d-\d\d-\d\d$/
         Time.zone.parse(value).utc rescue nil
+      elsif value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/
+        # compress times to act like dates until we support ranges
+        Time.zone.parse(value).midnight.utc rescue nil
       else
         value
       end

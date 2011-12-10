@@ -244,7 +244,8 @@ class SearchableTest < Test::Unit::TestCase
   def test_subfilter_for_dates
     field = "born_at"
     value = "2011-05-06"
-    from = Time.parse value
+    from = Time.zone.parse(value).utc
+    p from
     to = from + 1.day
     
     filter = {
@@ -264,7 +265,7 @@ class SearchableTest < Test::Unit::TestCase
   def test_subfilter_for_times
     field = "born_at"
     value = "2011-05-06T07:00:00Z"
-    from = Time.parse(value).midnight
+    from = Time.zone.parse(value).midnight.utc
     to = from + 1.day
     
     filter = {
