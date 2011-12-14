@@ -9,7 +9,7 @@
 
 # video
 0 7 * * *    /projects/rtc/shared/cron/task.sh whitehouse_archive
-0 9 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True
+0 9 * * *    /projects/rtc/shared/cron/task.sh house_live
 */5 * * * *  /projects/rtc/shared/cron/task.sh whitehouse_live
 
 # live roll call votes
