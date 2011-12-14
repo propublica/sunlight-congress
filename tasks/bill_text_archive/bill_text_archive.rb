@@ -215,7 +215,8 @@ class BillTextArchive
   
   # expects the bill version's associated MODS XML
   def self.issued_on_for(doc)
-    timestamp = doc.at("dateIssued").text
+    elem = doc.at("dateIssued")
+    timestamp = elem ? elem.text : nil
     if timestamp.present?
       Utils.utc_parse(timestamp).strftime "%Y-%m-%d"
     else
