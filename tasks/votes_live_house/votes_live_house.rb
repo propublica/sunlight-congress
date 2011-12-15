@@ -71,17 +71,19 @@ class VotesLiveHouse
       
       if doc
         # 404s for missing votes return an HTML doc that won't make sense
-        # example of this: there is no roll 484 in 2011, due to procedural foulup
+        # example of this: there was no roll 484 in 2011 for a while, due to procedural foulup
         next unless doc.at(:congress) 
         
         roll_id = "h#{number}-#{year}"
         session = doc.at(:congress).inner_text.to_i
         
-        bill_id = bill_id_for doc, session
+        bill_type, bill_number = bill_code_for doc
+        bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{session}" : nil
         amendment_id = amendment_id_for doc, bill_id
         
         voter_ids, voters = votes_for doc, legislators, missing_ids
         roll_type = doc.at("vote-question").inner_text
+        question = question_for doc, roll_type, bill_type, bill_number
         
         vote = Vote.new :roll_id => roll_id
         vote.attributes = {
@@ -94,7 +96,7 @@ class VotesLiveHouse
           :session => session,
           
           :roll_type => roll_type,
-          :question => roll_type,
+          :question => question,
           :result => doc.at("vote-result").inner_text,
           :required => required_for(doc),
           
@@ -207,7 +209,7 @@ class VotesLiveHouse
       "No" => "Nay"
     }
   end
-  
+
   def self.votes_for(doc, legislators, missing_ids)
     voter_ids = {}
     voters = {}
@@ -239,7 +241,8 @@ class VotesLiveHouse
     bill
   end
   
-  def self.bill_id_for(doc, session)
+  # returns bill type and number
+  def self.bill_code_for(doc)
     elem = doc.at 'legis-num'
     if elem
       code = elem.text.strip.gsub(' ', '').downcase
@@ -247,11 +250,12 @@ class VotesLiveHouse
       number = code.gsub type, ''
       
       type.gsub! "hconres", "hcres" # house uses H CON RES
+      type.gsub! "sconres", "scres" # just in case
       
       if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
-        nil
+        return nil, nil
       else
-        "#{type}#{number}-#{session}"
+        return type, number
       end
     else
       nil
@@ -287,6 +291,21 @@ class VotesLiveHouse
     date = Time.parse datestamp
     time = Time.parse timestamp
     Time.local date.year, date.month, date.day, time.hour, time.min, time.sec
+  end
+
+  def self.question_for(doc, roll_type, bill_type, bill_number)
+    question = roll_type.dup
+    desc = doc.at("vote-desc").inner_text
+    
+    if bill_type and bill_number
+      question << " -- " + Utils.format_bill_code(bill_type, bill_number)
+    end
+    
+    if desc.present?
+      question << " -- " + desc
+    end
+
+    question
   end
   
 end
