@@ -118,21 +118,28 @@ class BillTextArchive
         
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
         
+        version_attributes = {
+          :updated_at => Time.now,
+          :bill_version_id => bill_version_id,
+          :version_code => code,
+          :version_name => version_name,
+          :issued_on => issued_on,
+          :urls => urls,
+          
+          :bill => bill_fields,
+          :full_text => full_text
+        }
+
         # commit the version to the version index
         versions_client.index(
-          {
-            :updated_at => Time.now,
-            :bill_version_id => bill_version_id,
-            :version_code => code,
-            :version_name => version_name,
-            :issued_on => issued_on,
-            :urls => urls,
-            
-            :bill => bill_fields,
-            :full_text => full_text
-          },
+          version_attributes,
           :id => bill_version_id
         )
+
+        # archive it in MongoDB for easy reference in other scripts
+        version_archive = BillVersion.find_or_initialize_by :bill_version_id => bill_version_id
+        version_archive.attributes = version_attributes
+        version_archive.save!
         
         version_count += 1
         
