@@ -139,7 +139,7 @@ class AmendmentsArchive
       
       bill.attributes = {
         :amendments => amendments,
-        :amendment_ids => amendments.map {|a| a[:amendment_id]},
+        :amendment_ids => amendments.map {|a| a['amendment_id']},
         :amendments_count => amendments.size
       }
       
@@ -218,7 +218,7 @@ class AmendmentsArchive
   
   def self.purpose_for(doc)
     if elem = doc.at(:purpose) and elem.text.present?
-      elem.text
+      elem.text.strip
     else
       nil
     end
