@@ -14,6 +14,8 @@ class VotesLiveHouse
     
     missing_bill_ids = []
     missing_amendment_ids = []
+
+    votes_client = Searchable.client_for 'votes'
     
     # make lookups faster later by caching a hash of legislators from which we can lookup bioguide_ids
     legislators = {}
@@ -134,6 +136,9 @@ class VotesLiveHouse
         end
         
         if vote.save
+          # replicate it in ElasticSearch
+          Utils.search_index_vote! votes_client, roll_id, vote.attributes
+
           count += 1
           puts "[#{roll_id}] Saved successfully"
         else
@@ -145,6 +150,8 @@ class VotesLiveHouse
         bad_fetches << {:number => number, :url => url, :exception => {:message => exception.message, :type => exception.class.to_s}}
       end
     end
+
+    votes_client.refresh
     
     if bad_votes.any?
       Report.failure self, "Failed to save #{bad_votes.size} roll calls. Attached the last failed roll's attributes and error messages.", {:bad_vote => bad_votes.last}

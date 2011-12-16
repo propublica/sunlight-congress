@@ -369,4 +369,33 @@ module Utils
       bill.save!
     end
   end
+
+  # takes an attribute hash that belongs to a vote, and indexes it in ElasticSearch by the given ID
+  # will look up an associated bill by ID and will grab its searchable fields as appropriate
+  def self.search_index_vote!(client, vote_id, attributes)
+    attributes.delete '_id'
+
+    if bill_id = attributes['bill_id']
+      if bill = Bill.where(:bill_id => bill_id).first
+        attributes['bill'] = Utils.bill_for(bill).merge(
+          :summary => bill['summary'],
+          :keywords => bill['keywords']
+          # insert last version text here
+        )
+        if bill['last_version']
+          if bill_version = BillVersion.where(:bill_version_id => bill['last_version']['bill_version_id']).only(:full_text).first
+            attributes['bill']['last_version_text'] = bill_version['full_text']
+          end
+        end
+      end
+    end
+
+    if amendment_id = attributes['amendment_id']
+      if amendment = Amendment.where(:amendment_id => amendment_id).first
+        attributes['amendment'] = Utils.amendment_for(amendment)
+      end
+    end
+
+    client.index attributes, :id => vote_id
+  end
 end
