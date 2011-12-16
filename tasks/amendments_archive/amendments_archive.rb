@@ -139,7 +139,7 @@ class AmendmentsArchive
       
       bill.attributes = {
         :amendments => amendments,
-        :amendment_ids => amendments.map {|a| a[:amendment_id]},
+        :amendment_ids => amendments.map {|a| a['amendment_id']},
         :amendments_count => amendments.size
       }
       
@@ -151,7 +151,7 @@ class AmendmentsArchive
       # puts "[#{bill.bill_id}] Updated with #{amendments.size} amendments"
     end
     
-    Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.count} amendments)."
+    Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.where(:session => session).count} amendments in session #{session})."
   end
   
   def self.state_for(doc)
@@ -218,7 +218,7 @@ class AmendmentsArchive
   
   def self.purpose_for(doc)
     if elem = doc.at(:purpose) and elem.text.present?
-      elem.text
+      elem.text.strip
     else
       nil
     end
