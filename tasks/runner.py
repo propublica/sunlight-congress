@@ -105,7 +105,7 @@ class ElasticSearch():
         port: port of elasticsearch daemon
         """
 
-        self.connection = pyes.ES(["%s:%s" % (host, port)])
+        self.connection = pyes.ES(["%s:%s" % (host, port)], timeout=180)
         self.index = index
     
     def save(self, data, typ, o_id):
