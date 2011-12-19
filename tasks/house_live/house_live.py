@@ -253,7 +253,7 @@ def get_clip_captions(video, clip):
     #turn captions into one large string for elastic search
     cap_str = ""
     for cap in captions:
-        cap_str += cap['text']
+        cap_str += cap['text'] + ' '
         
     return cap_str
      
