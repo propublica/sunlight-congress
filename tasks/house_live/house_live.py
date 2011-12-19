@@ -255,7 +255,7 @@ def get_clip_captions(video, clip):
     for cap in captions:
         cap_str += cap['text']
         
-    return [{'text':cap_str},]
+    return cap_str
      
 
 def query_api(db, api_url, data=None):
