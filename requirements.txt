@@ -10,4 +10,5 @@ python-dateutil==1.5
 python-magic==0.3.1
 wsgiref==0.1.2
 iso8601==0.1.4
--e git://github.com/sunlightlabs/pyes.git@0f9b3cc9d86ee679d8238187bb8d3e1f59916d2d#egg=pyes
+git+git://github.com/sunlightlabs/pyes.git
+
