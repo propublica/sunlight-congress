@@ -235,8 +235,9 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
             print resp
             PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
 
+        if captions:
+            es.connection.refresh()
 
-    es.connection.refresh()
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
 
 def get_clip_captions(video, clip):
@@ -249,7 +250,12 @@ def get_clip_captions(video, clip):
         if (c_time >= start and c_time < end) or (c_time < start):  # need the second condition to snag captions that begin before the first 'offset'
             captions.append(cap)
 
-    return captions
+    #turn captions into one large string for elastic search
+    cap_str = ""
+    for cap in captions:
+        cap_str += cap['text']
+        
+    return [{'text':cap_str},]
      
 
 def query_api(db, api_url, data=None):
