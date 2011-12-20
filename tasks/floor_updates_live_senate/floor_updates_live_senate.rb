@@ -32,8 +32,12 @@ class FloorUpdatesLiveSenate
       next if ["senate floor proceedings", "today's senate floor log", "\302\240"].include?(item.text.strip.downcase)
       
       if item['align'] == 'center'
-        current_date = Utils.utc_parse(item.text).strftime "%Y-%m-%d"
-        updates[current_date] ||= []
+        if Time.zone.parse(item.text)
+          current_date = Utils.utc_parse(item.text).strftime "%Y-%m-%d"
+          updates[current_date] ||= []
+        else
+          puts "Skipping center-aligned p with text #{item.text}" if options[:debug]
+        end
       
       elsif item['align'] == 'left'
         if current_date.nil?
