@@ -22,9 +22,11 @@ class VotesArchive
     votes_client = Searchable.client_for 'votes'
     
     FileUtils.mkdir_p "data/govtrack/#{session}/rolls"
-    unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/rolls/ data/govtrack/#{session}/rolls/")
-      Report.failure self, "Couldn't rsync to Govtrack.us."
-      return
+    unless options[:skip_sync]
+      unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/rolls/ data/govtrack/#{session}/rolls/")
+        Report.failure self, "Couldn't rsync to Govtrack.us."
+        return
+      end
     end
     
     
