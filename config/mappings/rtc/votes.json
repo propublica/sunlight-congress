@@ -2,7 +2,6 @@
   "votes": {
     "properties": {
       "bill": {
-        "dynamic": "true",
         "properties": {
             "last_version_text": {
                 "type": "string",
