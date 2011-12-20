@@ -12,7 +12,9 @@ from htmlentitydefs import name2codepoint
 import subprocess
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+import re
 
+ESCAPE_CHARS_RE = re.compile(r'(?<!\\)(?P<char>[&|+\-!(){}[\]^"~*?:])')
 API_PREFIX = 'http://govflix.com/api/'
 PARSING_ERRORS = []
 
@@ -255,7 +257,7 @@ def get_clip_captions(video, clip):
     for cap in captions:
         cap_str += cap['text'] + ' '
         
-    return cap_str
+    return escape_query(cap_str)
      
 
 def query_api(db, api_url, data=None):
@@ -270,4 +272,5 @@ def query_api(db, api_url, data=None):
     else:
         PARSING_ERRORS.append('Got something other than 200 status:' % response.get('status'))
 
-
+def escape_query(text):
+    return ESCAPE_CHARS_RE.sub(r'\\\g<char>', text)
