@@ -396,6 +396,7 @@ module Utils
       end
     end
 
-    client.index attributes, :id => vote_id
+    # this is not working yet
+    # client.index attributes, :id => vote_id
   end
 end

@@ -87,6 +87,12 @@ class BillTextArchive
           mods_doc = Nokogiri::XML open(mods_file)
           issued_on = issued_on_for mods_doc
           urls = urls_for mods_doc
+
+          if issued_on.blank?
+            Report.warning self, "Had MODS data but no date available for #{bill_version_id}, SKIPPING"
+            next
+          end
+
         else
           puts "[#{bill.bill_id}][#{code}] No MODS data" if options[:debug]
           
