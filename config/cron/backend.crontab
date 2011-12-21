@@ -5,7 +5,7 @@
 0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_archive # && /projects/rtc/shared/cron/task.sh amendments_archive && /projects/rtc/shared/cron/task.sh votes_archive
 
 # full bill text
-0 5 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
+# 0 5 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
 
 # video
 0 7 * * *    /projects/rtc/shared/cron/task.sh whitehouse_archive
