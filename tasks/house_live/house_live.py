@@ -211,33 +211,33 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         vcount += 1
 
         #index clip objects in elastic search
-        for c in new_vid['clips']:
-            clip = {
-                    'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
-                    'video_id': new_vid['video_id'],
-                    'video_clip_id': new_vid['clip_id'],
-                    'offset': c['offset'],
-                    'duration': c['duration'],
-            }
-            clip = try_key(c, 'legislator_names', 'legislator_names', clip)
-            clip = try_key(c, 'rolls', 'rolls', clip)
-            clip = try_key(c, 'events', 'events', clip)
-            clip = try_key(c, 'bills', 'bills', clip)
-            clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
-            
-            if new_vid.has_key('caption_srt_file'):
-                clip['srt_link'] = new_vid['caption_srt_file'],
-
-            if new_vid.has_key('captions'):
-                clip['captions'] = get_clip_captions(new_vid, c)
-
-            resp = es.save(clip, 'clips', clip['id'])
-         
-        if resp['ok'] == False:
-            print resp
-            PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
-
         if captions:
+            for c in new_vid['clips']:
+                clip = {
+                        'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
+                        'video_id': new_vid['video_id'],
+                        'video_clip_id': new_vid['clip_id'],
+                        'offset': c['offset'],
+                        'duration': c['duration'],
+                }
+                clip = try_key(c, 'legislator_names', 'legislator_names', clip)
+                clip = try_key(c, 'rolls', 'rolls', clip)
+                clip = try_key(c, 'events', 'events', clip)
+                clip = try_key(c, 'bills', 'bills', clip)
+                clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
+                
+                if new_vid.has_key('caption_srt_file'):
+                    clip['srt_link'] = new_vid['caption_srt_file'],
+
+                if new_vid.has_key('captions'):
+                    clip['captions'] = get_clip_captions(new_vid, c)
+
+                resp = es.save(clip, 'clips', clip['id'])
+            
+            if resp['ok'] == False:
+                print resp
+                PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+
             es.connection.refresh()
 
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
