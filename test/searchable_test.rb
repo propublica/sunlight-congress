@@ -245,7 +245,7 @@ class SearchableTest < Test::Unit::TestCase
     field = "born_at"
     value = "2011-05-06"
     from = Time.zone.parse(value).utc
-    p from
+    
     to = from + 1.day
     
     filter = {

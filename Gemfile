@@ -33,4 +33,4 @@ gem 'httparty', '0.7.8' # opencrs
 gem 'feedzirra', '0.1.1' # documents_whip_notices, upcoming_senate_daily
 
 # elasticsearch
-gem 'rubberband', '0.0.12'
+gem 'rubberband', '0.1.5'
