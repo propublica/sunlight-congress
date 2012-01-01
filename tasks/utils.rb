@@ -375,12 +375,13 @@ module Utils
   def self.search_index_vote!(client, vote_id, attributes)
     attributes.delete '_id'
 
+    attributes.delete 'voters'
+
     if bill_id = attributes['bill_id']
       if bill = Bill.where(:bill_id => bill_id).first
         attributes['bill'] = Utils.bill_for(bill).merge(
           :summary => bill['summary'],
           :keywords => bill['keywords']
-          # insert last version text here
         )
         if bill['last_version']
           if bill_version = BillVersion.where(:bill_version_id => bill['last_version']['bill_version_id']).only(:full_text).first
@@ -396,7 +397,6 @@ module Utils
       end
     end
 
-    # this is not working yet
     client.index attributes, :id => vote_id
   end
 end
