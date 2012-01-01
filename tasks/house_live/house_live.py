@@ -130,7 +130,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
         m_new = m['_source']
         c = {
             'offset': m_new['offset'],
-            'events': htmlentitydecode(m_new['name']).strip(),
+            'events': [htmlentitydecode(m_new['name']).strip(),],
             'time': m_new['datetime']
         }
         if m != markers[-1]:  #if it's not the last one
@@ -138,9 +138,9 @@ def get_markers(db, client_name, clip_id, congress, chamber):
 
         year = dateparse(m_new['datetime']).year
 
-        legis, bio_ids = rtc_utils.extract_legislators(c['events'], chamber, db)
-        b = rtc_utils.extract_bills(c['events'], congress)
-        r = rtc_utils.extract_rolls(c['events'], chamber, year)
+        legis, bio_ids = rtc_utils.extract_legislators(c['events'][0], chamber, db)
+        b = rtc_utils.extract_bills(c['events'][0], congress)
+        r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
         
         if legis: c['legislator_names'] = legis; legislators.extend(legis)
         if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
@@ -211,33 +211,33 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         vcount += 1
 
         #index clip objects in elastic search
-        for c in new_vid['clips']:
-            clip = {
-                    'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
-                    'video_id': new_vid['video_id'],
-                    'video_clip_id': new_vid['clip_id'],
-                    'offset': c['offset'],
-                    'duration': c['duration'],
-            }
-            clip = try_key(c, 'legislator_names', 'legislator_names', clip)
-            clip = try_key(c, 'rolls', 'rolls', clip)
-            clip = try_key(c, 'events', 'events', clip)
-            clip = try_key(c, 'bills', 'bills', clip)
-            clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
-            
-            if new_vid.has_key('caption_srt_file'):
-                clip['srt_link'] = new_vid['caption_srt_file'],
-
-            if new_vid.has_key('captions'):
-                clip['captions'] = get_clip_captions(new_vid, c)
-
-            resp = es.save(clip, 'clips', clip['id'])
-         
-        if resp['ok'] == False:
-            print resp
-            PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
-
         if captions:
+            for c in new_vid['clips']:
+                clip = {
+                        'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
+                        'video_id': new_vid['video_id'],
+                        'video_clip_id': new_vid['clip_id'],
+                        'offset': c['offset'],
+                        'duration': c['duration'],
+                }
+                clip = try_key(c, 'legislator_names', 'legislator_names', clip)
+                clip = try_key(c, 'rolls', 'rolls', clip)
+                clip = try_key(c, 'events', 'events', clip)
+                clip = try_key(c, 'bills', 'bills', clip)
+                clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
+                
+                if new_vid.has_key('caption_srt_file'):
+                    clip['srt_link'] = new_vid['caption_srt_file'],
+
+                if new_vid.has_key('captions'):
+                    clip['captions'] = get_clip_captions(new_vid, c)
+
+                resp = es.save(clip, 'clips', clip['id'])
+            
+            if resp['ok'] == False:
+                print resp
+                PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+
             es.connection.refresh()
 
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
