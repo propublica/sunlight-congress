@@ -75,31 +75,5 @@ class VoteBreakdownTest < Test::Unit::TestCase
       assert_equal 0, party['R'][vote]
     end
   end
-
-  def test_voter_ids_for_search_indexing
-    voter_ids = {
-      'a' => 'Nay',
-      'b' => 'Yea',
-      'c' => 'Yea',
-      'd' => 'Not Voting',
-      'e' => 'Pelosi'
-    }
-
-    # should have all the keys that appeared, plus the constants
-
-    new_voter_ids = Utils.search_voter_ids voter_ids
-
-    voter_ids.values.uniq.each do |vote|
-      assert_not_nil new_voter_ids[vote]
-    end
-
-    voter_ids.keys.uniq.each do |id|
-      value = voter_ids[id]
-      assert new_voter_ids[value].include?(id)
-    end
-
-    assert_equal voter_ids.keys.size, voter_ids.values.flatten.size
-
-  end
   
 end

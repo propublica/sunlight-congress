@@ -377,8 +377,6 @@ module Utils
 
     attributes.delete 'voters'
 
-    attributes['voter_ids_flat'] = Utils.search_voter_ids attributes.delete('voter_ids')
-
     if bill_id = attributes['bill_id']
       if bill = Bill.where(:bill_id => bill_id).first
         attributes['bill'] = Utils.bill_for(bill).merge(
