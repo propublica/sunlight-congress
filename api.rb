@@ -92,6 +92,9 @@ helpers do
         if vote['vote_breakdown']
           vote['vote_breakdown'] = dasherize_hash vote['vote_breakdown']
         end
+        if vote['voter_ids_flat']
+          vote['voter_ids_flat'] = dasherize_hash vote['voter_ids_flat']
+        end
       end
     end
   end

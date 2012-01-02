@@ -377,6 +377,8 @@ module Utils
 
     attributes.delete 'voters'
 
+    attributes['voter_ids_flat'] = Utils.search_voter_ids attributes.delete('voter_ids')
+
     if bill_id = attributes['bill_id']
       if bill = Bill.where(:bill_id => bill_id).first
         attributes['bill'] = Utils.bill_for(bill).merge(
@@ -398,5 +400,16 @@ module Utils
     end
 
     client.index attributes, :id => vote_id
+  end
+
+  # transmutes hash of voter_ids as it appears in the mongo endpoint, 
+  # into something compact for search indexing - a performance sacrifice
+  def self.search_voter_ids(voter_ids)
+    new_ids = {}
+    voter_ids.each do |id, vote|
+      new_ids[vote] ||= []
+      new_ids[vote] << id
+    end
+    new_ids
   end
 end
