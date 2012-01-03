@@ -13,7 +13,7 @@
 */5 * * * *  /projects/rtc/shared/cron/task.sh whitehouse_live
 
 # live roll call votes
-*/5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_house
+*/5 * 17-31 * *  /projects/rtc/shared/cron/task.sh votes_live_house
 */5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
 
 # floor updates
