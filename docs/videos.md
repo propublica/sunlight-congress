@@ -1,6 +1,4 @@
-The **videos** collection currently holds videos from the U.S. House of Representatives and from the White House.
-
-There are different fields available for White House Videos, Live White House Streams, and House video. These can be distinguished using the **chamber** field.
+The **videos** collection currently holds videos from the U.S. House of Representatives.
 
 ### House of Representatives video
 
@@ -37,7 +35,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dd>A unique id for this video in the api. It is constructed from the chamber name and the UTC timestamp on noon of the legislative day for this video</dd>
 
 <dt>chamber</dt>
-<dd>The chamber whose floor this video is from. Possible values: "house", "whitehouse".</dd>
+<dd>The chamber whose floor this video is from. Possible values: "house".</dd>
 
 <dt>pubdate</dt>
 <dd>The published date of this video in the HouseLive.gov RSS feed</dd>
@@ -86,12 +84,6 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>bills</dt>
 <dd>An array of bill IDs for all bills mentioned in the events of this clip.</dd>
 
-### White House videos
-
-Filter the "chamber" field by "house" to retrieve videos from the House of Representatives.
-
-White House video is parsed from [WhiteHouse.gov](http://www.whitehouse.gov/live). Most videos are available as "archived" videos, but some are available as "live" videos. Live videos tend to not have as many fields completed as archived videos but you can filter on the "status" field to get only live or archived videos.
-
 #### Guaranteed Fields
 
 The only fields guaranteed for house videos are 
@@ -110,7 +102,7 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 ### Fields
 
 <dt>video_id</dt>
-<dd>A unique id for this video in the API. It is constructed from the chamber name and the slug on the White House site in the url for this video.</dd>
+<dd>A unique id for this video in the API. It is constructed from the chamber name and the UNIX timestamp of the video.</dd>
 
 <dt>category</dt>
 <dd>A string denoting the category to which the video belongs. These correspond to the eight different categorical RSS feeds found on the White House site. Values include "The First Lady", "Open for Questions", "Weekly Addresses", "Press Briefings", "Speeches", "Features", "West Wing Week", "Music and Arts at the White House"</dd>

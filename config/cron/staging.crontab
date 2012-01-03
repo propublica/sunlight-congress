@@ -8,17 +8,15 @@
 0 5 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
 
 # video
-0 7 * * *    /projects/rtc/shared/cron/task.sh whitehouse_archive
 0 9 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True
-*/5 * * * *  /projects/rtc/shared/cron/task.sh whitehouse_live
 
 # live roll call votes
-*/5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_house
-*/5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
+*/20 * * * *  /projects/rtc/shared/cron/task.sh votes_live_house
+*/20 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
 
 # floor updates
-*/5 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
-*/5 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
+*/20 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
+*/20 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
 
 # whip notices
 */15 * * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
