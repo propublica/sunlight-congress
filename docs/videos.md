@@ -84,51 +84,10 @@ If the "search" parameter is passed to the API, a case-insensitive pattern match
 <dt>bills</dt>
 <dd>An array of bill IDs for all bills mentioned in the events of this clip.</dd>
 
-#### Guaranteed Fields
 
-The only fields guaranteed for house videos are 
-
-* **video_id**
-* **chamber**
-* **pubdate**
-
-#### Text Search Fields
-
-If the "search" parameter is passed to the API, a case-insensitive pattern match of the given string is applied to the following fields:
-
-* **title**
-* **description**
-
-### Fields
-
-<dt>video_id</dt>
-<dd>A unique id for this video in the API. It is constructed from the chamber name and the UNIX timestamp of the video.</dd>
-
-<dt>category</dt>
-<dd>A string denoting the category to which the video belongs. These correspond to the eight different categorical RSS feeds found on the White House site. Values include "The First Lady", "Open for Questions", "Weekly Addresses", "Press Briefings", "Speeches", "Features", "West Wing Week", "Music and Arts at the White House"</dd>
-
-<dt>pubdate</dt>
-<dd>The UTC timestamp for when this video was published.</dd>
-
-<dt>title</dt>
-<dd>A string with the video title.</dd>
-
-<dt>description</dt>
-<dd>A string with the video description.</dd>
-
-<dt>status</dt>
-<dd>String denoting the status of video. Options are "live", "archived", and "upcoming".</dd>
-
-<dt>chamber</dt>
-<dd>The chamber whose floor this video is from. Possible values: "house", "whitehouse".</dd>
-
-<dt>clip_urls</dt>
-<dd>An object containing key value pairs for formats and URLs. Current keys include "mp4", "m4v". Note that despite the m4v extensions, these files do not have DRM and are public domain.</dd>
 
 #### Examples
 
-An example of an archived video from HouseLive.gov is below, followed by an example of all three kinds of White House videos (upcoming, live, and archived):
+An example of a video from HouseLive.gov is below:
 
 <script src="https://gist.github.com/773645.js?file=videos-house.json"></script>
-
-<script src="https://gist.github.com/773645.js?file=videos-whitehouse.json"></script>
