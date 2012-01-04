@@ -7,11 +7,11 @@ set :deploy_to, "/projects/#{user}/"
 set :sock, "#{user}.sock"
 
 if environment == 'api' # production api box
-  set :domain, 'ec2-50-17-0-114.compute-1.amazonaws.com' # 'api.realtimecongress.org'
+  set :domain, 'ec2-50-17-0-114.compute-1.amazonaws.com' # unionstation
 elsif environment == 'backend' # production scraper box
-  set :domain, 'takoma.sunlightlabs.net'
+  set :domain, 'takoma.sunlightlabs.net' # takoma
 else # environment == 'staging'
-  set :domain, 'rtc.sunlightlabs.com'
+  set :domain, 'ec2-50-16-84-118.compute-1.amazonaws.com' # dupont
 end
 
 set :scm, :git
