@@ -219,6 +219,9 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                         'video_clip_id': new_vid['clip_id'],
                         'offset': c['offset'],
                         'duration': c['duration'],
+                        'legislative_day': new_vid['legislative_day'],
+                        'pubdate': new_vid['pubdate'],
+                        'clip_urls': new_vid['clip_urls']
                 }
                 clip = try_key(c, 'legislator_names', 'legislator_names', clip)
                 clip = try_key(c, 'rolls', 'rolls', clip)
