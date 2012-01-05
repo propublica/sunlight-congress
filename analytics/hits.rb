@@ -30,6 +30,7 @@ after queryable_route do
     :user_agent => request.env['HTTP_USER_AGENT'],
     :app_version => request.env['HTTP_X_APP_VERSION'],
     :os_version => request.env['HTTP_X_OS_VERSION'],
+    :app_channel => request.env['HTTP_X_APP_CHANNEL'],
     :created_at => Time.now.utc # don't need updated_at
   )
 end
@@ -65,6 +66,7 @@ after searchable_route do
     :user_agent => request.env['HTTP_USER_AGENT'],
     :app_version => request.env['HTTP_X_APP_VERSION'],
     :os_version => request.env['HTTP_X_OS_VERSION'],
+    :app_channel => request.env['HTTP_X_APP_CHANNEL'],
     :created_at => Time.now.utc # don't need updated_at
   )
 end
@@ -76,11 +78,11 @@ class Hit
   index :method
   index :method_type
   index :key
-  index :sections
   index :format
   index :user_agent
   index :app_version
   index :os_version
+  index :app_channel
 end
 
 def process_query_hash(hash)
