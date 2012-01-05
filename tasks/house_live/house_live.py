@@ -256,7 +256,6 @@ def get_clip_captions(video, clip, first_clip):
 
         if (c_time >= start and c_time < end) or (c_time < start and first_clip ):  # need the second condition to snag captions that begin before the first 'offset'
             captions.append(cap)
-            count += 1
 
     #turn captions into one large string for elastic search
     cap_str = ""
