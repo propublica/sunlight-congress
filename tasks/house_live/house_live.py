@@ -233,7 +233,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                     clip['srt_link'] = new_vid['caption_srt_file'],
 
                 if new_vid.has_key('captions'):
-                    clip['captions'] = get_clip_captions(new_vid, c)
+                    clip['captions'] = get_clip_captions(new_vid, c, c == new_vid['clips'][0] ) #pass a boolean if this is the first clip
 
                 resp = es.save(clip, 'clips', clip['id'])
             
@@ -245,15 +245,18 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
 
-def get_clip_captions(video, clip):
+def get_clip_captions(video, clip, first_clip):
 
     captions = []
+
     for cap in video['captions']:
-        c_time = round(float(cap['time']), 3)
-        start = round(float(clip['offset']), 3)
-        end = round(float(clip['duration']) + start, 3)
-        if (c_time >= start and c_time < end) or (c_time < start):  # need the second condition to snag captions that begin before the first 'offset'
+        c_time = float(cap['time'])
+        start = float(clip['offset'])
+        end = float(clip['duration']) + start
+
+        if (c_time >= start and c_time < end) or (c_time < start and first_clip ):  # need the second condition to snag captions that begin before the first 'offset'
             captions.append(cap)
+            count += 1
 
     #turn captions into one large string for elastic search
     cap_str = ""
