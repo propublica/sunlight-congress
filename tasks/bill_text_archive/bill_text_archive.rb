@@ -35,6 +35,8 @@ class BillTextArchive
     elsif options[:limit]
       bill_ids = bill_ids.first options[:limit].to_i
     end
+
+    warnings = []
     
     bill_ids.each do |bill_id|
       bill = Bill.where(:bill_id => bill_id).first
@@ -89,7 +91,7 @@ class BillTextArchive
           urls = urls_for mods_doc
 
           if issued_on.blank?
-            Report.warning self, "Had MODS data but no date available for #{bill_version_id}, SKIPPING"
+            warnings << {:message => "Had MODS data but no date available for #{bill_version_id}, SKIPPING", :bill_version_id => bill_version_id}
             next
           end
 
@@ -109,7 +111,7 @@ class BillTextArchive
             # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
             # So if any other bill triggers this, send me a warning so I can check it out.
             if bill_version_id != "hr81-112-enr"
-              Report.warning self, "Neither MODS data nor Govtrack's Dublin Core date available for #{bill_version_id}, SKIPPING"
+              warnings << {:message => "Neither MODS data nor Govtrack's Dublin Core date available for #{bill_version_id}, SKIPPING", :bill_version_id => bill_version_id}
             end
             
             # either way, skip over the bill version, it's probably invalid
@@ -161,7 +163,7 @@ class BillTextArchive
       end
       
       if bill_versions.size == 0
-        Report.warning self, "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo"
+        warnings << {:message => "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", :bill_id => bill_id}
         next
       end
       
@@ -204,6 +206,10 @@ class BillTextArchive
     # make sure queries are ready
     versions_client.refresh
     bills_client.refresh
+
+    if warnings.any?
+      Report.warning self, "Warnings found during date parsing of bill text metadata", :warnings => warnings
+    end
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
   end
