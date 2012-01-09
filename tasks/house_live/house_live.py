@@ -237,9 +237,9 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
                 resp = es.save(clip, 'clips', clip['id'])
             
-            if resp['ok'] == False:
-                print resp
-                PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+                if resp['ok'] == False:
+                    print resp
+                    PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
 
     es.connection.refresh()
 
