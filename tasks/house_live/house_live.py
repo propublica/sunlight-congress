@@ -37,7 +37,10 @@ def run(db, es, options = {}):
     if options.has_key('archive'): archive = options['archive']
     if options.has_key('captions'): captions = options['captions']
 
-    get_videos(db, es, 'houselive.gov', 'house', archive, captions )
+    if options.has_key('senate'):
+        get_videos(db, es, 'floor.senate.gov', 'senate', archive, captions)
+    else:
+        get_videos(db, es, 'houselive.gov', 'house', archive, captions )
 
     if PARSING_ERRORS:
         db.note("Errors while parsing timestamps", {'errors': PARSING_ERRORS})
@@ -125,31 +128,33 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     legislators = []
     bioguide_ids = []
     rolls = []
+    if markers:
+        for m in markers:
+            m_new = m['_source']
+            c = {
+                'offset': m_new['offset'],
+                'events': [htmlentitydecode(m_new['name']).strip(),],
+                'time': m_new['datetime']
+            }
+            if m != markers[-1]:  #if it's not the last one
+                c['duration'] = markers[markers.index(m)+1]['_source']['offset'] - m_new['offset']
 
-    for m in markers:
-        m_new = m['_source']
-        c = {
-            'offset': m_new['offset'],
-            'events': [htmlentitydecode(m_new['name']).strip(),],
-            'time': m_new['datetime']
-        }
-        if m != markers[-1]:  #if it's not the last one
-            c['duration'] = markers[markers.index(m)+1]['_source']['offset'] - m_new['offset']
+            year = dateparse(m_new['datetime']).year
 
-        year = dateparse(m_new['datetime']).year
+            legis, bio_ids = rtc_utils.extract_legislators(c['events'][0], chamber, db)
+            b = rtc_utils.extract_bills(c['events'][0], congress)
+            r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
+            
+            if legis: c['legislator_names'] = legis; legislators.extend(legis)
+            if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
+            if r: c['rolls'] = r; rolls.extend(r)
+            if b: c['bills'] = b; bills.extend(b)
 
-        legis, bio_ids = rtc_utils.extract_legislators(c['events'][0], chamber, db)
-        b = rtc_utils.extract_bills(c['events'][0], congress)
-        r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
-        
-        if legis: c['legislator_names'] = legis; legislators.extend(legis)
-        if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
-        if r: c['rolls'] = r; rolls.extend(r)
-        if b: c['bills'] = b; bills.extend(b)
+            clips.append(c)
 
-        clips.append(c)
-
-    return (clips, bills, legislators, bioguide_ids, rolls)
+        return (clips, bills, legislators, bioguide_ids, rolls)
+    else:
+        return (None, None, None, None, None)
 
 def try_key(data, key, name, new_data):
     if data.has_key(key):
@@ -200,7 +205,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
 
         #make sure the last clip has a duration
-        if len(new_vid['clips']) > 0:
+        if new_vid['clips'] and len(new_vid['clips']) > 0:
             new_vid['clips'][-1]['duration'] = new_vid['duration'] - new_vid['clips'][-1]['offset']
 
         if captions:
@@ -238,7 +243,6 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                 resp = es.save(clip, 'clips', clip['id'])
             
                 if resp['ok'] == False:
-                    print resp
                     PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
 
     es.connection.refresh()
@@ -275,7 +279,7 @@ def query_api(db, api_url, data=None):
         return items
 
     else:
-        PARSING_ERRORS.append('Got something other than 200 status:' % response.get('status'))
+        PARSING_ERRORS.append('Got something other than 200 status: %s' % response.get('status'))
 
 def escape_query(text):
     return ESCAPE_CHARS_RE.sub(r'\\\g<char>', text)
