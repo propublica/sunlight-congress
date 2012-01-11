@@ -36,3 +36,7 @@
 # upcoming leadership information
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
+
+# regulations (experimental)
+*/60 * * * * /projects/rtc/shared/cron/task.sh regulations_federal_register stage=proposed archive=true
+*/60 * * * * /projects/rtc/shared/cron/task.sh regulations_federal_register stage=final archive=true
