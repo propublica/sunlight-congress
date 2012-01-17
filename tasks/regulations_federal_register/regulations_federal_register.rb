@@ -64,12 +64,15 @@ class RegulationsFederalRegister
         rule.attributes = {
           :fr_id => fr_id,
           :stage => stage,
-          :published_on => details.delete('publication_date'),
-          :abstract => details.delete('abstract'),
-          :title => details.delete('title'),
+          :published_at => details['publication_date'],
+          :abstract => details['abstract'],
+          :title => details['title'],
+          :federal_register_url => details['html_url'],
+          :agencies => details['agencies'].map {|agency| agency['name']},
+          :effective_at => details['effective_on'],
 
-          :rins => details.delete('regulation_id_numbers'),
-          :docket_ids => details.delete('docket_ids')
+          :rins => details['regulation_id_numbers'],
+          :docket_ids => details['docket_ids']
         }
 
         # lump the rest into a catch-all
