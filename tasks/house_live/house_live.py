@@ -7,7 +7,7 @@ import httplib2
 from datetime import datetime, timedelta
 import time as timey
 from dateutil.parser import parse as dateparse
-import os
+import os, sys
 from htmlentitydefs import name2codepoint
 import subprocess
 from boto.s3.connection import S3Connection
@@ -122,7 +122,6 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     api_url = API_PREFIX + client_name + '?type=marker&size=100000'
     data = '{"filter": { "term": { "video_id": %s}}, "sort": [{"offset":{"order":"asc"}}]}' % clip_id
     markers = query_api(db, api_url, data)
-
     clips = []
     bills = []
     legislators = []
@@ -171,6 +170,11 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
     else:
         api_url += '&size=2'
     videos = query_api(db, api_url, data)
+
+    if not videos:
+        db.warning("Granicus API appers to be down")
+        sys.exit()        
+
     vcount = 0
     for vid in videos:
         
@@ -274,6 +278,7 @@ def query_api(db, api_url, data=None):
     h = httplib2.Http()
     response, text = h.request(api_url, body=data)
 
+    print api_url + '-d ' + data
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
         return items
