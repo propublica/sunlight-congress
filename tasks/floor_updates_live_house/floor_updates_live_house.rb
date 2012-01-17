@@ -37,11 +37,10 @@ class FloorUpdatesLiveHouse
       timestamp = Utils.utc_parse action.at("action_time")['for-search']
       item = action.at("action_description").inner_text.strip
       
-      unless update = FloorUpdate.where(:timestamp => timestamp, :chamber => chamber, :events => item).first
-        update = FloorUpdate.new(:timestamp => timestamp, :chamber => chamber, :events => [item])
-      end
-      
+      update = FloorUpdate.find_or_initialize_by :timestamp => timestamp, :chamber => chamber
+        
       update.attributes = {
+        :events => [item],
         :session => session,
         :legislative_day => legislative_day_stamp,
         :bill_ids => bill_ids_for(action, item, session),
