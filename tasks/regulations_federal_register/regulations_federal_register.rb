@@ -68,7 +68,8 @@ class RegulationsFederalRegister
           :abstract => details['abstract'],
           :title => details['title'],
           :federal_register_url => details['html_url'],
-          :agencies => details['agencies'].map {|agency| agency['name']},
+          :agency_names => details['agencies'].map {|agency| agency['name']},
+          :agency_ids => details['agencies'].map {|agency| agency['id']},
           :effective_at => details['effective_on'],
 
           :rins => details['regulation_id_numbers'],

@@ -8,7 +8,8 @@ class Regulation
   include Queryable::Model
   
   default_order :published_on
-  basic_fields :regulation_id, :fr_id, :stage, :rins, :docket_ids, :published_on, :abstract, :title
+  basic_fields :regulation_id, :fr_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+    :federal_register_url, :agency_names, :agency_ids
   search_fields :title, :abstract
 
   index :regulation_id # combination of fr_id and stage
@@ -16,9 +17,9 @@ class Regulation
   index :fr_id
   index :stage
   index :rins
-  index :published_on
-
-  field :published_on, :type => String
+  index :published_at
+  index :effective_at
+  index :agencies
 
   validates_presence_of :regulation_id
   validates_uniqueness_of :regulation_id
