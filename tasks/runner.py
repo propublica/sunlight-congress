@@ -98,7 +98,7 @@ class Database():
 
 class ElasticSearch():
     
-    def __init__(self, host, port, index):
+    def __init__(self, host, port, index_prefix):
         """
         Initialize ElasticSearch connection.
         host: hostname of elasticsearch daemon
@@ -106,10 +106,10 @@ class ElasticSearch():
         """
 
         self.connection = pyes.ES(["%s:%s" % (host, port)], timeout=180)
-        self.index = index
+        self.index_prefix = index_prefix
     
     def save(self, data, typ, o_id):
-        response = self.connection.index(data, self.index, typ, o_id)
+        response = self.connection.index(data, "%s_%s" % (self.index, type), typ, o_id)
         return response
 
 # set global HTTP timeouts to 10 seconds
@@ -125,8 +125,8 @@ db = Database(task_name, db_host, db_name)
 
 es_host = options['elastic_search']['host']
 es_port = options['elastic_search']['port']
-es_index = options['elastic_search']['index']
-es = ElasticSearch(es_host, es_port, es_index)
+es_index_prefix = options['elastic_search']['index_prefix']
+es = ElasticSearch(es_host, es_port, es_index_prefix)
 
 
 args = sys.argv[2:]
