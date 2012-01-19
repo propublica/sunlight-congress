@@ -345,10 +345,10 @@ module Searchable
     @config
   end
   
-  def self.client_for(mapping)
+  def self.client_for(document_type)
     full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
-    index = config['elastic_search']['index']
-    ElasticSearch.new "http://#{full_host}", :index => index, :type => mapping
+    index = "#{config['elastic_search']['index_prefix']}_#{document_type}"
+    ElasticSearch.new "http://#{full_host}", :index => index, :type => document_type
   end
 
   module Model
