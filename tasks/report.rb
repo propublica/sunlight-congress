@@ -56,6 +56,10 @@ class Report
   def complete?
     status == 'COMPLETE'
   end
+
+  def note?
+    status == 'NOTE'
+  end
   
   def mark_read!
     update_attributes :read => true

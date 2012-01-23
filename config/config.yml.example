@@ -16,7 +16,7 @@ mongoid:
 elastic_search:
   host: localhost
   port: 9200
-  index: rtc
+  index_prefix: rtc
 
 s3: 
     secret: 

@@ -28,7 +28,7 @@
       },
       "bill_id": {
         "index": "not_analyzed",
-        "type": "String"
+        "type": "string"
       }
     }
   }
