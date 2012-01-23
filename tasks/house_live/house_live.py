@@ -115,7 +115,64 @@ def get_captions(client_name, clip_id):
     else:
         return ([], '')
          
-   
+def get_senate_clip_captions(captions, start, end):
+
+    clip_captions = []
+
+    for cap in captions:
+        c_time = float(cap['time'])
+
+        if (c_time >= start and c_time < end):  # need the second condition to snag captions that begin before the first 'offset'
+            clip_captions.append(cap)
+
+    #turn captions into one large string for elastic search
+    cap_str = ""
+    for cap in clip_captions:
+        cap_str += cap['text'] + ' '
+        
+    return cap_str
+
+def get_clips_for_senate(db, clip_id, congress, duration, year):
+    #go with 5 minute clips?
+    clip_segment = 5 * 60
+    clip_number = (duration / clip_segment) + 1
+ 
+    clips = []
+    bills = []
+    legislators = []
+    bioguide_ids = []
+    rolls = []
+    
+    caps = get_captions('floor.senate.gov', clip_id)
+    offset = 0
+    for clip_num in range(1, clip_number + 1):
+        start = offset
+        if clip_num == clip_number + 1: #last clip
+            dur = duration - offset
+        else:
+            dur = clip_segment
+
+        c = {
+            'offset': start,
+            'duration': dur
+        }
+
+        captions = get_senate_clip_captions(caps, start, start + clip_segment)
+
+        legis, bio_ids = rtc_utils.extract_legislators(captions, chamber, db)
+        b = rtc_utils.extract_bills(captions, congress)
+        r = rtc_utils.extract_rolls(captions, chamber, year)
+            
+        if legis: c['legislator_names'] = legis; legislators.extend(legis)
+        if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
+        if r: c['rolls'] = r; rolls.extend(r)
+        if b: c['bills'] = b; bills.extend(b)
+
+        clips.append(c)
+
+        offset = offset + clip_segment
+    
+    return (clips, bills, legislators, bioguide_ids, rolls)
 
 
 def get_markers(db, client_name, clip_id, congress, chamber):
@@ -127,6 +184,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     legislators = []
     bioguide_ids = []
     rolls = []
+    
     if markers:
         for m in markers:
             m_new = m['_source']
@@ -152,7 +210,9 @@ def get_markers(db, client_name, clip_id, congress, chamber):
             clips.append(c)
 
         return (clips, bills, legislators, bioguide_ids, rolls)
+
     else:
+        db.warning('There are no markers for video id: %s' % clip_id)
         return (None, None, None, None, None)
 
 def try_key(data, key, name, new_data):
@@ -206,7 +266,10 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         new_vid['chamber'] = chamber
         new_vid['session'] =  rtc_utils.current_session(legislative_day.year)
 
-        new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+        if chamber == 'house':
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+        elif chamber == 'senate':
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['session'], new_vid['duration'], dateparse(new_vid['pubdate']).year)
 
         #make sure the last clip has a duration
         if new_vid['clips'] and len(new_vid['clips']) > 0:
@@ -220,7 +283,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         vcount += 1
 
         #index clip objects in elastic search
-        if captions:
+        if captions and vid['clips']:
             for c in new_vid['clips']:
                 clip = {
                         'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
@@ -277,8 +340,12 @@ def query_api(db, api_url, data=None):
 
     h = httplib2.Http()
     response, text = h.request(api_url, body=data)
+    print '=========='
+    print api_url
+    print data
+    print text
+    print response.get('status')
 
-    print api_url + '-d ' + data
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
         return items
