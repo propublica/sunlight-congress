@@ -277,7 +277,6 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         if captions:
             new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
-            print new_vid['caption_srt_file']
         
         db['videos'].save(new_vid) 
         vcount += 1
@@ -311,6 +310,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
             
                 if resp['ok'] == False:
                     PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+        print "Successfully processed %s" % new_vid['clip_id']
 
     es.connection.refresh()
 
@@ -340,11 +340,6 @@ def query_api(db, api_url, data=None):
 
     h = httplib2.Http()
     response, text = h.request(api_url, body=data)
-    print '=========='
-    print api_url
-    print data
-    print text
-    print response.get('status')
 
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
