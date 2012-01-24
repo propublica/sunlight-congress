@@ -164,7 +164,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
         r = rtc_utils.extract_rolls(captions, chamber, year)
             
         if legis: c['legislator_names'] = legis; legislators.extend(legis)
-        if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
+        if bio_ids: c['bioguide_ids'] = bio_ids; bioguide_ids.extend(bio_ids)
         if r: c['rolls'] = r; rolls.extend(r)
         if b: c['bills'] = b; bills.extend(b)
 
@@ -203,7 +203,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
             r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
             
             if legis: c['legislator_names'] = legis; legislators.extend(legis)
-            if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
+            if bio_ids: c['bioguide_ids'] = bio_ids; bioguide_ids.extend(bio_ids)
             if r: c['rolls'] = r; rolls.extend(r)
             if b: c['bills'] = b; bills.extend(b)
 
