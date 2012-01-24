@@ -338,7 +338,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         #index clip objects in elastic search
         
-        if captions and new_vid.has_key('clips') and len(new_vid['clips']) > 0:
+        if captions and new_vid.has_key('clips') and new_vid['clips'] is not None and len(new_vid['clips']) > 0:
             for c in new_vid['clips']:
                 clip = {
                         'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
