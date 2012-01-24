@@ -118,8 +118,7 @@ def get_captions(client_name, clip_id):
 def get_senate_clip_captions(captions, start, end):
 
     clip_captions = []
-
-    for cap in captions:
+    for cap in captions[0]:
         c_time = float(cap['time'])
 
         if (c_time >= start and c_time < end):  # need the second condition to snag captions that begin before the first 'offset'
@@ -134,6 +133,7 @@ def get_senate_clip_captions(captions, start, end):
 
 def get_clips_for_senate(db, clip_id, congress, duration, year):
     #go with 5 minute clips?
+    chamber = "senate"
     clip_segment = 5 * 60
     clip_number = (duration / clip_segment) + 1
  
