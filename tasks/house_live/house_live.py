@@ -193,8 +193,8 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                 if bill not in bills:
                     bills.append(bill)
                     bill_name = db['bills'].find_one({'bill_id':bill })
-                    if  bill_name and bill_name['short_name'] and bill_name['short_name'] != '':
-                        events += bill_name['short_name']
+                    if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
+                        events += bill_name['short_title']
                     elif bill_name:
                         events += bill_name['code'].upper()
                     if bill != bills[-1]:
