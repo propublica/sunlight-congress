@@ -163,10 +163,28 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
         b = rtc_utils.extract_bills(captions, congress)
         r = rtc_utils.extract_rolls(captions, chamber, year)
             
-        if legis: c['legislator_names'] = legis; legislators.extend(legis)
-        if bio_ids: c['bioguide_ids'] = bio_ids; bioguide_ids.extend(bio_ids)
-        if r: c['rolls'] = r; rolls.extend(r)
-        if b: c['bills'] = b; bills.extend(b)
+        if legis: 
+            c['legislator_names'] = legis
+            for l in legis:
+                if l not in legislators:
+                    legislators.append(l)
+        if bio_ids: 
+            c['bioguide_ids'] = bio_ids
+            for bi in bio_ids:
+                if bi not in bioguide_ids:
+                    bioguide_ids.append(bi)
+
+        if r: 
+            c['rolls'] = r
+            for ro in r:
+                if ro not in rolls:
+                    rolls.append(r)
+        
+        if b: 
+            c['bills'] = b
+            for bill in b:
+                if bill not in bills:
+                    bills.append(bill)
 
         clips.append(c)
 
@@ -202,10 +220,29 @@ def get_markers(db, client_name, clip_id, congress, chamber):
             b = rtc_utils.extract_bills(c['events'][0], congress)
             r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
             
-            if legis: c['legislator_names'] = legis; legislators.extend(legis)
-            if bio_ids: c['bioguide_ids'] = bio_ids; bioguide_ids.extend(bio_ids)
-            if r: c['rolls'] = r; rolls.extend(r)
-            if b: c['bills'] = b; bills.extend(b)
+            if legis: 
+                c['legislator_names'] = legis
+                for l in legis:
+                    if l not in legislators:
+                        legislators.append(l)
+            if bio_ids: 
+                c['bioguide_ids'] = bio_ids
+                for bi in bio_ids:
+                    if bi not in bioguide_ids:
+                        bioguide_ids.append(bi)
+
+            if r: 
+                c['rolls'] = r
+                for ro in r:
+                    if ro not in rolls:
+                        rolls.append(r)
+            
+            if b: 
+                c['bills'] = b
+                for bill in b:
+                    if bill not in bills:
+                        bills.append(bill)
+
 
             clips.append(c)
 
