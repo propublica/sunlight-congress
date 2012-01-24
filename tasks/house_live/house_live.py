@@ -172,7 +172,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                     legislators.append(l)
                 events += l
                 if l != legislators[-1]:
-                    events += ', '
+                    events += '; '
 
         if bio_ids: 
             c['bioguide_ids'] = bio_ids
@@ -195,9 +195,12 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                 
                 bill_name = db['bills'].find_one({'bill_id':bill })
                 if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
-                    events += bill_name['short_title'] + ', '
+                    events += bill_name['short_title'] + '; '
                 elif bill_name:
-                    events += bill_name['code'].upper() + ', '
+                    events += bill_name['code'].upper() + '; '
+
+        if events == '':
+            events = "No description for clip number %s" % clip_num
 
         c['events'] = [events,]
          
