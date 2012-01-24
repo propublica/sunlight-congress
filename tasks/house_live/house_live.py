@@ -170,9 +170,9 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
             for l in legis:
                 if l not in legislators:
                     legislators.append(l)
-                    events += l
-                    if l != legislators[-1]:
-                        events += ', '
+                events += l
+                if l != legislators[-1]:
+                    events += ', '
 
         if bio_ids: 
             c['bioguide_ids'] = bio_ids
@@ -188,17 +188,16 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
         
         if b: 
             c['bills'] = b
-            events += ' Bills mentioned in this clip:'
+            events += 'Bills mentioned in this clip: '
             for bill in b:
                 if bill not in bills:
                     bills.append(bill)
-                    bill_name = db['bills'].find_one({'bill_id':bill })
-                    if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
-                        events += bill_name['short_title']
-                    elif bill_name:
-                        events += bill_name['code'].upper()
-                    if bill != bills[-1]:
-                        events += ', '    
+                
+                bill_name = db['bills'].find_one({'bill_id':bill })
+                if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
+                    events += bill_name['short_title'] + ', '
+                elif bill_name:
+                    events += bill_name['code'].upper() + ', '
 
         c['events'] = [events,]
          
