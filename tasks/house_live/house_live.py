@@ -337,7 +337,9 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         vcount += 1
 
         #index clip objects in elastic search
-        if captions and vid.has_key('clips') and len(vid['clips']) > 0:
+        
+        if captions and new_vid.has_key('clips') and len(new_vid['clips']) > 0:
+            print "In if captions"
             for c in new_vid['clips']:
                 clip = {
                         'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),

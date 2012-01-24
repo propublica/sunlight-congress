@@ -109,7 +109,7 @@ class ElasticSearch():
         self.index_prefix = index_prefix
     
     def save(self, data, typ, o_id):
-        response = self.connection.index(data, "%s_%s" % (self.index, type), typ, o_id)
+        response = self.connection.index(data, "%s_%s" % (self.index_prefix, typ), typ, o_id)
         return response
 
 # set global HTTP timeouts to 10 seconds
