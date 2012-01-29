@@ -3,9 +3,17 @@ require 'open-uri'
 
 class DocumentsGaoReports
 
+  GAO_URL = 'http://www.gao.gov/rss/reports.xml'
+
   def self.run(options = {})
+
+    unless html = content_for(GAO_URL)
+      Report.warning self, "Network error fetching GAO Reports, can't go on.", :url => GAO_URL
+      return
+    end
+
     count = 0
-    doc = Nokogiri::XML(open("http://www.gao.gov/rss/reports.xml"))
+    doc = Nokogiri::XML(html)
 
     doc.xpath('//item').each do |item|
       title = item.xpath('title').inner_text
@@ -19,7 +27,7 @@ class DocumentsGaoReports
       pdf_url = "http://www.gao.gov/new.items/d#{pdf_id}.pdf"
 
       document = Document.find_or_initialize_by :gao_id => gao_id
-        
+
       document.attributes = {
         :document_type => 'gao_report',
         :title => plain_title,
@@ -33,6 +41,14 @@ class DocumentsGaoReports
     end
 
     Report.success self, "Created or updated #{count} GAO Reports"
+  end
+
+  def self.content_for(url)
+    begin
+      open(url).read
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+      nil
+    end
   end
 
 end
