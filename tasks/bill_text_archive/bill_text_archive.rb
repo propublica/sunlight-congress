@@ -175,7 +175,7 @@ class BillTextArchive
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
       
-      puts "[#{bill.bill_id}] Indexeing versions for whole bill..." if options[:debug]
+      puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
       bills_client.index(
         bill_fields.merge(
