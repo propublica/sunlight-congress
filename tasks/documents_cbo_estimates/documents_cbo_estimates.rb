@@ -3,9 +3,17 @@ require 'open-uri'
 
 class DocumentsCboEstimates
 
+  CBO_URL = 'http://www.cbo.gov/costestimates/CEBrowse.cfm'
+
   def self.run(options = {})
+
+    unless html = content_for(CBO_URL)
+      Report.warning self, "Network error fetching CBO Estimates, can't go on.", :url => CBO_URL
+      return
+    end
+
+    doc = Nokogiri::HTML(html)
     num_added = 0
-    doc = Nokogiri::HTML(open("http://www.cbo.gov/costestimates/CEBrowse.cfm"))
 
     doc.css("div.listdocs p").each do |p|
       title_node = p.css('a.doctitle')
@@ -26,6 +34,14 @@ class DocumentsCboEstimates
     end
 
     Report.success self, "Added #{num_added} CBO Cost Estimates"
+  end
+
+  def self.content_for(url)
+    begin
+      open(url).read
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+      nil
+    end
   end
 
 end

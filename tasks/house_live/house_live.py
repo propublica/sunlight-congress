@@ -115,7 +115,100 @@ def get_captions(client_name, clip_id):
     else:
         return ([], '')
          
-   
+def get_senate_clip_captions(captions, start, end):
+
+    clip_captions = []
+    for cap in captions[0]:
+        c_time = float(cap['time'])
+
+        if (c_time >= start and c_time < end):  # need the second condition to snag captions that begin before the first 'offset'
+            clip_captions.append(cap)
+
+    #turn captions into one large string for elastic search
+    cap_str = ""
+    for cap in clip_captions:
+        cap_str += cap['text'] + ' '
+        
+    return cap_str
+
+def get_clips_for_senate(db, clip_id, congress, duration, year):
+    #go with 5 minute clips?
+    chamber = "senate"
+    clip_segment = 5 * 60
+    clip_number = (duration / clip_segment) + 1
+ 
+    clips = []
+    bills = []
+    legislators = []
+    bioguide_ids = []
+    rolls = []
+    
+    caps = get_captions('floor.senate.gov', clip_id)
+    offset = 0
+    for clip_num in range(1, clip_number + 1):
+        start = offset
+        if clip_num == clip_number + 1: #last clip
+            dur = duration - offset
+        else:
+            dur = clip_segment
+
+        c = {
+            'offset': start,
+            'duration': dur
+        }
+
+        events = ''
+        captions = get_senate_clip_captions(caps, start, start + clip_segment)
+
+        legis, bio_ids = rtc_utils.extract_legislators(captions, chamber, db)
+        b = rtc_utils.extract_bills(captions, congress)
+        r = rtc_utils.extract_rolls(captions, chamber, year)
+            
+        if legis: 
+            c['legislator_names'] = legis
+            events += 'Legislators mentioned in this clip: '
+            for l in legis:
+                if l not in legislators:
+                    legislators.append(l)
+                events += l
+                if l != legislators[-1]:
+                    events += '; '
+
+        if bio_ids: 
+            c['bioguide_ids'] = bio_ids
+            for bi in bio_ids:
+                if bi not in bioguide_ids:
+                    bioguide_ids.append(bi)
+
+        if r: 
+            c['rolls'] = r
+            for ro in r:
+                if ro not in rolls:
+                    rolls.append(r)
+        
+        if b: 
+            c['bills'] = b
+            events += 'Bills mentioned in this clip: '
+            for bill in b:
+                if bill not in bills:
+                    bills.append(bill)
+                
+                bill_name = db['bills'].find_one({'bill_id':bill })
+                if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
+                    events += bill_name['short_title'] + '; '
+                elif bill_name:
+                    events += bill_name['code'].upper() + '; '
+
+        if events == '':
+            events = "No description for clip number %s" % clip_num
+
+        c['events'] = [events,]
+         
+        clips.append(c)
+
+        offset = offset + clip_segment
+    
+    return (clips, bills, legislators, bioguide_ids, rolls)
 
 
 def get_markers(db, client_name, clip_id, congress, chamber):
@@ -127,6 +220,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     legislators = []
     bioguide_ids = []
     rolls = []
+    
     if markers:
         for m in markers:
             m_new = m['_source']
@@ -144,15 +238,36 @@ def get_markers(db, client_name, clip_id, congress, chamber):
             b = rtc_utils.extract_bills(c['events'][0], congress)
             r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
             
-            if legis: c['legislator_names'] = legis; legislators.extend(legis)
-            if b: c['bioguide_ids'] = b; bioguide_ids.extend(bio_ids)
-            if r: c['rolls'] = r; rolls.extend(r)
-            if b: c['bills'] = b; bills.extend(b)
+            if legis: 
+                c['legislator_names'] = legis
+                for l in legis:
+                    if l not in legislators:
+                        legislators.append(l)
+            if bio_ids: 
+                c['bioguide_ids'] = bio_ids
+                for bi in bio_ids:
+                    if bi not in bioguide_ids:
+                        bioguide_ids.append(bi)
+
+            if r: 
+                c['rolls'] = r
+                for ro in r:
+                    if ro not in rolls:
+                        rolls.append(r)
+            
+            if b: 
+                c['bills'] = b
+                for bill in b:
+                    if bill not in bills:
+                        bills.append(bill)
+
 
             clips.append(c)
 
         return (clips, bills, legislators, bioguide_ids, rolls)
+
     else:
+        db.warning('There are no markers for video id: %s' % clip_id)
         return (None, None, None, None, None)
 
 def try_key(data, key, name, new_data):
@@ -206,7 +321,10 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         new_vid['chamber'] = chamber
         new_vid['session'] =  rtc_utils.current_session(legislative_day.year)
 
-        new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+        if chamber == 'house':
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+        elif chamber == 'senate':
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['session'], new_vid['duration'], dateparse(new_vid['pubdate']).year)
 
         #make sure the last clip has a duration
         if new_vid['clips'] and len(new_vid['clips']) > 0:
@@ -214,13 +332,13 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         if captions:
             new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
-            print new_vid['caption_srt_file']
         
         db['videos'].save(new_vid) 
         vcount += 1
 
         #index clip objects in elastic search
-        if captions:
+        
+        if captions and new_vid.has_key('clips') and new_vid['clips'] is not None and len(new_vid['clips']) > 0:
             for c in new_vid['clips']:
                 clip = {
                         'id': "%s-%s" % (new_vid['video_id'], new_vid['clips'].index(c)),
@@ -248,6 +366,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
             
                 if resp['ok'] == False:
                     PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
+        print "Successfully processed %s" % new_vid['clip_id']
 
     es.connection.refresh()
 
@@ -278,7 +397,6 @@ def query_api(db, api_url, data=None):
     h = httplib2.Http()
     response, text = h.request(api_url, body=data)
 
-    print api_url + '-d ' + data
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
         return items

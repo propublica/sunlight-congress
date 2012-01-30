@@ -105,11 +105,11 @@ class ElasticSearch():
         port: port of elasticsearch daemon
         """
 
-        self.connection = pyes.ES(["%s:%s" % (host, port)], timeout=180)
+        self.connection = pyes.ES(server=("http", host, port), timeout=180)
         self.index_prefix = index_prefix
     
     def save(self, data, typ, o_id):
-        response = self.connection.index(data, "%s_%s" % (self.index, type), typ, o_id)
+        response = self.connection.index(data, "%s_%s" % (self.index_prefix, typ), typ, o_id)
         return response
 
 # set global HTTP timeouts to 10 seconds
