@@ -53,7 +53,7 @@ class BillTextArchive
       
       
       # accumulate a massive string
-      bill_version_text = ""
+      last_bill_version_text = ""
       
       # accumulate an array of version objects
       bill_versions = [] 
@@ -152,7 +152,7 @@ class BillTextArchive
         version_count += 1
         
         # store in the bill object for redundant storage on bill object itself
-        bill_version_text << full_text
+        last_bill_version_text = full_text 
         bill_versions << {
           :version_code => code,
           :issued_on => issued_on,
@@ -179,7 +179,7 @@ class BillTextArchive
 
       bills_client.index(
         bill_fields.merge(
-          :versions => bill_version_text,
+          :versions => last_bill_version_text,
           :version_codes => bill_version_codes,
           :versions_count => versions_count,
           :last_version => last_version,
