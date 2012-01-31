@@ -87,8 +87,8 @@ namespace :deploy do
     # elasticsearch files need to stay in a shared dir so that the symlink that points to them doesn't stay pointed
     # to stale, old releases
     if ['staging', 'elastic'].include?(environment)
-      run "cp #{release_path}/config/elasticsearch/#{environment}/*.yml #{shared_path}/elasticsearch/"
-      run "cp -r #{release_path}/config/mappings/ #{shared_path}/elasticsearch/"
+      run "cp #{release_path}/config/elasticsearch/config/#{environment}/*.yml #{shared_path}/elasticsearch/"
+      run "cp -r #{release_path}/config/elasticsearch/mappings/ #{shared_path}/elasticsearch/"
     end
   end
 end
