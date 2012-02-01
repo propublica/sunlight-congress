@@ -8,7 +8,6 @@ class Vote
     :result, :bill_id, :voted_at, :last_updated, :roll_type, :question, 
     :required, :vote_type, :passage_type, :amendment_id, :vote_breakdown
   
-  # todo: add the bill's latest version's text in as well, add its amendment purpose
   searchable_fields :question, "bill.last_version_text", "bill.summary", "bill.keywords", "bill.official_title", "bill.popular_title", "bill.short_title", "amendment.purpose"
 
   
