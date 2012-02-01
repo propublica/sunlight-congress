@@ -18,6 +18,7 @@ group :development do
   gem 'sinatra-reloader', '0.5.0'
   gem 'wirble'
   gem 'rack', '1.3.2'
+  gem 'unicorn'
 end
 
 # for utility work (not used in the app's code, but useful to be loaded in its environment)
