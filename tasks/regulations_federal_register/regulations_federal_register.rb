@@ -3,7 +3,8 @@ require 'httparty'
 class RegulationsFederalRegister
 
   # options:
-    # pages: number of pages to get (defaults to just 1 - as of right now, 50 is enough to archive it all.)
+    # stage: 'proposed' or 'final'
+    # archive: any value will turn on archive mode, goes over as many pages as the API says there are
   def self.run(options = {})
     stage = options[:stage] ? options[:stage].to_sym : :proposed
 
@@ -29,6 +30,7 @@ class RegulationsFederalRegister
     count = 0
     
     pages.times do |i|
+      i += 1 # 1-indexed, please
       page_url = "#{base_url}&page=#{i}"
       begin
         puts "Fetching page #{i}..." if options[:debug]
@@ -44,8 +46,9 @@ class RegulationsFederalRegister
       end
 
       response['results'].each do |article|
-        fr_id = article['document_number']
-        rule = Regulation.find_or_initialize_by :regulation_id => "#{fr_id}-#{stage}"
+        document_number = article['document_number']
+        regulation_id = "#{document_number}-#{stage}"
+        rule = Regulation.find_or_initialize_by :regulation_id => regulation_id
           
         begin
           details = HTTParty.get article['json_url']
@@ -62,7 +65,7 @@ class RegulationsFederalRegister
         end
 
         rule.attributes = {
-          :fr_id => fr_id,
+          :document_number => document_number,
           :stage => stage,
           :published_at => details['publication_date'],
           :abstract => details['abstract'],
@@ -71,6 +74,7 @@ class RegulationsFederalRegister
           :agency_names => details['agencies'].map {|agency| agency['name']},
           :agency_ids => details['agencies'].map {|agency| agency['id']},
           :effective_at => details['effective_on'],
+          :full_text_xml_url => details['full_text_xml_url'],
 
           :rins => details['regulation_id_numbers'],
           :docket_ids => details['docket_ids']
@@ -80,7 +84,7 @@ class RegulationsFederalRegister
         rule[:federal_register] = details.to_hash
 
         rule.save!
-        puts "[#{fr_id}] Saved rule to database" if options[:debug]
+        puts "[#{regulation_id}] Saved rule to database" if options[:debug]
         count += 1
       end
 

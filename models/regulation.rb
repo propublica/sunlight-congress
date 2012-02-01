@@ -1,6 +1,20 @@
 # currently very much in beta, I don't understand regulatory data enough yet. this is experimental.
 
 class Regulation
+
+  # elasticsearch behavior
+
+  include Searchable::Model
+
+  result_fields :regulation_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
+  
+  searchable_fields :title, :abstract, :full_text
+
+
+
+  # mongo behavior
+
   include Mongoid::Document
   include Mongoid::Timestamps
 
@@ -8,13 +22,14 @@ class Regulation
   include Queryable::Model
   
   default_order :published_on
-  basic_fields :regulation_id, :fr_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
-    :federal_register_url, :agency_names, :agency_ids
+  basic_fields :regulation_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
   search_fields :title, :abstract
 
-  index :regulation_id # combination of fr_id and stage
+
+  index :regulation_id # combination of document_number and stage
   
-  index :fr_id
+  index :document_number
   index :stage
   index :rins
   index :published_at
@@ -24,7 +39,8 @@ class Regulation
   validates_presence_of :regulation_id
   validates_uniqueness_of :regulation_id
 
-  validates_presence_of :fr_id
+  validates_presence_of :document_number
+  
   # 'proposed', 'final'
   validates_presence_of :stage
 end
