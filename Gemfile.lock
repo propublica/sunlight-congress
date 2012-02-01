@@ -95,6 +95,7 @@ PLATFORMS
 DEPENDENCIES
   SystemTimer (= 1.2.3)
   bson_ext (= 1.4.0)
+  curb (= 0.7.15)
   fastercsv
   feedzirra (= 0.1.1)
   httparty (= 0.7.8)

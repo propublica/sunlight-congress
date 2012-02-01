@@ -30,8 +30,9 @@ gem 'fastercsv'
 
 gem 'sunlight', '1.1.0' # legislators, committees
 gem 'nokogiri', '1.4.4' # rolls_live_house, rolls_live_senate
-gem 'httparty', '0.7.8' # opencrs
+gem 'httparty', '0.7.8' # opencrs, regulations_federal_register
 gem 'feedzirra', '0.1.1' # documents_whip_notices, upcoming_senate_daily
+gem 'curb', '0.7.15' # regulations_full_text
 
 # elasticsearch
 gem 'rubberband', '0.1.5'
