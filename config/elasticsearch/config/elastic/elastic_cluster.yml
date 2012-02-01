@@ -1,0 +1,25 @@
+# one half of new cluster
+
+cluster.name: RealTimeCongress2
+
+index:
+  number_of_shards: 5
+  number_of_replicas: 1
+
+path:
+  data: /var/lib/elasticsearch
+  work: /mnt
+
+http:
+  port: 3145
+  
+bootstrap:
+  mlockall: false
+
+# cluster role settings
+
+node.master: true # default
+node.data: true # default
+
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: ["domU-12-31-39-16-D9-FB.compute-1.internal", "domU-12-31-39-0E-D5-C2.compute-1.internal"]
