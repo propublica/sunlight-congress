@@ -9,10 +9,10 @@ cluster:
 
 path:
   data: /var/lib/elasticsearch
-  work: /tmp
+  work: /mnt
 
 http:
   port: 3145
   
 bootstrap:
-  mlockall: true
+  mlockall: false
