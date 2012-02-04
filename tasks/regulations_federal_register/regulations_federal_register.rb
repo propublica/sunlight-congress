@@ -80,6 +80,10 @@ class RegulationsFederalRegister
           :docket_ids => details['docket_ids']
         }
 
+        if rule.new_record?
+          rule[:indexed] = false
+        end
+
         # lump the rest into a catch-all
         rule[:federal_register] = details.to_hash
 
