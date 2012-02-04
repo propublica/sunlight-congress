@@ -71,7 +71,7 @@ class RegulationsFullText
       text.inner_text.strip
     end.select {|text| text.present?}
 
-    strings.join "\n"
+    strings.join " "
   end
 
 end
