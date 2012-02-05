@@ -23,7 +23,14 @@ class RegulationsFullText
 
     client = Searchable.client_for 'regulations'
 
+    missing_xml_links = []
+
     targets.each do |regulation|
+
+      unless regulation['full_text_xml_url']
+        missing_xml_links << regulation['regulation_id']
+        next
+      end
 
       doc = full_xml_doc_for regulation, options
       return unless doc # warning will have been filed
@@ -44,6 +51,10 @@ class RegulationsFullText
       regulation.save!
 
       count += 1
+    end
+
+    if missing_xml_links.any?
+      Report.warning self, "Missing #{missing_xml_links.count} XML links for full text"
     end
 
     # make sure data is appearing now
