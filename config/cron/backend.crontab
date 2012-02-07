@@ -40,3 +40,4 @@
 # regulations (experimental)
 */60 * * * * /projects/rtc/shared/cron/task.sh regulations_federal_register stage=proposed archive=true
 */60 * * * * /projects/rtc/shared/cron/task.sh regulations_federal_register stage=final archive=true
+*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text
