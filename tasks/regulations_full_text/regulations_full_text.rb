@@ -60,7 +60,7 @@ class RegulationsFullText
     end
 
     if missing_links.any?
-      Report.warning self, "Missing #{missing_links.count} XML links for full text", :missing_links => missing_links
+      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", :missing_links => missing_links
     end
 
     # make sure data is appearing now
