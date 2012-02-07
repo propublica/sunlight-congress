@@ -31,6 +31,10 @@ def senate_hearings(db):
           committee_id = meeting.cmte_code.contents[0].strip()
           committee_id = re.sub("(\d+)$", "", committee_id)
           
+          # joint conference committee (bill-specific), we don't handle that
+          if committee_id == "JCC":
+            continue
+
           # resolve discrepancies between Sunlight and the Senate
           committee_id = rtc_utils.committee_id_for(committee_id)
           if not committee_id:
