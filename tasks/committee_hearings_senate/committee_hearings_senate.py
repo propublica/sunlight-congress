@@ -31,17 +31,15 @@ def senate_hearings(db):
           committee_id = meeting.cmte_code.contents[0].strip()
           committee_id = re.sub("(\d+)$", "", committee_id)
           
-          # joint conference committee (bill-specific), we don't handle that
-          if committee_id == "JCC":
-            continue
-
           # resolve discrepancies between Sunlight and the Senate
           committee_id = rtc_utils.committee_id_for(committee_id)
           if not committee_id:
             continue
           
           committee = committee_for(db, committee_id)
-          if not committee:
+
+          # Don't warn if it's a bill-specific conference committee
+          if not committee and committee_id != "JCC":
             db.warning("Couldn't locate committee by committee_id \"%s\" while parsing Senate committee hearings" % committee_id, {'committee_id': committee_id})
           
           date_string = meeting.date.contents[0].strip()
