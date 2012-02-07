@@ -9,6 +9,10 @@ class RegulationsFullText
     limit = options[:limit] ? options[:limit].to_i : nil
     regulation_id = options[:regulation_id]
 
+    if options[:rearchive]
+      Regulation.update_all :indexed => false
+    end
+
     count = 0
 
     if regulation_id
@@ -23,16 +27,18 @@ class RegulationsFullText
 
     client = Searchable.client_for 'regulations'
 
-    missing_xml_links = []
+    missing_links = []
 
     targets.each do |regulation|
 
-      unless regulation['full_text_xml_url']
-        missing_xml_links << regulation['regulation_id']
-        next
+      id = regulation['regulation_id']
+      doc = nil
+      if regulation['full_text_xml_url']
+        doc = doc_for :xml, id, regulation['full_text_xml_url'], options  
+      elsif regulation['body_html_url']
+        doc = doc_for :html, id, regulation['body_html_url'], options
       end
 
-      doc = full_xml_doc_for regulation, options
       return unless doc # warning will have been filed
 
       full_text = full_text_for doc, options
@@ -53,8 +59,8 @@ class RegulationsFullText
       count += 1
     end
 
-    if missing_xml_links.any?
-      Report.warning self, "Missing #{missing_xml_links.count} XML links for full text"
+    if missing_links.any?
+      Report.warning self, "Missing #{missing_links.count} XML links for full text", :missing_links => missing_links
     end
 
     # make sure data is appearing now
@@ -63,10 +69,10 @@ class RegulationsFullText
     Report.success self, "Indexed #{count} regulations as searchable"
   end
 
-  def self.full_xml_doc_for(regulation, options)
+  def self.doc_for(type, regulation_id, url, options)
     begin
-      puts "[#{regulation['regulation_id']}] Fetching XML from FR.gov..." if options[:debug]
-      curl = Curl::Easy.new regulation['full_text_xml_url']
+      puts "[#{regulation_id}] Fetching #{type.to_s.upcase} from FR.gov..." if options[:debug]
+      curl = Curl::Easy.new url
       curl.follow_location = true
       curl.perform
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
