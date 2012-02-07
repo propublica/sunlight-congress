@@ -1,5 +1,6 @@
 require 'cgi'
 require 'hmac-sha1'
+require 'net/http'
 
 class SunlightServices
   
