@@ -37,9 +37,11 @@ class RegulationsFullText
         doc = doc_for :xml, id, regulation['full_text_xml_url'], options  
       elsif regulation['body_html_url']
         doc = doc_for :html, id, regulation['body_html_url'], options
+      else
+        missing_links << id
       end
 
-      return unless doc # warning will have been filed
+      next unless doc # warning will have been filed
 
       full_text = full_text_for doc, options
 
