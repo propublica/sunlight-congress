@@ -6,7 +6,7 @@ class Regulation
 
   include Searchable::Model
 
-  result_fields :regulation_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+  result_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
     :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
   
   searchable_fields :title, :abstract, :full_text
@@ -22,13 +22,11 @@ class Regulation
   include Queryable::Model
   
   default_order :published_on
-  basic_fields :regulation_id, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+  basic_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
     :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
   search_fields :title, :abstract
 
 
-  index :regulation_id # combination of document_number and stage
-  
   index :document_number
   index :stage
   index :rins
@@ -36,11 +34,9 @@ class Regulation
   index :effective_at
   index :agencies
 
-  validates_presence_of :regulation_id
-  validates_uniqueness_of :regulation_id
-
   validates_presence_of :document_number
-  
+  validates_uniqueness_of :document_number
+
   # 'proposed', 'final'
   validates_presence_of :stage
 end

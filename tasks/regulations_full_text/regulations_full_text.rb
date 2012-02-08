@@ -5,9 +5,11 @@ class RegulationsFullText
 
   # options:
     # limit: limit it to a few, instead of all as-yet-unindexed regulations in the database
+    # document_number: limit it to a specific document_number
+    # rearchive: re-index everything, whether it's been marked as indexed or not
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
-    regulation_id = options[:regulation_id]
+    document_number = options[:document_number]
 
     if options[:rearchive]
       Regulation.update_all :indexed => false
@@ -15,8 +17,8 @@ class RegulationsFullText
 
     count = 0
 
-    if regulation_id
-      targets = Regulation.where :regulation_id => regulation_id
+    if document_number
+      targets = Regulation.where :document_number => document_number
     else
       targets = Regulation.where :indexed => false
     end
@@ -31,14 +33,12 @@ class RegulationsFullText
 
     targets.each do |regulation|
 
-      id = regulation['regulation_id']
+      document_number = regulation['document_number']
       doc = nil
       if regulation['full_text_xml_url']
-        doc = doc_for :xml, id, regulation['full_text_xml_url'], options  
-      elsif regulation['body_html_url']
-        doc = doc_for :html, id, regulation['body_html_url'], options
+        doc = doc_for :xml, document_number, regulation['full_text_xml_url'], options  
       else
-        missing_links << id
+        missing_links << document_number
       end
 
       next unless doc # warning will have been filed
@@ -51,8 +51,8 @@ class RegulationsFullText
       end
       fields[:full_text] = full_text
 
-      puts "[#{regulation.regulation_id}] Indexing..."
-      client.index fields, :id => regulation.regulation_id
+      puts "[#{regulation.document_number}] Indexing..."
+      client.index fields, :id => regulation.document_number
 
       puts "\tMarking object as indexed..." if options[:debug]
       regulation['indexed'] = true
@@ -62,7 +62,7 @@ class RegulationsFullText
     end
 
     if missing_links.any?
-      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", :missing_links => missing_links
+      Report.warning self, "Missing #{missing_links.count} XML links for full text", :missing_links => missing_links
     end
 
     # make sure data is appearing now
@@ -71,9 +71,9 @@ class RegulationsFullText
     Report.success self, "Indexed #{count} regulations as searchable"
   end
 
-  def self.doc_for(type, regulation_id, url, options)
+  def self.doc_for(type, document_number, url, options)
     begin
-      puts "[#{regulation_id}] Fetching #{type.to_s.upcase} from FR.gov..." if options[:debug]
+      puts "[#{document_number}] Fetching #{type.to_s.upcase} from FR.gov..." if options[:debug]
       curl = Curl::Easy.new url
       curl.follow_location = true
       curl.perform

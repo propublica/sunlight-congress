@@ -47,8 +47,7 @@ class RegulationsFederalRegister
 
       response['results'].each do |article|
         document_number = article['document_number']
-        regulation_id = "#{document_number}-#{stage}"
-        rule = Regulation.find_or_initialize_by :regulation_id => regulation_id
+        rule = Regulation.find_or_initialize_by :document_number => document_number
           
         begin
           details = HTTParty.get article['json_url']
@@ -65,7 +64,6 @@ class RegulationsFederalRegister
         end
 
         rule.attributes = {
-          :document_number => document_number,
           :stage => stage,
           :published_at => details['publication_date'],
           :abstract => details['abstract'],
@@ -88,7 +86,7 @@ class RegulationsFederalRegister
         rule[:federal_register] = details.to_hash
 
         rule.save!
-        puts "[#{regulation_id}] Saved rule to database" if options[:debug]
+        puts "[#{document_number}] Saved rule to database" if options[:debug]
         count += 1
       end
 
