@@ -14,11 +14,20 @@ class RegulationsFederalRegister
 
     all_stages.values.each do |stage|
     
-      # default to last 7 days
-      ending = Time.now.midnight
-      beginning = ending - 7.days
-
-      load_regulations stage, beginning, ending, options
+      if options[:year]
+        year = options[:year].to_i
+        months = options[:month] ? [options[:month].to_i] : (1..12).to_a
+        months.each do |month|
+          beginning = Time.parse("#{year}-#{month}-01")
+          ending = (beginning + 1.month) - 1.day
+          load_regulations stage, beginning, ending, options
+        end
+      else
+        # default to last 7 days
+        ending = Time.now.midnight
+        beginning = ending - 7.days
+        load_regulations stage, beginning, ending, options
+      end
 
     end
 
