@@ -3,29 +3,45 @@ require 'httparty'
 class RegulationsFederalRegister
 
   # options:
-    # stage: 'proposed' or 'final'
-    # archive: any value will turn on archive mode, goes over as many pages as the API says there are
+    
   def self.run(options = {})
-    stage = options[:stage] ? options[:stage].to_sym : :proposed
+    # stage = options[:stage] ? options[:stage].to_sym : nil
 
-    stages = {
+    all_stages = {
       :proposed => "PRORULE",
       :final => "RULE"
     }
 
-    base_url = "http://api.federalregister.gov/v1/articles.json?conditions[type]=#{stages[stage]}"
-  
+    all_stages.values.each do |stage|
+    
+      # default to last 7 days
+      ending = Time.now.midnight
+      beginning = ending - 7.days
 
-    if options[:archive]
+      load_regulations stage, beginning, ending, options
+
+    end
+
+  end
+
+  def self.load_regulations(stage, beginning, ending, options)
+    base_url = "http://api.federalregister.gov/v1/articles.json?"
+    base_url << "conditions[type]=#{stage}"
+    base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
+    base_url << "&conditions[publication_date][gte]=#{beginning.strftime "%m/%d/%Y"}"
+
+    puts "Fetching #{stage} regulations from #{beginning.strftime "%m/%d/%Y"} to #{ending.strftime "%m/%d/%Y"}..."
+    
+    # if options[:archive]
       if pages = total_pages_for(base_url, options)
         puts "Archiving, going to fetch #{pages} pages of data"
       else
         # already filed warning Report in method
         return
       end
-    else
-      pages = 1
-    end
+    # else
+    #   pages = 1
+    # end
 
     count = 0
     
