@@ -37,10 +37,14 @@ class RegulationsFullText
 
       document_number = regulation['document_number']
       doc = nil
+      
       if regulation['full_text_xml_url']
         doc = doc_for :xml, document_number, regulation['full_text_xml_url'], options  
-      elsif regulation['federal_register']['body_html_url']
-        doc = doc_for :html, document_number, regulation['federal_register']['body_html_url'], options  
+      
+      # reload collection from server before removing the ['federal_register'] prefix
+      elsif regulation['federal_register']['body_html_url'] 
+        doc = doc_for :html, document_number, regulation['federal_register']['body_html_url'], options
+
       else
         missing_links << document_number
       end
