@@ -3,6 +3,8 @@ require 'curb'
 
 class RegulationsFullText
 
+  # test out HTML with E9-9630
+
   # options:
     # limit: limit it to a few, instead of all as-yet-unindexed regulations in the database
     # document_number: limit it to a specific document_number
@@ -37,6 +39,8 @@ class RegulationsFullText
       doc = nil
       if regulation['full_text_xml_url']
         doc = doc_for :xml, document_number, regulation['full_text_xml_url'], options  
+      elsif regulation['federal_register']['body_html_url']
+        doc = doc_for :html, document_number, regulation['federal_register']['body_html_url'], options  
       else
         missing_links << document_number
       end
@@ -62,7 +66,7 @@ class RegulationsFullText
     end
 
     if missing_links.any?
-      Report.warning self, "Missing #{missing_links.count} XML links for full text", :missing_links => missing_links
+      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", :missing_links => missing_links
     end
 
     # make sure data is appearing now
@@ -82,7 +86,11 @@ class RegulationsFullText
       return nil
     end
 
-    Nokogiri::XML curl.body_str
+    if type == :xml
+      Nokogiri::XML curl.body_str
+    else
+      Nokogiri::HTML curl.body_str
+    end
   end
 
   def self.full_text_for(doc, options)
