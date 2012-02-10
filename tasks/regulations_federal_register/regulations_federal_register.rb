@@ -12,25 +12,29 @@ class RegulationsFederalRegister
       :final => "RULE"
     }
 
-    all_stages.values.each do |stage|
-    
-      if options[:year]
-        year = options[:year].to_i
-        months = options[:month] ? [options[:month].to_i] : (1..12).to_a
-        months.each do |month|
-          beginning = Time.parse("#{year}-#{month}-01")
-          ending = (beginning + 1.month) - 1.day
+    if options[:document_number]
+      save_regulation! options[:document_number], options
+    else
+
+      all_stages.values.each do |stage|
+      
+        if options[:year]
+          year = options[:year].to_i
+          months = options[:month] ? [options[:month].to_i] : (1..12).to_a
+          months.each do |month|
+            beginning = Time.parse("#{year}-#{month}-01")
+            ending = (beginning + 1.month) - 1.day
+            load_regulations stage, beginning, ending, options
+          end
+        else
+          # default to last 7 days
+          ending = Time.now.midnight
+          beginning = ending - 7.days
           load_regulations stage, beginning, ending, options
         end
-      else
-        # default to last 7 days
-        ending = Time.now.midnight
-        beginning = ending - 7.days
-        load_regulations stage, beginning, ending, options
+
       end
-
     end
-
   end
 
   def self.load_regulations(stage, beginning, ending, options)
@@ -41,22 +45,19 @@ class RegulationsFederalRegister
 
     puts "Fetching #{stage} regulations from #{beginning.strftime "%m/%d/%Y"} to #{ending.strftime "%m/%d/%Y"}..."
     
-    # if options[:archive]
-      if pages = total_pages_for(base_url, options)
-        puts "Archiving, going to fetch #{pages} pages of data"
-      else
-        # already filed warning Report in method
-        return
-      end
-    # else
-    #   pages = 1
-    # end
+    if pages = total_pages_for(base_url, options)
+      puts "Archiving, going to fetch #{pages} pages of data"
+    else
+      # already filed warning Report in method
+      return
+    end
 
     count = 0
     
     pages.times do |i|
       i += 1 # 1-indexed, please
       page_url = "#{base_url}&page=#{i}"
+
       begin
         puts "Fetching page #{i}..." if options[:debug]
         response = HTTParty.get page_url
@@ -72,46 +73,9 @@ class RegulationsFederalRegister
 
       response['results'].each do |article|
         document_number = article['document_number']
-        rule = Regulation.find_or_initialize_by :document_number => document_number
-          
-        begin
-          details = HTTParty.get article['json_url']
-        rescue Timeout::Error => ex
-          Report.warning self, "Timeout while polling FR.gov for article details, skipping article", :url => article['json_url']
-          next
-        end
+        
+        save_regulation! document_number, options
 
-        # turn Dates into Times
-        ['publication_date', 'comments_close_on', 'effective_on'].each do |field|
-          if details[field]
-            details[field] = Utils.noon_utc_for details[field].to_time
-          end
-        end
-
-        rule.attributes = {
-          :stage => stage,
-          :published_at => details['publication_date'],
-          :abstract => details['abstract'],
-          :title => details['title'],
-          :federal_register_url => details['html_url'],
-          :agency_names => details['agencies'].map {|agency| agency['name']},
-          :agency_ids => details['agencies'].map {|agency| agency['id']},
-          :effective_at => details['effective_on'],
-          :full_text_xml_url => details['full_text_xml_url'],
-
-          :rins => details['regulation_id_numbers'],
-          :docket_ids => details['docket_ids']
-        }
-
-        if rule.new_record?
-          rule[:indexed] = false
-        end
-
-        # lump the rest into a catch-all
-        rule[:federal_register] = details.to_hash
-
-        rule.save!
-        puts "[#{document_number}] Saved rule to database" if options[:debug]
         count += 1
       end
 
@@ -120,6 +84,57 @@ class RegulationsFederalRegister
     end
 
     Report.success self, "Added #{count} #{stage} rules from FederalRegister.gov"
+  end
+
+  def self.save_regulation!(document_number, options)
+    rule = Regulation.find_or_initialize_by :document_number => document_number
+      
+    begin
+      url = "http://api.federalregister.gov/v1/articles/#{document_number}.json"
+      details = HTTParty.get url
+    rescue Timeout::Error => ex
+      Report.warning self, "Timeout while polling FR.gov for article details, skipping article", :url => article['json_url']
+      next
+    end
+
+    # turn Dates into Times
+    ['publication_date', 'comments_close_on', 'effective_on'].each do |field|
+      if details[field]
+        details[field] = Utils.noon_utc_for details[field].to_time
+      end
+    end
+
+    # maps FR document type to rule stage
+    type_to_stage = {
+      "Proposed Rule" => "proposed",
+      "Rule" => "final"
+    }
+
+    rule.attributes = {
+      :stage => type_to_stage[details['type']],
+      :published_at => details['publication_date'],
+      :abstract => details['abstract'],
+      :title => details['title'],
+      :federal_register_url => details['html_url'],
+      :agency_names => details['agencies'].map {|agency| agency['name']},
+      :agency_ids => details['agencies'].map {|agency| agency['id']},
+      :effective_at => details['effective_on'],
+      :full_text_xml_url => details['full_text_xml_url'],
+      :body_html_url => details['body_html_url'],
+
+      :rins => details['regulation_id_numbers'],
+      :docket_ids => details['docket_ids']
+    }
+
+    if rule.new_record?
+      rule[:indexed] = false
+    end
+
+    # lump the rest into a catch-all
+    rule[:federal_register] = details.to_hash
+
+    rule.save!
+    puts "[#{document_number}] Saved rule to database" if options[:debug]
   end
 
   def self.total_pages_for(base_url, options)
