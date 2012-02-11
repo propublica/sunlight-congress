@@ -3,12 +3,15 @@ require 'curb'
 
 class RegulationsFullText
 
-  # test out HTML with E9-9630
+  # Indexes full text of proposed and final regulations into ElasticSearch.
+  # Takes any regulations in MongoDB that have not been marked as indexed, 
+  # indexes them, and marks them so.
 
   # options:
-    # limit: limit it to a few, instead of all as-yet-unindexed regulations in the database
-    # document_number: limit it to a specific document_number
-    # rearchive: re-index everything, whether it's been marked as indexed or not
+  #   limit: limit it to a set number of, instead of all, unindexed regulations.
+  #   document_number: index only a specific document.
+  #   rearchive: mark everything as unindexed and re-index everything.
+
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
     document_number = options[:document_number]
@@ -54,7 +57,7 @@ class RegulationsFullText
       full_text = full_text_for doc, options
 
       fields = {}
-      Regulation.basic_fields.each do |field|
+      Regulation.result_fields.each do |field|
         fields[field] = regulation[field.to_s]
       end
       fields[:full_text] = full_text

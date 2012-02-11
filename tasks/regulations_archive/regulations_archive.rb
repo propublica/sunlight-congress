@@ -1,22 +1,27 @@
 require 'httparty'
 
-class RegulationsFederalRegister
+class RegulationsArchive
+
+  # Downloads metadata about proposed and final regulations from FederalRegister.gov.
+  # By default, grabs the last 7 days of both types of regulations.
+  # Does not index full text.
 
   # options:
+  #   document_number: index a specific document only.
+  #   year: 
+  #     if month is given, is combined with month to index that specific month.
+  #     if month is not given, indexes entire year's regulations (12 calls, one per month)
+  #   month:
+  #     if year is given, is combined with year to index that specific month.
+  #     if year is not given, does nothing.
     
   def self.run(options = {})
-    # stage = options[:stage] ? options[:stage].to_sym : nil
-
-    all_stages = {
-      :proposed => "PRORULE",
-      :final => "RULE"
-    }
 
     if options[:document_number]
       save_regulation! options[:document_number], options
     else
 
-      all_stages.values.each do |stage|
+      ["PRORULE", "RULE"].each do |stage|
       
         if options[:year]
           year = options[:year].to_i
