@@ -65,6 +65,19 @@ module Utils
       'scres' => 'sc'
     }[bill_type.to_s]
   end
+
+  def self.gpo_type_for(bill_type)
+    {
+      'hr' => 'hr',
+      'hres' => 'hres',
+      'hjres' => 'hjres',
+      'hcres' => 'hconres',
+      's' => 's',
+      'sres' => 'sres',
+      'sjres' => 'sjres',
+      'scres' => 'sconres'
+    }[bill_type.to_s]
+  end
   
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
   def self.bill_version_name_for(version_code)

@@ -4,6 +4,7 @@ require 'models/bill'
 require 'models/bill_version'
 
 require 'nokogiri'
+require 'curb'
 
 class BillTextArchive
   
@@ -81,13 +82,15 @@ class BillTextArchive
         
         # metadata from associated GPO MODS file
         # -- MODS file is a constant reasonable size no matter how big the bill is
-        mods_file = "data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}#{code}.mods.xml"
+        
+        # mods_file = "data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}#{code}.mods.xml"
+        mods_doc = mods_doc_for session, bill.bill_type, bill.number, code, options
         
         issued_on = nil # will get filled in
         urls = nil # may not...
-        if File.exists?(mods_file)
-          mods_doc = Nokogiri::XML open(mods_file)
+        if mods_doc
           issued_on = issued_on_for mods_doc
+
           urls = urls_for mods_doc
 
           if issued_on.blank?
@@ -271,6 +274,24 @@ class BillTextArchive
     end
     
     urls
+  end
+
+  def self.mods_doc_for(session, type, number, code, options)
+    version_id = "#{type}#{number}-#{session}-#{code}"
+    gpo_type = Utils.gpo_type_for type
+    url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{code}/mods.xml"
+
+    begin
+      puts "[#{version_id}] Fetching MODS XML from GPO..." if options[:debug]
+      curl = Curl::Easy.new url
+      curl.follow_location = true
+      curl.perform
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+      Report.warning self, "Timeout while fetching from GPO, aborting for now", :url => base_url
+      return nil
+    end
+
+    Nokogiri::XML curl.body_str
   end
   
 end
