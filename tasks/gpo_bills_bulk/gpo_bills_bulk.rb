@@ -12,21 +12,28 @@ class GpoBillsBulk
   def self.run(options = {})
     year = options[:year] ? options[:year].to_i : Time.now.year
 
-    current_session = Utils.session_for_year year
-
-    # initialize directory structure
-    ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].each do |bill_type|
-      FileUtils.mkdir_p "data/gpo/BILLS/#{current_session}/#{bill_type}"
-    end
+    # pick a reasonable timeframe in which to ignore the cache, 
+    # and to redownload anything marked as updated in this window
+    rearchive_since = 7.days.ago.midnight.utc # 5am EST
 
     # populate with bill info to fetch
     bill_versions = [] # holds arrays with: [gpo_type, number, session, version_code]
 
     if options[:bill_version_id]
-      bill_type, number, session, version_code = version_id.match(/(hr|hres|hjres|hcres|s|sres|sjres|scres)(\d+)-(\d+)-(\w+)$/).captures
+      bill_type, number, session, version_code = options[:bill_version_id].match(/(hr|hres|hjres|hcres|s|sres|sjres|scres)(\d+)-(\d+)-(\w+)$/).captures
       gpo_type = bill_type.sub 'c', 'con'
-      bill_version_ids = [[gpo_type, number, session, version_code]]
+      bill_versions = [[gpo_type, number, session, version_code]]
+
+      # initialize the disk for whatever session this bill version is
+      initialize_disk session
+
     else
+      # initialize disk, with buffer in case the sitemap references a past session (it happens)
+      current_session = Utils.session_for_year year
+      (current_session - 2).upto(current_session) do |session|
+        initialize_disk session
+      end
+
       unless sitemap_doc = sitemap_doc_for(year, options)
         Report.warning "Couldn't load sitemap for #{year}"
         return
@@ -74,7 +81,17 @@ class GpoBillsBulk
       Report.note self, "Didn't bother downloading #{cached.size} cached files for #{year}"
     end
 
-    Report.success self, "Synced files for #{count} bill versions for #{year} in #{current_session}"
+    if options[:bill_version_id]
+      Report.success self, "Synced bill version #{options[:bill_version_id]}"
+    else
+      Report.success self, "Synced files for #{count} bill versions for sitemap #{year}"
+    end
+  end
+
+  def self.initialize_disk(session)
+    ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].each do |bill_type|
+      FileUtils.mkdir_p "data/gpo/BILLS/#{session}/#{bill_type}"
+    end
   end
 
   def self.sitemap_doc_for(year, options = {})
@@ -94,7 +111,7 @@ class GpoBillsBulk
 
   def self.download_to(url, dest, failures, cached, options)
     
-    if File.exists?(dest) and options[:force].blank?
+    if File.exists?(dest) and options[:bill_version_id].blank? and options[:force].blank?
       cached << {:url => url, :dest => dest}
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
