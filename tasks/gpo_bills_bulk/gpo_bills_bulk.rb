@@ -3,18 +3,26 @@ require 'curb'
 
 class GpoBillsBulk
 
-  # maintains a local copy of data from GPO's FDSys system
+  # Maintains a local copy of bill data from GPO's FDSys system.
+  # 
+  # By default, looks through the current year's sitemap, and re/downloads all bills updated in the last 3 days.
+  # Options can be passed in to archive whole years, which can ignore already downloaded files.
+  # 
   # options:
+  #   archive: archive the whole year, don't limit it to 3 days. Will not re-download existing files.
+  #   force: if archiving, force it to re-download existing files.
+  #
   #   year: the year of data to fetch (defaults to current year)
-  #   limit: only download a certain number of bills, instead of the entire year's worth
-  #   bill_version_id: only download a certain bill version (ignore the year) (examples: hr3590-112-ih, sres32-111-enr)
+  #   limit: only download a certain number of bills (stop short, useful for testing/development)
+  #   bill_version_id: only download a specific bill version. ignores other options. 
+  #     (examples: hr3590-112-ih, sres32-111-enr)
 
   def self.run(options = {})
     year = options[:year] ? options[:year].to_i : Time.now.year
 
-    # pick a reasonable timeframe in which to ignore the cache, 
-    # and to redownload anything marked as updated in this window
-    rearchive_since = 7.days.ago.midnight.utc # 5am EST
+    # only care about the last 7 days of new information by default
+    # but allow for archiving of an entire year's sitemap
+    archive_only_since = options[:archive] ? nil : 3.days.ago.midnight.utc # 5am EST
 
     # populate with bill info to fetch
     bill_versions = [] # holds arrays with: [gpo_type, number, session, version_code]
@@ -41,8 +49,12 @@ class GpoBillsBulk
 
       (sitemap_doc / :url).map do |update|
         url = update.at("loc").text
-        match = url.match /BILLS-(\d+)(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)([^\/]+)\//
-        bill_versions << [match[2], match[3], match[1], match[4]]
+        modified = Time.parse update.at("lastmod").text
+
+        if !archive_only_since or (modified > archive_only_since)
+          match = url.match /BILLS-(\d+)(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)([^\/]+)\//
+          bill_versions << [match[2], match[3], match[1], match[4]]
+        end
       end
     end
 
@@ -111,8 +123,10 @@ class GpoBillsBulk
 
   def self.download_to(url, dest, failures, cached, options)
     
-    if File.exists?(dest) and options[:bill_version_id].blank? and options[:force].blank?
+    # only cache if we're trying to get through an archive, and we haven't passed the force option
+    if File.exists?(dest) and options[:archive] and options[:force].blank?
       cached << {:url => url, :dest => dest}
+
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
       unless result = system("curl #{url} --output #{dest} --silent")
