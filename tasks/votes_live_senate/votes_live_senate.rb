@@ -54,8 +54,10 @@ class VotesLiveSenate
     end
     
     # debug
-#     to_fetch = [289]
-#     year = 2010
+    # to_fetch = [210]
+    # year = 2011
+    # session = 112
+    # subsession = 1
     
     # get each new roll
     to_fetch.each do |number|
