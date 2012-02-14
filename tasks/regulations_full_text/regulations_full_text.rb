@@ -89,7 +89,7 @@ class RegulationsFullText
       curl.follow_location = true
       curl.perform
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Timeout while polling FR.gov, aborting for now", :url => base_url
+      Report.warning self, "Timeout while polling FR.gov, aborting for now", :url => url
       return nil
     end
 
