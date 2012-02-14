@@ -6,7 +6,10 @@ class VotesArchive
     options[:session] ||= Utils.current_session
     
     get_rolls options
-    sort_passage_votes options
+    
+    unless options[:roll_id]
+      sort_passage_votes options
+    end
   end
   
   def self.get_rolls(options)
@@ -37,12 +40,16 @@ class VotesArchive
     end
     
     
-    # Debug helpers
-    rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
+    rolls = []
+    if options[:roll_id]
+      chamber, number, year = options[:roll_id].match(/(h|s)(\d+)-(\d+)/).captures
+      rolls = ["data/govtrack/#{session}/rolls/#{chamber}#{year}-#{number}.xml"]
+    else
+      rolls = Dir.glob "data/govtrack/#{session}/rolls/*.xml"
     
-    # rolls = Dir.glob "data/govtrack/#{session}/rolls/h2009-829.xml"
-    if options[:limit]
-      rolls = rolls.first options[:limit].to_i
+      if options[:limit]
+        rolls = rolls.first options[:limit].to_i
+      end
     end
     
     rolls.each do |path|
