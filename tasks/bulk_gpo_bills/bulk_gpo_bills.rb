@@ -1,7 +1,7 @@
 require 'nokogiri'
 require 'curb'
 
-class GpoBillsBulk
+class BulkGpoBills
 
   # Maintains a local copy of bill data from GPO's FDSys system.
   # 

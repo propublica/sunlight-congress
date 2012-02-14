@@ -5,7 +5,7 @@
 0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_archive && /projects/rtc/shared/cron/task.sh amendments_archive
 
 # full bill text
-*/60 * * * * /projects/rtc/shared/cron/task.sh gpo_bills_bulk
+*/60 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
 0 5 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
 
 # video
