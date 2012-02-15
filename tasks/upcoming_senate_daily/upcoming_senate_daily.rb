@@ -11,7 +11,7 @@ class UpcomingSenateDaily
     
     rss = nil
     begin
-      rss = Feedzirra::Feed.fetch_and_parse url
+      rss = Feedzirra::Feed.fetch_and_parse url, :timeout => 20
 
       # rss = Feedzirra::Feed.parse open("rss.xml").read
     rescue Exception => ex
