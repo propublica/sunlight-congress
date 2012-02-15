@@ -26,6 +26,7 @@ class BillTextArchive
     end
 
     warnings = []
+    notes = []
     
     bill_ids.each do |bill_id|
       bill = Bill.where(:bill_id => bill_id).first
@@ -36,7 +37,7 @@ class BillTextArchive
       version_files = Dir.glob("data/gpo/BILLS/#{session}/#{type}/#{type}#{bill.number}-#{session}-[a-z]*.htm")
       
       if version_files.empty?
-        warnings << {:message => "Skipping bill, GPO has no version information for it", :bill_id => bill.bill_id}
+        notes << {:message => "Skipping bill, GPO has no version information for it (yet)", :bill_id => bill.bill_id}
         next
       end
       
@@ -201,7 +202,11 @@ class BillTextArchive
     bills_client.refresh
 
     if warnings.any?
-      Report.warning self, "Warnings found during date parsing of bill text metadata", :warnings => warnings
+      Report.warning self, "Warnings found while parsing bill text and metadata", :warnings => warnings
+    end
+
+    if notes.any?
+      Report.note self, "Notes found while parsing bill text and metadata", :notes => notes
     end
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
