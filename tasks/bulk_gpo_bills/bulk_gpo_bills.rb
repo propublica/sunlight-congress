@@ -125,7 +125,7 @@ class BulkGpoBills
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
       unless result = system("curl #{url} --output #{dest} --silent --connect-timeout 30")
-        failures << {:url => url, :dest => dest}
+        failures << url
       end
     end
 
