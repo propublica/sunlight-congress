@@ -12,8 +12,6 @@ class UpcomingSenateDaily
     rss = nil
     begin
       rss = Feedzirra::Feed.fetch_and_parse url, :timeout => 20
-
-      # rss = Feedzirra::Feed.parse open("rss.xml").read
     rescue Exception => ex
       Report.warning self, "Network error on fetching Senate Daily Summary feed, can't go on.", :url => url
       return
