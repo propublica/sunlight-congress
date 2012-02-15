@@ -14,18 +14,6 @@ class BillTextArchive
     bill_count = 0
     version_count = 0
     
-    
-    unless options[:skip_sync]
-      puts "Rsyncing to GovTrack for bill text..." if options[:debug]
-      FileUtils.mkdir_p "data/govtrack/#{session}/bill_text"
-      unless system("rsync -az govtrack.us::govtrackdata/us/bills.text/#{session}/ data/govtrack/#{session}/bill_text/")
-        Report.failure self, "Couldn't rsync to Govtrack.us for bill text."
-        return
-      end
-      puts "Finished rsync to GovTrack." if options[:debug]
-    end
-    
-    
     versions_client = Searchable.client_for 'bill_versions'
     bills_client = Searchable.client_for 'bills'
     
@@ -42,10 +30,10 @@ class BillTextArchive
     bill_ids.each do |bill_id|
       bill = Bill.where(:bill_id => bill_id).first
       
-      type = Utils.govtrack_type_for bill.bill_type
+      type = bill.bill_type
       
       # find all the versions of text for that bill
-      version_files = Dir.glob("data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}[a-z]*.txt")
+      version_files = Dir.glob("data/gpo/BILLS/#{session}/#{type}/#{type}#{bill.number}-#{session}-[a-z]*.htm")
       
       if version_files.empty?
         puts "[#{bill.bill_id}] Skipping bill, GPO has no version information for it" if options[:debug]
@@ -70,12 +58,8 @@ class BillTextArchive
       
       version_files.each do |file|
         # strip off the version code
-        code = File.basename file
-        code["#{type}#{bill.number}"] = ""
-        code[".txt"] = ""
-        
-        # unique ID
-        bill_version_id = "#{bill.bill_id}-#{code}"
+        bill_version_id = File.basename file, File.extname(file)
+        code = bill_version_id.match(/\-(\w+)$/)[1]
         
         # standard GPO version name
         version_name = Utils.bill_version_name_for code
@@ -83,8 +67,11 @@ class BillTextArchive
         # metadata from associated GPO MODS file
         # -- MODS file is a constant reasonable size no matter how big the bill is
         
-        # mods_file = "data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}#{code}.mods.xml"
-        mods_doc = mods_doc_for session, bill.bill_type, bill.number, code, options
+        mods_file = "data/gpo/BILLS/#{session}/#{type}/#{bill_version_id}.mods.xml"
+        mods_doc = nil
+        if File.exists?(mods_file)
+          mods_doc = mods_doc_for session, bill.bill_type, bill.number, code, options
+        end
         
         issued_on = nil # will get filled in
         urls = nil # may not...
@@ -124,7 +111,8 @@ class BillTextArchive
         
         
         # read in full text
-        full_text = File.read file
+        full_doc = Nokogiri::HTML File.read(file)
+        full_text = full_doc.at("pre").text
         full_text = clean_text full_text
         
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
@@ -220,17 +208,21 @@ class BillTextArchive
   end
   
   def self.clean_text(text)
-    # Remove the interspersed self-referential bill code lines (i.e. •SRES 115 IS)
-    text.gsub! /•[^\n]+/, ''
-    
-    # remove the line and page numbers
-    text.gsub! /\s{2,}\d+\s{2,}(\d+\s{2,})?/, ' '
+    # weird artifact at end
+    text.gsub! '<all>', ''
     
     # remove unneeded whitespace
     text.gsub! "\n", " "
     text.gsub! "\t", " "
     text.gsub! /\s{2,}/, ' '
-    
+
+    # get rid of dumb smart quotes
+    text.gsub! '``', '"'
+    text.gsub! "''", '"'
+
+    # remove underscore lines
+    text.gsub! /_{2,}/, ''
+
     # de-hyphenate words broken up over multiple lines
     text.gsub!(/(\w)\-\s+(\w)/) {$1 + $2}
     
