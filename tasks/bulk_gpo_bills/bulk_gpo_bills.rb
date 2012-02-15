@@ -64,33 +64,28 @@ class BulkGpoBills
 
     count = 0
     failures = []
-    cached = []
-
+    
     bill_versions.each do |gpo_type, number, session, version_code|
       bill_type = gpo_type.sub 'con', 'c'
       dest_prefix = "data/gpo/BILLS/#{session}/#{bill_type}/#{bill_type}#{number}-#{session}-#{version_code}"
 
       mods_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/mods.xml"
       mods_dest = "#{dest_prefix}.mods.xml"
-      download_to mods_url, mods_dest, failures, cached, options
+      download_to mods_url, mods_dest, failures, options
 
       text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/html/BILLS-#{session}#{gpo_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
-      download_to text_url, text_dest, failures, cached, options
+      download_to text_url, text_dest, failures, options
 
       xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/xml/BILLS-#{session}#{gpo_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
-      download_to xml_url, xml_dest, failures, cached, options
+      download_to xml_url, xml_dest, failures, options
 
       count += 1
     end
 
     if failures.any?
       Report.warning self, "Failed to download #{failures.size} files while syncing against GPOs BILLS collection for #{year}", :failures => failures
-    end
-
-    if cached.any?
-      Report.note self, "Didn't bother downloading #{cached.size} cached files for #{year}"
     end
 
     if options[:bill_version_id]
@@ -121,11 +116,11 @@ class BulkGpoBills
     Nokogiri::XML curl.body_str
   end
 
-  def self.download_to(url, dest, failures, cached, options)
+  def self.download_to(url, dest, failures, options)
     
     # only cache if we're trying to get through an archive, and we haven't passed the force option
     if File.exists?(dest) and options[:archive] and options[:force].blank?
-      cached << {:url => url, :dest => dest}
+      # it's cached, don't re-download
 
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
