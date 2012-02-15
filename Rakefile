@@ -112,7 +112,7 @@ def run_task(name)
   # go through any reports filed from the task, and email about any failures or warnings
   Report.unread.where(:source => task_name).all.each do |report|
     puts report
-    email report if report.failure? or report.warning?
+    email report if report.failure? or report.warning? or report.note?
     report.mark_read!
   end
 
