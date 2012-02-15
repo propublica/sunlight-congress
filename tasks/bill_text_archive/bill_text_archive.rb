@@ -70,7 +70,7 @@ class BillTextArchive
         mods_file = "data/gpo/BILLS/#{session}/#{type}/#{bill_version_id}.mods.xml"
         mods_doc = nil
         if File.exists?(mods_file)
-          mods_doc = mods_doc_for session, bill.bill_type, bill.number, code, options
+          mods_doc = Nokogiri::XML open(mods_file)
         end
         
         issued_on = nil # will get filled in
@@ -266,24 +266,6 @@ class BillTextArchive
     end
     
     urls
-  end
-
-  def self.mods_doc_for(session, type, number, code, options)
-    version_id = "#{type}#{number}-#{session}-#{code}"
-    gpo_type = Utils.gpo_type_for type
-    url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{code}/mods.xml"
-
-    begin
-      puts "[#{version_id}] Fetching MODS XML from GPO..." if options[:debug]
-      curl = Curl::Easy.new url
-      curl.follow_location = true
-      curl.perform
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Timeout while fetching from GPO, aborting for now", :url => url
-      return nil
-    end
-
-    Nokogiri::XML curl.body_str
   end
   
 end
