@@ -7,13 +7,13 @@ class DocumentsGaoReports
 
   def self.run(options = {})
 
-    unless html = content_for(GAO_URL)
+    unless xml = content_for(GAO_URL)
       Report.warning self, "Network error fetching GAO Reports, can't go on.", :url => GAO_URL
       return
     end
 
     count = 0
-    doc = Nokogiri::XML(html)
+    doc = Nokogiri::XML xml
 
     doc.xpath('//item').each do |item|
       title = item.xpath('title').inner_text
