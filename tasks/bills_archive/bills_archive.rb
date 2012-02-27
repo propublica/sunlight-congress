@@ -8,19 +8,33 @@ class BillsArchive
     session = options[:session] ? options[:session].to_i : Utils.current_session
     count = 0
     missing_ids = []
+    missing_from_govtrack = []
     missing_committees = []
     bad_bills = []
     
-    FileUtils.mkdir_p "data/govtrack/#{session}/bills"
-    unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/bills/ data/govtrack/#{session}/bills/")
-      Report.failure self, "Couldn't rsync to Govtrack.us for bills."
-      return
+    unless options[:skip_sync]
+      FileUtils.mkdir_p "data/govtrack/#{session}/bills"
+      puts "Syncing bills from GovTrack for #{session}..." if options[:debug]
+      unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/bills/ data/govtrack/#{session}/bills/")
+        Report.failure self, "Couldn't rsync to Govtrack.us for bills."
+        return
+      end
+      
+      puts "Syncing committees from GovTrack..." if options[:debug]
+      unless system("rsync -az govtrack.us::govtrackdata/us/committees.xml data/govtrack/committees.xml")
+        Report.failure self, "Couldn't rsync to Govtrack.us for committees.xml."
+        return
+      end
+
+      # can be taken out if we decide to depend wholly again on the Sunlight API
+      puts "Syncing people from GovTrack for #{session}..." if options[:debug]
+      unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/people.xml data/govtrack/#{session}/people.xml")
+        Report.failure self, "Couldn't rsync to GovTrack.us for people.xml."
+        return
+      end
     end
-    
-    unless system("rsync -az govtrack.us::govtrackdata/us/committees.xml data/govtrack/committees.xml")
-      Report.failure self, "Couldn't rsync to Govtrack.us for committees.xml."
-      return
-    end
+
+    return if options[:only_sync]
     
     
     # legislator cache
@@ -28,6 +42,10 @@ class BillsArchive
     Legislator.only(Utils.legislator_fields).all.each do |legislator|
       legislators[legislator.govtrack_id] = Utils.legislator_for legislator
     end
+
+    # old legislator cache
+    doc = Nokogiri::XML open("data/govtrack/#{session}/people.xml")
+    old_legislators = old_legislators_for doc
     
     cached_committees = cached_committees_for session, Nokogiri::XML(open("data/govtrack/committees.xml"))
     
@@ -54,7 +72,9 @@ class BillsArchive
       
       bill = Bill.find_or_initialize_by :bill_id => bill_id
       
-      sponsor = sponsor_for filename, doc, legislators, missing_ids
+      sponsor = sponsor_for filename, doc, legislators, missing_ids, old_legislators, missing_from_govtrack
+      sponsor_id = sponsor ? sponsor['bioguide_id'] : nil
+
       cosponsors = cosponsors_for filename, doc, legislators, missing_ids
       committees = committees_for filename, doc, cached_committees, missing_committees
       related_bills = related_bills_for doc
@@ -81,7 +101,7 @@ class BillsArchive
         :titles => titles,
         :summary => summary_for(doc),
         :sponsor => sponsor,
-        :sponsor_id => sponsor ? sponsor['bioguide_id'] : nil,
+        :sponsor_id => sponsor_id,
         :cosponsors => cosponsors,
         :cosponsor_ids => cosponsors.map {|c| c['bioguide_id']},
         :cosponsors_count => cosponsors.size,
@@ -102,11 +122,16 @@ class BillsArchive
       
       if bill.save
         count += 1
-        # puts "[#{bill_id}] Saved successfully"
+        puts "[#{bill_id}] Saved successfully" if options[:debug]
       else
         bad_bills << {:attributes => bill.attributes, :error_messages => bill.errors.full_messages}
         puts "[#{bill_id}] Error saving, will file report"
       end
+    end
+
+    if missing_from_govtrack.any?
+      missing_from_govtrack = missing_from_govtrack.uniq
+      Report.warning self, "Found #{missing_from_govtrack.size} missing people in people.xml, attached.", {:missing_from_govtrack => missing_from_govtrack}
     end
     
     if missing_ids.any?
@@ -136,14 +161,23 @@ class BillsArchive
     summary.present? ? summary : nil
   end
   
-  def self.sponsor_for(filename, doc, legislators, missing_ids)
+  def self.sponsor_for(filename, doc, legislators, missing_ids, old_legislators, missing_from_govtrack)
     sponsor = doc.at :sponsor
     if sponsor and sponsor['id'] and !sponsor['withdrawn']
       if legislators[sponsor['id']]
         legislators[sponsor['id']]
-      else
+      else 
         missing_ids << [sponsor['id'], filename]
-        nil
+
+        if old_legislators[sponsor['id']]
+          # {'bioguide_id' => old_legislators[sponsor['id']]}
+        else
+          missing_from_govtrack << sponsor['id']
+          # nil
+        end
+
+        nil # remove if we use the old legislator cache someday
+
       end
     end
   end
@@ -157,6 +191,13 @@ class BillsArchive
           cosponsors << legislators[cosponsor['id']]
         else
           missing_ids << [cosponsor['id'], filename]
+
+          # if old_legislators[cosponsor['id']]
+          #   cosponsors << {'bioguide_id' => old_legislators[cosponsor['id']]}
+          # else
+          #   missing_from_govtrack << cosponsor['id']
+          # end
+
         end
       end
     end
@@ -351,6 +392,14 @@ class BillsArchive
     end
     
     related_bills
+  end
+
+  def self.old_legislators_for(doc)
+    cache = {}
+    (doc/:person).each do |person|
+      cache[person['id']] = person['bioguideid']
+    end
+    cache
   end
 
 end
