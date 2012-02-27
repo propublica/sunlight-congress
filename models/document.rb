@@ -5,7 +5,8 @@ class Document
   default_order :posted_at
 
   basic_fields :posted_at, :document_type, :url, :title
-  search_fields :title
+  search_fields :title, # all
+    :description, :categories # cbo_estimate
 
 
   include Mongoid::Document
@@ -28,6 +29,7 @@ class Document
 
   # cbo_estimate
   index :estimate_id
+  index :categories
 
   # gao_report
   index :gao_id
