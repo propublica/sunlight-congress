@@ -172,7 +172,7 @@ module Queryable
   end
   
   def self.regex_for(value, i = true)
-    regex_value = value.dup
+    regex_value = value.to_s.dup
     %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
     i ? /#{regex_value}/i : /#{regex_value}/
   end
