@@ -44,7 +44,6 @@ class RegulationsFullText
       if regulation['full_text_xml_url']
         doc = doc_for :xml, document_number, regulation['full_text_xml_url'], options  
       
-      # reload collection from server before removing the ['federal_register'] prefix
       elsif regulation['body_html_url'] 
         doc = doc_for :html, document_number, regulation['body_html_url'], options
 
