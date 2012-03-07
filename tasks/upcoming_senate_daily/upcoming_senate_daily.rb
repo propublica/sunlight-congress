@@ -149,8 +149,8 @@ class UpcomingSenateDaily
     Report.success self, "Created or updated #{bill_count} upcoming bills"
 
     if bad_entries.any?
-      Report.warning self, "Unexpected date-less titles in feed", :bad_entries => bad_entries
+      Report.warning self, "#{bad_entries.size} expected date-less titles in feed", :bad_entries => bad_entries
     end
-    
+
   end
 end
