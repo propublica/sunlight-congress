@@ -18,7 +18,8 @@ module Utils
   end
 
   def self.utc_parse(timestamp)
-    Time.zone.parse(timestamp).utc
+    time = Time.zone.parse(timestamp)
+    time ? time.utc : nil
   end
   
   # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session

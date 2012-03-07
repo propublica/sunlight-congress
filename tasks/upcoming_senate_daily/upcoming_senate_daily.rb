@@ -24,6 +24,8 @@ class UpcomingSenateDaily
       Report.warning self, "Got a nil return value from Feedzirra from the Senate Daily Summary feed, can't go on.", :url => url
       return
     end
+
+    bad_entries = []
     
     # accumulate upcoming bills 
     upcoming_bills = {}
@@ -32,6 +34,11 @@ class UpcomingSenateDaily
       doc = Nokogiri::HTML entry.content
       
       legislative_date = Utils.utc_parse entry.title
+      unless legislative_date
+        bad_entries << entry.title
+        next
+      end
+
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
@@ -140,6 +147,10 @@ class UpcomingSenateDaily
     end
     
     Report.success self, "Created or updated #{bill_count} upcoming bills"
+
+    if bad_entries.any?
+      Report.warning self, "Unexpected date-less titles in feed", :bad_entries => bad_entries
+    end
+    
   end
-  
 end
