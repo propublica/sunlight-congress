@@ -35,7 +35,8 @@ class UpcomingSenateDaily
       
       legislative_date = Utils.utc_parse entry.title
       unless legislative_date
-        bad_entries << entry.title
+        # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
+        # Just ignore them
         next
       end
 
