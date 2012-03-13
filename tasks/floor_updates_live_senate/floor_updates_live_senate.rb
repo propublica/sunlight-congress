@@ -39,16 +39,13 @@ class FloorUpdatesLiveSenate
           puts "Skipping center-aligned p with text #{item.text}" if options[:debug]
         end
       
-      elsif item['align'] == 'left'
+      else # item['align'] == 'left' or item['align'].nil?
         if current_date.nil?
           Report.warning self, "Unexpected HTML, got to a update without a date, skipping"
           next
         end
         
         updates[current_date] << clean_text(item.text)
-        
-      else
-        Report.warning self, "Unexpected HTML, a p tag without alignment - may be worth checking"
       end
     end
     
