@@ -20,23 +20,15 @@ class UpcomingHouseDaily
     
     doc = Nokogiri::HTML html
     
-    links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
-    a = links.first
-    pdf_url = a['href']
-    date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
-    
-    unless date_results.any? and date_results.first.any?
-      Report.warning self, "Couldn't find PDF date in Republican daily schedule page, can't go on", :url => url
+    permalink, posted_at = Utils.permalink_and_date_from_house_gop_whip_notice(url, doc)
+
+    unless posted_at
+      Report.warning self, "Couldn't find date in House Republican daily schedule page, in either PDF or header, can't go on", :url => url
       return
     end
     
-    date_str = date_results.first.first
-    month, day, year = date_str.split "-"
-    
-    posted_at = Utils.noon_utc_for Time.local(year, month, day)
     legislative_day = posted_at.strftime("%Y-%m-%d")
     session = Utils.session_for_year posted_at.year
-    
     
     element = doc.css("div#news_text").first
     unless element
@@ -82,7 +74,7 @@ class UpcomingHouseDaily
         :legislative_day => legislative_day,
         :source_type => "house_daily",
         :source_url => url,
-        :permalink => pdf_url
+        :permalink => permalink
       )
 
       if bill and bill['abbreviated'] != true

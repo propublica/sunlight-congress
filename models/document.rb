@@ -4,7 +4,8 @@ class Document
 
   default_order :posted_at
 
-  basic_fields :posted_at, :document_type, :url, :title
+  basic_fields :posted_at, :document_type, :url, :title, :party, :order_code, :for_date, 
+    :chamber, :notice_type, :estimate_id, :categories, :gao_id
   search_fields :title, # all
     :description, :categories # cbo_estimate
 
