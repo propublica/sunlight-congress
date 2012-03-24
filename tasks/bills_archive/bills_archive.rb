@@ -47,7 +47,7 @@ class BillsArchive
             roll.save!
             
             roll_count += 1
-            # puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote"
+            puts "[#{bill.bill_id}] Updated roll call #{roll.roll_id} to mark as a passage vote" if options[:debug]
           else
             missing_rolls << {:bill_id => bill.bill_id, :roll_id => vote['roll_id']}
             puts "[#{bill.bill_id}] Couldn't find roll call #{vote['roll_id']}, which was mentioned in passage votes list for #{bill.bill_id}"
@@ -75,7 +75,7 @@ class BillsArchive
           
           if vote.save
             voice_count += 1
-            # puts "[#{bill.bill_id}] Added a voice vote"
+            puts "[#{bill.bill_id}] Added a voice vote" if options[:debug]
           else
             bad_votes << {:attributes => attributes, :error_messages => vote.errors.full_messages}
             puts "[#{bill.bill_id}] Bad voice vote, logging"
