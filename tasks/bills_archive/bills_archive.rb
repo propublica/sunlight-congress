@@ -15,7 +15,7 @@ class BillsArchive
   end
 
   def self.sort_passage_votes!(options = {})
-    session = options[:session].to_i
+    session = options[:session] ? options[:session].to_i : Utils.current_session
     
     roll_count = 0
     voice_count = 0
