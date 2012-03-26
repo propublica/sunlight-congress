@@ -3,7 +3,7 @@ require 'curb'
 
 module Utils
 
-  def self.curl(url, destination = nil, content_type = nil)
+  def self.curl(url, destination = nil)
     body = begin
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects

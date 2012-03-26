@@ -1,5 +1,4 @@
 require 'nokogiri'
-require 'open-uri'
 
 class FloorUpdatesLiveSenate
   
@@ -10,7 +9,7 @@ class FloorUpdatesLiveSenate
     
     html = nil
     begin
-      html = open "http://www.senate.gov/galleries/pdcl/?break_cache=#{Time.now.to_i}"
+      html = Utils.curl "http://www.senate.gov/galleries/pdcl/?break_cache=#{Time.now.to_i}"
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.warning self, "Network error on fetching the floor log, can't go on."
       return
