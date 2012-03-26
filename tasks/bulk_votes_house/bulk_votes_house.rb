@@ -108,13 +108,18 @@ class BulkVotesHouse
         # most are ~82K, so if something is less than 80K, check the XML for malformed errors
         if curl.downloaded_content_length < 80000
           # retry once, quick check
-          puts "\n\tRe-downloading once, looked truncated" if options[:debug]
+          puts "\tRe-downloading once, looked truncated" if options[:debug]
           curl = Utils.curl(url, destination)
           
-          if !curl or curl.downloaded_content_length < 80000
-            # could add in a final Nokogiri::XML strict check, 
-            # in case it really is short for some reason, but I haven't seen this happen yet
-            failures << {:url => url, :destination => destination, :content_length => (curl ? curl.downloaded_content_length : nil)}
+          if curl.downloaded_content_length < 80000
+            begin
+              Nokogiri::XML(open(destination)) {|config| config.strict}
+            rescue
+              puts "\tFailed strict XML check, assuming it's still truncated" if options[:debug]
+              failures << {:url => url, :destination => destination, :content_length => curl.downloaded_content_length}
+            else
+              puts "\tOK, passes strict XML check, accepting it" if options[:debug]
+            end
           end
         end
 
