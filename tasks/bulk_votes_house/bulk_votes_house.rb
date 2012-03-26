@@ -31,7 +31,7 @@ class BulkVotesHouse
     to_get = []
 
     if options[:number]
-      to_get = [options[:number]]
+      to_get = [options[:number].to_i]
     else
       # count down from the top
       latest_roll = latest_roll_for year, options
@@ -71,11 +71,21 @@ class BulkVotesHouse
   end
 
   def self.url_for(year, number)
-    "http://clerk.house.gov/evs/#{year}/roll#{number}.xml"
+    "http://clerk.house.gov/evs/#{year}/roll#{zero_prefix number}.xml"
   end
 
   def self.destination_for(year, number)
-    "data/house/rolls/#{year}/#{number}.xml"
+    "data/house/rolls/#{year}/#{zero_prefix number}.xml"
+  end
+
+  def self.zero_prefix(number)
+    if number < 10
+      "00#{number}"
+    elsif number < 100
+      "0#{number}"
+    else
+      number
+    end
   end
 
   def self.download_roll(url, destination, failures, options = {})
@@ -86,7 +96,29 @@ class BulkVotesHouse
 
     else
       puts "\tDownloading #{url} to #{destination}" if options[:debug]
-      unless Utils.curl(url, destination)
+      if curl = Utils.curl(url, destination)
+        
+        # 404s come back as 200's, and are HTML documents
+        if curl.content_type != "text/xml"
+          failures << {:url => url, :destination => destination, :content_type => curl.content_type}
+          return
+        end
+
+        # sanity check on files less than expected - 
+        # most are ~82K, so if something is less than 80K, check the XML for malformed errors
+        if curl.downloaded_content_length < 80000
+          # retry once, quick check
+          puts "\n\tRe-downloading once, looked truncated" if options[:debug]
+          curl = Utils.curl(url, destination)
+          
+          if !curl or curl.downloaded_content_length < 80000
+            # could add in a final Nokogiri::XML strict check, 
+            # in case it really is short for some reason, but I haven't seen this happen yet
+            failures << {:url => url, :destination => destination, :content_length => (curl ? curl.downloaded_content_length : nil)}
+          end
+        end
+
+      else
         failures << {:url => url, :destination => destination}
       end
     end

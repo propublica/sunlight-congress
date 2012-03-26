@@ -3,24 +3,29 @@ require 'curb'
 
 module Utils
 
-  def self.curl(url, destination = nil)
+  def self.curl(url, destination = nil, content_type = nil)
+    body = begin
+      curl = Curl::Easy.new url
+      curl.follow_location = true # follow redirects
+      curl.perform
+    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+      nil
+    else
+      curl.body_str
+    end
 
     # returns true or false if a destination is given
     if destination
-      system("curl #{url} --output #{destination} --silent --connect-timeout 30")
-    
+      return nil unless body
+      
+      File.open(destination, 'w') {|f| f.write(body)}
+      curl
+
     # otherwise, returns the body of the response
     else
-      begin
-        curl = Curl::Easy.new url
-        curl.follow_location = true # follow redirects
-        curl.perform
-      rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-        nil
-      else
-        curl.body_str
-      end
+      body
     end
+    
   end
 
   def self.html_for(url)
