@@ -8,7 +8,7 @@ module Utils
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+    rescue Curl::Err::RecvError, Timeout::Error
       nil
     else
       curl.body_str
