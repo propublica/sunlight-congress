@@ -1,5 +1,6 @@
 /config.ru
 /unicorn.rb
+/unicorn.pid
 /config/config.yml
 /data
 /vendor/gems
