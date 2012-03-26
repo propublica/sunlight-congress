@@ -20,7 +20,7 @@ class BulkGpoBills
   def self.run(options = {})
     year = options[:year] ? options[:year].to_i : Time.now.year
 
-    # only care about the last 7 days of new information by default
+    # only care about the last 3 days of new information by default
     # but allow for archiving of an entire year's sitemap
     archive_only_since = options[:archive] ? nil : 3.days.ago.midnight.utc # 5am EST
 
@@ -124,8 +124,8 @@ class BulkGpoBills
 
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
-      unless result = system("curl #{url} --output #{dest} --silent --connect-timeout 30")
-        failures << url
+      unless Utils.curl(url, dest)
+        failures << {:url => url, :dest => dest}
       end
     end
 
