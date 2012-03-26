@@ -1,0 +1,108 @@
+require 'nokogiri'
+require 'curb'
+require 'tzinfo'
+
+
+class BulkVotesHouse
+
+  # Maintains a local copy of vote data from the House of Representatives.
+  # 
+  # By default, looks through the Clerk's EVS pages, and re/downloads data for the last 10 roll call votes.
+  # Options can be passed in to archive whole years, which can ignore already downloaded files (to support resuming).
+  # 
+  # options:
+  #   archive: archive the whole year, don't limit it to 1 days. Will not re-download existing files.
+  #   force: if archiving, force it to re-download existing files.
+  #
+  #   year: the year of data to fetch (defaults to current year)
+  #   limit: only download a certain number of votes (stop short, useful for testing/development)
+  #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
+
+  def self.run(options = {})
+    year = options[:year] ? options[:year].to_i : Time.now.year
+    initialize_disk! year
+
+    latest = options[:latest] ? options[:latest].to_i : 10
+
+    count = 0
+    failures = []
+
+    # fill with the numbers of the rolls to get for that year
+    to_get = []
+
+    if options[:number]
+      to_get = [options[:number]]
+    else
+      # count down from the top
+      latest_roll = latest_roll_for year, options
+      
+      if options[:archive]
+        from_roll = 1
+      else
+        from_roll = (latest_roll - latest) + 1
+        from_roll = 1 if from_roll < 1
+      end
+
+      to_get = (from_roll..latest_roll).to_a.reverse
+    end
+
+    to_get.each do |number|
+      url = url_for year, number
+      dest = destination_for year, number
+
+      puts "[#{year}][#{number}] Syncing..."
+      download_roll url, dest, failures, options
+      count += 1
+    end
+
+    if failures.any?
+      Report.warning self, "Failed to download #{failures.size} files while syncing against the House Clerk votes collection for #{year}", :failures => failures
+    end
+
+    if options[:number]
+      Report.success self, "Synced roll #{options[:number]} in #{year}"
+    else
+      Report.success self, "Synced files for #{count} House roll call votes for #{year}"
+    end
+  end
+
+  def self.initialize_disk!(year)
+    FileUtils.mkdir_p "data/house/rolls/#{year}"
+  end
+
+  def self.url_for(year, number)
+    "http://clerk.house.gov/evs/#{year}/roll#{number}.xml"
+  end
+
+  def self.destination_for(year, number)
+    "data/house/rolls/#{year}/#{number}.xml"
+  end
+
+  def self.download_roll(url, destination, failures, options = {})
+
+    # only cache if we're trying to get through an archive, and we haven't passed the force option
+    if File.exists?(destination) and options[:archive] and options[:force].blank?
+      puts "\tCached at #{destination}, ignoring #{url}, pass force option to override" if options[:debug]
+
+    else
+      puts "\tDownloading #{url} to #{destination}" if options[:debug]
+      unless Utils.curl(url, destination)
+        failures << {:url => url, :destination => destination}
+      end
+    end
+
+  end
+
+  # latest roll number on the House Clerk's listing of latest votes
+  def self.latest_roll_for(year, options = {})
+    url = "http://clerk.house.gov/evs/#{year}/index.asp"
+    
+    puts "[#{year}] Fetching index page for year from House Clerk..." if options[:debug]
+    return nil unless doc = Utils.html_for(url)
+    
+    element = doc.css("tr td a").first
+    return nil unless element and element.text.present?
+    number = element.text.to_i
+    number > 0 ? number : nil
+  end
+end

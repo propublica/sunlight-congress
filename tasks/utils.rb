@@ -1,4 +1,37 @@
+require 'nokogiri'
+require 'curb'
+
 module Utils
+
+  def self.curl(url, destination = nil)
+
+    # returns true or false if a destination is given
+    if destination
+      system("curl #{url} --output #{destination} --silent --connect-timeout 30")
+    
+    # otherwise, returns the body of the response
+    else
+      begin
+        curl = Curl::Easy.new url
+        curl.follow_location = true # follow redirects
+        curl.perform
+      rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+        nil
+      else
+        curl.body_str
+      end
+    end
+  end
+
+  def self.html_for(url)
+    body = curl url
+    body ? Nokogiri::HTML(body) : nil
+  end
+
+  def self.xml_for(url)
+    body = curl url
+    body ? Nokogiri::XML(body) : nil
+  end
   
   # If it's a full timestamp with hours and minutes and everything, store that
   # Otherwise, if it's just a day, store the day with a date of noon UTC
