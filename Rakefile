@@ -173,7 +173,7 @@ def email_body(report)
   attrs = report.attributes.dup
   [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
   
-  msg += to_h(attrs).inspect
+  msg += JSON.pretty_generate to_h(attrs)
   msg
 end
 
