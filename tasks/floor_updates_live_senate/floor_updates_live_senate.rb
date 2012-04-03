@@ -101,7 +101,7 @@ class FloorUpdatesLiveSenate
   
   def self.title_elem_for(doc)
     # either one is fine, I just want the parent to do the right scoping
-    (doc / :p).find {|e| (e.text.strip.upcase == "SENATE FLOOR PROCEEDINGS") || (e.text.strip.upcase == "TODAY'S SENATE FLOOR LOG")}
+    (doc / :p).find {|e| (e.text.strip =~ /SENATE\s+FLOOR\s+PROCEEDINGS/i) || (e.text.strip =~ /TODAY'S\s+SENATE\s+FLOOR\s+LOG/i)}
   end
   
   def self.extract_bills(text)
