@@ -15,7 +15,7 @@ class BulkGpoBills
   #   year: the year of data to fetch (defaults to current year)
   #   limit: only download a certain number of bills (stop short, useful for testing/development)
   #   bill_version_id: only download a specific bill version. ignores other options. 
-  #     (examples: hr3590-112-ih, sres32-111-enr)
+  #     (examples: hr3590-111-ih, sres32-111-enr)
 
   def self.run(options = {})
     year = options[:year] ? options[:year].to_i : Time.now.year
