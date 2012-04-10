@@ -22,5 +22,5 @@ class Video
   index :"clips.legislator_names"
   index :"clips.bioguide_ids"
   
-  field :legislative_day
+  field :legislative_day, :type => String
 end
