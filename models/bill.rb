@@ -13,9 +13,10 @@ class Bill
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
     :sponsor, :last_action,
     :versions_count,
-    :last_version, :last_version_on
+    :last_version, :last_version_on,
+    :nicknames
   
-  searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title
+  searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title, :nicknames
   
   
   # queryable behavior
@@ -31,9 +32,9 @@ class Bill
     :vetoed, :vetoed_at, :house_override_result, :house_override_result_at,
     :senate_override_result, :senate_override_result_at, 
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
-    :last_version_on
+    :last_version_on, :nicknames
     
-  search_fields :short_title, :official_title, :popular_title, :summary, :keywords
+  search_fields :short_title, :official_title, :popular_title, :summary, :keywords, :nicknames
   
   
   # MongoDB behavior
@@ -46,6 +47,8 @@ class Bill
   index :code
   index :chamber
   index :session
+
+  index :nicknames
   
   index :sponsor_id
   index :cosponsor_ids
