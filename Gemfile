@@ -19,6 +19,7 @@ group :development do
   gem 'wirble'
   gem 'rack', '1.3.2'
   gem 'unicorn'
+  gem 'rake', '0.9.2.2'
 end
 
 # for utility work (not used in the app's code, but useful to be loaded in its environment)
