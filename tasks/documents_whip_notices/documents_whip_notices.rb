@@ -27,6 +27,9 @@ class DocumentsWhipNotices
   end
   
   def self.house_dem(type, url)
+    # temporary: democraticwhip.gov is down, maybe done?
+    return 0
+
     rss = nil
     begin
       rss = Feedzirra::Feed.fetch_and_parse url
