@@ -7,7 +7,7 @@ class Regulation
   include Searchable::Model
 
   result_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
-    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
+    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year
   
   searchable_fields :title, :abstract, :full_text
 
@@ -23,7 +23,7 @@ class Regulation
   
   default_order :published_on
   basic_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
-    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number
+    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year
   search_fields :title, :abstract
 
 

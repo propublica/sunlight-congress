@@ -52,6 +52,12 @@ class RegulationsArchive
     
     if pages = total_pages_for(base_url, options)
       puts "Archiving, going to fetch #{pages} pages of data"
+
+      # the API serves a max of 1000 documents (50 pages of 20 each per request)
+      # - this should be enough if filtered by month and stage, but if not, catch this
+      if pages == 50
+        Report.warning self, "Likely more than 1000 #{stage} regulations between #{ending} and #{beginning}"
+      end
     else
       # already filed warning Report in method
       return
@@ -118,6 +124,7 @@ class RegulationsArchive
     rule.attributes = {
       :stage => type_to_stage[details['type']],
       :published_at => details['publication_date'],
+      :year => details['publication_date'].year,
       :abstract => details['abstract'],
       :title => details['title'],
       :federal_register_url => details['html_url'],
