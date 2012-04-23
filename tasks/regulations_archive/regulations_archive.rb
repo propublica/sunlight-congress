@@ -129,6 +129,7 @@ class RegulationsArchive
       :abstract => details['abstract'],
       :title => details['title'],
       :federal_register_url => details['html_url'],
+      :federal_register_json_url => url,
       :agency_names => details['agencies'].map {|agency| agency['name']},
       :agency_ids => details['agencies'].map {|agency| agency['id']},
       :effective_at => details['effective_on'],
