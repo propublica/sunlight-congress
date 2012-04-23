@@ -109,7 +109,8 @@ class RegulationsArchive
     end
 
     # turn Dates into Times
-    ['publication_date', 'comments_close_on', 'effective_on'].each do |field|
+    ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
+      # one other field is 'dates', and I don't know what the possible values are for that yet
       if details[field]
         details[field] = Utils.noon_utc_for details[field].to_time
       end
@@ -143,7 +144,7 @@ class RegulationsArchive
     end
 
     # lump the rest into a catch-all
-    rule[:federal_register] = details.to_hash
+    # rule[:federal_register] = details.to_hash
 
     rule.save!
     puts "[#{document_number}] Saved rule to database" if options[:debug]
