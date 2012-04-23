@@ -145,9 +145,15 @@ class RegulationsArchive
     end
 
     # lump the rest into a catch-all
-    # rule[:federal_register] = details.to_hash
+    rule[:federal_register] = details.to_hash
 
-    rule.save!
+    begin
+      rule.save!
+    rescue BSON::InvalidDocument => ex
+      Report.failure self, "BSON date exception, trying to save the following hash:\n\n#{JSON.pretty_generate attrs}"
+      raise ex # re-raise after filing report, crash the task
+    end
+
     puts "[#{document_number}] Saved rule to database" if options[:debug]
   end
 
