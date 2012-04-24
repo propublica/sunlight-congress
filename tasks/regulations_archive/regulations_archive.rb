@@ -100,11 +100,11 @@ class RegulationsArchive
   def self.save_regulation!(document_number, options)
     rule = Regulation.find_or_initialize_by :document_number => document_number
       
+    url = "http://api.federalregister.gov/v1/articles/#{document_number}.json"
     begin
-      url = "http://api.federalregister.gov/v1/articles/#{document_number}.json"
       details = HTTParty.get url
     rescue Timeout::Error => ex
-      Report.warning self, "Timeout while polling FR.gov for article details, skipping article", :url => article['json_url']
+      Report.warning self, "Timeout while polling FR.gov for article details, skipping article", :url => url
       next
     end
 
