@@ -12,6 +12,7 @@ class RegulationsFullText
   #   document_number: index only a specific document.
   #   rearchive: mark everything as unindexed and re-index everything.
   #   rearchive_year: mark everything in a given year as unindexed and re-index everything.
+  #   redownload: ignore cached files
 
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
@@ -25,6 +26,11 @@ class RegulationsFullText
     # mark only one year for rearchiving
     if options[:rearchive_year]
       Regulation.where(:year => options[:rearchive_year].to_i).update_all :indexed => false
+    end
+
+    # initialize disk for cache
+    (1994.upto(Time.now.year)).to_a.each do |year|
+      FileUtils.mkdir_p "data/federalregister/#{year}"
     end
 
     count = 0
@@ -47,13 +53,14 @@ class RegulationsFullText
     targets.each do |regulation|
 
       document_number = regulation['document_number']
+      year = regulation['published_at'].year
       doc = nil
 
       if regulation['full_text_xml_url']
-        doc = doc_for :xml, document_number, regulation['full_text_xml_url'], options  
+        doc = doc_for :xml, document_number, year, regulation['full_text_xml_url'], options  
       
       elsif regulation['body_html_url'] 
-        doc = doc_for :html, document_number, regulation['body_html_url'], options
+        doc = doc_for :html, document_number, year, regulation['body_html_url'], options
 
       else
         missing_links << document_number
@@ -70,7 +77,7 @@ class RegulationsFullText
         usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
       else
         usc_extracted = []
-        usc_warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
+        usc_warnings << {:message => "Failed to extract USC from #{document_number}"}
       end
 
       # temporary
@@ -112,21 +119,37 @@ class RegulationsFullText
     Report.success self, "Indexed #{count} regulations as searchable"
   end
 
-  def self.doc_for(type, document_number, url, options)
-    begin
+  def self.doc_for(type, document_number, year, url, options)
+    cache_path = cache_path_for type, document_number, year
+
+    body = nil
+    # use cache if it exists, unless 
+    if File.exists?(cache_path) and options[:redownload].blank?
+      puts "[#{document_number}] Using cached #{type.to_s.upcase} from FR.gov" if options[:debug]
+      # don't fetch, it's here
+
+    else
+
       puts "[#{document_number}] Fetching #{type.to_s.upcase} from FR.gov..." if options[:debug]
-      curl = Curl::Easy.new url
-      curl.follow_location = true
-      curl.perform
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Timeout while polling FR.gov, aborting for now", :url => url
+      unless Utils.curl url, cache_path
+        Report.warning self, "Error while polling FR.gov, aborting for now", :url => url
+        return nil
+      end
+
+    end
+
+    # cache had better exist now
+    unless File.exists?(cache_path)
+      Report.warning self, "Couldn't download file, aborting", :url => url, :cache_path => cache_path
       return nil
     end
 
+    body = open cache_path
+
     if type == :xml
-      Nokogiri::XML curl.body_str
+      Nokogiri::XML body
     else
-      Nokogiri::HTML curl.body_str
+      Nokogiri::HTML body
     end
   end
 
@@ -136,6 +159,10 @@ class RegulationsFullText
     end.select {|text| text.present?}
 
     strings.join " "
+  end
+
+  def self.cache_path_for(type, document_number, year)
+    "data/federalregister/#{year}/#{document_number}.#{type}"
   end
 
 end
