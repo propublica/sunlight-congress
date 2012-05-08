@@ -42,6 +42,7 @@ class RegulationsFullText
     client = Searchable.client_for 'regulations'
 
     missing_links = []
+    usc_warnings = []
 
     targets.each do |regulation|
 
@@ -62,17 +63,36 @@ class RegulationsFullText
 
       full_text = full_text_for doc, options
 
+      # extract USC citations, place them on both elasticsearch and mongo objects
+      usc_extracted_ids = []
+      if usc_extracted = Utils.extract_usc(full_text)
+        usc_extracted = usc_extracted.uniq # not keeping anything offset-specific
+        usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
+      else
+        usc_extracted = []
+        usc_warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
+      end
+
+      # temporary
+      if usc_extracted_ids.any?
+        puts "\t[#{document_number}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
+      end
+
       fields = {}
       Regulation.result_fields.each do |field|
         fields[field] = regulation[field.to_s]
       end
       fields[:full_text] = full_text
+      fields[:usc_extracted] = usc_extracted
+      fields[:usc_extracted_ids] = usc_extracted_ids
 
       puts "[#{regulation.document_number}] Indexing..."
       client.index fields, :id => regulation.document_number
 
       puts "\tMarking object as indexed..." if options[:debug]
       regulation['indexed'] = true
+      regulation['usc_extracted'] = usc_extracted
+      regulation['usc_extracted_ids'] = usc_extracted_ids
       regulation.save!
 
       count += 1
@@ -80,6 +100,10 @@ class RegulationsFullText
 
     if missing_links.any?
       Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", :missing_links => missing_links
+    end
+
+    if usc_warnings.any?
+      Report.warning self, "#{usc_warnings.size} warnings while extracting US Code citations", :usc_warnings => usc_warnings
     end
 
     # make sure data is appearing now

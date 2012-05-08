@@ -33,7 +33,7 @@ class Bill
     :senate_override_result, :senate_override_result_at, 
     :awaiting_signature, :awaiting_signature_since, :enacted, :enacted_at,
     :last_version_on, :nicknames
-    
+
   search_fields :short_title, :official_title, :popular_title, :summary, :keywords, :nicknames
   
   
