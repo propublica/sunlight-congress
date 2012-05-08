@@ -1,14 +1,29 @@
 require 'nokogiri'
 require 'curb'
+require 'httparty'
 
 module Utils
+
+  def self.extract_usc(text)
+    url = "http://#{config['citation']['hostname']}/citation/find.json"
+    response = HTTParty.post url, :body => {:text => text}
+    if response['results']
+      response.to_hash['results']
+    else
+      puts "Got error back from Citation API: #{response.body}"
+    end
+  rescue Timeout::Error, Errno::ECONNREFUSED, Errno::ETIMEDOUT => ex
+    puts "Error connecting to citation API"
+    nil
+  end
 
   def self.curl(url, destination = nil)
     body = begin
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Curl::Err::RecvError, Timeout::Error
+    rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError
+      puts "Error curling #{url}"
       nil
     else
       curl.body_str
