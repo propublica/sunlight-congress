@@ -18,6 +18,10 @@ elastic_search:
   port: 9200
   index_prefix: rtc
 
+# information for the Citation extraction API (https://github.com/sunlightlabs/citation-api)
+citation:
+  hostname: localhost:3000
+
 s3: 
     secret: 
     key: 
