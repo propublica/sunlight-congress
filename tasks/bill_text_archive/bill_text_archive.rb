@@ -115,6 +115,21 @@ class BillTextArchive
         full_doc = Nokogiri::HTML File.read(file)
         full_text = full_doc.at("pre").text
         full_text = clean_text full_text
+
+        
+        usc_extracted_ids = []
+        if usc_extracted = Utils.extract_usc(full_text)
+          usc_extracted = usc_extracted.uniq # not keeping anything offset-specific
+          usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
+        else
+          usc_extracted = []
+          warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
+        end
+
+        # temporary
+        if usc_extracted_ids.any?
+          puts "\t[#{bill_version_id}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
+        end
         
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
         
@@ -125,6 +140,8 @@ class BillTextArchive
           :version_name => version_name,
           :issued_on => issued_on,
           :urls => urls,
+          :usc_extracted => usc_extracted,
+          :usc_extracted_ids => usc_extracted_ids,
           
           :bill => bill_fields,
           :full_text => full_text
@@ -150,7 +167,9 @@ class BillTextArchive
           :issued_on => issued_on,
           :version_name => version_name,
           :bill_version_id => bill_version_id,
-          :urls => urls
+          :urls => urls,
+          :usc_extracted => usc_extracted,
+          :usc_extracted_ids => usc_extracted_ids
         }
       end
       
@@ -166,6 +185,9 @@ class BillTextArchive
       
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
+
+      usc_extracted = last_version[:usc_extracted]
+      usc_extracted_ids = last_version[:usc_extracted_ids]
       
       puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
@@ -176,6 +198,9 @@ class BillTextArchive
           :versions_count => versions_count,
           :last_version => last_version,
           :last_version_on => last_version_on,
+          :usc_extracted => usc_extracted,
+          :usc_extracted_ids => usc_extracted_ids,
+
           :updated_at => Time.now
         ),
         :id => bill.bill_id
@@ -189,7 +214,9 @@ class BillTextArchive
         :version_codes => bill_version_codes,
         :versions_count => versions_count,
         :last_version => last_version,
-        :last_version_on => last_version_on
+        :last_version_on => last_version_on,
+        :usc_extracted => usc_extracted,
+        :usc_extracted_ids => usc_extracted_ids
       }
       bill.save!
       puts "[#{bill.bill_id}] Updated bill with version codes." if options[:debug]
