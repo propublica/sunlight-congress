@@ -70,7 +70,7 @@ class Report
     if self[:exception]
       msg += "\n\t#{self[:exception]['type']}: #{self[:exception]['message']}"
       if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
-        self[:exception]['backtrace'].first(5).each {|line| msg += "\n\t\t#{line}"}
+        self[:exception]['backtrace'].each {|line| msg += "\n\t\t#{line}"}
       end
     end
     msg
