@@ -22,7 +22,7 @@ module Utils
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError
+    rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       puts "Error curling #{url}"
       nil
     else
