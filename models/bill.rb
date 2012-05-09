@@ -72,6 +72,8 @@ class Bill
   index :awaiting_signature_since
   index :enacted
   index :enacted_at
+
+  index :usc_extracted_ids
   
   index :last_version_on
   

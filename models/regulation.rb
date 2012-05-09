@@ -33,6 +33,7 @@ class Regulation
   index :published_at
   index :effective_at
   index :agencies
+  index :usc_extracted_ids
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number
