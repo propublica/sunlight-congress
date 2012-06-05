@@ -44,12 +44,18 @@ get searchable_route do
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
   
-  halt 400, "You must provide a search term with the 'query' parameter." unless params[:query]
+  halt 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
 
   term = Searchable.term_for params
   fields = Searchable.fields_for model, params
   search_fields = Searchable.search_fields_for model, params
-  query = Searchable.query_for term, model, params, search_fields
+  
+  if params[:query]
+    query = Searchable.query_for term, model, params, search_fields
+  elsif params[:q]
+    query = Searchable.relaxed_query_for term, model, params, search_fields
+  end
+
   filter = Searchable.filter_for model, params
   order = Searchable.order_for model, params
   pagination = Searchable.pagination_for model, params

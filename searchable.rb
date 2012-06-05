@@ -1,7 +1,7 @@
 module Searchable
 
   def self.term_for(params)
-    params[:query].strip.downcase
+    (params[:query] || params[:q]).strip.downcase
   end
   
   def self.query_for(term, model, params, search_fields)
@@ -17,6 +17,17 @@ module Searchable
     end
     
     conditions
+  end
+
+  def self.relaxed_query_for(string, model, params, search_fields)
+    conditions = {
+      'query_string' => {
+        'query' => string,
+        'default_operator' => (params[:default_operator] || "AND"),
+        'use_dis_max' => true,
+        'fields' => search_fields
+      }
+    }
   end
   
   # factored out mainly for ease of unit testing
@@ -323,9 +334,10 @@ module Searchable
       :sections, :basic,
       :order, :sort, 
       :page, :per_page,
-      :search, :query,
+      :search, :query, :q,
       :explain,
-      :highlight, :highlight_tags, :highlight_size
+      :highlight, :highlight_tags, :highlight_size,
+      :default_operator
     ]
   end
   
