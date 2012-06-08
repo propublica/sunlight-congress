@@ -96,7 +96,7 @@ class RegulationsFullText
       puts "[#{regulation.document_number}] Indexing..."
       client.index fields, :id => regulation.document_number
 
-      puts "\tMarking object as indexed..." if options[:debug]
+      puts "\tMarking object as indexed and adding any extracted citations..." if options[:debug]
       regulation['indexed'] = true
       regulation['usc_extracted'] = usc_extracted
       regulation['usc_extracted_ids'] = usc_extracted_ids
