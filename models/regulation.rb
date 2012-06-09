@@ -34,6 +34,7 @@ class Regulation
   index :effective_at
   index :agencies
   index :usc_extracted_ids
+  index :year
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number
