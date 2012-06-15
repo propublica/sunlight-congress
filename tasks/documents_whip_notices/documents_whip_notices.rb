@@ -27,8 +27,6 @@ class DocumentsWhipNotices
   end
   
   def self.house_dem(type, url)
-    # temporary: democraticwhip.gov is down, maybe done?
-    return 0
 
     rss = nil
     begin

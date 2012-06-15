@@ -491,10 +491,15 @@ module Utils
     # first preference is to get the date from the PDF URL
     links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
     a = links.first
-    pdf_url = a['href']
-    date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
+
+    date_results = nil
+
+    if a
+      pdf_url = a['href']
+      date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
+    end
     
-    if date_results.any? and date_results.first.any?
+    if date_results and date_results.any? and date_results.first.any?
       date_str = date_results.first.first
       month, day, year = date_str.split "-"
       date = noon_utc_for Time.local(year, month, day)
