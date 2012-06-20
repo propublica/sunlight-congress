@@ -30,7 +30,7 @@ class UpcomingSenateDaily
     # accumulate upcoming bills 
     upcoming_bills = {}
     
-    rss.entries.each do |entry|
+    rss.entries.reverse.each do |entry|
       doc = Nokogiri::HTML entry.content
       
       # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
