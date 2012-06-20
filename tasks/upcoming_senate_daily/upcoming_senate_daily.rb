@@ -33,20 +33,21 @@ class UpcomingSenateDaily
     rss.entries.each do |entry|
       doc = Nokogiri::HTML entry.content
       
-      legislative_date = Utils.utc_parse entry.title
-      unless legislative_date
-        # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
-        # Just ignore them
-        next
-      end
-
+      # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
+      # Just ignore them
+      next unless entry.title =~ /Senate Floor Schedule/i
+      next unless legislative_date = Utils.utc_parse(entry.title)
+      
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       session = Utils.session_for_year legislative_date.year
       
       since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now.midnight.utc
       
       # don't care unless it's today or in the future
-      next if legislative_date.midnight < since.midnight
+      if legislative_date.midnight < since.midnight
+        puts "[#{legislative_day}] Skipping, too old" if options[:debug]
+        next
+      end
       
       upcoming_bills[legislative_day] = {}
       text_pieces = []
@@ -117,7 +118,7 @@ class UpcomingSenateDaily
       
       schedule.save!
       
-      puts "[#{legislative_day}][senate_daily][schedule] Created/updated schedule" if config['debug']
+      puts "[#{legislative_day}][senate_daily][schedule] Created/updated schedule" if options[:debug]
       count += 1
       
     end
@@ -132,7 +133,7 @@ class UpcomingSenateDaily
         :legislative_day => legislative_day
       ).delete_all
       
-      puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if config['debug']
+      puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if options[:debug]
       
       bills.each do |bill_id, bill|
         upcoming = UpcomingBill.create! bill
