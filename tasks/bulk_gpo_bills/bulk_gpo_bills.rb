@@ -103,17 +103,11 @@ class BulkGpoBills
 
   def self.sitemap_doc_for(year, options = {})
     url = "http://www.gpo.gov/smap/fdsys/sitemap_#{year}/#{year}_BILLS_sitemap.xml"
-    begin
-      puts "[#{year}] Fetching sitemap from GPO..." if options[:debug]
-      curl = Curl::Easy.new url
-      curl.follow_location = true
-      curl.perform
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Timeout while fetching sitemap, aborting for now", :url => url
-      return nil
+    puts "[#{year}] Fetching sitemap from GPO..." if options[:debug]
+    
+    if body = Utils.curl(url)
+      Nokogiri::XML body
     end
-
-    Nokogiri::XML curl.body_str
   end
 
   def self.download_to(url, dest, failures, options)
