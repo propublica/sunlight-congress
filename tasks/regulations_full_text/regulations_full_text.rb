@@ -10,18 +10,12 @@ class RegulationsFullText
   # options:
   #   limit: limit it to a set number of, instead of all, unindexed regulations.
   #   document_number: index only a specific document.
-  #   rearchive: mark everything as unindexed and re-index everything.
   #   rearchive_year: mark everything in a given year as unindexed and re-index everything.
   #   redownload: ignore cached files
 
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
     document_number = options[:document_number]
-
-    # mark *everything* for rearchiving
-    if options[:rearchive]
-      Regulation.update_all :indexed => false
-    end
 
     # mark only one year for rearchiving
     if options[:rearchive_year]
