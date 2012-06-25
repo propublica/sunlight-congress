@@ -43,7 +43,7 @@ class BulkGpoBills
       end
 
       unless sitemap_doc = sitemap_doc_for(year, options)
-        Report.warning "Couldn't load sitemap for #{year}"
+        Report.warning self, "Couldn't load sitemap for #{year}"
         return
       end
 
