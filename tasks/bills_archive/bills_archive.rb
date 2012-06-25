@@ -392,7 +392,7 @@ class BillsArchive
     
     now = Time.now
     actions.reverse.each do |action|
-      return action if action[:acted_at] < Time.now
+      return action if action[:acted_at] < now
     end
     
     nil
