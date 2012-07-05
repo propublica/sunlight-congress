@@ -52,9 +52,9 @@ end
 
 
 # load in REST helpers and models
-require 'queryable'
+require './queryable'
 Queryable.add_magic_fields magic_fields
-require 'searchable'
+require './searchable'
 Searchable.add_magic_fields magic_fields
 Searchable.config = config
 

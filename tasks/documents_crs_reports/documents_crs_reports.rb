@@ -8,14 +8,23 @@ class DocumentsCrsReports
     key = options[:config]['opencrs_api_key']
     test_url = "https://opencrs.com/api/reports/list.json?key=#{key}&page=1"
 
-   unless html = content_for(test_url)
-     Report.warning self, "Network error fetching CRS Reports, can't go on.", :url => test_url
-     return
-   end
+    unless html = content_for(test_url)
+      Report.warning self, "Network error fetching CRS Reports, can't go on.", :url => test_url
+      return
+    end
+
+    failures = []
 
     num_added = 0
     (1..5).each do |page|
-      response = HTTParty.get "https://opencrs.com/api/reports/list.json?key=#{key}&page=#{page}"
+      url = "https://opencrs.com/api/reports/list.json?key=#{key}&page=#{page}"
+      response = HTTParty.get url
+      
+      if response.to_s == "error"
+        failures << url
+        next
+      end
+
       response.each do |r|
         if Document.first(:conditions => { :order_code => r['ordercode'] })
           break
@@ -33,7 +42,13 @@ class DocumentsCrsReports
       end
     end
 
-    Report.success self, "Added #{num_added} CRS Reports"
+    if failures.any?
+      Report.failure self, "Errors fetching CRS Reports, unclear why", failures: failures
+    end
+
+    if num_added > 0
+      Report.success self, "Added #{num_added} CRS Reports"
+    end
   end
 
   def self.content_for(url)

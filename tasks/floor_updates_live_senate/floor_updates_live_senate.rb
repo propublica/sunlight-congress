@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'nokogiri'
 
 class FloorUpdatesLiveSenate
@@ -119,7 +121,14 @@ class FloorUpdatesLiveSenate
   end
   
   def self.clean_text(text)
-    text.gsub("\342\200\231", "'").gsub("\302\240", " ").gsub("\342\200\234", "\"").gsub("\342\200\235", "\"").gsub(/[ \t]+/, ' ').gsub("\n", "\n\n").strip
+    text.
+      gsub("\342\200\231", "'").
+      gsub("\302\240", " ").
+      gsub("\342\200\234", "\"").
+      gsub("\342\200\235", "\"").
+      gsub(/[ \t]+/, ' ').
+      gsub("\n", "\n\n").
+      strip
   end
   
 end

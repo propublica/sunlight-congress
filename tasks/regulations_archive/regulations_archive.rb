@@ -85,9 +85,9 @@ class RegulationsArchive
       response['results'].each do |article|
         document_number = article['document_number']
         
-        save_regulation! document_number, options
-
-        count += 1
+        if save_regulation!(document_number, options)
+          count += 1
+        end
       end
 
       # don't hammer, if there are more pages to go
@@ -104,8 +104,8 @@ class RegulationsArchive
     begin
       details = HTTParty.get url
     rescue Timeout::Error => ex
-      Report.warning self, "Timeout while polling FR.gov for article details, skipping article", :url => url
-      next
+      Report.warning self, "Timeout while polling FR.gov for article details at #{url}, skipping article", :url => url
+      return
     end
 
     # turn Dates into Times
@@ -155,6 +155,8 @@ class RegulationsArchive
     end
 
     puts "[#{document_number}] Saved rule to database" if options[:debug]
+
+    true
   end
 
   def self.total_pages_for(base_url, options)

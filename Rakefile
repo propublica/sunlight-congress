@@ -1,18 +1,18 @@
-load 'analytics/report.rake'
+load './analytics/report.rake'
 
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
-  require 'config/environment'
+  require './config/environment'
   
-  require 'tasks/report'
+  require './tasks/report'
   require 'pony'
 end
 
 namespace :development do
   desc "Load a fake 'development' api key into the db"
   task :api_key => :environment do
-    require 'analytics/api_key'
+    require './analytics/api_key'
     
     key = ENV['key'] || "development"
     email = ENV['email'] || "#{key}@example.com"
@@ -28,8 +28,8 @@ end
 
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
-  require 'analytics/api_key'
-  require 'analytics/hits'
+  require './analytics/api_key'
+  require './analytics/hits'
   
   begin
     models = Dir.glob('models/*.rb').map do |file|
@@ -82,7 +82,7 @@ end
 
 
 def run_task(name)
-  require 'tasks/utils'
+  require './tasks/utils'
   
   task_name = name.camelize
   
@@ -119,7 +119,7 @@ def run_task(name)
 end
 
 def run_ruby(name)
-  load "tasks/#{name}/#{name}.rb"
+  load "./tasks/#{name}/#{name}.rb"
   
   options = {:config => config}
   ARGV[1..-1].each do |arg|

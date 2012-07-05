@@ -44,6 +44,10 @@ class BulkVotesHouse
       end
 
       to_get = (from_roll..latest_roll).to_a.reverse
+      
+      if options[:limit]
+        to_get = to_get.first options[:limit].to_i
+      end
     end
 
     to_get.each do |number|

@@ -1,4 +1,4 @@
-require 'analytics/sunlight_services'
+require './analytics/sunlight_services'
 
 # Require an API key
 

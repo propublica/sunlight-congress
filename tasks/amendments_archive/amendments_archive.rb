@@ -33,6 +33,10 @@ class AmendmentsArchive
     # debug helpers
     # amendments = Dir.glob "data/govtrack/111/amendments/h541.xml"
     # amendments = amendments.first 20
+
+    if options[:limit]
+      amendments = amendments.first options[:limit].to_i
+    end
     
     amendments.each do |path|
       doc = Nokogiri::XML open(path)

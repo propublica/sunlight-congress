@@ -3,9 +3,9 @@ namespace :analytics do
   desc "Send analytics to the central API analytics department."
   task :report => :environment do
     begin
-      require 'analytics/hits'
-      require 'analytics/sunlight_services'
-      require 'tasks/report'
+      require './analytics/hits'
+      require './analytics/sunlight_services'
+      require './tasks/report'
     
       # default to yesterday
       day = ENV['day'] || (Time.now.midnight - 1.day).strftime("%Y-%m-%d")

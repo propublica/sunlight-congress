@@ -1,19 +1,19 @@
 #!/usr/bin/env ruby
 
-require 'config/environment'
+require './config/environment'
 
-require 'analytics/api_key'
-require 'analytics/hits'
+require './analytics/api_key'
+require './analytics/hits'
 
 set :logging, false
 
 configure(:development) do |config|
   require 'sinatra/reloader'
-  config.also_reload "config/environment.rb"
-  config.also_reload "analytics/*.rb"
-  config.also_reload "models/*.rb"
-  config.also_reload "queryable.rb"
-  config.also_reload "searchable.rb"
+  config.also_reload "./config/environment.rb"
+  config.also_reload "./analytics/*.rb"
+  config.also_reload "./models/*.rb"
+  config.also_reload "./queryable.rb"
+  config.also_reload "./searchable.rb"
 end
 
 
