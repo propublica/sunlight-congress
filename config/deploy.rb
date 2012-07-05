@@ -80,6 +80,11 @@ namespace :deploy do
   task :set_cron, :roles => :app, :except => {:no_release => true} do
     run "cd #{current_path} && rake set_crontab environment=#{environment} current_path=#{current_path}"
   end
+
+  desc "Stop the crontasks"
+  task :disable_crontab, :roles => :app, :except => {:no_release => true} do
+    run "cd #{current_path} && rake disable_crontab"
+  end
   
   desc "Get shared files into position"
   task :shared_links, :roles => [:web, :app] do
