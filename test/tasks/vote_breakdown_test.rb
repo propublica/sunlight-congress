@@ -4,8 +4,8 @@ require 'test/unit'
 require 'rubygems'
 require 'bundler/setup'
 
-require File.join(File.dirname(__FILE__), "../../config/environment")
-require File.join(File.dirname(__FILE__), "../../tasks/utils")
+require File.join(".", File.dirname(__FILE__), "../../config/environment")
+require File.join(".", File.dirname(__FILE__), "../../tasks/utils")
 
 class VoteBreakdownTest < Test::Unit::TestCase
   

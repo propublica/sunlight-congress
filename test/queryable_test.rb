@@ -4,8 +4,8 @@ require 'test/unit'
 require 'rubygems'
 require 'bundler/setup'
 
-require File.join File.dirname(__FILE__), "../config/environment"
-require File.join File.dirname(__FILE__), "../queryable"
+require File.join ".", File.dirname(__FILE__), "../config/environment"
+require File.join ".", File.dirname(__FILE__), "../queryable"
 
 
 class QueryableTest < Test::Unit::TestCase
