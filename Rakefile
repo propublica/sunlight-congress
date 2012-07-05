@@ -68,6 +68,17 @@ task :set_crontab => :environment do
   end
 end
 
+desc "Disable/clear the crontab for this environment"
+task :disable_crontab => :environment do
+  if system("echo | crontab")
+    puts "Successfully disabled crontab."
+  else
+    email "Somehow failed at disabling crontab."
+    puts "Unsuccessful (somehow) at disabling crontab, emailed report."
+  end
+end
+
+
 # for each folder in tasks, generate a rake task
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file
