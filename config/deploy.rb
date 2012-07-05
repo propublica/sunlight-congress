@@ -14,6 +14,13 @@ else # environment == 'staging'
   set :domain, 'ec2-50-16-84-118.compute-1.amazonaws.com' # dupont
 end
 
+
+# RVM stuff - not sure how/why this works, awesome
+set :rvm_ruby_string, '1.9.3-p194@rtc'
+# rvm-capistrano gem must be installed outside of the bundle
+require 'rvm/capistrano'
+
+
 set :scm, :git
 set :repository, "git@github.com:sunlightlabs/realtimecongress.git"
 set :branch, 'master'
