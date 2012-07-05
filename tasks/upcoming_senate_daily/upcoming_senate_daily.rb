@@ -100,27 +100,6 @@ class UpcomingSenateDaily
         end
       end
       
-      schedule = UpcomingSchedule.find_or_initialize_by(
-        :source_type => "senate_daily",
-        :legislative_day => legislative_day
-      )
-      
-      schedule.attributes = {
-        :chamber => "senate",
-        :session => session,
-        :legislative_day => legislative_day,
-        :bill_ids => day_bill_ids.uniq,
-        :items => text_pieces,
-        :original => entry.content.strip,
-        :source_url => entry.url,
-        :permalink => entry.url
-      }
-      
-      schedule.save!
-      
-      puts "[#{legislative_day}][senate_daily][schedule] Created/updated schedule" if options[:debug]
-      count += 1
-      
     end
     
     Report.success self, "Created or updated #{count} schedules"

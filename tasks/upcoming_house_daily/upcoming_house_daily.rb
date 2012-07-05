@@ -36,25 +36,7 @@ class UpcomingHouseDaily
       return
     end
     
-    schedule = UpcomingSchedule.find_or_initialize_by(
-      :legislative_day => legislative_day,
-      :source_type => "house_daily"
-    )
-    
     bill_ids = Utils.bill_ids_for element.text, session
-    
-    schedule.attributes = {
-      :chamber => "house",
-      :session => session,
-      :original => element.to_html,
-      :legislative_day => legislative_day,
-      :bill_ids => bill_ids,
-      :source_url => url
-    }
-    
-    schedule.save!
-    
-    Report.success self, "Saved an upcoming schedule for the House for #{legislative_day}"
     
     
     # clear out existing upcoming bills for the day
