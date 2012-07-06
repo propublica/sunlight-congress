@@ -97,7 +97,6 @@ DEPENDENCIES
   curb (= 0.8.1)
   feedzirra (= 0.2.0rc2)
   httparty (= 0.7.8)
-  json (= 1.5.3)
   mongo (= 1.6.2)
   mongoid (= 2.4.8)
   nokogiri (= 1.5.5)
@@ -112,3 +111,4 @@ DEPENDENCIES
   tzinfo (= 0.3.23)
   unicorn
   wirble
+  yajl-ruby (= 1.1.0)

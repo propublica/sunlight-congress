@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'json', '1.5.3'
+gem 'yajl-ruby', '1.1.0'
 gem 'tzinfo', '0.3.23'
 
 gem 'sinatra', '1.3.2'

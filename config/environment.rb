@@ -1,6 +1,6 @@
 # Intricate include order
 
-require 'json/ext'
+require 'yajl/json_gem'
 
 # hack to stop ActiveSupport from taking away my JSON C extension
 [Object, Array, FalseClass, Float, Hash, Integer, NilClass, String, TrueClass].each do |klass|
