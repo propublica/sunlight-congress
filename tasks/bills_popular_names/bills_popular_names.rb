@@ -1,5 +1,4 @@
-require 'curb'
-require 'fastercsv'
+require 'csv'
 
 class BillsPopularNames
 
@@ -20,7 +19,7 @@ class BillsPopularNames
     # load the contents of the CSV into 
     nicknames = {}
 
-    FasterCSV.foreach(destination) do |row|
+    CSV.foreach(destination) do |row|
       next unless row[0] and ["hr", "hres", "hjres", "hcronres", "s" ,"sres", "sjres", "sconres"].include?(row[0])
       bill_id = bill_id_for row
       
