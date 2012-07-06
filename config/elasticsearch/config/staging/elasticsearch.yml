@@ -1,13 +1,15 @@
-index:
-  number_of_shards: 5
-  number_of_replicas: 1
+cluster.name: RealTimeCongress
 
-# Cluster Settings
-cluster:
-  name: elasticsearch
+index:
+  number_of_shards: 5 # default
+  number_of_replicas: 1 # default
 
 path:
   data: /var/lib/elasticsearch
+  work: /mnt
 
-#bootstrap:
-#  mlockall: true
+http:
+  port: 9200 # default
+
+bootstrap:
+  mlockall: true
