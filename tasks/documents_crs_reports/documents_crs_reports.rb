@@ -18,6 +18,7 @@ class DocumentsCrsReports
     num_added = 0
     (1..5).each do |page|
       url = "https://opencrs.com/api/reports/list.json?key=#{key}&page=#{page}"
+      puts "Fetching #{url}" if options[:debug]
       response = HTTParty.get url
       
       if response.to_s == "error"
