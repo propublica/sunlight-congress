@@ -84,14 +84,6 @@ module Utils
     ((year + 1) / 2) - 894
   end
   
-  def self.strip_unicode(string)
-    old_kcode = $KCODE
-    $KCODE = "u"
-    result = string.mb_chars.strip.to_s
-    $KCODE = old_kcode
-    result
-  end
-  
   # map govtrack type to RTC type
   def self.bill_type_for(govtrack_type)
     {

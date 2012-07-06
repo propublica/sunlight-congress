@@ -44,5 +44,9 @@ class QueryableTest < Test::Unit::TestCase
     fields = Queryable.fields_for Person, :sections => "basic,name,name,sox,bio"
     assert_equal ["name", "bio", "born_at", "sox"].sort, fields.sort
   end
-    
+
+  def test_conditions_for_produces_simple_hash
+    conditions = Queryable.conditions_for Person, chamber: "senate"
+    assert_equal({:chamber => "senate"}, conditions)
+  end
 end

@@ -46,7 +46,7 @@ def magic_fields
   [
     :apikey, 
     :callback, :_, # jsonp support (_ is to allow cache-busting)
-    :captures # Sinatra keyword to do route parsing
+    :captures, :splat # Sinatra keywords to do route parsing
   ]
 end
 

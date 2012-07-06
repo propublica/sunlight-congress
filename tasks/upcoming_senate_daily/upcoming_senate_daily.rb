@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'feedzirra'
 require 'nokogiri'
 
@@ -7,7 +9,7 @@ class UpcomingSenateDaily
     count = 0
     bill_count = 0
     
-    url = "https://democrats.senate.gov/floor/daily-summary/feed/"
+    url = "http://democrats.senate.gov/floor/daily-summary/feed/"
     
     rss = nil
     begin
@@ -62,7 +64,7 @@ class UpcomingSenateDaily
       
       items.each_with_index do |item, i|
         
-        text = Utils.strip_unicode item.text
+        text = item.text
         
         next unless text.present?
             
@@ -73,6 +75,8 @@ class UpcomingSenateDaily
             text << "\n* #{subitem.text}"
           end
         end
+
+        text = clean_text text
         
         text_pieces << text
         
@@ -133,5 +137,14 @@ class UpcomingSenateDaily
       Report.warning self, "#{bad_entries.size} expected date-less titles in feed", :bad_entries => bad_entries
     end
 
+  end
+
+  def self.clean_text(text)
+    text.
+      gsub("\342\200\231", "'").
+      gsub("\302\240", " ").
+      gsub("\342\200\234", "\"").
+      gsub("\342\200\235", "\"").
+      strip
   end
 end
