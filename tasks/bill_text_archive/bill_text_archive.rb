@@ -23,17 +23,15 @@ class BillTextArchive
       Bill.where(:session => options[:rearchive_session].to_i).update_all indexed: false
     end
 
-    # never index abbreviated bills
-    targets = Bill.where abbreviated: false, indexed: false
-    
-    if options[:limit]
-      targets = targets.limit options[:limit].to_i
-    end
-
     if options[:bill_id]
       targets = targets.where bill_id: options[:bill_id]
-    elsif options[:session]
-      targets = targets.where session: options[:session].to_i
+    else
+      # only index unindexed, unabbreviated bills from the specified session
+      targets = Bill.where abbreviated: false, indexed: false, session: session
+      
+      if options[:limit]
+        targets = targets.limit options[:limit].to_i
+      end
     end
 
     warnings = []
