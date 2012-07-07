@@ -21,10 +21,12 @@ module Utils
     puts str if ENV['usc_debug'].present?
     hash = Yajl::Parser.parse str
     hash['results']
-  rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
+  rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Curl::Err::HostResolutionError,
+    Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
+    Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
     nil
-  rescue Yajl::ParserError => ex
+  rescue Yajl::ParseError => ex
     puts "Got bad response back from citation API"
     nil
   # rescue Psych::SyntaxError => ex
@@ -37,7 +39,7 @@ module Utils
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+    rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       puts "Error curling #{url}"
       nil
     else
