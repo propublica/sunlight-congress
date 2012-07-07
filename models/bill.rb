@@ -41,9 +41,6 @@ class Bill
   
   include Mongoid::Document
   include Mongoid::Timestamps
-
-  # synced to MongoDB
-  field :indexed, type: Boolean, default: false
   
   index :bill_id
   index :bill_type

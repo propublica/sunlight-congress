@@ -6,7 +6,7 @@
 
 # full bill text
 */30 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
-*/15 * * * * /projects/rtc/shared/cron/task.sh bill_text_archive
+0 5,11 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
 
 # popular bill names, check once an hour
 */60 * * * * /projects/rtc/shared/cron/task.sh bills_popular_names

@@ -24,6 +24,9 @@ module Utils
   rescue Timeout::Error, Errno::ECONNREFUSED, Errno::ETIMEDOUT => ex
     puts "Error connecting to citation API"
     nil
+  # rescue Psych::SyntaxError => ex
+  #   puts "Error dealing with special character in citation API"
+  #   ex
   end
 
   def self.curl(url, destination = nil)
