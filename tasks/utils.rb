@@ -3,6 +3,7 @@ require 'curb'
 require 'httparty'
 require 'tire'
 
+
 module Utils
 
   def self.es_store!(collection, id, hash)
@@ -15,14 +16,16 @@ module Utils
 
   def self.extract_usc(text)
     url = "http://#{config['citation']['hostname']}/citation/find.json"
-    response = HTTParty.post url, :body => {:text => text}
-    if response['results']
-      response.to_hash['results']
-    else
-      puts "Got error back from Citation API: #{response.body}"
-    end
-  rescue Timeout::Error, Errno::ECONNREFUSED, Errno::ETIMEDOUT => ex
+    curl = Curl.post url, :text => text
+    str = curl.body_str
+    puts str if ENV['usc_debug'].present?
+    hash = Yajl::Parser.parse str
+    hash['results']
+  rescue Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
+    nil
+  rescue Yajl::ParserError => ex
+    puts "Got bad response back from citation API"
     nil
   # rescue Psych::SyntaxError => ex
   #   puts "Error dealing with special character in citation API"

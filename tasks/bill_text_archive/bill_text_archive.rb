@@ -19,7 +19,7 @@ class BillTextArchive
     version_count = 0
 
     if options[:bill_id]
-      targets = targets.where bill_id: options[:bill_id]
+      targets = Bill.where bill_id: options[:bill_id]
     else
       # only index unabbreviated bills from the specified session
       targets = Bill.where abbreviated: false, session: session
