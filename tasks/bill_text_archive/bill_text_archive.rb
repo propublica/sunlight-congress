@@ -1,36 +1,45 @@
-# not necessary with the current impl, but let's start making it explicit what each task depends on
-require './searchable'
-require './models/bill'
-require './models/bill_version'
-
 require 'nokogiri'
-require 'curb'
 
 class BillTextArchive
+
+  # Indexes full text of versions of bills into ElasticSearch.
+  # Takes any bills in MongoDB that have not been marked as indexed, 
+  # indexes them, and marks them so.
+
+  # options:
+  #   limit: limit it to a set number of, instead of all, unindexed bills.
+  #   bill_id: index only a specific document.
+  #   rearchive_session: mark everything in a given year as unindexed and re-index everything.
+
   
   def self.run(options = {})
     session = options[:session] ? options[:session].to_i : Utils.current_session
-    
+
     bill_count = 0
     version_count = 0
     
-    versions_client = Searchable.client_for 'bill_versions'
-    bills_client = Searchable.client_for 'bills'
+    # mark only one session for rearchiving
+    if options[:rearchive_session]
+      Bill.where(:session => options[:rearchive_session].to_i).update_all indexed: false
+    end
+
+    # never index abbreviated bills
+    targets = Bill.where abbreviated: false, indexed: false
     
-    bill_ids = Bill.where(:session => session, :abbreviated => false).distinct :bill_id
-    
+    if options[:limit]
+      targets = targets.limit options[:limit].to_i
+    end
+
     if options[:bill_id]
-      bill_ids = [options[:bill_id]]
-    elsif options[:limit]
-      bill_ids = bill_ids.first options[:limit].to_i
+      targets = targets.where bill_id: options[:bill_id]
+    elsif options[:session]
+      targets = targets.where session: options[:session].to_i
     end
 
     warnings = []
     notes = []
     
-    bill_ids.each do |bill_id|
-      bill = Bill.where(:bill_id => bill_id).first
-      
+    targets.each do |bill|
       type = bill.bill_type
       
       # find all the versions of text for that bill
@@ -148,10 +157,7 @@ class BillTextArchive
         }
 
         # commit the version to the version index
-        versions_client.index(
-          version_attributes,
-          :id => bill_version_id
-        )
+        Utils.es_store! 'bill_versions', bill_version_id, version_attributes
 
         # archive it in MongoDB for easy reference in other scripts
         version_archive = BillVersion.find_or_initialize_by :bill_version_id => bill_version_id
@@ -191,7 +197,9 @@ class BillTextArchive
       
       puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
-      bills_client.index(
+      Utils.es_store!(
+        'bills',
+        bill.bill_id,
         bill_fields.merge(
           :versions => last_bill_version_text,
           :version_codes => bill_version_codes,
@@ -202,8 +210,7 @@ class BillTextArchive
           :usc_extracted_ids => usc_extracted_ids,
 
           :updated_at => Time.now
-        ),
-        :id => bill.bill_id
+        )
       )
       
       puts "[#{bill.bill_id}] Indexed versions for whole bill." if options[:debug]
@@ -216,8 +223,10 @@ class BillTextArchive
         :last_version => last_version,
         :last_version_on => last_version_on,
         :usc_extracted => usc_extracted,
-        :usc_extracted_ids => usc_extracted_ids
+        :usc_extracted_ids => usc_extracted_ids,
+        :indexed => true
       }
+
       bill.save!
       puts "[#{bill.bill_id}] Updated bill with version codes." if options[:debug]
       
@@ -225,8 +234,8 @@ class BillTextArchive
     end
     
     # make sure queries are ready
-    versions_client.refresh
-    bills_client.refresh
+    Utils.es_refresh! 'bill_versions'
+    Utils.es_refresh! 'bills'
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", :warnings => warnings

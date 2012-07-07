@@ -31,3 +31,4 @@ gem 'feedzirra', '0.2.0rc2'
 
 # elasticsearch
 gem 'rubberband', '0.1.5'
+gem 'tire', '0.4.2'

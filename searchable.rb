@@ -363,6 +363,11 @@ module Searchable
     ElasticSearch.new "http://#{full_host}", :index => index, :type => document_type
   end
 
+  def self.index_for(collection)
+    index_prefix = config['elastic_search']['index_prefix']
+    Tire.index "#{index_prefix}_#{collection}"
+  end
+
   module Model
     
     module ClassMethods

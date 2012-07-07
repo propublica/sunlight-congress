@@ -13,6 +13,7 @@ require 'sinatra'
 require 'mongoid'
 require 'tzinfo'
 require 'elasticsearch'
+require 'tire'
 
 # restore the original to_json on core objects (damn you ActiveSupport)
 [Object, Array, FalseClass, Float, Hash, Integer, NilClass, String, TrueClass].each do |klass|
@@ -33,9 +34,17 @@ def config
 end
 
 configure do
+  # configure mongodb client
   config['mongoid']['logger'] = Logger.new config['log_file'] if config['log_file']
   Mongoid.configure {|c| c.from_hash config['mongoid']}
   
+  # configure elasticsearch client
+  host = config['elastic_search']['host']
+  port = config['elastic_search']['port']
+  Tire.configure do
+    url "http://#{host}:#{port}"
+  end
+
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"

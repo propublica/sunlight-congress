@@ -1,8 +1,17 @@
 require 'nokogiri'
 require 'curb'
 require 'httparty'
+require 'tire'
 
 module Utils
+
+  def self.es_store!(collection, id, hash)
+    Searchable.index_for(collection).store hash.merge(:id => id, :type => collection)
+  end
+
+  def self.es_refresh!(collection)
+    Searchable.index_for(collection).refresh
+  end
 
   def self.extract_usc(text)
     url = "http://#{config['citation']['hostname']}/citation/find.json"
