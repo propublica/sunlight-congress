@@ -105,7 +105,11 @@ module Queryable
 
   def self.attributes_for(document, fields)
     attributes = document.attributes
-    ['_id', 'created_at', 'updated_at'].each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
+
+    # 'indexed' is a special field used to help sync docs between mongodb and elasticsearch
+    exclude_fields = ['_id', 'created_at', 'updated_at', 'indexed']
+
+    exclude_fields.each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
     attributes
   end
   
