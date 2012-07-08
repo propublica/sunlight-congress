@@ -39,8 +39,6 @@ class RegulationsFullText
       targets = targets[0...limit]
     end
 
-    client = Searchable.client_for 'regulations'
-
     missing_links = []
     usc_warnings = []
 
@@ -79,17 +77,20 @@ class RegulationsFullText
         puts "\t[#{document_number}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
       end
 
+      # load in the part of the regulation from mongo that gets synced to ES
       fields = {}
       Regulation.result_fields.each do |field|
         fields[field] = regulation[field.to_s]
       end
-      fields[:full_text] = full_text
-      fields[:usc_extracted] = usc_extracted
-      fields[:usc_extracted_ids] = usc_extracted_ids
 
+      # index into elasticsearch
       puts "[#{regulation.document_number}] Indexing..."
-      client.index fields, :id => regulation.document_number
+      fields['full_text'] = full_text
+      fields['usc_extracted'] = usc_extracted
+      fields['usc_extracted_ids'] = usc_extracted_ids
+      Utils.es_store! 'regulations', regulation.document_number, fields
 
+      # update in mongo
       puts "\tMarking object as indexed and adding any extracted citations..." if options[:debug]
       regulation['indexed'] = true
       regulation['usc_extracted'] = usc_extracted
@@ -108,7 +109,7 @@ class RegulationsFullText
     end
 
     # make sure data is appearing now
-    client.refresh
+    Utils.es_refresh! 'regulations'
 
     Report.success self, "Indexed #{count} regulations as searchable"
   end

@@ -14,8 +14,6 @@ class VotesLiveHouse
     
     missing_bill_ids = []
     missing_amendment_ids = []
-
-    votes_client = Searchable.client_for 'votes'
     
     # make lookups faster later by caching a hash of legislators from which we can lookup bioguide_ids
     legislators = {}
@@ -40,7 +38,7 @@ class VotesLiveHouse
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_new_roll-49).upto(latest_new_roll) do |number|
-      if (number > 0) and (Vote.where(:roll_id => "h#{number}-#{year}").first == nil)
+      if (number > 0) # and (Vote.where(:roll_id => "h#{number}-#{year}").first == nil)
         to_fetch << number
       end
     end
@@ -87,7 +85,7 @@ class VotesLiveHouse
         roll_type = doc.at("vote-question").inner_text
         question = question_for doc, roll_type, bill_type, bill_number
         
-        vote = Vote.new :roll_id => roll_id
+        vote = Vote.find_or_initialize_by roll_id: roll_id
         vote.attributes = {
           :vote_type => Utils.vote_type_for(roll_type, roll_type),
           :how => "roll",
@@ -135,23 +133,19 @@ class VotesLiveHouse
           end
         end
         
-        if vote.save
-          # replicate it in ElasticSearch
-          Utils.search_index_vote! votes_client, roll_id, vote.attributes
+        vote.save!
+        # replicate it in ElasticSearch
+        Utils.search_index_vote! roll_id, vote.attributes
 
-          count += 1
-          puts "[#{roll_id}] Saved successfully"
-        else
-          bad_votes << {:error_messages => vote.errors.full_messages, :roll_id => roll_id}
-          puts "[#{roll_id}] Error saving, will file report"
-        end
+        count += 1
+        puts "[#{roll_id}] Saved successfully"
         
       else
         bad_fetches << {:number => number, :url => url, :exception => {:message => exception.message, :type => exception.class.to_s}}
       end
     end
 
-    votes_client.refresh
+    Utils.es_refresh! 'votes'
     
     if bad_votes.any?
       Report.failure self, "Failed to save #{bad_votes.size} roll calls. Attached the last failed roll's attributes and error messages.", {:bad_vote => bad_votes.last}

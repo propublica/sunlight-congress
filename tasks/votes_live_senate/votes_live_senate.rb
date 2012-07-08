@@ -12,8 +12,6 @@ class VotesLiveSenate
     
     missing_bill_ids = []
     missing_amendment_ids = []
-
-    votes_client = Searchable.client_for 'votes'
     
     # will be referenced by LIS ID as a cache built up as we parse through votes
     legislators = {}
@@ -43,7 +41,7 @@ class VotesLiveSenate
     # check last 50 rolls, see if any are missing from our database
     to_fetch = []
     (latest_roll-50).upto(latest_roll) do |number|
-      if (number > 0) and Vote.where(:roll_id => "s#{number}-#{year}").first.nil?
+      if (number > 0) # and Vote.where(:roll_id => "s#{number}-#{year}").first.nil?
         to_fetch << number
       end
     end
@@ -133,7 +131,7 @@ class VotesLiveSenate
         
         if vote.save
           # replicate it in ElasticSearch
-          Utils.search_index_vote! votes_client, roll_id, vote.attributes
+          Utils.search_index_vote! roll_id, vote.attributes
 
           count += 1
           puts "[#{roll_id}] Saved successfully"
@@ -147,7 +145,7 @@ class VotesLiveSenate
       end
     end
 
-    votes_client.refresh
+    Utils.es_refresh! 'votes'
     
     if bad_votes.any?
       Report.failure self, "Failed to save #{bad_votes.size} roll calls. Attached the last failed roll's attributes and error messages.", {:bad_vote => bad_votes.last}

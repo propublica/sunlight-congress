@@ -448,7 +448,7 @@ module Utils
 
   # takes an attribute hash that belongs to a vote, and indexes it in ElasticSearch by the given ID
   # will look up an associated bill by ID and will grab its searchable fields as appropriate
-  def self.search_index_vote!(client, vote_id, attributes)
+  def self.search_index_vote!(vote_id, attributes)
     attributes.delete '_id'
 
     attributes.delete 'voters'
@@ -473,7 +473,7 @@ module Utils
       end
     end
 
-    client.index attributes, :id => vote_id
+    es_store! 'votes', vote_id, attributes
   end
 
   # transmutes hash of voter_ids as it appears in the mongo endpoint, 
