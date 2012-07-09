@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'curb'
 
+require './tasks/regulations_archive/regulations_archive'
+
 class RegulationsFullText
 
   # Indexes full text of proposed and final regulations into ElasticSearch.
@@ -19,20 +21,15 @@ class RegulationsFullText
 
     # mark only one year for rearchiving
     if options[:rearchive_year]
-      Regulation.where(:year => options[:rearchive_year].to_i).update_all :indexed => false
-    end
-
-    # initialize disk for cache
-    (1994.upto(Time.now.year)).to_a.each do |year|
-      FileUtils.mkdir_p "data/federalregister/#{year}"
+      Regulation.where(year: options[:rearchive_year].to_i).update_all indexed: false
     end
 
     count = 0
 
     if document_number
-      targets = Regulation.where :document_number => document_number
+      targets = Regulation.where document_number: document_number
     else
-      targets = Regulation.where :indexed => false
+      targets = Regulation.where indexed: false
     end
 
     if limit
@@ -46,21 +43,19 @@ class RegulationsFullText
 
       document_number = regulation['document_number']
       year = regulation['published_at'].year
-      doc = nil
+      full_text = nil
 
       if regulation['full_text_xml_url']
-        doc = doc_for :xml, document_number, year, regulation['full_text_xml_url'], options  
-      
+        full_text = text_for :article, document_number, :xml, regulation['full_text_xml_url'], options
+        
       elsif regulation['body_html_url'] 
-        doc = doc_for :html, document_number, year, regulation['body_html_url'], options
+        full_text = text_for :article, document_number, :html, regulation['body_html_url'], options
 
       else
         missing_links << document_number
       end
 
-      next unless doc # warning will have been filed
-
-      full_text = full_text_for doc, options
+      next unless full_text # warning will have been filed
 
       # extract USC citations, place them on both elasticsearch and mongo objects
       usc_extracted_ids = []
@@ -69,7 +64,7 @@ class RegulationsFullText
         usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
       else
         usc_extracted = []
-        usc_warnings << {:message => "Failed to extract USC from #{document_number}"}
+        usc_warnings << {message: "Failed to extract USC from #{document_number}"}
       end
 
       # temporary
@@ -114,50 +109,47 @@ class RegulationsFullText
     Report.success self, "Indexed #{count} regulations as searchable"
   end
 
-  def self.doc_for(type, document_number, year, url, options)
-    cache_path = cache_path_for type, document_number, year
+  def self.text_for(document_type, document_number, format, url, options)
+    destination = RegulationsArchive.destination_for document_type, document_number, format
 
     body = nil
     # use cache if it exists, unless 
-    if File.exists?(cache_path) and options[:redownload].blank?
-      puts "[#{document_number}] Using cached #{type.to_s.upcase} from FR.gov" if options[:debug]
+    if File.exists?(destination) and options[:redownload].blank?
+      puts "[#{document_number}] Using cached #{format.to_s.upcase} from FR.gov" if options[:debug]
       # don't fetch, it's here
 
     else
-
-      puts "[#{document_number}] Fetching #{type.to_s.upcase} from FR.gov..." if options[:debug]
-      unless Utils.curl url, cache_path
+      puts "[#{document_number}] Fetching #{format.to_s.upcase} from FR.gov..." if options[:debug]
+      unless Utils.curl(url, destination)
         Report.warning self, "Error while polling FR.gov, aborting for now", :url => url
         return nil
       end
 
     end
 
-    # cache had better exist now
-    unless File.exists?(cache_path)
-      Report.warning self, "Couldn't download file, aborting", :url => url, :cache_path => cache_path
-      return nil
-    end
+    body = open destination
 
-    body = open cache_path
-
-    if type == :xml
-      Nokogiri::XML body
-    else
-      Nokogiri::HTML body
+    if format == :xml
+      text = full_text_for Nokogiri::XML(body), options
+      text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
+      Utils.write text_destination, text
+    elsif format == :html
+      full_text_for Nokogiri::HTML(body), options
+      text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
+      Utils.write text_destination, text
+    else # text, it's done
+      body
     end
   end
 
   def self.full_text_for(doc, options)
+    return nil unless doc
+
     strings = (doc/"//*/text()").map do |text| 
       text.inner_text.strip
     end.select {|text| text.present?}
 
     strings.join " "
-  end
-
-  def self.cache_path_for(type, document_number, year)
-    "data/federalregister/#{year}/#{document_number}.#{type}"
   end
 
 end

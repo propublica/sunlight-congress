@@ -50,7 +50,9 @@ module Utils
     if destination
       return nil unless body
       
+      FileUtils.mkdir_p File.dirname(destination)
       File.open(destination, 'w') {|f| f.write(body)}
+
       curl
 
     # otherwise, returns the body of the response
@@ -60,9 +62,27 @@ module Utils
     
   end
 
+  # return the JSON from a URL, cache on the filesystem at the given destination if provided
+  # takes over destination writing in order to save in pretty format
+  def self.json_for(url, destination = nil)
+    return nil unless body = curl(url)
+    parsed = Yajl::Parser.parse(body)
+
+    if destination
+      write destination, JSON.pretty_generate(parsed)
+    end
+      
+    parsed
+  end
+
+  def self.write(destination, content)
+    FileUtils.mkdir_p File.dirname(destination)
+    File.open(destination, 'w') {|f| f.write content}
+  end
+
   def self.html_for(url)
     body = curl url
-    body ? Nokogiri::HTML(body) : nil
+    body ? Nokogii::HTML(body) : nil
   end
 
   def self.xml_for(url)
