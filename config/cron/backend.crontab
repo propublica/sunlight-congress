@@ -49,8 +49,10 @@
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
 
 # regulations
-*/60 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
-*/60 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text
+# by default, will get last 7 days, very quick, especially with caching
+*/2 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
+# by default, only indexes unindexed regulations, take new batches 100 at a time every 5min
+*/5 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text limit=100
 
 
 
