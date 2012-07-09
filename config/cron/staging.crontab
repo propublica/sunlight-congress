@@ -13,6 +13,7 @@
 
 # video
 0 9 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True
+0 7 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True senate=True
 
 
 # votes -
