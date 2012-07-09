@@ -12,12 +12,19 @@ class RegulationsFullText
   # options:
   #   limit: limit it to a set number of, instead of all, unindexed regulations.
   #   document_number: index only a specific document.
+  #   document_type: only a certain type of document (article, public_inspection)
+  #
+  #   rearchive: mark everything as unindexed and re-index everything.
   #   rearchive_year: mark everything in a given year as unindexed and re-index everything.
   #   redownload: ignore cached files
 
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
     document_number = options[:document_number]
+
+    if options[:rearchive]
+      Regulation.update_all indexed: false
+    end
 
     # mark only one year for rearchiving
     if options[:rearchive_year]
@@ -30,6 +37,10 @@ class RegulationsFullText
       targets = Regulation.where document_number: document_number
     else
       targets = Regulation.where indexed: false
+      
+      if options[:document_type]
+        targets = targets.where document_type: options[:document_type]
+      end
     end
 
     if limit
@@ -42,17 +53,25 @@ class RegulationsFullText
     targets.each do |regulation|
 
       document_number = regulation['document_number']
-      year = regulation['published_at'].year
+
       full_text = nil
 
-      if regulation['full_text_xml_url']
-        full_text = text_for :article, document_number, :xml, regulation['full_text_xml_url'], options
-        
-      elsif regulation['body_html_url'] 
-        full_text = text_for :article, document_number, :html, regulation['body_html_url'], options
+      if regulation['document_type'] == 'article'
+        if regulation['full_text_xml_url']
+          full_text = text_for :article, document_number, :xml, regulation['full_text_xml_url'], options
+          
+        elsif regulation['body_html_url'] 
+          full_text = text_for :article, document_number, :html, regulation['body_html_url'], options
 
+        else
+          missing_links << document_number
+        end
       else
-        missing_links << document_number
+        if regulation['raw_text_url']
+          full_text = text_for :public_inspection, document_number, :txt, regulation['raw_text_url'], options
+        else
+          missing_links << document_number
+        end
       end
 
       next unless full_text # warning will have been filed
@@ -127,16 +146,18 @@ class RegulationsFullText
 
     end
 
-    body = open destination
+    body = File.read destination
 
     if format == :xml
       text = full_text_for Nokogiri::XML(body), options
       text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
       Utils.write text_destination, text
+      text
     elsif format == :html
-      full_text_for Nokogiri::HTML(body), options
+      text = full_text_for Nokogiri::HTML(body), options
       text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
       Utils.write text_destination, text
+      text
     else # text, it's done
       body
     end
