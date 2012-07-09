@@ -15,15 +15,13 @@
 0 9 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True
 
 
-# votes -
-
-# download all house votes for the last 10 votes every 5 minutes
-# re-download all house votes for the year, once a day, to catch corrections
+# votes from house and senate, download last 10 votes every 5 minutes
 */5 * * * * /projects/rtc/shared/cron/task.sh votes_house latest=10
-0 9 * * *   /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1
+*/5 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
 
-# update database with live votes every 5 minutes
-*/5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
+# re-download all votes for the year, once a day, to catch corrections
+0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1
+0 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate archive=1 force=1
 
 
 # floor updates

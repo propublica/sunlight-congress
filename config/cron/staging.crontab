@@ -20,8 +20,7 @@
 # download all house votes for the last 10 votes every 2 hours (staging)
 # don't bother re-downloading votes for the year on staging
 */120 * * * * /projects/rtc/shared/cron/task.sh votes_house latest=10
-
-*/120 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
+*/120 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
 
 
 # floor updates
