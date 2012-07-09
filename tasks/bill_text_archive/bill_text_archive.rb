@@ -3,14 +3,11 @@ require 'nokogiri'
 class BillTextArchive
 
   # Indexes full text of versions of bills into ElasticSearch.
-  # Takes any bills in MongoDB that have not been marked as indexed, 
-  # indexes them, and marks them so.
-
+  # 
   # options:
-  #   limit: limit it to a set number of, instead of all, unindexed bills.
-  #   bill_id: index only a specific document.
-  #   rearchive_session: mark everything in a given year as unindexed and re-index everything.
-
+  #   session: which session (e.g. 111, 112) of Congress to load
+  #   limit: number of bills to stop at (useful for development)
+  #   bill_id: index only a specific bill.
   
   def self.run(options = {})
     session = options[:session] ? options[:session].to_i : Utils.current_session
