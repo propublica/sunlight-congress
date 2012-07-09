@@ -6,7 +6,7 @@ class Regulation
 
   include Searchable::Model
 
-  result_fields :document_type, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+  result_fields :document_type, :stage, :rins, :docket_ids, :publication_date, :published_at, :abstract, :title, :effective_at,
     :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year,
     # public inspection fields
     :pdf_url, :pdf_updated_at, :num_pages, :raw_text_url, :filed_at
