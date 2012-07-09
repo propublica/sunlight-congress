@@ -32,8 +32,12 @@ class VotesHouse
     if options[:number]
       to_get = [options[:number].to_i]
     else
+
       # count down from the top
-      latest_roll = latest_roll_for year, options
+      unless latest_roll = latest_roll_for(year, options)
+        Report.failure self, "Failed to find the latest new roll on the clerk's page, can't go on."
+        return
+      end
       
       if options[:archive]
         from_roll = 1
