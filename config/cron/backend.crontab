@@ -1,10 +1,10 @@
-# legislators and committees
+# legislators and committees from Sunlight API
 0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
 
-# bills, votes, amendments
+# bills, amendments from THOMAS through GovTrack
 0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_archive && /projects/rtc/shared/cron/task.sh amendments_archive
 
-# full bill text
+# full bill text from GPO
 */30 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
 0 5,11 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
 
@@ -19,17 +19,15 @@
 
 # download all house votes for the last 10 votes every 5 minutes
 # re-download all house votes for the year, once a day, to catch corrections
-*/5 * * * * /projects/rtc/shared/cron/task.sh bulk_votes_house latest=10
-0 9 * * *   /projects/rtc/shared/cron/task.sh bulk_votes_house archive=1 force=1
+*/5 * * * * /projects/rtc/shared/cron/task.sh votes_house latest=10
+0 9 * * *   /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1
 
 # update database with live votes every 5 minutes
-# these will change to every 1 minute when they are looking on disk instead of the network
-*/5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_house
 */5 * * * *  /projects/rtc/shared/cron/task.sh votes_live_senate
 
 
 # floor updates
-*/2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
+*/1 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
 */2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
 
 # whip notices
@@ -51,7 +49,7 @@
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
 
-# regulations (experimental)
+# regulations
 */60 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
 */60 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text
 
