@@ -6,8 +6,10 @@ class Regulation
 
   include Searchable::Model
 
-  result_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
-    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year
+  result_fields :document_type, :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,
+    :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year,
+    # public inspection fields
+    :pdf_url, :pdf_updated_at, :num_pages, :raw_text_url, :filed_at
   
   searchable_fields :title, :abstract, :full_text
 
@@ -35,6 +37,8 @@ class Regulation
   index :agencies
   index :usc_extracted_ids
   index :year
+  index :filed_at
+  index :pdf_updated_at
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number

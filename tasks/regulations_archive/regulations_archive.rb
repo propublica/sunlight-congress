@@ -221,6 +221,7 @@ class RegulationsArchive
         num_pages: details['num_pages'],
         pdf_updated_at: details['pdf_updated_at'],
         raw_text_url: details['raw_text_url'],
+        filed_at: details['filed_at'],
 
         # different key name for PI docs for some reason
         docket_ids: details['docket_numbers'],
