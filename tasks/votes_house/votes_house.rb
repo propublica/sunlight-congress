@@ -353,18 +353,14 @@ class VotesHouse
   end
   
   def self.voted_at_for(doc)
-    # make sure we're set to EST
-    Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
-    
     datestamp = doc.at("action-date").inner_text
     timestamp = doc.at("action-time").inner_text
 
-    # don't use Utils.utc_parse here, constructing a local time manually from two timestamps
-    date = Time.parse datestamp
+    date = Utils.utc_parse datestamp
 
     if timestamp.present?
-      time = Time.parse timestamp
-      Time.local date.year, date.month, date.day, time.hour, time.min, time.sec
+      time = Utils.utc_parse timestamp
+      Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
     else
       Utils.noon_utc_for date
     end

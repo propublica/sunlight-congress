@@ -1,5 +1,4 @@
 require 'nokogiri'
-require 'tzinfo'
 
 class VotesSenate
 
@@ -311,9 +310,6 @@ class VotesSenate
   end
   
   def self.voted_at_for(doc)
-    # make sure we're set to EST
-    Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
-    
     Utils.utc_parse doc.at("vote_date").text
   end
 
