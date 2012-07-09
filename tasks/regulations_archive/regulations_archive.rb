@@ -196,6 +196,7 @@ class RegulationsArchive
 
       federal_register_url: details['html_url'],
       federal_register_json_url: url,
+      pdf_url: details['pdf_url'],
 
       document_type: document_type.to_s
     }
@@ -217,7 +218,6 @@ class RegulationsArchive
 
     elsif document_type == :public_inspection
       rule.attributes = {
-        pdf_url: details['pdf_url'],
         num_pages: details['num_pages'],
         pdf_updated_at: details['pdf_updated_at'],
         raw_text_url: details['raw_text_url'],
