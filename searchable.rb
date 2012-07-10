@@ -236,7 +236,7 @@ module Searchable
       {
         :query => query,
         :sort => order,
-        :fields => fields.map {|field| "_source.#{field}"}
+        :fields => fields
       }.merge(other), 
      
       # pagination info has to go into the second hash or rubberband messes it up
@@ -258,9 +258,7 @@ module Searchable
     end
     
     hit.fields.each do |key, value| 
-      field = key.sub /^_source\./, ""
-      
-      break_out attributes, field.split('.'), value
+      break_out attributes, key.split('.'), value
     end
     
     attributes.merge :search => search
