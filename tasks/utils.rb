@@ -49,7 +49,7 @@ module Utils
     # returns true or false if a destination is given
     if destination
       return nil unless body
-      write body
+      write destination, body
       curl
 
     # otherwise, returns the body of the response
