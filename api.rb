@@ -44,11 +44,15 @@ get searchable_route do
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
   
-  halt 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
+  error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
 
   term = Searchable.term_for params
   fields = Searchable.fields_for model, params
   search_fields = Searchable.search_fields_for model, params
+
+  if search_fields.empty?
+    error 400, "You must search one of the following fields for #{params[:captures][0]}: #{model.searchable_fields.join(", ")}"
+  end
   
   if params[:query]
     query = Searchable.query_for term, model, params, search_fields
@@ -77,6 +81,21 @@ end
 
 
 helpers do
+
+  def error(status, message)
+    format = params[:captures][1]
+
+    results = {
+      error: message,
+      status: status
+    }
+
+    if format == "json"
+      halt 200, json(results)
+    else
+      halt 200, xml(results)
+    end
+  end
   
   def json(results)
     response['Content-Type'] = 'application/json'
