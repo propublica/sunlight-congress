@@ -332,7 +332,8 @@ class VotesSenate
     end
       
     unless curl.content_type == "application/xml"
-      failures << {message: "Wrong content type", url: url, destination: destination, content_type: curl.content_type}
+      # don't consider it a failure - the vote's probably just not up yet
+      # failures << {message: "Wrong content type", url: url, destination: destination, content_type: curl.content_type}
       FileUtils.rm destination # delete bad file from the cache
       return false
     end
