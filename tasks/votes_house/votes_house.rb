@@ -224,6 +224,7 @@ class VotesHouse
     # 404s come back as 200's, and are HTML documents
     unless curl.content_type == "text/xml"
       failures << {message: "Probably 404", url: url, destination: destination, content_type: curl.content_type}
+      FileUtils.rm destination
       return false
     end
 
@@ -240,6 +241,7 @@ class VotesHouse
         rescue
           puts "\tFailed strict XML check, assuming it's still truncated" if options[:debug]
           failures << {message: "Failed check", url: url, destination: destination, content_length: curl.downloaded_content_length}
+          FileUtils.rm destination
           return false
         else
           puts "\tOK, passes strict XML check, accepting it" if options[:debug]

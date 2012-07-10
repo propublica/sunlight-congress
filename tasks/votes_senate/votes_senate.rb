@@ -84,7 +84,7 @@ class VotesSenate
       bill_id = bill_id_for doc, session
       amendment_id = amendment_id_for doc, session
       voter_ids, voters = votes_for doc, legislators, missing_legislators
-      
+
       roll_type = doc.at("question").text
       question = doc.at("vote_question_text").text
       result = doc.at("vote_result").text
@@ -333,6 +333,7 @@ class VotesSenate
       
     unless curl.content_type == "application/xml"
       failures << {message: "Wrong content type", url: url, destination: destination, content_type: curl.content_type}
+      FileUtils.rm destination # delete bad file from the cache
       return false
     end
 
@@ -349,6 +350,7 @@ class VotesSenate
         rescue
           puts "\tFailed strict XML check, assuming it's still truncated" if options[:debug]
           failures << {message: "Failed check", url: url, destination: destination, content_length: curl.downloaded_content_length}
+          FileUtils.rm destination
           return false
         else
           puts "\tOK, passes strict XML check, accepting it" if options[:debug]
