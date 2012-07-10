@@ -82,7 +82,7 @@ module Utils
 
   def self.html_for(url)
     body = curl url
-    body ? Nokogii::HTML(body) : nil
+    body ? Nokogiri::HTML(body) : nil
   end
 
   def self.xml_for(url)
