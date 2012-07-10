@@ -8,6 +8,8 @@ class RegulationsArchive
 
   # options:
   #   document_number: index a specific document only.
+  #   public_inspection: if document_number is given, get the public_inspection version.
+  #
   #   year: 
   #     if month is given, is combined with month to index that specific month.
   #     if month is not given, indexes entire year's regulations (12 calls, one per month)
@@ -189,7 +191,6 @@ class RegulationsArchive
     # common to public inspection documents and to articles
     rule.attributes = {
       stage: type_to_stage[details['type']],
-      title: details['title'], # can be blank for PIs sometimes
       agency_names: details['agencies'].map {|agency| agency['name']},
       agency_ids: details['agencies'].map {|agency| agency['id']},
       publication_date: details['publication_date'],
@@ -203,6 +204,7 @@ class RegulationsArchive
 
     if document_type == :article
       rule.attributes = {
+        title: details['title'],
         abstract: details['abstract'],
         effective_at: details['effective_on'],
         full_text_xml_url: details['full_text_xml_url'],
@@ -217,7 +219,18 @@ class RegulationsArchive
       }
 
     elsif document_type == :public_inspection
+      # The title field can sometimes be blank, in which case it can be cobbled together.
+      # According to FR.gov team, this produces the final title 95% of the time.
+      # They aren't comfortable with calling it the 'title' - but I think I am.
+      title = nil
+      if details['title'].present?
+        title = details['title']
+      elsif details['toc_subject'].present? and details['toc_doc'].present?
+        title = [details['toc_subject'], details['toc_doc']].join(" ")
+      end
+
       rule.attributes = {
+        title: title,
         num_pages: details['num_pages'],
         pdf_updated_at: details['pdf_updated_at'],
         raw_text_url: details['raw_text_url'],
