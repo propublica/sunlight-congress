@@ -80,7 +80,7 @@ helpers do
   
   def json(results)
     response['Content-Type'] = 'application/json'
-    json = results.to_json
+    json = Oj.dump results, mode: :compat, time_format: :ruby
     params[:callback].present? ? "#{params[:callback]}(#{json});" : json
   end
   

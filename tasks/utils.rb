@@ -2,7 +2,7 @@ require 'nokogiri'
 require 'curb'
 require 'httparty'
 require 'tire'
-
+require 'yajl'
 
 module Utils
 
