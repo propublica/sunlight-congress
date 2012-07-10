@@ -59,13 +59,36 @@ def run(db, es, options = {}):
           # content is double-escaped, e.g. &amp;quot;
           description = parser.unescape(parser.unescape(description))
           
-          hearing = db.get_or_initialize('committee_hearings', {
-              'chamber': 'senate', 
-              'committee_id': committee_id, 
-              'occurs_at': occurs_at
+
+          documents = db['committee_hearings'].find({
+            'chamber': 'senate', 
+            'committee_id': committee_id, 
+              
+            "$or": [{
+              'occurs_at': occurs_at,
+              'description': description
+            }]
           })
+
+          hearing = None
+          if documents.count() > 0:
+            hearing = documents[0]
+          else:
+            hearing = {
+              'chamber': 'senate', 
+              'committee_id': committee_id
+            }
+            hearing['created_at'] = datetime.datetime.now()
+          
+          hearing['updated_at'] = datetime.datetime.now()
+
+          
+          if hearing.has_key('_id'):
+            print hearing['_id']
+
           
           hearing.update({
+            'occurs_at': occurs_at,
             'room': room, 
             'description': description, 
             'legislative_day': legislative_day,
