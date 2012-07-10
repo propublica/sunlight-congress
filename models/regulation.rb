@@ -39,6 +39,7 @@ class Regulation
   index :year
   index :filed_at
   index :pdf_updated_at
+  index :indexed
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number
