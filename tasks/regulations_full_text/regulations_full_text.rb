@@ -149,21 +149,21 @@ class RegulationsFullText
     body = File.read destination
 
     if format == :xml
-      text = full_text_for Nokogiri::XML(body), options
+      text = full_text_for Nokogiri::XML(body)
       text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
       Utils.write text_destination, text
       text
     elsif format == :html
-      text = full_text_for Nokogiri::HTML(body), options
+      text = full_text_for Nokogiri::HTML(body)
       text_destination = RegulationsArchive.destination_for document_type, document_number, :txt
       Utils.write text_destination, text
       text
     else # text, it's done
-      body
+      pi_text_for body
     end
   end
 
-  def self.full_text_for(doc, options)
+  def self.full_text_for(doc)
     return nil unless doc
 
     strings = (doc/"//*/text()").map do |text| 
@@ -171,6 +171,10 @@ class RegulationsFullText
     end.select {|text| text.present?}
 
     strings.join " "
+  end
+
+  def self.pi_text_for(body)
+    body.gsub /[\n\r]/, ' '
   end
 
 end
