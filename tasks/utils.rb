@@ -49,10 +49,7 @@ module Utils
     # returns true or false if a destination is given
     if destination
       return nil unless body
-      
-      FileUtils.mkdir_p File.dirname(destination)
-      File.open(destination, 'w') {|f| f.write(body)}
-
+      write body
       curl
 
     # otherwise, returns the body of the response
