@@ -82,11 +82,6 @@ def run(db, es, options = {}):
             hearing['created_at'] = datetime.datetime.now()
           
           hearing['updated_at'] = datetime.datetime.now()
-
-          
-          if hearing.has_key('_id'):
-            print hearing['_id']
-
           
           hearing.update({
             'occurs_at': occurs_at,
@@ -94,7 +89,8 @@ def run(db, es, options = {}):
             'description': description, 
             'legislative_day': legislative_day,
             'time_of_day': time_of_day,
-            'session': session
+            'session': session,
+            'dc': True
           })
           
           if committee:
