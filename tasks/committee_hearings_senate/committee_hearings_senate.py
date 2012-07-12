@@ -65,7 +65,8 @@ def run(db, es, options = {}):
             'committee_id': committee_id, 
               
             "$or": [{
-              'occurs_at': occurs_at,
+              'occurs_at': occurs_at
+              },{
               'description': description
             }]
           })
