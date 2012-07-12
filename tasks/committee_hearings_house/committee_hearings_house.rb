@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'nokogiri'
 
 class CommitteeHearingsHouse
@@ -75,6 +77,7 @@ class CommitteeHearingsHouse
 
       header = h3.inner_text.strip
       hearing_type, title = split_header header
+      title = remove_smart_characters title
       hearing_url = h3.at("a")['href']
 
       committee_name = body.at("a").inner_text.strip
@@ -191,6 +194,14 @@ class CommitteeHearingsHouse
     string.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)/i).map do |match|
       "#{match[0].downcase.gsub(/[\s\.]/, '').gsub("con", "c")}-#{session}"
     end.uniq
+  end
+
+  def self.remove_smart_characters(text)
+    text.
+      gsub("\342\200\231", "'").
+      gsub("\302\240", " ").
+      gsub("\342\200\234", "\"").
+      gsub("\342\200\235", "\"")
   end
 
 end
