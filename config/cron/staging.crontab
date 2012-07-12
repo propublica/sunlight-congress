@@ -33,6 +33,7 @@
 
 # committee hearings
 */120 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_senate
+*/120 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_house
 
 # CRS reports
 0 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
