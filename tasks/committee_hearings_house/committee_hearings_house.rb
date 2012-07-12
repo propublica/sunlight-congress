@@ -150,7 +150,8 @@ class CommitteeHearingsHouse
   # doesn't handle subcommittees right now
   def self.committee_for(committee_name)
     # ignore case
-    Committee.where(name: /^House #{committee_name}$/i).first
+    name = (committee_name !~ /^(?:House|Joint) /) ? "House #{committee_name}" : committee_name
+    Committee.where(name: /^#{name}$/i).first
   end
 
   def self.room_for(room)
