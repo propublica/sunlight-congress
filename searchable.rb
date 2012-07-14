@@ -160,14 +160,20 @@ module Searchable
     request = request_for query, filter, fields, order, pagination, other
     
     begin
-      results = search_for mapping, request
+      results = search_for mapping, request, explain: other[:explain]
+
+      # subject to a race condition here, need to think of a better solution than a class variable
+      # but in practice, the explain mode is not going to be used in production, only debugging
+      # so the chance of an actual race is low.
+      last_request = ExplainLogger.last_request
+      last_response = ExplainLogger.last_response
       
       {
-        :request => request,
         :query => term,
         :mapping => mapping,
         :count => results.total_entries,
-        :response => results.response
+        :request => last_request,
+        :response => last_response
       }
     rescue ElasticSearch::RequestError => exc
       {
@@ -219,8 +225,8 @@ module Searchable
     options
   end
   
-  def self.search_for(mapping, request)
-    client = client_for mapping
+  def self.search_for(mapping, request, client_options = {})
+    client = client_for mapping, client_options
     client.search request[0], request[1]
   end
   
@@ -355,15 +361,45 @@ module Searchable
     @config
   end
   
-  def self.client_for(document_type)
+  def self.client_for(document_type, options = {})
     full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     index = "#{config['elastic_search']['index_prefix']}_#{document_type}"
-    ElasticSearch.new "http://#{full_host}", :index => index, :type => document_type
+    
+    ElasticSearch.new("http://#{full_host}", :index => index, :type => document_type) do |conn|
+      if options[:explain]
+        conn.response :explain_logger
+      end
+
+      conn.adapter Faraday.default_adapter
+    end
   end
 
   def self.index_for(collection)
     index_prefix = config['elastic_search']['index_prefix']
     Tire.index "#{index_prefix}_#{collection}"
+  end
+
+  class ExplainLogger < Faraday::Response::Middleware
+
+    def self.last_request; @@last_request; end
+    def self.last_response; @@last_response; end
+
+    def call(env)
+      # puts "request: #{env.inspect}\n\n"
+      @@last_request = {
+        body: env[:body] ? ::Oj::load(env[:body], mode: :compat) : nil, 
+        url: env[:url].to_s
+      }
+      super
+    end
+
+    def on_complete(env)
+      # puts "response: #{env.inspect}\n\n"
+      @@last_response = {
+        body: env[:body] ? ::Oj::load(env[:body], mode: :compat) : nil,
+        url: env[:url].to_s
+      }
+    end
   end
 
   module Model

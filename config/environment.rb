@@ -10,6 +10,11 @@ require 'tire'
 Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
 
 
+# workhorse API handlers
+require './queryable'
+require './searchable'
+
+
 # app-wide configuration
 
 def config
@@ -21,7 +26,10 @@ configure do
   config['mongoid']['logger'] = Logger.new config['log_file'] if config['log_file']
   Mongoid.configure {|c| c.from_hash config['mongoid']}
   
-  # configure elasticsearch client
+  # configure elasticsearch client #1 (rubberband, for searching)
+  Faraday.register_middleware :response, :explain_logger => Searchable::ExplainLogger
+
+  # configure elasticsearch client #2 (Tire, for indexing)
   host = config['elastic_search']['host']
   port = config['elastic_search']['port']
   Tire.configure do
@@ -44,9 +52,7 @@ end
 
 
 # load in REST helpers and models
-require './queryable'
 Queryable.add_magic_fields magic_fields
-require './searchable'
 Searchable.add_magic_fields magic_fields
 Searchable.config = config
 

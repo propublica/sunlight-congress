@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
-gem 'yajl-ruby', '1.1.0'
 gem 'oj', '1.3.0'
+gem 'yajl-ruby', '1.1.0'
 gem 'tzinfo', '0.3.23'
 
 gem 'sinatra', '1.3.2'
@@ -31,5 +31,5 @@ gem 'httparty', '0.7.8'
 gem 'feedzirra', '0.2.0rc2'
 
 # elasticsearch
-gem 'rubberband', '0.1.5'
+gem 'rubberband', '0.9.0'
 gem 'tire', '0.4.2'
