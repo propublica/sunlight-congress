@@ -26,8 +26,6 @@ before do
 end
 
 get queryable_route do
-  fields_check
-
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
 
@@ -51,7 +49,6 @@ end
 
 
 get searchable_route do
-  fields_check
   error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
 
   model = params[:captures][0].singularize.camelize.constantize
