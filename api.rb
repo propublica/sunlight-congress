@@ -26,7 +26,7 @@ before do
 end
 
 get queryable_route do
-  error 400, "The 'fields' parameter is required." unless params[:fields].present?
+  fields_check
 
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
@@ -51,9 +51,9 @@ end
 
 
 get searchable_route do
-  error 400, "The 'fields' parameter is required." unless params[:fields].present?
+  fields_check
   error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
-  
+
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
 
@@ -92,6 +92,12 @@ end
 
 
 helpers do
+
+  def fields_check
+    unless (params[:per_page] == "1") or params[:fields].present?
+      error 400, "The 'fields' parameter is required for a per_page of > 1."
+    end
+  end
 
   def error(status, message)
     format = params[:captures][1]

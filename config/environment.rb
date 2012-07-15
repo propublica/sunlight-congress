@@ -46,12 +46,14 @@ def magic_fields
   [
     # common parameters
     :sections, :fields,
-    :basic,
     :order, :sort, 
     :page, :per_page,
     :explain,
 
-    :apikey, 
+    # can't use these as field names, even though they're not used as params
+    :basic,
+
+    :apikey, # API key gating
     :callback, :_, # jsonp support (_ is to allow cache-busting)
     :captures, :splat # Sinatra keywords to do route parsing
   ]
