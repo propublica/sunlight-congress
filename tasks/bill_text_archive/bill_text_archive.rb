@@ -116,18 +116,18 @@ class BillTextArchive
         full_text = clean_text full_text
 
 
-        # extract US Code citations
-        usc_extracted_ids, usc_extracted = Utils.extract_usc full_text
-        unless usc_extracted_ids.is_a?(Array)
-        #   warnings << {'message' => "Error in parsing response from citation API - #{usc_extracted.message}", 'type' => usc_extracted.class.to_s, 'backtrace' => usc_extracted.backtrace}
-          warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
-          usc_extracted_ids, usc_extracted = [[], []]
-        end
+        # # extract US Code citations
+        # usc_extracted_ids, usc_extracted = Utils.extract_usc full_text
+        # unless usc_extracted_ids.is_a?(Array)
+        # #   warnings << {'message' => "Error in parsing response from citation API - #{usc_extracted.message}", 'type' => usc_extracted.class.to_s, 'backtrace' => usc_extracted.backtrace}
+        #   warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
+        #   usc_extracted_ids, usc_extracted = [[], []]
+        # end
 
-        # temporary
-        if usc_extracted_ids.any?
-          puts "\t[#{bill_version_id}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
-        end
+        # # temporary
+        # if usc_extracted_ids.any?
+        #   puts "\t[#{bill_version_id}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
+        # end
         
 
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
@@ -139,8 +139,8 @@ class BillTextArchive
           :version_name => version_name,
           :issued_on => issued_on,
           :urls => urls,
-          :usc_extracted => usc_extracted,
-          :usc_extracted_ids => usc_extracted_ids,
+          # :usc_extracted => usc_extracted,
+          # :usc_extracted_ids => usc_extracted_ids,
           
           :bill => bill_fields,
           :full_text => full_text
@@ -164,8 +164,8 @@ class BillTextArchive
           :version_name => version_name,
           :bill_version_id => bill_version_id,
           :urls => urls,
-          :usc_extracted => usc_extracted,
-          :usc_extracted_ids => usc_extracted_ids
+          # :usc_extracted => usc_extracted,
+          # :usc_extracted_ids => usc_extracted_ids
         }
       end
       
@@ -182,8 +182,8 @@ class BillTextArchive
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
 
-      usc_extracted = last_version[:usc_extracted]
-      usc_extracted_ids = last_version[:usc_extracted_ids]
+      # usc_extracted = last_version[:usc_extracted]
+      # usc_extracted_ids = last_version[:usc_extracted_ids]
       
       puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
@@ -196,8 +196,8 @@ class BillTextArchive
           :versions_count => versions_count,
           :last_version => last_version,
           :last_version_on => last_version_on,
-          :usc_extracted => usc_extracted,
-          :usc_extracted_ids => usc_extracted_ids,
+          # :usc_extracted => usc_extracted,
+          # :usc_extracted_ids => usc_extracted_ids,
 
           :updated_at => Time.now
         )
@@ -212,8 +212,8 @@ class BillTextArchive
         :versions_count => versions_count,
         :last_version => last_version,
         :last_version_on => last_version_on,
-        :usc_extracted => usc_extracted,
-        :usc_extracted_ids => usc_extracted_ids
+        # :usc_extracted => usc_extracted,
+        # :usc_extracted_ids => usc_extracted_ids
       }
 
       bill.save!
