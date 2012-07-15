@@ -16,8 +16,18 @@ configure(:development) do |config|
   config.also_reload "./searchable.rb"
 end
 
+# backwards compatibility - 'sections' will still work
+before do
+  if params[:sections].present?
+    params[:fields] = params[:sections]
+  elsif params[:fields].present?
+    params[:sections] = params[:fields]
+  end
+end
 
 get queryable_route do
+  error 400, "The 'fields' parameter is required." unless params[:fields].present?
+
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
 
@@ -41,10 +51,11 @@ end
 
 
 get searchable_route do
+  error 400, "The 'fields' parameter is required." unless params[:fields].present?
+  error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
+  
   model = params[:captures][0].singularize.camelize.constantize
   format = params[:captures][1]
-  
-  error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
 
   term = Searchable.term_for params
   fields = Searchable.fields_for model, params

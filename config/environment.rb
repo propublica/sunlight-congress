@@ -44,6 +44,13 @@ end
 # special fields used by the system, cannot be used on a model (on the top level)
 def magic_fields
   [
+    # common parameters
+    :sections, :fields,
+    :basic,
+    :order, :sort, 
+    :page, :per_page,
+    :explain,
+
     :apikey, 
     :callback, :_, # jsonp support (_ is to allow cache-busting)
     :captures, :splat # Sinatra keywords to do route parsing

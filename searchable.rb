@@ -335,11 +335,8 @@ module Searchable
   
   def self.original_magic_fields
     [
-      :sections, :basic,
-      :order, :sort, 
-      :page, :per_page,
-      :search, :query, :q,
-      :explain,
+      :search, 
+      :query, :q,
       :highlight, :highlight_tags, :highlight_size,
       :default_operator
     ]
