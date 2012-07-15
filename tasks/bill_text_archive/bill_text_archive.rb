@@ -116,19 +116,12 @@ class BillTextArchive
         full_text = clean_text full_text
 
 
-        puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
-        
-        usc_extracted_ids = []
-        usc_extracted = Utils.extract_usc(full_text)
-        if usc_extracted.is_a?(Array)
-          usc_extracted = usc_extracted.uniq # not keeping anything offset-specific
-          usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
-        # elsif usc_extracted.is_a?(Exception)
+        # extract US Code citations
+        usc_extracted_ids, usc_extracted = Utils.extract_usc full_text
+        unless usc_extracted_ids.is_a?(Array)
         #   warnings << {'message' => "Error in parsing response from citation API - #{usc_extracted.message}", 'type' => usc_extracted.class.to_s, 'backtrace' => usc_extracted.backtrace}
-        #   usc_extracted = []
-        else
-          usc_extracted = []
           warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
+          usc_extracted_ids, usc_extracted = [[], []]
         end
 
         # temporary
@@ -136,6 +129,9 @@ class BillTextArchive
           puts "\t[#{bill_version_id}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
         end
         
+
+        puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
+
         version_attributes = {
           :updated_at => Time.now,
           :bill_version_id => bill_version_id,

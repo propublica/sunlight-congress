@@ -16,22 +16,29 @@ module Utils
 
   def self.extract_usc(text)
     url = "http://#{config['citation']['hostname']}/citation/find.json"
-    curl = Curl.post url, :text => text
+    curl = Curl.post url, :text => text, "options[context]" => 150
     str = curl.body_str
     puts str if ENV['usc_debug'].present?
-    hash = Yajl::Parser.parse str
-    hash['results']
+    hash = MultiJson.load str
+    
+    ids = []
+    objects = {}
+    hash['results'].each do |citation|
+      id = citation['usc']['id']
+      unless ids.include?(id)
+        ids << id
+        objects[id] = citation
+      end
+    end
+    [ids, objects]
   rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Curl::Err::HostResolutionError,
     Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
     Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
     nil
-  rescue Yajl::ParseError => ex
+  rescue MultiJson::DecodeError => ex
     puts "Got bad response back from citation API"
     nil
-  # rescue Psych::SyntaxError => ex
-  #   puts "Error dealing with special character in citation API"
-  #   ex
   end
 
   def self.curl(url, destination = nil)
