@@ -3,9 +3,6 @@ require 'nokogiri'
 
 class UpcomingHouseDaily
   
-  HOUSE_DEM_URL = 'http://www.democraticwhip.gov/rss/%s/all'
-  HOUSE_REP_URL = 
-  
   def self.run(options = {})
     total_count = 0
     
