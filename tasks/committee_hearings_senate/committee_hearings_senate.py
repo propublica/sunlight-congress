@@ -56,8 +56,11 @@ def run(db, es, options = {}):
               
           room = meeting.room.contents[0].strip()
           description = meeting.matter.contents[0].strip().replace('\n', '')
+
           # content is double-escaped, e.g. &amp;quot;
           description = parser.unescape(parser.unescape(description))
+
+          bill_ids = rtc_utils.extract_bills(description, session)
           
 
           documents = db['committee_hearings'].find({
@@ -84,6 +87,7 @@ def run(db, es, options = {}):
           hearing['updated_at'] = datetime.datetime.now()
           
           hearing.update({
+            'bill_ids': bill_ids,
             'occurs_at': occurs_at,
             'room': room, 
             'description': description, 
