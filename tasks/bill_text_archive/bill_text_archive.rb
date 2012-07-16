@@ -167,9 +167,7 @@ class BillTextArchive
           issued_on: issued_on,
           version_name: version_name,
           bill_version_id: bill_version_id,
-          urls: urls,
-
-          usc: usc
+          urls: urls
         }
       end
       
