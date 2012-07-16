@@ -20,17 +20,13 @@ module Utils
     str = curl.body_str
     puts str if ENV['usc_debug'].present?
     hash = MultiJson.load str
-    
-    ids = []
-    objects = {}
-    hash['results'].each do |citation|
-      id = citation['usc']['id']
-      unless ids.include?(id)
-        ids << id
-        objects[id] = citation
-      end
-    end
-    [ids, objects]
+    # TODO: expand this to include parent sections
+    extracted = hash['results']
+    extracted_ids = extracted.map {|citation| citation['usc']['id']}.uniq
+    {
+      'extracted' => extracted, 
+      'extracted_ids' => extracted_ids
+    }
   rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Curl::Err::HostResolutionError,
     Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
     Errno::ENETUNREACH, Errno::ECONNREFUSED => ex

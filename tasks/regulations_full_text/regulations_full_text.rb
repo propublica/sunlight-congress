@@ -76,20 +76,17 @@ class RegulationsFullText
 
       next unless full_text # warning will have been filed
 
+
       # extract USC citations, place them on both elasticsearch and mongo objects
-      # usc_extracted_ids = []
-      # if usc_extracted = Utils.extract_usc(full_text)
-      #   usc_extracted = usc_extracted.uniq # not keeping anything offset-specific
-      #   usc_extracted_ids = usc_extracted.map {|r| r['usc']['id']}
-      # else
-      #   usc_extracted = []
-      #   usc_warnings << {message: "Failed to extract USC from #{document_number}"}
-      # end
+      unless usc = Utils.extract_usc(full_text)
+        usc_warnings << {message: "Failed to extract USC from #{document_number}"}
+        usc = {}
+      end
 
       # temporary
-      # if usc_extracted_ids.any?
-      #   puts "\t[#{document_number}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
-      # end
+      if usc['extracted_ids'] and usc['extracted_ids'].any?
+        puts "\t[#{document_number}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
+      end
 
       # load in the part of the regulation from mongo that gets synced to ES
       fields = {}
@@ -100,15 +97,13 @@ class RegulationsFullText
       # index into elasticsearch
       puts "[#{regulation.document_number}] Indexing..."
       fields['full_text'] = full_text
-      # fields['usc_extracted'] = usc_extracted
-      # fields['usc_extracted_ids'] = usc_extracted_ids
+      fields['usc'] = usc
       Utils.es_store! 'regulations', regulation.document_number, fields
 
       # update in mongo
       puts "\tMarking object as indexed and adding any extracted citations..." if options[:debug]
       regulation['indexed'] = true
-      # regulation['usc_extracted'] = usc_extracted
-      # regulation['usc_extracted_ids'] = usc_extracted_ids
+      regulation['usc'] = usc
       regulation.save!
 
       count += 1

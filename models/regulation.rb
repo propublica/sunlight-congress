@@ -35,7 +35,7 @@ class Regulation
   index :published_at
   index :effective_at
   index :agencies
-  index :usc_extracted_ids
+  index "usc.extracted_ids"
   index :year
   index :filed_at
   index :pdf_updated_at

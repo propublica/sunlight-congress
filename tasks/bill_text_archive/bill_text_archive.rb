@@ -43,6 +43,7 @@ class BillTextArchive
       
       # accumulate a massive string
       last_bill_version_text = ""
+      last_usc = {}
       
       # accumulate an array of version objects
       bill_versions = [] 
@@ -116,41 +117,42 @@ class BillTextArchive
         full_text = clean_text full_text
 
 
-        # # extract US Code citations
-        # usc_extracted_ids, usc_extracted = Utils.extract_usc full_text
-        # unless usc_extracted_ids.is_a?(Array)
-        # #   warnings << {'message' => "Error in parsing response from citation API - #{usc_extracted.message}", 'type' => usc_extracted.class.to_s, 'backtrace' => usc_extracted.backtrace}
-        #   warnings << {:message => "Failed to extract USC from #{bill_version_id}"}
-        #   usc_extracted_ids, usc_extracted = [[], []]
-        # end
-
-        # # temporary
-        # if usc_extracted_ids.any?
-        #   puts "\t[#{bill_version_id}] Found #{usc_extracted_ids.size} USC citations: #{usc_extracted_ids.inspect}" if options[:debug]
-        # end
-        
-
+        # put up top here because it's the first line of debug output for a bill
         puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
 
+
+        # extract US Code citations
+        usc = Utils.extract_usc full_text
+        unless usc.is_a?(Hash)
+          warnings << {message: "Failed to extract USC from #{bill_version_id}"}
+          usc = {}
+        end
+
+        # temporary
+        if usc['extracted_ids'] and usc['extracted_ids'].any?
+          puts "\t[#{bill_version_id}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
+        end
+        
+
         version_attributes = {
-          :updated_at => Time.now,
-          :bill_version_id => bill_version_id,
-          :version_code => code,
-          :version_name => version_name,
-          :issued_on => issued_on,
-          :urls => urls,
-          # :usc_extracted => usc_extracted,
-          # :usc_extracted_ids => usc_extracted_ids,
+          updated_at: Time.now,
+          bill_version_id: bill_version_id,
+          version_code: code,
+          version_name: version_name,
+          issued_on: issued_on,
+          urls: urls,
+
+          usc: usc,
           
-          :bill => bill_fields,
-          :full_text => full_text
+          bill: bill_fields,
+          full_text: full_text
         }
 
         # commit the version to the version index
         Utils.es_store! 'bill_versions', bill_version_id, version_attributes
 
         # archive it in MongoDB for easy reference in other scripts
-        version_archive = BillVersion.find_or_initialize_by :bill_version_id => bill_version_id
+        version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
         version_archive.attributes = version_attributes
         version_archive.save!
         
@@ -158,19 +160,21 @@ class BillTextArchive
         
         # store in the bill object for redundant storage on bill object itself
         last_bill_version_text = full_text 
+        last_usc = usc
+
         bill_versions << {
-          :version_code => code,
-          :issued_on => issued_on,
-          :version_name => version_name,
-          :bill_version_id => bill_version_id,
-          :urls => urls,
-          # :usc_extracted => usc_extracted,
-          # :usc_extracted_ids => usc_extracted_ids
+          version_code: code,
+          issued_on: issued_on,
+          version_name: version_name,
+          bill_version_id: bill_version_id,
+          urls: urls,
+
+          usc: usc
         }
       end
       
       if bill_versions.size == 0
-        warnings << {:message => "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", :bill_id => bill_id}
+        warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
         next
       end
       
@@ -178,28 +182,23 @@ class BillTextArchive
       
       last_version = bill_versions.last
       last_version_on = last_version[:issued_on]
-      
+
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
-
-      # usc_extracted = last_version[:usc_extracted]
-      # usc_extracted_ids = last_version[:usc_extracted_ids]
       
       puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
-      Utils.es_store!(
-        'bills',
-        bill.bill_id,
+      Utils.es_store!('bills', bill.bill_id,
         bill_fields.merge(
-          :versions => last_bill_version_text,
-          :version_codes => bill_version_codes,
-          :versions_count => versions_count,
-          :last_version => last_version,
-          :last_version_on => last_version_on,
-          # :usc_extracted => usc_extracted,
-          # :usc_extracted_ids => usc_extracted_ids,
+          versions: last_bill_version_text,
+          version_codes: bill_version_codes,
+          versions_count: versions_count,
+          last_version: last_version,
+          last_version_on: last_version_on,
 
-          :updated_at => Time.now
+          usc: last_usc,
+
+          updated_at: Time.now
         )
       )
       
@@ -207,13 +206,12 @@ class BillTextArchive
       
       # Update the bill document in Mongo with an array of version codes
       bill.attributes = {
-        :version_info => bill_versions,
-        :version_codes => bill_version_codes,
-        :versions_count => versions_count,
-        :last_version => last_version,
-        :last_version_on => last_version_on,
-        # :usc_extracted => usc_extracted,
-        # :usc_extracted_ids => usc_extracted_ids
+        version_info: bill_versions,
+        version_codes: bill_version_codes,
+        versions_count: versions_count,
+        last_version: last_version,
+        last_version_on: last_version_on,
+        usc: last_usc
       }
 
       bill.save!

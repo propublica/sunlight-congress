@@ -73,7 +73,7 @@ class Bill
   index :enacted
   index :enacted_at
 
-  index :usc_extracted_ids
+  index "usc.extracted_ids"
   
   index :last_version_on
   
