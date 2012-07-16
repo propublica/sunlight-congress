@@ -37,6 +37,8 @@ def run(db, es, options = {}):
           if not committee and committee_id != "JCC":
             db.warning("Couldn't locate committee by committee_id \"%s\" while parsing Senate committee hearings" % committee_id, {'committee_id': committee_id})
           
+          committee_url = meeting.committee['url']
+
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
           legislative_day = occurs_at.strftime("%Y-%m-%d")
@@ -94,6 +96,7 @@ def run(db, es, options = {}):
             'legislative_day': legislative_day,
             'time_of_day': time_of_day,
             'session': session,
+            'committee_url': committee_url,
             'dc': True
           })
           
