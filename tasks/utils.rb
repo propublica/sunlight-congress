@@ -16,7 +16,7 @@ module Utils
 
   def self.extract_usc(text)
     url = "http://#{config['citation']['hostname']}/citation/find.json"
-    curl = Curl.post url, :text => text, "options[context]" => 150
+    curl = Curl.post url, :text => text
     str = curl.body_str
     puts str if ENV['usc_debug'].present?
     hash = MultiJson.load str
@@ -24,7 +24,6 @@ module Utils
     extracted = hash['results']
     extracted_ids = extracted.map {|citation| citation['usc']['id']}.uniq
     {
-      'extracted' => extracted, 
       'extracted_ids' => extracted_ids
     }
   rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Curl::Err::HostResolutionError,
