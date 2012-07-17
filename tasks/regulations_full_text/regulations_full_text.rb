@@ -78,7 +78,7 @@ class RegulationsFullText
 
 
       # extract USC citations, place them on both elasticsearch and mongo objects
-      unless usc = Utils.extract_usc(full_text)
+      unless usc = Utils.extract_usc(full_text, citation_cache(regulation), options)
         usc_warnings << {message: "Failed to extract USC from #{document_number}"}
         usc = {}
       end
@@ -170,6 +170,10 @@ class RegulationsFullText
 
   def self.pi_text_for(body)
     body.gsub /[\n\r]/, ' '
+  end
+
+  def self.citation_cache(regulation)
+    RegulationsArchive.destination_for "citation", regulation.document_number, "json"
   end
 
 end

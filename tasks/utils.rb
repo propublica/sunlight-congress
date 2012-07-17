@@ -14,12 +14,23 @@ module Utils
     Searchable.index_for(collection).refresh
   end
 
-  def self.extract_usc(text)
-    url = "http://#{config['citation']['hostname']}/citation/find.json"
-    curl = Curl.post url, :text => text
-    str = curl.body_str
-    puts str if ENV['usc_debug'].present?
-    hash = MultiJson.load str
+  def self.extract_usc(text, destination, options)
+    if File.exists?(destination) and options[:recite].blank?
+      puts "\tUsing cached citation JSON"
+      body = File.read destination
+      hash = MultiJson.load body
+    else
+      url = "http://#{config['citation']['hostname']}/citation/find.json"
+      puts "\tExtracting citations from citation-api..."
+      curl = Curl.post url, text: text, "options[context]" => 150
+      body = curl.body_str
+      hash = MultiJson.load body
+      Utils.write destination, JSON.pretty_generate(hash)
+    end
+
+    puts body if ENV['usc_debug'].present?
+    
+
     # TODO: expand this to include parent sections
     extracted = hash['results']
     extracted_ids = extracted.map {|citation| citation['usc']['id']}.uniq

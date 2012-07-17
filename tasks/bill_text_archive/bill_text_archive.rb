@@ -122,7 +122,7 @@ class BillTextArchive
 
 
         # extract US Code citations
-        usc = Utils.extract_usc full_text
+        usc = Utils.extract_usc full_text, citation_cache(bill), options
         unless usc.is_a?(Hash)
           warnings << {message: "Failed to extract USC from #{bill_version_id}"}
           usc = {}
@@ -292,6 +292,10 @@ class BillTextArchive
     end
     
     urls
+  end
+
+  def self.citation_cache(bill)
+    "data/citation/bills/#{bill.session}/#{bill.bill_id}.json"
   end
   
 end
