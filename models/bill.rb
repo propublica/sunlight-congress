@@ -1,5 +1,5 @@
 class Bill
-  
+
   # searchable behavior
   
   include Searchable::Model
@@ -17,7 +17,7 @@ class Bill
     :nicknames
   
   searchable_fields :versions, :summary, :keywords, :popular_title, :official_title, :short_title, :nicknames
-  
+
   
   # queryable behavior
   
@@ -36,6 +36,10 @@ class Bill
 
   search_fields :short_title, :official_title, :popular_title, :summary, :keywords, :nicknames
   
+
+  # used by both Searchable and Queryable
+  cite_key :bill_id
+  cite_field "usc.extracted_ids"
   
   # MongoDB behavior
   

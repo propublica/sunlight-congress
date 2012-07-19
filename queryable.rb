@@ -1,14 +1,19 @@
 module Queryable
   
   def self.fields_for(model, params)
-    return nil if params[:sections].blank?
+    return nil if params[:fields].blank?
     
-    sections = params[:sections].split ','
+    sections = params[:fields].split ','
     
     if sections.include?('basic')
       sections.delete 'basic' # does nothing if not present
       sections += model.basic_fields.map {|field| field.to_s}
     end
+
+    if params[:citation] and model.cite_key
+      sections << model.cite_key.to_s
+    end
+
     sections.uniq
   end
   
@@ -82,6 +87,10 @@ module Queryable
       end
     end
 
+    if params[:citation].present? and model.cite_field
+      conditions[model.cite_field] = params[:citation]
+    end
+
     conditions
   end
   
@@ -113,16 +122,17 @@ module Queryable
     attributes
   end
   
-  def self.results_for(model, conditions, fields, order, pagination)
-    criteria = criteria_for model, conditions, fields, order, pagination
-    
-    count = criteria.count
+  def self.documents_for(model, criteria, fields)
     documents = criteria.to_a
-    
+    documents.map {|document| attributes_for document, fields}
+  end
+
+  def self.results_for(model, criteria, documents, pagination)
+    count = criteria.count
     key = model.to_s.underscore.pluralize
     
     {
-      key => documents.map {|document| attributes_for document, fields},
+      key => documents,
       :count => count,
       :page => {
         :count => documents.size,
@@ -226,6 +236,23 @@ module Queryable
   # include Queryable::Model
   module Model
     module ClassMethods
+
+      def cite_field(field = nil)
+        if field
+          @cite_field = field
+        else
+          @cite_field
+        end
+      end
+      
+      def cite_key(field = nil)
+        if field
+          @cite_key = field
+        else
+          @cite_key
+        end
+      end
+
       def default_order(order = nil)
         if order
           @default_order = order

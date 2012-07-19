@@ -18,6 +18,9 @@ class QueryableTest < Test::Unit::TestCase
     default_order :born_at
     
     search_fields :name, :bio
+
+    cite_key :ssn
+    cite_field :club_memberships
     
     # not actually persisted anywhere, just want the model behavior
     include Mongoid::Document
@@ -31,22 +34,35 @@ class QueryableTest < Test::Unit::TestCase
   end
   
   def test_fields_for_splits_on_a_comma
-    fields = Queryable.fields_for Person, :sections => "name,whatever,sox"
+    fields = Queryable.fields_for Person, fields: "name,whatever,sox"
     assert_equal ['name', 'whatever', 'sox'].sort, fields.sort
   end
   
   def test_fields_for_breaks_out_basic_fields
-    fields = Queryable.fields_for Person, :sections => "basic,whatever,sox"
+    fields = Queryable.fields_for Person, fields: "basic,whatever,sox"
     assert_equal ["name", "bio", "born_at", "whatever", "sox"].sort, fields.sort
   end
   
   def test_fields_for_eliminates_dupes
-    fields = Queryable.fields_for Person, :sections => "basic,name,name,sox,bio"
+    fields = Queryable.fields_for Person, fields: "basic,name,name,sox,bio"
     assert_equal ["name", "bio", "born_at", "sox"].sort, fields.sort
+  end
+
+  def test_fields_for_insists_on_cite_key_if_cite_param_is_present
+    params = {fields: "name,whatever", citation_context: true, citation: "communism"}
+    fields = Queryable.fields_for Person, params
+    assert_equal ["name", "whatever", "ssn"].sort, fields.sort
   end
 
   def test_conditions_for_produces_simple_hash
     conditions = Queryable.conditions_for Person, chamber: "senate"
-    assert_equal({:chamber => "senate"}, conditions)
+    assert_equal({chamber: "senate"}, conditions)
   end
+
+  def test_conditions_for_inserts_citation_filter_if_requested
+    conditions = Queryable.conditions_for Person, chamber: "senate", citation: "098"
+    assert_equal({chamber: "senate", club_memberships: "098"}, conditions)
+  end
+
+  
 end

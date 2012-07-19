@@ -33,11 +33,14 @@ get queryable_route do
   conditions = Queryable.conditions_for model, params
   order = Queryable.order_for model, params
   pagination = Queryable.pagination_for params
-  
+
   if params[:explain] == 'true'
     results = Queryable.explain_for model, conditions, fields, order, pagination
   else
-    results = Queryable.results_for model, conditions, fields, order, pagination
+    criteria = Queryable.criteria_for model, conditions, fields, order, pagination
+    documents = Queryable.documents_for model, criteria, fields
+    documents = citations_for model, documents, params
+    results = Queryable.results_for model, criteria, documents, pagination
   end
   
   if format == 'json'
@@ -90,9 +93,16 @@ end
 
 helpers do
 
-  def fields_check
-    unless (params[:per_page] == "1") or params[:fields].present?
-      error 400, "The 'fields' parameter is required for a per_page of > 1."
+  def citations_for(model, documents, params)
+    return documents unless params[:citation] and params[:citation_context] and model.cite_key
+
+    documents.map do |document|
+      citations = Citation.where(
+        document_id: document[model.cite_key.to_s],
+        citation_id: params[:citation]
+      ).first
+      document['citations'] = citations['citations'] if citations
+      document
     end
   end
 

@@ -17,6 +17,12 @@ class SearchableTest < Test::Unit::TestCase
     searchable_fields :name, :bio, :personal
     
     field_type :prisoner_id, String # override a number to be a string
+
+
+    # for citation logic, which requires it also be queryable
+    include Queryable::Model
+    cite_key :ssn
+    # cite_type :club_memberships # what an evil government
   end
   
   # represents an ElasticSearch Hit object
@@ -27,7 +33,7 @@ class SearchableTest < Test::Unit::TestCase
     # hash with keys that are fields and values that are arrays of highlighted text
     attr_accessor :highlight
     
-    # hash where each key is a requested field name prefaced by "_source."
+    # hash where each key is a requested field name prefaced by
     attr_accessor :fields
     
     def self.default_score; 1.0; end
@@ -50,35 +56,40 @@ class SearchableTest < Test::Unit::TestCase
   
   def test_fields_for_returns_result_fields_if_sections_is_blank
     fields = Person.result_fields.map &:to_s
-    assert_equal fields.sort, Searchable.fields_for(Person, {:sections => ""}).sort
-    assert_equal fields.sort, Searchable.fields_for(Person, {:sections => nil}).sort
+    assert_equal fields.sort, Searchable.fields_for(Person, {fields: ""}).sort
+    assert_equal fields.sort, Searchable.fields_for(Person, {fields: nil}).sort
     assert_equal fields.sort, Searchable.fields_for(Person, {}).sort
   end
   
   def test_fields_for_allows_fields_outside_result_fields
-    fields = Searchable.fields_for Person, :sections => "name,born_at,sox"
+    fields = Searchable.fields_for Person, fields: "name,born_at,sox"
     assert_equal ['name', 'born_at', 'sox'].sort, fields.sort
     
     # also make sure 'basic' is ignored, has no special meaning here
-    fields = Searchable.fields_for Person, :sections => "basic,name"
+    fields = Searchable.fields_for Person, fields: "basic,name"
     assert_equal ["name", "basic"].sort, fields.sort
   end
    
   def test_fields_for_splits_on_a_comma
-    fields = Searchable.fields_for Person, :sections => "name,born_at,anything"
+    fields = Searchable.fields_for Person, fields: "name,born_at,anything"
     assert_equal ['name', 'born_at', 'anything'].sort, fields.sort
   end
    
   def test_fields_for_eliminates_dupes
-    fields = Searchable.fields_for Person, :sections => "name,name,born_at"
+    fields = Searchable.fields_for Person, fields: "name,name,born_at"
     assert_equal ["name", "born_at"].sort, fields.sort
   end
   
   def test_fields_for_allows_dot_notation
-    fields = Searchable.fields_for Person, :sections => "name.first,born_at,ssn.section1.prefix"
+    fields = Searchable.fields_for Person, fields: "name.first,born_at,ssn.section1.prefix"
     assert_equal ["name.first", "born_at", "ssn.section1.prefix"].sort, fields.sort
   end
   
+  def test_fields_for_insists_on_cite_key_if_cite_param_is_present
+    params = {fields: "name,whatever", citation_context: true, citation: "communism"}
+    fields = Queryable.fields_for Person, params
+    assert_equal ["name", "whatever", "ssn"].sort, fields.sort
+  end
   
   # ordering
   
@@ -305,8 +316,8 @@ class SearchableTest < Test::Unit::TestCase
     term = "anything"
     hit = FakeHit.new(
       :fields => {
-                  "_source.bill_version_id" => "s627-112-rs",
-                  "_source.version_code" => "rs"
+                  "bill_version_id" => "s627-112-rs",
+                  "version_code" => "rs"
                  }
     )
     model = Person
@@ -328,8 +339,8 @@ class SearchableTest < Test::Unit::TestCase
     term = "anything"
     hit = FakeHit.new(
       :fields => {
-                  "_source.bill_version_id" => "s627-112-rs",
-                  "_source.version_code" => "rs"
+                  "bill_version_id" => "s627-112-rs",
+                  "version_code" => "rs"
                  },
       :_score => 2.0
     )
@@ -357,8 +368,8 @@ class SearchableTest < Test::Unit::TestCase
     term = "anything"
     hit = FakeHit.new(
       :fields => {
-                  "_source.bill_version_id" => "s627-112-rs",
-                  "_source.version_code" => "rs"
+                  "bill_version_id" => "s627-112-rs",
+                  "version_code" => "rs"
                  },
       :highlight => highlight
     )
@@ -382,8 +393,8 @@ class SearchableTest < Test::Unit::TestCase
     term = "anything"
     hit = FakeHit.new(
       :fields => {
-                  "_source.bill.bill_id" => "s627-112",
-                  "_source.bill.last_action.text" => "did stuff"
+                  "bill.bill_id" => "s627-112",
+                  "bill.last_action.text" => "did stuff"
                  }
     )
     model = Person

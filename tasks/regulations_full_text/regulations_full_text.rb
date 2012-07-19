@@ -78,11 +78,11 @@ class RegulationsFullText
 
 
       # extract USC citations, place them on both elasticsearch and mongo objects
-      unless usc = Utils.extract_usc(full_text, citation_cache(regulation), options)
+      unless usc = Utils.extract_usc(regulation, full_text, citation_cache(regulation), options)
         usc_warnings << {message: "Failed to extract USC from #{document_number}"}
         usc = {}
       end
-
+      
       # temporary
       if usc['extracted_ids'] and usc['extracted_ids'].any?
         puts "\t[#{document_number}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]

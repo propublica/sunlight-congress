@@ -125,10 +125,10 @@ module Searchable
   end
   
   def self.fields_for(model, params)
-    if params[:sections].blank?
+    if params[:fields].blank?
       model.result_fields.map {|field| field.to_s}
     else
-      params[:sections].split(',').uniq
+      params[:fields].split(',').uniq
     end
   end
   

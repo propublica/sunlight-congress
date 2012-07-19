@@ -14,14 +14,14 @@ module Utils
     Searchable.index_for(collection).refresh
   end
 
-  def self.extract_usc(text, destination, options)
+  def self.extract_usc(document, text, destination, options)
     if File.exists?(destination) and options[:recite].blank?
-      puts "\tUsing cached citation JSON"
+      puts "\tUsing cached citation JSON" if options[:debug]
       body = File.read destination
       hash = MultiJson.load body
     else
       url = "http://#{config['citation']['hostname']}/citation/find.json"
-      puts "\tExtracting citations from citation-api..."
+      puts "\tExtracting citations from citation-api..." if options[:debug]
       curl = Curl.post url, text: text, "options[context]" => 150
       body = curl.body_str
       hash = MultiJson.load body
@@ -30,14 +30,32 @@ module Utils
 
     puts body if ENV['usc_debug'].present?
     
+    ids = []
+    citations = {}
 
-    # TODO: expand this to include parent sections
-    extracted = hash['results']
-    extracted_ids = extracted.map {|citation| citation['usc']['id']}.uniq
+    hash['results'].each do |result|
+      id = result['usc']['id']
+      ids << id if !ids.include?(id)
+      citations[id] ||= []
+      citations[id] << result
+    end
+
+    citations.each do |id, result|
+      citation = Citation.find_or_initialize_by(
+        document_id: document[document.class.cite_key.to_s],
+        # document_type: document.class.to_s,
+        citation_id: id,
+        # citation_type: "usc"
+      )
+      citation.citations = result
+      citation.save!
+    end
+
     {
-      'extracted_ids' => extracted_ids
+      'extracted_ids' => ids
     }
-  rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Curl::Err::HostResolutionError,
+  rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
+    Curl::Err::RecvError, Curl::Err::HostResolutionError,
     Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
     Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
@@ -52,7 +70,9 @@ module Utils
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Curl::Err::ConnectionFailedError, Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
+    rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
+      Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+      Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       puts "Error curling #{url}"
       nil
     else
