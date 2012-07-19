@@ -76,11 +76,17 @@ get searchable_route do
   pagination = Searchable.pagination_for model, params
   other = Searchable.other_options_for model, params, search_fields
   
-  
-  if params[:explain] == 'true'
-    results = Searchable.explain_for term, model, query, filter, fields, order, pagination, other
-  else
-    results = Searchable.results_for term, model, query, filter, fields, order, pagination, other
+  begin
+    if params[:explain] == 'true'
+      results = Searchable.explain_for term, model, query, filter, fields, order, pagination, other
+    else
+      raw_results = Searchable.raw_results_for term, model, query, filter, fields, order, pagination, other
+      documents = Searchable.documents_for term, model, fields, raw_results
+      documents = citations_for model, documents, params
+      results = Searchable.results_for term, model, raw_results, documents, pagination
+    end
+  rescue ElasticSearch::RequestError => exc
+    results = Searchable.error_from exc
   end
   
   if format == 'json'
@@ -96,7 +102,7 @@ helpers do
   def citations_for(model, documents, params)
     # only citation-enabled models
     return documents unless params[:citation] and model.cite_key
-    
+
     # must explicitly ask for extra information and performance hit
     return documents unless params[:citation_details]
 

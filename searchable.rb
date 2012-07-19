@@ -43,13 +43,22 @@ module Searchable
   end
   
   def self.filter_for(model, params)
-    fields = params.keys.select do |key| 
-      !magic_fields.include?(key.to_sym) and params[key].present?
+    fields = {}
+
+    params.keys.each do |key| 
+      if !magic_fields.include?(key.to_sym) and params[key].present?
+        fields[key] = params[key]
+      end
+    end
+
+    # citation parameter dynamically inserts filter on citation field
+    if params[:citation]
+      fields[model.cite_field] = params[:citation]
     end
     
     if fields.any?
       {
-        :and => fields.map {|field| subfilter_for model, field, params[field]}
+        :and => fields.map {|field, value| subfilter_for model, field, value}
       }
     else
       nil
@@ -125,34 +134,42 @@ module Searchable
   end
   
   def self.fields_for(model, params)
-    if params[:fields].blank?
+    sections = if params[:fields].blank?
       model.result_fields.map {|field| field.to_s}
     else
       params[:fields].split(',').uniq
     end
+
+    if params[:citation] and model.cite_key
+      cite_key = model.cite_key.to_s
+      sections << cite_key unless sections.include?(cite_key)
+    end
+
+    sections
+  end
+
+  def self.raw_results_for(term, model, query, filter, fields, order, pagination, other)
+    mapping = model.to_s.underscore.pluralize
+    request = request_for query, filter, fields, order, pagination, other
+    search_for mapping, request
+  end
+
+  def self.documents_for(term, model, fields, raw_results)
+    raw_results.hits.map {|hit| attributes_for term, hit, model, fields}
   end
   
-  def self.results_for(term, model, query, filter, fields, order, pagination, other)
+  def self.results_for(term, model, raw_results, documents, pagination)
     mapping = model.to_s.underscore.pluralize
     
-    request = request_for query, filter, fields, order, pagination, other
-
-    begin  
-      results = search_for mapping, request
-      documents = results.hits.map {|hit| attributes_for term, hit, model, fields}
-      
-      {
-        mapping => documents,
-        :count => results.total_entries,
-        :page => {
-          :count => documents.size,
-          :per_page => pagination[:per_page],
-          :page => pagination[:page]
-        }
+    {
+      mapping => documents,
+      :count => raw_results.total_entries,
+      :page => {
+        :count => documents.size,
+        :per_page => pagination[:per_page],
+        :page => pagination[:page]
       }
-    rescue ElasticSearch::RequestError => exc
-      error_from exc
-    end
+    }
   end
   
   def self.explain_for(term, model, query, filter, fields, order, pagination, other)
@@ -255,7 +272,7 @@ module Searchable
   
   def self.attributes_for(term, hit, model, fields)
     attributes = {}
-    search = {:score => hit._score, :query => term}
+    search = {score: hit._score, query: term}
     
     hit.fields ||= {}
     
@@ -267,7 +284,7 @@ module Searchable
       break_out attributes, key.split('.'), value
     end
     
-    attributes.merge :search => search
+    attributes.merge search: search
   end
   
   # helper function to recursively rewrite a hash to break out dot-separated fields into sub-documents

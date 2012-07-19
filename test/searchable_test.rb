@@ -22,7 +22,7 @@ class SearchableTest < Test::Unit::TestCase
     # for citation logic, which requires it also be queryable
     include Queryable::Model
     cite_key :ssn
-    # cite_type :club_memberships # what an evil government
+    cite_field :club_memberships # what an evil government
   end
   
   # represents an ElasticSearch Hit object
@@ -87,7 +87,13 @@ class SearchableTest < Test::Unit::TestCase
   
   def test_fields_for_insists_on_cite_key_if_cite_param_is_present
     params = {fields: "name,whatever", citation_details: true, citation: "communism"}
-    fields = Queryable.fields_for Person, params
+    fields = Searchable.fields_for Person, params
+    assert_equal ["name", "whatever", "ssn"].sort, fields.sort
+  end
+
+  def test_fields_for_doesnt_insert_duplicate_cite_key
+    params = {fields: "name,whatever,ssn", citation_details: true, citation: "communism"}
+    fields = Searchable.fields_for Person, params
     assert_equal ["name", "whatever", "ssn"].sort, fields.sort
   end
   
@@ -179,6 +185,28 @@ class SearchableTest < Test::Unit::TestCase
     
     assert filter[:and].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
     assert filter[:and].include?(Searchable.subfilter_for(Person, 'fingers', "9"))
+  end
+
+  def test_filter_for_includes_citation
+    filter = Searchable.filter_for Person, {favorite_drug: "opium", fingers: "9", citation: "communism"}
+    
+    assert_not_nil filter[:and]
+    assert filter[:and].is_a?(Array)
+    assert_equal 3, filter[:and].size
+    
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'fingers', "9"))
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'club_memberships', 'communism'))
+  end
+
+  def test_filter_for_with_only_citation
+    filter = Searchable.filter_for Person, {citation: "communism"}
+    
+    assert_not_nil filter[:and]
+    assert filter[:and].is_a?(Array)
+    assert_equal 1, filter[:and].size
+
+    assert filter[:and].include?(Searchable.subfilter_for(Person, 'club_memberships', 'communism'))
   end
   
   def test_filter_for_doesnt_know_about_operators
