@@ -94,7 +94,11 @@ end
 helpers do
 
   def citations_for(model, documents, params)
-    return documents unless params[:citation] and params[:citation_context] and model.cite_key
+    # only citation-enabled models
+    return documents unless params[:citation] and model.cite_key
+    
+    # must explicitly ask for extra information and performance hit
+    return documents unless params[:citation_details]
 
     documents.map do |document|
       citations = Citation.where(

@@ -51,7 +51,7 @@ def magic_fields
     :explain,
 
     # citation fields
-    :citation, :citations, :citation_context,
+    :citation, :citations, :citation_details,
 
     # can't use these as field names, even though they're not used as params
     :basic,

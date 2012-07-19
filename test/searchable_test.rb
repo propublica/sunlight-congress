@@ -86,7 +86,7 @@ class SearchableTest < Test::Unit::TestCase
   end
   
   def test_fields_for_insists_on_cite_key_if_cite_param_is_present
-    params = {fields: "name,whatever", citation_context: true, citation: "communism"}
+    params = {fields: "name,whatever", citation_details: true, citation: "communism"}
     fields = Queryable.fields_for Person, params
     assert_equal ["name", "whatever", "ssn"].sort, fields.sort
   end
