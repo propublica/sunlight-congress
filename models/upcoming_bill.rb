@@ -10,11 +10,11 @@ class UpcomingBill
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :chamber
-  index :session
-  index :legislative_day
-  index :source_type
-  index :bill_id
+  index chamber: 1
+  index session: 1
+  index legislative_day: 1
+  index source_type: 1
+  index bill_id: 1
   
   field :legislative_day
 end

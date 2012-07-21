@@ -23,8 +23,7 @@ end
 
 configure do
   # configure mongodb client
-  config['mongoid']['logger'] = Logger.new config['log_file'] if config['log_file']
-  Mongoid.configure {|c| c.from_hash config['mongoid']}
+  Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
   # configure elasticsearch client #1 (rubberband, for searching)
   Faraday.register_middleware :response, :explain_logger => Searchable::ExplainLogger

@@ -32,17 +32,17 @@ class Regulation
   cite_field "usc.extracted_ids"
 
 
-  index :document_number
-  index :stage
-  index :rins
-  index :published_at
-  index :effective_at
-  index :agencies
-  index "usc.extracted_ids"
-  index :year
-  index :filed_at
-  index :pdf_updated_at
-  index :indexed
+  index document_number: 1
+  index stage: 1
+  index rins: 1
+  index published_at: 1
+  index effective_at: 1
+  index agencies: 1
+  index "usc.extracted_ids" => 1
+  index year: 1
+  index filed_at: 1
+  index pdf_updated_at: 1
+  index indexed: 1
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number

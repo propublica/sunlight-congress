@@ -9,9 +9,9 @@ class BillVersion
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  index "bill.bill_id"
-  index "usc.extracted_ids"
-  index :bill_version_id
-  index :issued_on
-  index :version_code
+  index "bill.bill_id" => 1
+  index "usc.extracted_ids" => 1
+  index bill_version_id: 1
+  index issued_on: 1
+  index version_code: 1
 end

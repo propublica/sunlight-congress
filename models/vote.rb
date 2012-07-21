@@ -26,21 +26,21 @@ class Vote
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :roll_id
-  index :chamber
-  index :session
-  index :type
-  index :result
-  index :voted_at
-  index :roll_type
-  index :vote_type
-  index :passage_type
-  index :required
-  index :year
-  index :number
-  index :how
-  index :bill_id
-  index :amendment_id
+  index roll_id: 1
+  index chamber: 1
+  index session: 1
+  index type: 1
+  index result: 1
+  index voted_at: 1
+  index roll_type: 1
+  index vote_type: 1
+  index passage_type: 1
+  index required: 1
+  index year: 1
+  index number: 1
+  index how: 1
+  index bill_id: 1
+  index amendment_id: 1
   
   field :roll_id
   validates_uniqueness_of :roll_id, :allow_nil => true

@@ -5,20 +5,20 @@ class Report
   field :status
   field :source
   field :message
-  field :elapsed_time, :type => Float
-  field :attached, :type => Hash
+  field :elapsed_time, type: Float
+  field :attached, type: Hash
   
-  field :read, :type => Boolean, :default => false
+  field :read, type: Boolean, default: false
   
-  index :status
-  index :source
-  index :read
-  index :created_at
+  index status: 1
+  index source: 1
+  index read: 1
+  index created_at: 1
   
-  scope :unread , :where => {:read => false}
+  scope :unread , where(read: false)
   
   def self.file(status, source, message, rest = {})
-    Report.create!({:source => source.to_s, :status => status, :message => message}.merge(rest))
+    Report.create!({source: source.to_s, status: status, message: message}.merge(rest))
   end
   
   def self.success(source, message, objects = {})
@@ -38,7 +38,7 @@ class Report
   end
   
   def self.complete(source, message, objects = {})
-    file 'COMPLETE', source, message, objects.merge(:read => true)
+    file 'COMPLETE', source, message, objects.merge(read: true)
   end
   
   def success?
@@ -62,7 +62,7 @@ class Report
   end
   
   def mark_read!
-    update_attributes :read => true
+    update_attributes read: true
   end
 
   def to_s

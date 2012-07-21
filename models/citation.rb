@@ -14,6 +14,5 @@ class Citation
   # citations direct from citation.js, indexed by citation ID (e.g. usc.id)
   field :citations, type: Array
 
-  # index [[:document_id, Mongo::ASCENDING], [:document_type, Mongo::ASCENDING]]
-  index [[:document_id, Mongo::ASCENDING], [:citation_id, Mongo::ASCENDING]]
+  index({document_id: 1, citation_id: 1})
 end

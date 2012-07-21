@@ -12,13 +12,13 @@ class FloorUpdate
   
   include Mongoid::Document
   
-  index :chamber
-  index :legislative_day
-  index :roll_ids
-  index :bill_ids
-  index :legislator_ids
-  index :timestamp
-  index :session
+  index chamber: 1
+  index legislative_day: 1
+  index roll_ids: 1
+  index bill_ids: 1
+  index legislator_ids: 1
+  index timestamp: 1
+  index session: 1
   
   field :legislative_day
 end

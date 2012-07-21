@@ -5,13 +5,9 @@ gem 'yajl-ruby', '1.1.0'
 gem 'tzinfo', '0.3.23'
 
 gem 'sinatra', '1.3.2'
-
-gem "mongo", "1.6.2"
-gem "mongoid", '2.4.8'
-gem 'bson_ext', '1.6.2' # mongo gem asks for this
+gem "mongoid", '3.0.1'
 
 gem 'ruby-hmac', '0.4.0'
-
 gem 'pony', '1.0.1'
 
 gem 'rack', '1.4.1'

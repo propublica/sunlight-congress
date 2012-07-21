@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: rtc
+      hosts: 
+        - localhost

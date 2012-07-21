@@ -74,15 +74,16 @@ end
 class Hit
   include Mongoid::Document
   
-  index :created_at
-  index :method
-  index :method_type
-  index :key
-  index :format
-  index :user_agent
-  index :app_version
-  index :os_version
-  index :app_channel
+  index created_at: 1
+  index method: 1
+  index method_type: 1
+  index key: 1
+  index format: 1
+  index user_agent: 1
+  index app_version: 1
+  index os_version: 1
+  index app_channel: 1
+  index({key: 1, method: 1})
 end
 
 def process_query_hash(hash)

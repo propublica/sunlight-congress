@@ -13,25 +13,25 @@ class Document
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  index :posted_at
-  index :document_type
+  index posted_at: 1
+  index document_type: 1
 
 
   # document-specific fields
 
   # whip_notice
-  index :notice_type
-  index :party
-  index :chamber
-  index :for_date
+  index notice_type: 1
+  index party: 1
+  index chamber: 1
+  index for_date: 1
 
   # crs_report
-  index :order_code
+  index order_code: 1
 
   # cbo_estimate
-  index :estimate_id
-  index :categories
+  index estimate_id: 1
+  index categories: 1
 
   # gao_report
-  index :gao_id
+  index gao_id: 1
 end

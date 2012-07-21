@@ -14,14 +14,14 @@ class CommitteeHearing
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :chamber
-  index :committee_id
-  index :occurs_at
-  index :legislative_day
-  index :session
+  index chamber: 1
+  index committee_id: 1
+  index occurs_at: 1
+  index legislative_day: 1
+  index session: 1
 
-  index :dc
-  index :bill_ids
+  index dc: 1
+  index bill_ids: 1
   
   
   field :legislative_day

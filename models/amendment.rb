@@ -13,17 +13,17 @@ class Amendment
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :amendment_id, :unique => true
-  index :chamber
-  index :number
-  index :session
-  index :bill_id
-  index :offered_at
-  index :last_voted_at
-  index :last_action_at
-  index :state
-  index :sponsor_id
-  index :sponsor_type
+  index({amendment_id: 1}, {unique: true})
+  index chamber: 1
+  index number: 1
+  index session: 1
+  index bill_id: 1
+  index offered_at: 1
+  index last_voted_at: 1
+  index last_action_at: 1
+  index state: 1
+  index sponsor_id: 1
+  index sponsor_type: 1
   
   field :amendment_id
   validates_uniqueness_of :amendment_id

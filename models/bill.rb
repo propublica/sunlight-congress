@@ -46,42 +46,42 @@ class Bill
   include Mongoid::Document
   include Mongoid::Timestamps
   
-  index :bill_id
-  index :bill_type
-  index :code
-  index :chamber
-  index :session
+  index bill_id: 1
+  index bill_type: 1
+  index code: 1
+  index chamber: 1
+  index session: 1
 
-  index :nicknames
+  index nicknames: 1
   
-  index :sponsor_id
-  index :cosponsor_ids
-  index :amendments_count
-  index :cosponsors_count
-  index :keywords
-  index :committee_ids
-  index :last_action_at
-  index :last_passage_vote_at
+  index sponsor_id: 1
+  index cosponsor_ids: 1
+  index amendments_count: 1
+  index cosponsors_count: 1
+  index keywords: 1
+  index committee_ids: 1
+  index last_action_at: 1
+  index last_passage_vote_at: 1
   
-  index :introduced_at
-  index :house_passage_result
-  index :house_passage_result_at
-  index :senate_passage_result
-  index :senate_passage_result_at
-  index :house_override_result
-  index :house_override_result_at
-  index :senate_override_result
-  index :senate_override_result_at
-  index :awaiting_signature
-  index :awaiting_signature_since
-  index :enacted
-  index :enacted_at
+  index introduced_at: 1
+  index house_passage_result: 1
+  index house_passage_result_at: 1
+  index senate_passage_result: 1
+  index senate_passage_result_at: 1
+  index house_override_result: 1
+  index house_override_result_at: 1
+  index senate_override_result: 1
+  index senate_override_result_at: 1
+  index awaiting_signature: 1
+  index awaiting_signature_since: 1
+  index enacted: 1
+  index enacted_at: 1
 
-  index "usc.extracted_ids"
+  index "usc.extracted_ids" => 1
   
-  index :last_version_on
+  index last_version_on: 1
   
-  index :abbreviated
+  index abbreviated: 1
 
   # spell out YYYY-MM-DD fields as strings
   field :last_version_on

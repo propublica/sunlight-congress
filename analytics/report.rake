@@ -16,12 +16,19 @@ namespace :analytics do
       start = Time.parse day
       finish = start + 1.day
       
-      reports = Mongoid.database.collection(:hits).group(
-        key: [:key, :method], 
-        cond: {:created_at => {"$gte" => start, "$lt" => finish}}, 
-        initial: {'count' => 0}, 
-        reduce: "function(obj, prev) {prev.count += 1;}"
-      )
+      reports = []
+
+      hits = Hit.where(created_at: {"$gte" => start, "$lt" => finish})
+      
+      hits.distinct(:key).each do |key|
+        hits.where(key: key).distinct(:method).each do |method|
+          reports << {
+            'key' => key,
+            'method' => method,
+            'count' => hits.where(key: key, method: method).count
+          }
+        end
+      end
       
       api_name = config[:services][:api_name]
       shared_secret = config[:services][:shared_secret]

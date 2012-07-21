@@ -145,15 +145,12 @@ module Queryable
   def self.explain_for(model, conditions, fields, order, pagination)
     criteria = criteria_for model, conditions, fields, order, pagination
     
-    cursor = criteria.execute
-    count = cursor.count
-    
     {
       :conditions => conditions,
       :fields => fields,
       :order => order,
-      :explain => cursor.explain,
-      :count => count,
+      :explain => criteria.explain,
+      :count => criteria.count,
       :page => {
         :per_page => pagination[:per_page],
         :page => pagination[:page]

@@ -1,7 +1,10 @@
 /config.ru
 /unicorn.rb
 /unicorn.pid
+
 /config/config.yml
+/config/mongoid.yml
+
 /data
 /vendor/gems
 /.bundle
