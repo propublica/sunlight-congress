@@ -3,4 +3,4 @@ development:
     default:
       database: rtc
       hosts: 
-        - localhost
+        - "localhost:27017"
