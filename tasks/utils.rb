@@ -38,16 +38,46 @@ module Utils
       ids << id if !ids.include?(id)
       citations[id] ||= []
       citations[id] << result
+
+      # index another citation for each parent subsection
+      # index each parent in turn 
+      #  - if citation has 2 subsections, index a parent with 1 subsection, then 0
+      (0...result['usc']['subsections'].size).to_a.reverse.each do |i|
+        # neither #dup nor #clone works correctly here - frustrating
+        new_result = {
+          'type' => result['type'],
+          'context' => result['context'],
+          'match' => result['match'],
+          'usc' => result['usc'].dup # lets me use it on a subobject...okay
+        }
+
+        new_subsections = result['usc']['subsections'][0...i]
+        new_id = [result['usc']['title'], 'usc', result['usc']['section'], new_subsections].flatten.join("_")
+        # ignore display field, we don't care
+        new_result['usc']['id'] = new_id
+        new_result['usc']['subsections'] = new_subsections
+
+        ids << new_id if !ids.include?(new_id)
+        citations[new_id] ||= []
+        citations[new_id] << new_result
+      end
+
     end
 
-    citations.each do |id, result|
+    document_id = document[document.class.cite_key.to_s]
+    
+    # clear existing citations for this document
+    Citation.where(document_id: document_id).delete_all
+
+    # index every citation found for this document
+    citations.each do |id, cs|
       citation = Citation.find_or_initialize_by(
-        document_id: document[document.class.cite_key.to_s],
+        document_id: document_id,
         # document_type: document.class.to_s,
         citation_id: id,
         # citation_type: "usc"
       )
-      citation.citations = result
+      citation.citations = cs
       citation.save!
     end
 
