@@ -15,7 +15,7 @@ class DocumentsCrsReports
 
     failures = []
 
-    num_added = 0
+    count = 0
     (1..5).each do |page|
       url = "https://opencrs.com/api/reports/list.json?key=#{key}&page=#{page}"
       puts "Fetching #{url}" if options[:debug]
@@ -27,19 +27,22 @@ class DocumentsCrsReports
       end
 
       response.each do |r|
-        if Document.first(:conditions => { :order_code => r['ordercode'] })
-          break
-        else
-          num_added += 1
-          puts r['dateadded'].to_s
-          Document.create(:document_type => 'crs_report',
-                          :posted_at => Time.parse(r['dateadded'].to_s + " 12:00 UTC"),
-                          :order_code => r['ordercode'],
-                          :title => r['title'],
-                          :url => r['download_url'],
-                          :released_at => Time.parse(r['releasedate'].to_s + " 12:00 UTC"),
-                          :opencrs_url => r['opencrs_url'])
-        end
+        document = Document.find_or_initialize_by order_code: r['ordercode']
+        
+        document.attributes = {
+          :document_type => 'crs_report',
+          :posted_at => Time.parse(r['dateadded'].to_s + " 12:00 UTC"),
+          :order_code => r['ordercode'],
+          :title => r['title'],
+          :url => r['download_url'],
+          :released_at => Time.parse(r['releasedate'].to_s + " 12:00 UTC"),
+          :opencrs_url => r['opencrs_url']
+        }
+
+        puts "[#{document['order_code']}] Saving report from #{document['posted_at']}..." if options[:debug]
+
+        document.save!
+        count += 1
       end
     end
 
@@ -47,8 +50,8 @@ class DocumentsCrsReports
       Report.failure self, "Errors fetching CRS Reports, unclear why", failures: failures
     end
 
-    if num_added > 0
-      Report.success self, "Added #{num_added} CRS Reports"
+    if count > 0
+      Report.success self, "Added #{count} CRS Reports"
     end
   end
 
