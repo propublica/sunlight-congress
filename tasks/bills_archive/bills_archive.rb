@@ -219,6 +219,9 @@ class BillsArchive
   end
   
   # prepare the full timeline of a bill, lots-of-flags style
+
+  # TODO: have this constructed from the post-processed actions array, 
+  # which will use our own type detection
   def self.timeline_for(doc, state, votes)
     timeline = {}
     
