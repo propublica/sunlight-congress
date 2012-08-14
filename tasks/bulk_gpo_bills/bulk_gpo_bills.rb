@@ -73,13 +73,19 @@ class BulkGpoBills
       mods_dest = "#{dest_prefix}.mods.xml"
       download_to mods_url, mods_dest, failures, options
 
+      sleep 0.1
+
       text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/html/BILLS-#{session}#{gpo_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
       download_to text_url, text_dest, failures, options
 
+      sleep 0.1
+
       xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/xml/BILLS-#{session}#{gpo_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
       download_to xml_url, xml_dest, failures, options
+
+      sleep 0.1
 
       count += 1
     end
