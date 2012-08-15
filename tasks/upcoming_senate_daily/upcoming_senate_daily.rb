@@ -20,7 +20,7 @@ class UpcomingSenateDaily
     end
 
     if rss.is_a?(Fixnum)
-      Report.warning self, "Got status code #{rss} from Senate Daily Summary feed, can't go on.", :url => url
+      Report.note self, "Got status code #{rss} from Senate Daily Summary feed, can't go on.", :url => url
       return
     elsif rss.nil?
       Report.warning self, "Got a nil return value from Feedzirra from the Senate Daily Summary feed, can't go on.", :url => url
