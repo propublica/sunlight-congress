@@ -59,6 +59,8 @@ class CommitteeHearingsHouse
       return 0
     end
 
+    # body = body.encode("ASCII-8BIT", :invalid => :replace, :undef => :replace)
+
     year, month, day = datestamp.split("-")
 
     count = 0
@@ -90,6 +92,10 @@ class CommitteeHearingsHouse
 
       # split up the body text into pieces
       body_text = body.inner_text.strip
+
+      # treat as ASCII, just ditch or collapse special characters
+      body_text = body_text.encode("ASCII-8BIT", :invalid => :replace, :undef => :replace)
+
       top_line, bottom_line = body_text.split(/\s*\n\s*/).map &:strip
       top_pieces = top_line.split(/\s+\|\s+/).map &:strip
       bottom_pieces = bottom_line.split(/\s+\|\s+/).map &:strip
