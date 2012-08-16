@@ -90,7 +90,8 @@ class BulkGpoBills
       count += 1
     end
 
-    if failures.any?
+    # only alert if there are more than a handful of failures, their service has occasional hiccups
+    if failures.any? and failures.size > 10
       Report.warning self, "Failed to download #{failures.size} files while syncing against GPOs BILLS collection for #{year}", :failures => failures
     end
 
