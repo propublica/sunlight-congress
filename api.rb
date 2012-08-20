@@ -16,6 +16,9 @@ configure(:development) do |config|
   config.also_reload "./searchable.rb"
 end
 
+# disable XSS check, this is an API and it's okay to use it with JSONP
+disable :protection
+
 # backwards compatibility - 'sections' will still work
 before do
   if params[:sections].present?
