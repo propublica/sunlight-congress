@@ -191,7 +191,7 @@ class RegulationsArchive
     # common to public inspection documents and to articles
     rule.attributes = {
       stage: type_to_stage[details['type']],
-      agency_names: details['agencies'].map {|agency| agency['name']},
+      agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
       agency_ids: details['agencies'].map {|agency| agency['id']},
       publication_date: details['publication_date'],
 
