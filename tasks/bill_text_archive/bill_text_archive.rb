@@ -149,7 +149,13 @@ class BillTextArchive
         }
 
         # commit the version to the version index
-        Utils.es_store! 'bill_versions', bill_version_id, version_attributes
+        begin
+          Utils.es_store! 'bill_versions', bill_version_id, version_attributes
+        rescue RestClient::RequestTimeout => ex
+          Report.exception self, "Exception indexing bill in ES", ex, {
+            bill_version_id: bill_version_id
+          }
+        end
 
         # archive it in MongoDB for easy reference in other scripts
         version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
@@ -223,11 +229,11 @@ class BillTextArchive
     Utils.es_refresh! 'bills'
 
     if warnings.any?
-      Report.warning self, "Warnings found while parsing bill text and metadata", :warnings => warnings
+      Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
     end
 
     if notes.any?
-      Report.note self, "Notes found while parsing bill text and metadata", :notes => notes
+      Report.note self, "Notes found while parsing bill text and metadata", notes: notes
     end
     
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."

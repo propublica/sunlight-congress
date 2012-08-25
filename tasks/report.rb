@@ -40,6 +40,20 @@ class Report
   def self.complete(source, message, objects = {})
     file 'COMPLETE', source, message, objects.merge(read: true)
   end
+
+  def self.exception(source, message, exception, objects = {})
+    file 'FAILURE', source, message, {
+      'exception' => exception_to_hash(exception)
+      }.merge(objects)
+  end
+
+  def self.exception_to_hash(exception)
+    {
+        'backtrace' => exception.backtrace, 
+        'message' => exception.message, 
+        'type' => exception.class.to_s
+    }
+  end
   
   def success?
     status == 'SUCCESS'
