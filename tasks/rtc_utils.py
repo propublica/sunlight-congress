@@ -141,18 +141,3 @@ def remove_html_tags(data):
 def clean_description(data):
     data = remove_extra_spaces(remove_html_tags(data.replace("\n", "")))
     return data.strip()
-
-
-# code from python faq: 
-# http://docs.python.org/faq/programming.html#how-do-you-remove-duplicates-from-a-list
-
-def remove_dupes(mylist):
-    if mylist:
-        mylist.sort()
-        last = mylist[-1]
-        for i in range(len(mylist)-2, -1, -1):
-            if last == mylist[i]:
-                del mylist[i]
-            else:
-                last = mylist[i]
-    return mylist
