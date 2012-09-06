@@ -68,7 +68,7 @@ class BillsThomas
       last_action = last_action_for actions
       
       # committees = committees_for filename, doc, cached_committees, missing_committees
-      # related_bills = related_bills_for doc
+      related_bills = related_bills_for doc['related_bills']
       
       passage_votes = passage_votes_for actions
       last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
@@ -99,7 +99,7 @@ class BillsThomas
         introduced_at: Utils.ensure_utc(doc['introduced_at']),
         keywords: doc['subjects'],
         # :committees => committees,
-        # :related_bills => related_bills,
+        related_bills: related_bills,
         abbreviated: false
       }
       
@@ -253,21 +253,18 @@ class BillsThomas
     committees
   end
 
-    # known relations
-  # supersedes, superseded, identical, rule, unknown
-  def self.related_bills_for(doc)
-    related_bills = {}
+  def self.related_bills_for(related_bills)
+    related = {}
     
-    doc.search("//relatedbills/bill").map do |elem|
-      relation = elem['relation']
-      type = Utils.bill_type_for elem['type']
-      bill_id = "#{type}#{elem['number']}-#{elem['session']}"
+    related_bills.each do |details|
+      relation = details['reason']
+      bill_id = details['bill_id']
       
-      related_bills[relation] ||= []
-      related_bills[relation] << bill_id
+      related[relation] ||= []
+      related[relation] << bill_id
     end
     
-    related_bills
+    related
   end
 
   # this is terrible, and temporary

@@ -1,8 +1,8 @@
 # legislators and committees from Sunlight API
 0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
 
-# bills, amendments from THOMAS through GovTrack
-0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_archive && /projects/rtc/shared/cron/task.sh amendments_archive
+# bills from THOMAS, amendments through GovTrack
+0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_thomas && /projects/rtc/shared/cron/task.sh amendments_archive
 
 # full bill text from GPO
 */120 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills

@@ -383,11 +383,11 @@ module Utils
     
     bill = Bill.new :bill_id => bill_id
     bill.attributes = {
-      :bill_type => type,
-      :number => number,
-      :session => session,
-      :code => code,
-      :chamber => chamber
+      bill_type: type,
+      number: number,
+      session: session,
+      code: code,
+      chamber: chamber
     }
     
     bill
