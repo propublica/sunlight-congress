@@ -63,13 +63,15 @@ class BillsThomas
 
       cosponsors, missing = cosponsors_for doc['cosponsors'], legislators
       missing_legislators << missing.map {|m| [bill_id, missing]} if missing.any?
+
+      actions = actions_for(doc['actions'])
+      last_action = last_action_for actions
       
       # committees = committees_for filename, doc, cached_committees, missing_committees
       # related_bills = related_bills_for doc
       
-      # passage_votes = passage_votes_for doc
-      # last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
-      # last_action = last_action_for actions
+      passage_votes = passage_votes_for actions
+      last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
       
       bill.attributes = {
         bill_type: type,
@@ -88,12 +90,12 @@ class BillsThomas
         cosponsors: cosponsors,
         cosponsor_ids: cosponsors.map {|c| c['bioguide_id']},
         cosponsors_count: cosponsors.size,
-        actions: actions_for(doc['actions']),
-        # :last_action => last_action,
-        # :last_action_at => last_action ? last_action[:acted_at] : nil,
-        # :passage_votes => passage_votes,
-        # :passage_votes_count => passage_votes.size,
-        # :last_passage_vote_at => last_passage_vote_at,
+        actions: actions,
+        last_action: last_action,
+        last_action_at: last_action ? last_action[:acted_at] : nil,
+        :passage_votes => passage_votes,
+        :passage_votes_count => passage_votes.size,
+        :last_passage_vote_at => last_passage_vote_at,
         introduced_at: Utils.ensure_utc(doc['introduced_at']),
         keywords: doc['subjects'],
         # :committees => committees,
@@ -197,30 +199,30 @@ class BillsThomas
     
     now = Time.now
     actions.reverse.each do |action|
-      return action if action[:acted_at] < now
+      return action if action['acted_at'] < now
     end
     
     nil
   end
   
-  def self.passage_votes_for(doc)
+  def self.passage_votes_for(actions)
     chamber = {'h' => 'house', 's' => 'senate'}
-    doc.search('//actions/vote|//actions/vote2|//actions/vote-aux').map do |vote|
-      voted_at = Utils.ensure_utc vote['datetime']
-      chamber_code = vote['where']
-      how = vote['how']
+    actions.select {|a| (a['type'] == 'vote') or (a['type'] == 'vote2')}.map do |action|
+      voted_at = Utils.ensure_utc action['acted_at']
+      chamber_code = action['where']
+      how = action['how']
       
       result = {
-        :how => how,
-        :result => vote['result'], 
-        :voted_at => voted_at,
-        :text => (vote/:text).inner_text,
-        :chamber => chamber[chamber_code],
-        :passage_type => vote['type']
+        how: how,
+        result: action['result'], 
+        voted_at: voted_at,
+        text: action['text'],
+        chamber: chamber[chamber_code],
+        passage_type: action['type']
       }
       
-      if vote['roll'].present?
-        result[:roll_id] = "#{chamber_code}#{vote['roll']}-#{voted_at.year}"
+      if action['roll'].present?
+        result[:roll_id] = "#{chamber_code}#{action['roll']}-#{voted_at.year}"
       end
       
       result
