@@ -48,7 +48,7 @@ class AmendmentsArchive
       chamber = {'h' => 'house', 's' => 'senate'}[chamber_type]
       amendment_id = "#{chamber_type}#{number}-#{session}"
       state = state_for doc
-      offered_at = Utils.govtrack_time_for doc.at(:offered)['datetime']
+      offered_at = Utils.ensure_utc doc.at(:offered)['datetime']
       purpose = purpose_for doc
       
       bill_id = bill_id_for doc, session
@@ -213,7 +213,7 @@ class AmendmentsArchive
   def self.actions_for(doc)
     doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
       {
-        :acted_at => Utils.govtrack_time_for(action['datetime']),
+        :acted_at => Utils.ensure_utc(action['datetime']),
         :text => (action/:text).inner_text,
         :type => action.name
       }

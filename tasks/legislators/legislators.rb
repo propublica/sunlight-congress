@@ -44,6 +44,7 @@ class Legislators
       :first_name => api_legislator.firstname,
       :nickname => api_legislator.nickname,
       :last_name => api_legislator.lastname,
+      :middle_name => api_legislator.middlename,
       :name_suffix => api_legislator.name_suffix,
       :state => api_legislator.state,
       :district => api_legislator.district,

@@ -84,7 +84,7 @@ class BillsArchive
       state = state_for doc
       passage_votes = passage_votes_for doc
       last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
-      introduced_at = Utils.govtrack_time_for doc.at(:introduced)['datetime']
+      introduced_at = Utils.ensure_utc doc.at(:introduced)['datetime']
       
       last_action = last_action_for actions
       
@@ -236,7 +236,7 @@ class BillsArchive
     end
     
     if vetoed_action = doc.at('//actions/vetoed')
-      timeline[:vetoed_at] = Utils.govtrack_time_for vetoed_action['datetime']
+      timeline[:vetoed_at] = Utils.ensure_utc vetoed_action['datetime']
       timeline[:vetoed] = true
     else
       timeline[:vetoed] = false
@@ -253,7 +253,7 @@ class BillsArchive
     end
     
     if enacted_action = doc.at('//actions/enacted')
-      timeline[:enacted_at] = Utils.govtrack_time_for enacted_action['datetime']
+      timeline[:enacted_at] = Utils.ensure_utc enacted_action['datetime']
       timeline[:enacted] = true
     else
       timeline[:enacted] = false
@@ -272,7 +272,7 @@ class BillsArchive
     
     # finally, set the awaiting_signature flag, inferring it from the details above
     if passed and !timeline[:vetoed] and !timeline[:enacted] and topresident_action = doc.search('//actions/topresident').last
-      timeline[:awaiting_signature_since] = Utils.govtrack_time_for topresident_action['datetime']
+      timeline[:awaiting_signature_since] = Utils.ensure_utc topresident_action['datetime']
       timeline[:awaiting_signature] = true
     else
       timeline[:awaiting_signature] = false
@@ -290,7 +290,7 @@ class BillsArchive
   def self.actions_for(doc)
     doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
       {
-        :acted_at => Utils.govtrack_time_for(action['datetime']),
+        :acted_at => Utils.ensure_utc(action['datetime']),
         :text => (action/:text).inner_text,
         :type => action.name
       }
@@ -313,7 +313,7 @@ class BillsArchive
   def self.passage_votes_for(doc)
     chamber = {'h' => 'house', 's' => 'senate'}
     doc.search('//actions/vote|//actions/vote2|//actions/vote-aux').map do |vote|
-      voted_at = Utils.govtrack_time_for vote['datetime']
+      voted_at = Utils.ensure_utc vote['datetime']
       chamber_code = vote['where']
       how = vote['how']
       

@@ -153,7 +153,7 @@ module Utils
   # If it's a full timestamp with hours and minutes and everything, store that
   # Otherwise, if it's just a day, store the day with a date of noon UTC
   # So that it's the same date everywhere
-  def self.govtrack_time_for(timestamp)
+  def self.ensure_utc(timestamp)
     if timestamp =~ /:/
       Time.xmlschema timestamp
     else
