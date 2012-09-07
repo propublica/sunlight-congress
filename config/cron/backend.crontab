@@ -1,8 +1,16 @@
+# runs thomas data gathering script
+0 3,15 * * * /projects/rtc/run-thomas.sh
+
+############# RTC Tasks ########################3
+
 # legislators and committees from Sunlight API
 0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
 
-# bills, amendments from THOMAS through GovTrack
-0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_archive && /projects/rtc/shared/cron/task.sh amendments_archive
+# bills synced from THOMAS data - doesn't hit Thomas itself
+30 3,15 * * * /projects/rtc/shared/cron/task.sh bills_thomas 
+
+# amendments synced from GovTrack - sync twice a day
+0 4,16 * * * /projects/rtc/shared/cron/task.sh amendments_archive
 
 # full bill text from GPO
 */30 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
