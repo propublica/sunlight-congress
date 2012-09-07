@@ -92,7 +92,7 @@ class BillsThomas
         cosponsors_count: cosponsors.size,
         actions: actions,
         last_action: last_action,
-        last_action_at: last_action ? last_action[:acted_at] : nil,
+        last_action_at: last_action ? last_action['acted_at'] : nil,
         :passage_votes => passage_votes,
         :passage_votes_count => passage_votes.size,
         :last_passage_vote_at => last_passage_vote_at,
