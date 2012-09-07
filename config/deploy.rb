@@ -11,7 +11,7 @@ if environment == 'api' # production api box
 elsif environment == 'backend' # production scraper box
   set :domain, 'takoma.sunlightlabs.net' # takoma
 else # environment == 'staging'
-  set :domain, 'ec2-50-16-84-118.compute-1.amazonaws.com' # dupont
+  set :domain, 'ec2-107-22-9-27.compute-1.amazonaws.com' # dupont
 end
 
 
