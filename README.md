@@ -39,6 +39,8 @@ This project uses the Bundler dependency management system. Gems are packaged in
 
 Make sure you add the directory you use to the .gitignore file if it's not there already. "vendor/gems" has already been set aside for this purpose, in accordance with Bundler convention.
 
+For the python tasks, python 2.7 or higher is required. Tasks have not been tested for Python 3 compatibility. To install third party python dependencies, use pip and the requirements file: "pip install -r requirements.txt"
+
 
 = Running the development server
 
