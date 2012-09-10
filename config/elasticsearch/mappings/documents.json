@@ -1,0 +1,11 @@
+{
+  "documents": {
+    "properties": {
+      "text": {
+        "type": "string",
+        "store": "yes",
+        "term_vector": "with_positions_offsets"
+      }
+    }
+  }
+}
