@@ -124,19 +124,4 @@ class BulkGpoBills
     end
   end
 
-  def self.download_to(url, dest, failures, options)
-    
-    # cache unless we passed the force option
-    if options[:force].blank? and File.exists?(dest)
-      # it's cached, don't re-download
-      puts "Cached #{url} from #{dest}, not downloading..." if options[:debug]
-    else
-      puts "Downloading #{url} to #{dest}..." if options[:debug]
-      unless Utils.curl(url, dest)
-        
-      end
-    end
-
-  end
-
 end

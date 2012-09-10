@@ -122,20 +122,44 @@ module Utils
     
   end
 
+  # general helper for downloading stuff and caching
+  # 
+  # options:
+  #   cache: use cache; will always download from network if missing
+  #   destination: destination on disk, required for caching
+  #   debug: output info to STDOUT
+  #   
   def self.download(url, options = {})
+    # cache if caching is opted-into, and the cache exists
     if options[:cache] and File.exists?(options[:destination])
       puts "Cached #{url} from #{options[:destination]}, not downloading..." if options[:debug]
       File.read options[:destination]
+
+    # download, potentially saving to disk
     else
       puts "Downloading #{url} to #{options[:destination]}..." if options[:debug]
       result = curl url, options[:destination]
 
-      # TODO: when tasks stop using curl directly, make curl always return a string
-      if result.is_a?(Curl::Easy)
-        result.body_str
+      body = begin
+        curl = Curl::Easy.new url
+        curl.follow_location = true # follow redirects
+        curl.perform
+      rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
+        Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+        Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
+        puts "Error curling #{url}"
+        nil
       else
-        result
+        curl.body_str
       end
+
+      # returns true or false if a destination is given
+      if options[:destination]
+        return nil unless body
+        write destination, body
+      end
+      
+      body
     end
   end
 
