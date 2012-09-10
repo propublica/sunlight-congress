@@ -10,6 +10,12 @@ class Document
     :description, :categories # cbo_estimate
 
 
+  include Searchable::Model
+
+  result_fields *(self.basic_fields)
+  searchable_fields *(self.search_fields + [:text])
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
 
