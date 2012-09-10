@@ -17,7 +17,7 @@ class RegulationsArchive
   #     if year is given, is combined with year to index that specific month.
   #     if year is not given, does nothing.
   #
-  #   redownload: force a redownload of JSON files for individual documents
+  #   cache: use disk cache for requests to individual regulations
     
   def self.run(options = {})
 

@@ -6,11 +6,11 @@ class BulkGpoBills
   # Maintains a local copy of bill data from GPO's FDSys system.
   # 
   # By default, looks through the current year's sitemap, and re/downloads all bills updated in the last 3 days.
-  # Options can be passed in to archive whole years, which can ignore already downloaded files.
+  # Options can be passed in to archive whole years, or use cached data.
   # 
   # options:
-  #   archive: archive the whole year, don't limit it to 3 days. Will not re-download existing files.
-  #   force: if archiving, force it to re-download existing files.
+  #   archive: archive the whole year, don't limit it to 3 days.
+  #   cache: use cached data, don't re-download.
   #
   #   year: the year of data to fetch (defaults to current year)
   #   limit: only download a certain number of bills (stop short, useful for testing/development)
