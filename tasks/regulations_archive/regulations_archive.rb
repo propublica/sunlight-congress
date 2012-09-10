@@ -62,7 +62,7 @@ class RegulationsArchive
 
     puts "Fetching current public inspection documents..." if options[:debug]
 
-    unless response = Utils.json_for(base_url)
+    unless response = Utils.download(base_url, options.merge(json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
       return
     end
@@ -111,7 +111,7 @@ class RegulationsArchive
     # - this should be enough to not miss anything if filtered by month and stage, 
     #   but if not, catch it
     
-    unless response = Utils.json_for(base_url)
+    unless response = Utils.download(base_url, options.merge(json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
       return
     end
@@ -152,7 +152,10 @@ class RegulationsArchive
     url = "http://api.federalregister.gov/v1/#{endpoint}/#{document_number}.json"
     destination = destination_for document_type, document_number, "json"
 
-    details = json_for url, destination, options
+    unless details = Utils.download(url, options.merge(destination: destination, json: true))
+      Report.warning self, "Error while polling FR.gov for article details at #{url}, skipping article", url: url
+      return
+    end
 
     rule = Regulation.find_or_initialize_by document_number: document_number
 
@@ -260,23 +263,6 @@ class RegulationsArchive
     end
 
     true
-  end
-
-  def self.json_for(url, destination, options)
-    if File.exists?(destination) and options[:redownload].blank?
-      puts "\tCached, not downloading" if options[:debug]
-      body = File.read destination
-      MultiJson.load body
-    else
-      puts "\tDownloading JSON" if options[:debug]
-    
-      if details = Utils.json_for(url, destination)
-        details
-      else
-        Report.warning self, "Error while polling FR.gov for article details at #{url}, skipping article", url: url
-        nil
-      end
-    end
   end
 
   def self.destination_for(document_type, document_number, format)

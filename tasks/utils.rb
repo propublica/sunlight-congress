@@ -128,12 +128,15 @@ module Utils
   #   cache: use cache; will always download from network if missing
   #   destination: destination on disk, required for caching
   #   debug: output info to STDOUT
-  #   
+  #   json: if true, returns parsed content, and caches it to disk in pretty (indented) form
   def self.download(url, options = {})
     # cache if caching is opted-into, and the cache exists
-    if options[:cache] and File.exists?(options[:destination])
+    if options[:cache] and options[:destination] and File.exists?(options[:destination])
       puts "Cached #{url} from #{options[:destination]}, not downloading..." if options[:debug]
-      File.read options[:destination]
+      
+      body = File.read options[:destination]
+      body = Yajl::Parser.parse(body) if options[:json]
+      body
 
     # download, potentially saving to disk
     else
@@ -153,27 +156,21 @@ module Utils
         curl.body_str
       end
 
+      body = Yajl::Parser.parse(body) if options[:json]
+
       # returns true or false if a destination is given
       if options[:destination]
         return nil unless body
-        write destination, body
+
+        if options[:json] # body will be parsed
+          write options[:destination], JSON.pretty_generate(body)
+        else
+          write options[:destination], body
+        end
       end
       
       body
     end
-  end
-
-  # return the JSON from a URL, cache on the filesystem at the given destination if provided
-  # takes over destination writing in order to save in pretty format
-  def self.json_for(url, destination = nil)
-    return nil unless body = curl(url)
-    parsed = Yajl::Parser.parse(body)
-
-    if destination
-      write destination, JSON.pretty_generate(parsed)
-    end
-      
-    parsed
   end
 
   def self.write(destination, content)
