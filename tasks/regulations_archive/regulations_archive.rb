@@ -265,7 +265,8 @@ class RegulationsArchive
   def self.json_for(url, destination, options)
     if File.exists?(destination) and options[:redownload].blank?
       puts "\tCached, not downloading" if options[:debug]
-      Yajl::Parser.parse(open(destination))
+      body = File.read destination
+      MultiJson.load body
     else
       puts "\tDownloading JSON" if options[:debug]
     
