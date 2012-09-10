@@ -122,6 +122,23 @@ module Utils
     
   end
 
+  def self.download(url, options = {})
+    if options[:cache] and File.exists?(options[:destination])
+      puts "Cached #{url} from #{options[:destination]}, not downloading..." if options[:debug]
+      File.read options[:destination]
+    else
+      puts "Downloading #{url} to #{options[:destination]}..." if options[:debug]
+      result = curl url, options[:destination]
+
+      # TODO: when tasks stop using curl directly, make curl always return a string
+      if result.is_a?(Curl::Easy)
+        result.body_str
+      else
+        result
+      end
+    end
+  end
+
   # return the JSON from a URL, cache on the filesystem at the given destination if provided
   # takes over destination writing in order to save in pretty format
   def self.json_for(url, destination = nil)

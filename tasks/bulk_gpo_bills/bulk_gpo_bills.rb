@@ -71,19 +71,25 @@ class BulkGpoBills
 
       mods_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/mods.xml"
       mods_dest = "#{dest_prefix}.mods.xml"
-      download_to mods_url, mods_dest, failures, options
+      unless Utils.download(mods_url, options.merge(destination: mods_dest))
+        failures << {url: mods_url, dest: mods_dest}
+      end
 
       sleep 0.1
 
       text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/html/BILLS-#{session}#{gpo_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
-      download_to text_url, text_dest, failures, options
+      unless Utils.download(text_url, options.merge(destination: text_dest))
+        failures << {url: text_url, dest: text_dest}
+      end
 
       sleep 0.1
 
       xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/xml/BILLS-#{session}#{gpo_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
-      download_to xml_url, xml_dest, failures, options
+      unless Utils.download(xml_url, options.merge(destination: xml_dest))
+        failures << {url: xml_url, dest: xml_dest}
+      end
 
       sleep 0.1
 
@@ -111,22 +117,23 @@ class BulkGpoBills
   def self.sitemap_doc_for(year, options = {})
     url = "http://www.gpo.gov/smap/fdsys/sitemap_#{year}/#{year}_BILLS_sitemap.xml"
     puts "[#{year}] Fetching sitemap from GPO..." if options[:debug]
-    
-    if body = Utils.curl(url)
+    cache_url = "data/gpo/BILLS/sitemap-#{year}.xml"
+
+    if body = Utils.download(url, options.merge(destination: cache_url))
       Nokogiri::XML body
     end
   end
 
   def self.download_to(url, dest, failures, options)
     
-    # only cache if we're trying to get through an archive, and we haven't passed the force option
-    if File.exists?(dest) and options[:archive] and options[:force].blank?
+    # cache unless we passed the force option
+    if options[:force].blank? and File.exists?(dest)
       # it's cached, don't re-download
-
+      puts "Cached #{url} from #{dest}, not downloading..." if options[:debug]
     else
       puts "Downloading #{url} to #{dest}..." if options[:debug]
       unless Utils.curl(url, dest)
-        failures << {:url => url, :dest => dest}
+        
       end
     end
 
