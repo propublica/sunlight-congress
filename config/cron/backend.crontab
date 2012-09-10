@@ -45,13 +45,13 @@
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_house
 
 # CRS reports
-0 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
+*/10 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
 
 # CBO cost estimates
-5 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
+*/10 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
 
-# GAO reports
-10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports
+# GAO reports (full text)
+*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports cache=1
 
 # upcoming leadership information
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
