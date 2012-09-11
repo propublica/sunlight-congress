@@ -42,7 +42,7 @@ class DocumentsGaoReports
       url = "http://gao.gov/products/#{gao_id}"
 
       cache = cache_path_for gao_id, "landing.html"
-      unless body = Utils.download(url, options.merge(destination: cache))
+      unless (body = Utils.download(url, options.merge(destination: cache))) and body.present?
         failures << {gao_id: gao_id, url: url, message: "Couldn't download landing page"}
         next
       end
@@ -64,7 +64,7 @@ class DocumentsGaoReports
         end
         
         puts "[#{gao_id}] Couldn't find PDF link, skipping as failure"
-        failures << {gao_id: gao_id, url: url, body: body, message: "Couldn't find PDF link"}
+        failures << {gao_id: gao_id, url: url, message: "Couldn't find PDF link"}
         next
       end
 
@@ -160,6 +160,7 @@ class DocumentsGaoReports
       puts "[#{gao_id}] Successfully saved report"
 
       count += 1
+      sleep 0.5
     end
 
     Utils.es_refresh!
