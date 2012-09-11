@@ -7,33 +7,34 @@ Append debug=1 to all commands to see extra STDOUT.
 
 votes_house archive=1 year=2012
 	(*) repeat for 2011, 2010, 2009
-	FILE, MONGO, ES
+	ElasticSearch
 
 votes_senate archive=1 year=2012
 	(*) repeat for 2011, 2010, 2009
-	FILE, MONGO, ES
-
-bills_thomas session=112
-	(*) repeat for 111
-	MONGO
-
+	ElasticSearch
+	
 bill_text_archive session=112
 	(*) repeat for 111
-	ES
-
-regulations_archive year=2012
-	(*) repeat for 2011, 2010, 2009
-	MONGO
+	ElasticSearch
 
 regulations_full_text rearchive_year=2012
 	(*) repeat for 2011, 2010, 2009
-	FILE, MONGO, ES
+	ElasticSearch
 
-bulk_gpo_bills archive=1 year=2012
+documents_gao_reports year=2012 cache=1
 	(*) repeat for 2011, 2010, 2009
-	FILE
+	ElasticSearch
 
 house_live archive=True captions=True
 house_live archive=True captions=True senate=True
 	- currently goes back to 2009 on its own
-	MONGO, ES
+	ElasticSearch
+
+bulk_gpo_bills archive=1 year=2012
+	(*) repeat for 2011, 2010, 2009
+
+regulations_archive year=2012
+	(*) repeat for 2011, 2010, 2009
+
+bills_thomas session=112
+	(*) repeat for 111
