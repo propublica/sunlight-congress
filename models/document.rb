@@ -7,11 +7,13 @@ class Document
   basic_fields :posted_at, :document_type, :url, :title, # all
     :party, :chamber, :notice_type, :for_date, # whip_notice
     :order_code, # crs_report
-    :estimate_id, :categories, # cbo_estimate
-    :source_urls, :gao_id # gao_report
+    :description, :estimate_id, # cbo_estimate 
+    :source_urls, :gao_id, # gao_report
+    :categories # cbo_estimate, gao_reports
 
   search_fields :title, # all
-    :description, :categories # cbo_estimate
+    :description, # cbo_estimate
+    :categories # cbo_estimate, gao_reports
 
 
   include Searchable::Model

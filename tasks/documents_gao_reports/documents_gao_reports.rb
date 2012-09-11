@@ -1,65 +1,108 @@
 # encoding: utf-8
 
 require 'nokogiri'
-require 'open-uri'
 
 class DocumentsGaoReports
 
+  # Fetches and indexes GAO reports. Can fetch entire years; by default, asks for the last 7 days.
+  # options:
+  #   gao_id: specify a single report by its GAO ID.
+  #   year: fetch a whole year's reports.
+  #   limit: a number, limit the number of reports found.
+  #   cache: fetch everything from the disk, no network requests.
+
   def self.run(options = {})
-    # get the list of the latest reports
-    url = 'http://www.gao.gov/rss/reports.xml'
-    unless xml = Utils.download(url, options) # don't cache ever
-      Report.warning self, "Network error fetching GAO Reports, can't go on.", url: url
-      return
+
+    if options[:gao_id]
+      gao_ids = [options[:gao_id]]
+    else
+      ending = Time.now.midnight
+      beginning = ending - 7.days
+
+      gao_ids = gao_ids_for beginning, ending, options
+
+      if options[:limit]
+        gao_ids = gao_ids.first options[:limit].to_i
+      end
     end
 
     count = 0
-    doc = Nokogiri::XML xml
-
     failures = []
     warnings = []
 
-    doc.xpath('//item').each do |item|
-      title = item.xpath('title').inner_text
-      gao_id =  title.split(',')[0]
-      plain_title = title.split(", ")[1...-2].join(", ")
+    puts "Going to fetch #{gao_ids.size} GAO reports..." if options[:debug]
 
-      # post date
-      posted_at = Time.parse(item.xpath('pubDate').inner_text.gsub('00:00:00','13:00:00'))
+    gao_ids.each do |gao_id|
+      url = "http://gao.gov/products/#{gao_id}"
 
-      # strip the source
-      url = item.xpath('link').inner_text
-      url = url.sub(/\?source=ra$/, "")
-
+      cache = cache_path_for gao_id, "landing.html"
+      unless body = Utils.download(url, options.merge(destination: cache))
+        failures << {gao_id: gao_id, url: url, message: "Couldn't download landing page"}
+        next
+      end
       
-      # fetch the links to the PDF and full text
-      cache = cache_path_for gao_id, posted_at.year, "landing.html"
-      unless source_urls = source_urls_for(url, cache, options)
-        failures << {gao_id: gao_id, url: url, message: "Couldn't find source URLs"}
+      doc = Nokogiri::HTML body
+
+
+      # find source links
+
+      pdf_url = nil
+      text_url = nil
+
+      if pdf_elem = doc.css("a.pdf_link").select {|l| l.text.strip =~ /^View Report/i}.first
+        pdf_url = URI.join("http://www.gao.gov", pdf_elem['href']).to_s
+      else
+        failures << {gao_id: gao_id, url: url, message: "Couldn't find PDF link"}
         next
       end
 
+      if text_elem = doc.css("a.link").select {|l| l.text.strip =~ /Accessible Text/i}.first
+        text_url = URI.join("http://www.gao.gov", text_elem['href']).to_s
+      end
+
+
+      # find title, category, and publication date
+
+      unless title = doc.css("div#summary_head h2").text.strip
+        failures << {gao_id: gao_id, url: url, message: "Couldn't find title"}
+        next
+      end      
+
+      posted_at = nil
+      timestamp = doc.css("div#summary_head span.grey_text").text
+      unless timestamp.present? and (posted_at = Time.parse(timestamp).strftime("%Y-%m-%d"))
+        failures << {gao_id: gao_id, url: url, timestamp: timestamp, message: "Couldn't find publish date"}
+        next
+      end
+
+      category = doc.css("div#summary_head h1").text.strip
+      category = nil if category == "" # don't
+      
       full_text = nil
 
-      if source_urls
-        cache = cache_path_for gao_id, posted_at.year, "#{gao_id}.txt"
-        unless full_text = Utils.download(source_urls[:text], options.merge(destination: cache))
-          warnings << {gao_id: gao_id, url: source_urls[:text], message: "Couldn't download text version of report"}
+      if pdf_url
+        cache = cache_path_for gao_id, "#{gao_id}.pdf"
+        unless Utils.download(pdf_url, options.merge(destination: cache))
+          warnings << {gao_id: gao_id, url: pdf_url, message: "Couldn't download PDF of report"}
         end
+      end
 
-        cache = cache_path_for gao_id, posted_at.year, "#{gao_id}.pdf"
-        unless Utils.download(source_urls[:pdf], options.merge(destination: cache))
-          warnings << {gao_id: gao_id, url: source_urls[:pdf], message: "Couldn't download PDF of report"}
+      if text_url
+        cache = cache_path_for gao_id, "#{gao_id}.txt"
+        unless full_text = Utils.download(text_url, options.merge(destination: cache))
+          warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
         end
       end
 
       attributes = {
+        title: title,
+        posted_at: posted_at,
         document_type: 'gao_report',
-        gao_id: gao_id,
-        title: plain_title,
         url: "#{url}?source=sunlight", # maybe someday GAO will notice us
-        source_urls: source_urls,
-        posted_at: posted_at
+
+        gao_id: gao_id,
+        source_urls: {pdf: pdf_url, text: text_url},
+        categories: [category] # use plural field because other docs use it
       }
 
       # save to Mongo
@@ -76,7 +119,11 @@ class DocumentsGaoReports
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
         document_id = "gao-#{gao_id}"
         attributes['text'] = full_text
-        Utils.es_store! 'documents', document_id, attributes
+        begin
+          Utils.es_store! 'documents', document_id, attributes
+        rescue Exception => ex
+          warnings << {gao_id: gao_id, message: "Error indexing text, moving on"}.merge(Report.exception_to_hash(ex))
+        end
       end
 
       count += 1
@@ -95,31 +142,23 @@ class DocumentsGaoReports
     Report.success self, "Created or updated #{count} GAO Reports"
   end
 
-  def self.source_urls_for(url, destination, options)
-    body = Utils.download url, options.merge(destination: destination)
+  # fetch search results for date range, return GAO IDs for every report in the list
+  def self.gao_ids_for(beginning, ending, options)
+    url = "http://gao.gov/browse/date/custom"
+    url << "?adv_begin_date=#{beginning.strftime("%m/%d/%Y")}"
+    url << "&adv_end_date=#{ending.strftime("%m/%d/%Y")}"
+
+    cache = "data/gao/#{beginning.strftime("%Y%m%d")}-#{ending.strftime("%Y%m%d")}.html"
+    body = Utils.download(url, options.merge(destination: cache))
     return nil unless body
-    
-    pdf_url = nil
-    text_url = nil
-    doc = Nokogiri::HTML body
 
-    if pdf_elem = doc.css("a.pdf_link").select {|l| l.text.strip =~ /^View Report/i}.first
-      pdf_url = URI.join("http://www.gao.gov", pdf_elem['href']).to_s
-    end
-
-    if text_elem = doc.css("a.link").select {|l| l.text.strip =~ /Accessible Text/i}.first
-      text_url = URI.join("http://www.gao.gov", text_elem['href']).to_s
-    end
-
-    if pdf_url and text_url
-      {pdf: pdf_url, text: text_url}
-    else
-      nil
+    Nokogiri::HTML(body).css("div.listing a").map do |link|
+      link['href'].split("/").last.strip
     end
   end
 
-  def self.cache_path_for(gao_id, year, filename)
-    "data/gpo/#{year}/#{gao_id}/#{filename}"
+  def self.cache_path_for(gao_id, filename)
+    "data/gao/#{gao_id}/#{filename}"
   end
 
   # collapse whitespace

@@ -95,4 +95,12 @@ class Report
     sec = seconds % 60
     "#{min > 0 ? "#{min}m," : ""}#{sec}s"
   end
+
+  def self.exception_to_hash(exception)
+    {
+        'backtrace' => exception.backtrace, 
+        'message' => exception.message, 
+        'type' => exception.class.to_s
+    }
+  end
 end
