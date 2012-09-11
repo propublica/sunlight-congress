@@ -117,10 +117,11 @@ import socket
 socket.setdefaulttimeout(10)
 
 options = yaml.load(open(os.getcwd() + '/config/config.yml', 'r').read())
+mongo = yaml.load(open(os.getcwd() + '/config/mongoid.yml', 'r').read())
 
 task_name = sys.argv[1]
-db_host = options['mongoid']['host']
-db_name = options['mongoid']['database']
+db_host = mongo['defaults']['sessions']['default']['hosts'][0]
+db_name = mongo['defaults']['sessions']['default']['database']
 db = Database(task_name, db_host, db_name)
 
 es_host = options['elastic_search']['host']
