@@ -4,7 +4,7 @@ class Document
 
   default_order :posted_at
 
-  basic_fields :posted_at, :document_type, :url, :title, # all
+  basic_fields :document_id, :posted_at, :document_type, :document_type_name, :url, :title, # all
     :party, :chamber, :notice_type, :for_date, # whip_notice
     :order_code, # crs_report
     :description, :estimate_id, # cbo_estimate 
@@ -25,6 +25,7 @@ class Document
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  index document_id: 1
   index posted_at: 1
   index document_type: 1
 

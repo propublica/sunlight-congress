@@ -90,7 +90,10 @@ class DocumentsGaoReports
       end
 
       category = doc.css("div#summary_head h1").text.strip
-      category = nil if category == "" # don't
+      category = nil unless category.present? # don't
+
+      description = doc.css("div.left_col p").map(&:text).select(&:present?).join " "
+      description = nil unless description.present? # don't
       
 
       # figure out whether we can get the full text
@@ -124,13 +127,17 @@ class DocumentsGaoReports
         end
       end
 
+      document_id = gao_id # unique, all prefixed with "GAO"
 
       attributes = {
+        document_id: document_id,
         title: title,
         posted_at: posted_at,
         document_type: 'gao_report',
+        document_type_name: "GAO Report",
         url: "#{url}?source=sunlight", # maybe someday GAO will notice us
 
+        description: description,
         gao_id: gao_id,
         source_urls: {pdf: pdf_url, text: text_url},
         categories: [category] # use plural field because other docs use it
@@ -138,7 +145,7 @@ class DocumentsGaoReports
 
       # save to Mongo
       puts "[#{gao_id}] Saving report information..." if options[:debug]
-      document = Document.find_or_initialize_by gao_id: gao_id
+      document = Document.find_or_initialize_by document_id: document_id
       document.attributes = attributes
       document.save!
 
@@ -148,7 +155,6 @@ class DocumentsGaoReports
         full_text = process_full_text full_text
 
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
-        document_id = "gao-#{gao_id}"
         attributes['text'] = full_text
         begin
           Utils.es_store! 'documents', document_id, attributes
