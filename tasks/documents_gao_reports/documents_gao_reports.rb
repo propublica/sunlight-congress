@@ -16,8 +16,13 @@ class DocumentsGaoReports
     if options[:gao_id]
       gao_ids = [options[:gao_id]]
     else
-      ending = Time.now.midnight
-      beginning = ending - 7.days
+      if options[:year]
+        beginning = Time.parse("#{options[:year]}-01-01").midnight
+        ending = Time.parse("#{options[:year]}-12-31").midnight
+      else
+        ending = Time.now.midnight
+        beginning = ending - 7.days
+      end
 
       gao_ids = gao_ids_for beginning, ending, options
 
@@ -147,6 +152,7 @@ class DocumentsGaoReports
     url = "http://gao.gov/browse/date/custom"
     url << "?adv_begin_date=#{beginning.strftime("%m/%d/%Y")}"
     url << "&adv_end_date=#{ending.strftime("%m/%d/%Y")}"
+    url << "&rows=15000" # 2011 had 835, 2010 had 794
 
     cache = "data/gao/#{beginning.strftime("%Y%m%d")}-#{ending.strftime("%Y%m%d")}.html"
     body = Utils.download(url, options.merge(destination: cache))
