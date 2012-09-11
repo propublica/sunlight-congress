@@ -377,7 +377,7 @@ module Searchable
   
   def self.client_for(document_type, options = {})
     full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
-    index = "#{config['elastic_search']['index_prefix']}_#{document_type}"
+    index = "#{config['elastic_search']['index']}"
     
     ElasticSearch.new("http://#{full_host}", :index => index, :type => document_type) do |conn|
       if options[:explain]
@@ -388,9 +388,8 @@ module Searchable
     end
   end
 
-  def self.index_for(collection)
-    index_prefix = config['elastic_search']['index_prefix']
-    Tire.index "#{index_prefix}_#{collection}"
+  def self.es_index
+    Tire.index config['elastic_search']['index']
   end
 
   class ExplainLogger < Faraday::Response::Middleware

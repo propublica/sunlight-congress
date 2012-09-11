@@ -225,8 +225,7 @@ class BillTextArchive
     end
     
     # make sure queries are ready
-    Utils.es_refresh! 'bill_versions'
-    Utils.es_refresh! 'bills'
+    Utils.es_refresh!
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings

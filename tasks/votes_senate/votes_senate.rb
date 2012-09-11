@@ -148,7 +148,7 @@ class VotesSenate
       count += 1
     end
 
-    Utils.es_refresh! 'votes'
+    Utils.es_refresh!
 
     if download_failures.any?
       Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", download_failures: download_failures

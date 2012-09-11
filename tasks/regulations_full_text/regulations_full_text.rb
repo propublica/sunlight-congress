@@ -118,7 +118,7 @@ class RegulationsFullText
     end
 
     # make sure data is appearing now
-    Utils.es_refresh! 'regulations'
+    Utils.es_refresh!
 
     Report.success self, "Indexed #{count} regulations as searchable"
   end

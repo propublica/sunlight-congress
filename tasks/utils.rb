@@ -7,11 +7,11 @@ require 'yajl'
 module Utils
 
   def self.es_store!(collection, id, hash)
-    Searchable.index_for(collection).store hash.merge(:id => id, :type => collection)
+    Searchable.es_index.store hash.merge(id: id, type: collection)
   end
 
-  def self.es_refresh!(collection)
-    Searchable.index_for(collection).refresh
+  def self.es_refresh!
+    Searchable.es_index.refresh
   end
 
   def self.extract_usc(document, text, destination, options)

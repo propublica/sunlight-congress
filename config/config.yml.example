@@ -11,7 +11,7 @@ opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
 elastic_search:
   host: localhost
   port: 9200
-  index_prefix: rtc
+  index: rtc
 
 # information for the Citation extraction API (https://github.com/sunlightlabs/citation-api)
 citation:

@@ -82,7 +82,15 @@ class DocumentsGaoReports
       count += 1
     end
 
-    Utils.es_refresh! 'documents' # refresh ES index
+    Utils.es_refresh!
+
+    if failures.any?
+      Report.failure self, "Failed to process #{failures.size} reports, attached", {failures: failures}
+    end
+
+    if warnings.any?
+      Report.warning self, "Failed to process text for #{warnings.size} reports, attached", {warnings: warnings}
+    end
 
     Report.success self, "Created or updated #{count} GAO Reports"
   end
