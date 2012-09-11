@@ -50,8 +50,8 @@
 # CBO cost estimates
 */10 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
 
-# GAO reports (full text)
-*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports
+# GAO reports (full text) - add 1s between requests
+*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1
 
 # upcoming leadership information
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
