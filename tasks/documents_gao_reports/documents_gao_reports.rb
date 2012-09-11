@@ -160,7 +160,6 @@ class DocumentsGaoReports
       puts "[#{gao_id}] Successfully saved report"
 
       count += 1
-      sleep 0.5
     end
 
     Utils.es_refresh!

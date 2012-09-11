@@ -129,6 +129,7 @@ module Utils
   #   destination: destination on disk, required for caching
   #   debug: output info to STDOUT
   #   json: if true, returns parsed content, and caches it to disk in pretty (indented) form
+  #   rate_limit: number of seconds to sleep after each download (can be a decimal)
   def self.download(url, options = {})
     # cache if caching is opted-into, and the cache exists
     if options[:cache] and options[:destination] and File.exists?(options[:destination])
@@ -167,6 +168,10 @@ module Utils
         else
           write options[:destination], body
         end
+      end
+
+      if options[:rate_limit]
+        sleep options[:rate_limit].to_f
       end
       
       body
