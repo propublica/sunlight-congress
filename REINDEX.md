@@ -9,7 +9,11 @@ votes_house archive=1 year=2012
 	(*) repeat for 2011, 2010, 2009
 	FILE, MONGO, ES
 
-bills_archive session=112
+votes_senate archive=1 year=2012
+	(*) repeat for 2011, 2010, 2009
+	FILE, MONGO, ES
+
+bills_thomas session=112
 	(*) repeat for 111
 	MONGO
 
