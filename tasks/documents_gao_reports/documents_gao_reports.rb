@@ -58,7 +58,13 @@ class DocumentsGaoReports
       if pdf_elem = doc.css("a.pdf_link").select {|l| l.text.strip =~ /^View Report/i}.first
         pdf_url = URI.join("http://www.gao.gov", pdf_elem['href']).to_s
       else
-        failures << {gao_id: gao_id, url: url, message: "Couldn't find PDF link"}
+        if gao_id =~ /SP$/
+          puts "[#{gao_id}] No PDF link, report likely a supplement, skipping" if options[:debug]
+          next
+        end
+        
+        puts "[#{gao_id}] Couldn't find PDF link, skipping as failure"
+        failures << {gao_id: gao_id, url: url, body: body, message: "Couldn't find PDF link"}
         next
       end
 
@@ -70,6 +76,7 @@ class DocumentsGaoReports
       # find title, category, and publication date
 
       unless title = doc.css("div#summary_head h2").text.strip
+        puts "[#{gao_id}] Couldn't find title, failed"
         failures << {gao_id: gao_id, url: url, message: "Couldn't find title"}
         next
       end      
@@ -77,6 +84,7 @@ class DocumentsGaoReports
       posted_at = nil
       timestamp = doc.css("div#summary_head span.grey_text").text
       unless timestamp.present? and (posted_at = Time.parse(timestamp).strftime("%Y-%m-%d"))
+        puts "[#{gao_id}] Couldn't find publish date, failed"
         failures << {gao_id: gao_id, url: url, timestamp: timestamp, message: "Couldn't find publish date"}
         next
       end
@@ -84,10 +92,13 @@ class DocumentsGaoReports
       category = doc.css("div#summary_head h1").text.strip
       category = nil if category == "" # don't
       
+
+      # figure out whether we can get the full text
       full_text = nil
 
+      # always download the PDF, just to have it
       if pdf_url
-        cache = cache_path_for gao_id, "#{gao_id}.pdf"
+        cache = cache_path_for gao_id, "pdf"
         unless Utils.download(pdf_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: pdf_url, message: "Couldn't download PDF of report"}
         end
@@ -95,21 +106,24 @@ class DocumentsGaoReports
 
       # if GAO provides an "Accessible Text" version, use that
       if text_url
-        cache = cache_path_for gao_id, "#{gao_id}.txt"
+        cache = cache_path_for gao_id, "txt"
         unless full_text = Utils.download(text_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
         end
 
       # otherwise, create a file in the same place using a rip of the PDF
-      else
-        pdf_path = cache_path_for gao_id, "#{gao_id}.pdf"
-        output = cache_path_for gao_id, "#{gao_id}.txt"
+      elsif pdf_url
+        pdf_path = cache_path_for gao_id, "pdf"
+        output = cache_path_for gao_id, "txt"
 
-        # depending on Docsplit's behavior of just changing the extension
-        Docsplit.extract_text(pdf_path, ocr: false, output: File.dirname(output))
+        if File.exists?(pdf_path)
+          # depending on Docsplit's behavior of just changing the extension
+          Docsplit.extract_text(pdf_path, ocr: false, output: File.dirname(output))
 
-        full_text = File.read(output) if File.exists?(output)
+          full_text = File.read(output) if File.exists?(output)
+        end
       end
+
 
       attributes = {
         title: title,
@@ -143,6 +157,8 @@ class DocumentsGaoReports
         end
       end
 
+      puts "[#{gao_id}] Successfully saved report"
+
       count += 1
     end
 
@@ -175,8 +191,8 @@ class DocumentsGaoReports
     end
   end
 
-  def self.cache_path_for(gao_id, filename)
-    "data/gao/#{gao_id}/#{filename}"
+  def self.cache_path_for(gao_id, extension)
+    "data/gao/#{gao_id}/#{gao_id}.#{extension}"
   end
 
   # collapse whitespace
