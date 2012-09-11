@@ -51,7 +51,7 @@
 */10 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
 
 # GAO reports (full text)
-*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports cache=1
+*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports
 
 # upcoming leadership information
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
