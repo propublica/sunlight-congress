@@ -25,6 +25,7 @@ gem 'sunlight', '1.1.0'
 gem 'nokogiri', '1.5.5'
 gem 'httparty', '0.7.8'
 gem 'feedzirra', '0.2.0rc2'
+gem 'docsplit', '0.6.3'
 
 # elasticsearch
 gem 'rubberband', '0.9.0'

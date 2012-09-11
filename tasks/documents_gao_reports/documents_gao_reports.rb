@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'nokogiri'
+require 'docsplit'
 
 class DocumentsGaoReports
 
@@ -92,11 +93,22 @@ class DocumentsGaoReports
         end
       end
 
+      # if GAO provides an "Accessible Text" version, use that
       if text_url
         cache = cache_path_for gao_id, "#{gao_id}.txt"
         unless full_text = Utils.download(text_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
         end
+
+      # otherwise, create a file in the same place using a rip of the PDF
+      else
+        pdf_path = cache_path_for gao_id, "#{gao_id}.pdf"
+        output = cache_path_for gao_id, "#{gao_id}.txt"
+
+        # depending on Docsplit's behavior of just changing the extension
+        Docsplit.extract_text(pdf_path, ocr: false, output: File.dirname(output))
+
+        full_text = File.read(output) if File.exists?(output)
       end
 
       attributes = {

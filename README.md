@@ -1,3 +1,7 @@
+# Installing dependencies
+
+The docsplit gem (PDF text extraction) requires some [system dependencies](http://documentcloud.github.com/docsplit/).
+
 # Running tasks
 
 There is a rake task generated for each task folder in the tasks directory.  Example:
