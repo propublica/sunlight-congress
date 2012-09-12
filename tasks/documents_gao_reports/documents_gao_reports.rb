@@ -50,7 +50,8 @@ class DocumentsGaoReports
       details = details.first # it's an array of one item for some reason
 
       # details directly from JSON
-      categories = details['topics'] + [details['bucket_term']]
+      categories = details['topics'] || []
+      categories += [details['bucket_term']] if details['bucket_term']
       published_at = Utils.noon_utc_for details['docdate']
       posted_at = Time.parse details['actual_release_date']
       report_number = details['rptno']
