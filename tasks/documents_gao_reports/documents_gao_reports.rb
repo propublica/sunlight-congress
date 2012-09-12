@@ -119,6 +119,10 @@ class DocumentsGaoReports
           warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
         end
 
+        # if the text is downloaded, needs to be treated as ISO-8859-1 and then converted to UTF-8
+        full_text.force_encoding("ISO-8859-1")
+        full_text = full_text.encode "UTF-8", :invalid => :replace, :undef => :replace
+
       # otherwise, create a file in the same place using a rip of the PDF
       elsif pdf_url
         pdf_path = cache_path_for gao_id, "pdf"
@@ -156,12 +160,31 @@ class DocumentsGaoReports
       puts "[#{gao_id}] Saving report information..." if options[:debug]
       document = Document.find_or_initialize_by document_id: document_id
       document.attributes = attributes
-      document.save!
-
+      
       # save to ElasticSearch if we got the text
       if full_text
+        
         # post-process, strip newlines
         full_text = process_full_text full_text
+
+
+        # extract citations
+
+        usc = Utils.extract_usc document, full_text, cache_path_for(gao_id, "citation.json"), options
+        unless usc.is_a?(Hash)
+          warnings << {message: "Failed to extract USC from #{document_id}"}
+          usc = {}
+        end
+
+        # temporary
+        if usc['extracted_ids'] and usc['extracted_ids'].any?
+          puts "\t[#{document_id}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
+        end
+
+        document['usc'] = usc
+
+
+        # index in text search engine
 
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
         attributes['text'] = full_text
@@ -171,6 +194,8 @@ class DocumentsGaoReports
           warnings << {gao_id: gao_id, message: "Error indexing text, moving on"}.merge(Report.exception_to_hash(ex))
         end
       end
+
+      document.save!
 
       puts "[#{gao_id}] Successfully saved report"
 
@@ -214,7 +239,11 @@ class DocumentsGaoReports
 
   # collapse whitespace
   def self.process_full_text(full_text)
-    full_text = full_text.encode("ASCII-8BIT", :invalid => :replace, :undef => :replace)
-    full_text.gsub /[\s\n]+/, " "
+
+    full_text.gsub! '``', '"'
+    full_text.gsub! "''", '"'
+    full_text.gsub! /[\s\n]+/, " "
+
+    full_text
   end
 end
