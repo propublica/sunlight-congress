@@ -160,7 +160,8 @@ class DocumentsGaoReports
           puts "\t[#{document_id}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
         end
 
-        document['usc'] = usc
+        document['usc'] = usc # for Mongo
+        attributes['usc'] = usc # for ES
 
 
         # index in text search engine
