@@ -4,7 +4,8 @@ class Document
 
   default_order :posted_at
 
-  basic_fields :document_id, :posted_at, :document_type, :document_type_name, # all
+  basic_fields :document_id, :posted_at, :published_at, # all
+    :document_type, :document_type_name, # all
     :title, :source_url, :url, # all
 
     :party, :chamber, :notice_type, :for_date, # whip_notice
@@ -30,6 +31,17 @@ class Document
 
   include Mongoid::Document
   include Mongoid::Timestamps
+
+  # basic guarantees
+  validates_uniqueness_of :document_id
+  validates_presence_of :document_id
+  validates_presence_of :posted_at
+  validates_presence_of :url
+  validates_presence_of :title
+  validates_presence_of :document_type
+
+  # gao_id looks like a number, but treat as a string
+  field :gao_id
 
   index document_id: 1
   index posted_at: 1

@@ -39,74 +39,41 @@ class DocumentsGaoReports
     puts "Going to fetch #{gao_ids.size} GAO reports..." if options[:debug]
 
     gao_ids.each do |gao_id|
-      url = "http://gao.gov/products/#{gao_id}"
-
-      cache = cache_path_for gao_id, "landing.html"
-      unless (body = Utils.download(url, options.merge(destination: cache))) and body.present?
-        failures << {gao_id: gao_id, url: url, message: "Couldn't download landing page"}
-        next
-      end
       
-      doc = Nokogiri::HTML body
-
-
-      # find source links
-
-      pdf_url = nil
-      text_url = nil
-
-      if pdf_elem = doc.css("a.pdf_link").select {|l| l.text.strip =~ /^View Report/i}.first
-        pdf_url = URI.join("http://www.gao.gov", pdf_elem['href']).to_s
-      else
-        if gao_id =~ /SP$/
-          puts "[#{gao_id}] No PDF link, report likely a supplement, skipping" if options[:debug]
-          next
-        end
-
-        if doc.css("a.link").select {|l| l.text.strip == "Request File"}.any?
-          puts "[#{gao_id}] No PDF available, okay, skipping" if options[:debug]
-          next
-        end
-        
-        puts "[#{gao_id}] Couldn't find PDF link, skipping as failure"
-        failures << {gao_id: gao_id, url: url, message: "Couldn't find PDF link"}
+      url = "http://gao.gov/api/id/#{gao_id}"
+      cache = cache_path_for gao_id, "report.json"
+      unless details = Utils.download(url, options.merge(destination: cache, json: true))
+        failures << {gao_id: gao_id, url: url, message: "Couldn't download JSON of report"}
         next
       end
 
-      if text_elem = doc.css("a.link").select {|l| l.text.strip =~ /Accessible Text/i}.first
-        text_url = URI.join("http://www.gao.gov", text_elem['href']).to_s
-      end
+      details = details.first # it's an array of one item for some reason
 
-
-      # find title, category, and publication date
-
-      unless title = doc.css("div#summary_head h2").text.strip
-        puts "[#{gao_id}] Couldn't find title, failed"
-        failures << {gao_id: gao_id, url: url, message: "Couldn't find title"}
-        next
-      end      
-
-      posted_at = nil
-      timestamp = doc.css("div#summary_head span.grey_text").text
-      unless timestamp.present? and (posted_at = Time.parse(timestamp).strftime("%Y-%m-%d"))
-        puts "[#{gao_id}] Couldn't find publish date, failed"
-        failures << {gao_id: gao_id, url: url, timestamp: timestamp, message: "Couldn't find publish date"}
-        next
-      end
-
-      category = doc.css("div#summary_head h1").text.strip
-      category = nil unless category.present? # don't
-
-      description = doc.css("div.left_col p").map(&:text).select(&:present?).join " "
-      description = nil unless description.present? # don't
+      # details directly from JSON
+      categories = details['topics'] + [details['bucket_term']]
+      published_at = Utils.noon_utc_for details['docdate']
+      posted_at = Time.parse details['actual_release_date']
+      report_number = details['rptno']
+      title = details['title']
       
+      landing_url = details['url']
+      pdf_url = details['pdf_url']
+      text_url = details['text_url']
+      gao_type = details['document_type']
+      description = strip_tags(details['description']) if details['description'].present?
+
+
+      unless landing_url or pdf_url
+        puts "[#{gao_id}] No landing URL or PDF, skipping..." if options[:debug]
+        next
+      end
 
       # figure out whether we can get the full text
       full_text = nil
 
       # always download the PDF, just to have it
       if pdf_url
-        cache = cache_path_for gao_id, "pdf"
+        cache = cache_path_for gao_id, "report.pdf"
         unless Utils.download(pdf_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: pdf_url, message: "Couldn't download PDF of report"}
         end
@@ -114,7 +81,7 @@ class DocumentsGaoReports
 
       # if GAO provides an "Accessible Text" version, use that
       if text_url
-        cache = cache_path_for gao_id, "txt"
+        cache = cache_path_for gao_id, "report.download.txt"
         unless full_text = Utils.download(text_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
         end
@@ -125,8 +92,8 @@ class DocumentsGaoReports
 
       # otherwise, create a file in the same place using a rip of the PDF
       elsif pdf_url
-        pdf_path = cache_path_for gao_id, "pdf"
-        output = cache_path_for gao_id, "txt"
+        pdf_path = cache_path_for gao_id, "report.pdf"
+        output = cache_path_for gao_id, "report.txt"
 
         if File.exists?(pdf_path)
           # depending on Docsplit's behavior of just changing the extension
@@ -136,11 +103,7 @@ class DocumentsGaoReports
         end
       end
 
-      if gao_id =~ /^GAO\-/
-        document_id = gao_id
-      else
-        document_id = "GAO-#{gao_id}"
-      end
+      document_id = "GAO-#{gao_id}"
 
       attributes = {
         document_id: document_id,
@@ -148,12 +111,20 @@ class DocumentsGaoReports
         posted_at: posted_at,
         document_type: 'gao_report',
         document_type_name: "GAO Report",
-        url: "#{url}?source=sunlight", # maybe someday GAO will notice us
+        url: (landing_url || pdf_url),
+        
+        source_url: pdf_url,
+        published_at: published_at,
 
         description: description,
         gao_id: gao_id,
-        source_url: pdf_url,
-        categories: [category] # use plural field because other docs use it
+        report_number: report_number,
+        categories: categories,
+
+        # bonus
+        supplement_url: details['supplement_url'],
+        youtube_id: details['youtube_id'],
+        links: (details['additional_links'] if details['additional_links'].present?)
       }
 
       # save to Mongo
@@ -226,15 +197,20 @@ class DocumentsGaoReports
     body = Utils.download(url, options.merge(destination: cache))
     return nil unless body
 
-    Nokogiri::HTML(body).css("div.listing a").map do |link|
-      link['href'].split("/").last.strip
-    end.reject {|gao_id| gao_id =~ /\.pdf$/} # only official GAO reports
+    Nokogiri::HTML(body).css("div.listing").map do |div|
+      div['content_id']
+    end
   end
 
+  def self.cache_path_for(gao_id, filename)
+    "data/gao/#{gao_id}/#{filename}"
+  end
 
-
-  def self.cache_path_for(gao_id, extension)
-    "data/gao/#{gao_id}/#{gao_id}.#{extension}"
+  def self.strip_tags(text)
+    doc = Nokogiri::HTML text
+    (doc/"//*/text()").map do |text| 
+      text.inner_text.strip
+    end.select {|text| text.present?}
   end
 
   # collapse whitespace
