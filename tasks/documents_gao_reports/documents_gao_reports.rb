@@ -55,12 +55,19 @@ class DocumentsGaoReports
       posted_at = Time.parse details['actual_release_date']
       report_number = details['rptno']
       title = details['title']
-      
-      landing_url = details['url']
-      pdf_url = details['pdf_url']
-      text_url = details['text_url']
       gao_type = details['document_type']
       description = strip_tags(details['description']) if details['description'].present?
+
+      # urls
+      landing_url = details['url']
+      text_url = details['text_url']
+      pdf_url = details['pdf_url']
+      
+      # seen a mixup - http://gao.gov/api/id/586393
+      if (pdf_url and pdf_url =~ /\.txt$/)
+        text_url = pdf_url
+        pdf_url = nil
+      end
 
 
       unless landing_url or pdf_url
