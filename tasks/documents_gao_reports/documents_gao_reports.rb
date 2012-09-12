@@ -210,7 +210,7 @@ class DocumentsGaoReports
     doc = Nokogiri::HTML text
     (doc/"//*/text()").map do |text| 
       text.inner_text.strip
-    end.select {|text| text.present?}
+    end.select {|text| text.present?}.join " "
   end
 
   # collapse whitespace
