@@ -22,7 +22,7 @@ module Utils
     else
       url = "http://#{config['citation']['hostname']}/citation/find.json"
       puts "\tExtracting citations from citation-api..." if options[:debug]
-      curl = Curl.post url, text: text, "options[context]" => (options[:cite_context] || 250)
+      curl = Curl.post url, text: CGI.escape(text), "options[context]" => (options[:cite_context] || 250)
       body = curl.body_str
       hash = MultiJson.load body
       Utils.write destination, JSON.pretty_generate(hash)
