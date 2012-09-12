@@ -65,8 +65,11 @@ class DocumentsGaoReports
       pdf_url = details['pdf_url']
       
       # seen a mixup - http://gao.gov/api/id/586393
-      if (pdf_url and pdf_url =~ /\.txt$/)
+      if pdf_url and (pdf_url =~ /\.txt$/)
         text_url = pdf_url
+        pdf_url = nil
+      # seen it - http://gao.gov/api/id/586175
+      elsif pdf_url and (pdf_url !~ /\.pdf$/)
         pdf_url = nil
       end
 
