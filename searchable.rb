@@ -66,7 +66,7 @@ module Searchable
   end
   
   def self.subfilter_for(model, field, value)
-    parsed = value_for value, model.field_type(field)
+    parsed = value_for value, model.fields[field]
     
     if parsed.is_a?(String)
       {
