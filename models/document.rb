@@ -4,11 +4,13 @@ class Document
 
   default_order :posted_at
 
-  basic_fields :document_id, :posted_at, :document_type, :document_type_name, :url, :title, # all
+  basic_fields :document_id, :posted_at, :document_type, :document_type_name, # all
+    :title, :source_url, :url, # all
+
     :party, :chamber, :notice_type, :for_date, # whip_notice
     :order_code, # crs_report
     :description, :estimate_id, # cbo_estimate 
-    :source_urls, :gao_id, # gao_report
+    :gao_id, # gao_report
     :categories # cbo_estimate, gao_reports
 
   search_fields :title, # all

@@ -62,6 +62,11 @@ class DocumentsGaoReports
           puts "[#{gao_id}] No PDF link, report likely a supplement, skipping" if options[:debug]
           next
         end
+
+        if doc.css("a.link").select {|l| l.text.strip == "Request File"}.any?
+          puts "[#{gao_id}] No PDF available, okay, skipping" if options[:debug]
+          next
+        end
         
         puts "[#{gao_id}] Couldn't find PDF link, skipping as failure"
         failures << {gao_id: gao_id, url: url, message: "Couldn't find PDF link"}
@@ -139,7 +144,7 @@ class DocumentsGaoReports
 
         description: description,
         gao_id: gao_id,
-        source_urls: {pdf: pdf_url, text: text_url},
+        source_url: pdf_url,
         categories: [category] # use plural field because other docs use it
       }
 
@@ -194,8 +199,10 @@ class DocumentsGaoReports
 
     Nokogiri::HTML(body).css("div.listing a").map do |link|
       link['href'].split("/").last.strip
-    end
+    end.reject {|gao_id| gao_id =~ /\.pdf$/} # only official GAO reports
   end
+
+
 
   def self.cache_path_for(gao_id, extension)
     "data/gao/#{gao_id}/#{gao_id}.#{extension}"
