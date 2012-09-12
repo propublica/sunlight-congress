@@ -132,7 +132,11 @@ class DocumentsGaoReports
         end
       end
 
-      document_id = gao_id # unique, all prefixed with "GAO"
+      if gao_id =~ /^GAO\-/
+        document_id = gao_id
+      else
+        document_id = "GAO-#{gao_id}"
+      end
 
       attributes = {
         document_id: document_id,
