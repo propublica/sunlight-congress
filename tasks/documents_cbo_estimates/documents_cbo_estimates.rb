@@ -31,6 +31,7 @@ class DocumentsCboEstimates
 
       document = Document.find_or_initialize_by :estimate_id => estimate_id
       document.attributes = {
+        document_id: estimate_id,
         :document_type => 'cbo_estimate',
         :estimate_id => estimate_id,
         :title => title,

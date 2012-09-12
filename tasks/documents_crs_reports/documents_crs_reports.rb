@@ -30,6 +30,7 @@ class DocumentsCrsReports
         document = Document.find_or_initialize_by order_code: r['ordercode']
         
         document.attributes = {
+          document_id: r['ordercode'],
           :document_type => 'crs_report',
           :posted_at => Time.parse(r['dateadded'].to_s + " 12:00 UTC"),
           :order_code => r['ordercode'],

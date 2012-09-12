@@ -44,11 +44,14 @@ class DocumentsWhipNotices
       title = entry.title
       for_date = Utils.utc_parse entry.title
       session = Utils.session_for_year for_date.year
-    
+      
+      for_date = for_date.strftime("%Y-%m-%d")
+
       notice = Document.find_or_initialize_by(
+        document_id: "whip_notice-house-D-#{type}-#{for_date}",
         :document_type => "whip_notice",
         :chamber => "house",
-        :for_date => for_date.strftime("%Y-%m-%d"),
+        :for_date => for_date,
         :party => 'D', 
         :notice_type => type
       )
@@ -92,6 +95,7 @@ class DocumentsWhipNotices
     }[type]
     
     notice = Document.find_or_initialize_by(
+      document_id: "whip_notice-house-R-#{type}-#{for_date}",
       :document_type => "whip_notice",
       :chamber => "house",
       :for_date => for_date,
