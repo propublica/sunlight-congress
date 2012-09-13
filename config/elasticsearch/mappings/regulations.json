@@ -2,10 +2,9 @@
   "regulations": {
     "properties": {
       "full_text": {
-            "type": "string",
-            "store": "yes",
-            "term_vector": "with_positions_offsets"
-        }
+        "type": "string",
+        "store": "yes",
+        "term_vector": "with_positions_offsets"
       }
     }
   }
