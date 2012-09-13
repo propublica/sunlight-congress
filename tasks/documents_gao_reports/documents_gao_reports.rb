@@ -171,11 +171,7 @@ class DocumentsGaoReports
 
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
         attributes['text'] = full_text
-        begin
-          Utils.es_store! 'documents', document_id, attributes
-        rescue Exception => ex
-          warnings << {gao_id: gao_id, message: "Error indexing text, moving on"}.merge(Report.exception_to_hash(ex))
-        end
+        Utils.es_store! 'documents', document_id, attributes
       end
 
       document.save!
