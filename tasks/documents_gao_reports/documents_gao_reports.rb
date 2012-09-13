@@ -219,10 +219,16 @@ class DocumentsGaoReports
   end
 
   def self.strip_tags(text)
-    doc = Nokogiri::HTML text
-    (doc/"//*/text()").map do |text| 
-      text.inner_text.strip
-    end.select {|text| text.present?}.join " "
+    text = text.gsub(/<\/?(p|div)>/i, "\n\n").strip
+    # text.gsub! /<\/?h2>/, "*"
+    text.gsub! /<[^>]+?>/, '' # don't yell at me
+    text.gsub! /\n{3,}\s*/, "\n\n"
+    text.strip
+    # doc = Nokogiri::HTML text
+    # (doc/"//*/text()").map do |text| 
+    #   puts text.inner_text
+    #   text.inner_text.strip
+    # end.select {|text| text.present?}.join " "
   end
 
   # collapse whitespace
