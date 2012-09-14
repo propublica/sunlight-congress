@@ -16,7 +16,7 @@ class RegulationsFullText
   #
   #   rearchive: mark everything as unindexed and re-index everything.
   #   rearchive_year: mark everything in a given year as unindexed and re-index everything.
-  #   redownload: ignore cached files
+  #   redownload: ignore cached files (TODO: switch to new download util)
 
   def self.run(options = {})
     limit = options[:limit] ? options[:limit].to_i : nil
@@ -49,6 +49,9 @@ class RegulationsFullText
 
     missing_links = []
     usc_warnings = []
+
+    # hold batched docs
+    batcher = []
 
     targets.each do |regulation|
 
@@ -98,7 +101,7 @@ class RegulationsFullText
       puts "[#{regulation.document_number}] Indexing..."
       fields['full_text'] = full_text
       fields['usc'] = usc
-      Utils.es_store! 'regulations', regulation.document_number, fields
+      Utils.es_batch! 'regulations', regulation.document_number, fields, batcher, options
 
       # update in mongo
       puts "\tMarking object as indexed and adding any extracted citations..." if options[:debug]
@@ -117,7 +120,8 @@ class RegulationsFullText
       Report.warning self, "#{usc_warnings.size} warnings while extracting US Code citations", :usc_warnings => usc_warnings
     end
 
-    # make sure data is appearing now
+    # index any leftover docs, and refresh the index
+    Utils.es_flush! 'regulations', batcher
     Utils.es_refresh!
 
     Report.success self, "Indexed #{count} regulations as searchable"
