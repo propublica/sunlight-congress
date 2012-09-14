@@ -379,7 +379,7 @@ module Searchable
     full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     index = "#{config['elastic_search']['index']}"
     
-    ElasticSearch.new("http://#{full_host}", :index => index, :type => document_type) do |conn|
+    ElasticSearch.new("http://#{full_host}", index: index, type: document_type) do |conn|
       if options[:explain]
         conn.response :explain_logger
       end
@@ -400,7 +400,7 @@ module Searchable
     def call(env)
       # puts "request: #{env.inspect}\n\n"
       @@last_request = {
-        body: env[:body] ? ::Oj::load(env[:body], mode: :compat) : nil, 
+        body: env[:body] ? ::Oj::load(env[:body]) : nil, 
         url: env[:url].to_s
       }
       super
@@ -409,7 +409,7 @@ module Searchable
     def on_complete(env)
       # puts "response: #{env.inspect}\n\n"
       @@last_response = {
-        body: env[:body] ? ::Oj::load(env[:body], mode: :compat) : nil,
+        body: env[:body] ? ::Oj::load(env[:body]) : nil,
         url: env[:url].to_s
       }
     end

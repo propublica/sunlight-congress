@@ -6,10 +6,14 @@ require 'yajl'
 
 module Utils
 
-  def self.es_store!(collection, id, hash)
-    Searchable.es_index.store hash.merge(id: id, type: collection)
+  # document is a hash, 
+  # collection is a mapping (e.g. 'bills'), 
+  # id is a string unique to the collection
+  def self.es_store!(collection, id, document)
+    Searchable.client_for(collection).index document, id: id
   end
 
+  # todo: replace with rubberband after the ES connection is not mapping-scoped
   def self.es_refresh!
     Searchable.es_index.refresh
   end
