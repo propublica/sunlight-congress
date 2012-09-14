@@ -28,6 +28,10 @@ class BillTextArchive
 
     warnings = []
     notes = []
+
+    # used to keep batches of indexes
+    bill_batcher = []
+    version_batcher = []
     
     targets.each do |bill|
       type = bill.bill_type
@@ -149,14 +153,8 @@ class BillTextArchive
         }
 
         # commit the version to the version index
-        begin
-          Utils.es_store! 'bill_versions', bill_version_id, version_attributes
-        rescue RestClient::RequestTimeout => ex
-          Report.exception self, "Exception indexing bill in ES", ex, {
-            bill_version_id: bill_version_id
-          }
-        end
-
+        Utils.es_batch! 'bill_versions', bill_version_id, version_attributes, version_batcher, options
+        
         # archive it in MongoDB for easy reference in other scripts
         version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
         version_archive.attributes = version_attributes
@@ -192,7 +190,7 @@ class BillTextArchive
       
       puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
-      Utils.es_store!('bills', bill.bill_id,
+      Utils.es_batch!('bills', bill.bill_id,
         bill_fields.merge(
           versions: last_bill_version_text,
           version_codes: bill_version_codes,
@@ -203,7 +201,8 @@ class BillTextArchive
           usc: last_usc,
 
           updated_at: Time.now
-        )
+        ),
+        bill_batcher, options
       )
       
       puts "[#{bill.bill_id}] Indexed versions for whole bill." if options[:debug]
@@ -224,7 +223,9 @@ class BillTextArchive
       bill_count += 1
     end
     
-    # make sure queries are ready
+    # index any leftover docs, and refresh the index
+    Utils.es_flush! 'bills', bill_batcher
+    Utils.es_flush! 'bill_versions', version_batcher
     Utils.es_refresh!
 
     if warnings.any?

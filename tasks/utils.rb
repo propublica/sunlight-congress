@@ -34,7 +34,7 @@ module Utils
   def self.es_flush!(collection, batcher)
     return if batcher.empty? 
 
-    puts "\n-- Batch indexing #{batcher.size} documents --\n\n"
+    puts "\n-- Batch indexing #{batcher.size} documents into '#{collection}' --\n\n"
 
     Searchable.client_for(collection).bulk do |client|
       batcher.each do |id, document|
