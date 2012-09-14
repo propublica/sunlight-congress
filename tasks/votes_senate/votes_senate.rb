@@ -2,7 +2,7 @@ require 'nokogiri'
 
 class VotesSenate
 
-    # Syncs vote data with the House of Representatives.
+  # Syncs vote data with the House of Representatives.
   # 
   # By default, looks through the Clerk's EVS pages, and 
   # re/downloads data for the last 10 roll call votes.
@@ -58,6 +58,8 @@ class VotesSenate
     missing_legislators = []
     missing_bill_ids = []
     missing_amendment_ids = []
+
+    batcher = [] # used to persist a batch indexing container
 
     # will be referenced by LIS ID as a cache built up as we parse through votes
     legislators = {}
@@ -143,11 +145,13 @@ class VotesSenate
 
       # replicate it in ElasticSearch
       puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
-      Utils.search_index_vote! roll_id, vote.attributes
+      Utils.search_index_vote! roll_id, vote.attributes, batcher, options
 
       count += 1
     end
 
+    # index any leftover docs, and refresh the index
+    Utils.es_flush! 'votes', batcher
     Utils.es_refresh!
 
     if download_failures.any?
