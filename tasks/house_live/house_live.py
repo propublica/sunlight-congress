@@ -287,7 +287,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
     videos = query_api(db, api_url, data)
 
     if not videos:
-        db.warning("Granicus API appers to be down")
+        db.warning("Granicus API appears to be down", {'errors': PARSING_ERRORS})
         sys.exit()        
 
     vcount = 0
