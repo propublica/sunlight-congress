@@ -25,10 +25,11 @@ configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
-  # configure elasticsearch client #1 (rubberband, for searching)
-  Faraday.register_middleware :response, :explain_logger => Searchable::ExplainLogger
+  # configure elasticsearch client #1 (rubberband, for searching and indexing)
+  Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
 
-  # configure elasticsearch client #2 (Tire, for indexing)
+  # TODO: get rid of this once we have a persistent client
+  # configure elasticsearch client #2 (Tire, for refreshing)
   host = config['elastic_search']['host']
   port = config['elastic_search']['port']
   Tire.configure do
@@ -39,9 +40,9 @@ configure do
   # We will assume users mean Eastern time, which is where Congress is.
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
 
-  # insist on using my Ruby default time format 
+  # insist on using the time format I set as the Ruby default,
   # even in dependent libraries that use MultiJSON (e.g. rubberband)
-  Oj.default_options = {:mode => :compat, :time_format => :ruby}
+  Oj.default_options = {mode: :compat, time_format: :ruby}
 end
 
 # special fields used by the system, cannot be used on a model (on the top level)

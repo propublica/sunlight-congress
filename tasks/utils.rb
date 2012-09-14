@@ -9,8 +9,40 @@ module Utils
   # document is a hash, 
   # collection is a mapping (e.g. 'bills'), 
   # id is a string unique to the collection
+  # bulk_container is an array, will use it to persist a batch for bulk indexing
+  # 
+  # if given a bulk_size, will use it to determine when to batch and empty the container
+  def self.es_batch!(collection, id, document, batcher, options = {})
+    # default to batching 100
+    options[:batch_size] ||= 100
+
+    # batch the document
+    batcher << [id, document]
+
+    # if container's full, index them all
+    if batcher.size >= options[:batch_size].to_i
+      es_flush! collection, batcher
+    end
+  end
+
+  # indexes a document immediately
   def self.es_store!(collection, id, document)
     Searchable.client_for(collection).index document, id: id
+  end
+
+  # force a batch index of the container (useful to close out a batch)
+  def self.es_flush!(collection, batcher)
+    return if batcher.empty? 
+
+    puts "\n-- Batch indexing #{batcher.size} documents --\n\n"
+
+    Searchable.client_for(collection).bulk do |client|
+      batcher.each do |id, document|
+        client.index document, id: id
+      end
+    end
+
+    batcher.clear # reset
   end
 
   # todo: replace with rubberband after the ES connection is not mapping-scoped

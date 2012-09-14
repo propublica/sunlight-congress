@@ -36,6 +36,8 @@ class DocumentsGaoReports
     failures = []
     warnings = []
 
+    batcher = [] # used to persist a batch indexing container
+
     puts "Going to fetch #{gao_ids.size} GAO reports..." if options[:debug]
 
     gao_ids.each do |gao_id|
@@ -171,7 +173,8 @@ class DocumentsGaoReports
 
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
         attributes['text'] = full_text
-        Utils.es_store! 'documents', document_id, attributes
+
+        Utils.es_batch! 'documents', document_id, attributes, batcher, options
       end
 
       document.save!
@@ -181,6 +184,8 @@ class DocumentsGaoReports
       count += 1
     end
 
+    # index any leftover docs, and refresh the index
+    Utils.es_flush! 'documents', batcher
     Utils.es_refresh!
 
     if failures.any?
