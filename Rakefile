@@ -116,7 +116,7 @@ def run_task(name)
     end
     
   else
-    complete = Report.complete task_name, "Completed running #{name}", {:elapsed_time => Time.now - start}
+    complete = Report.complete task_name, "Completed running #{name}", {elapsed_time: (Time.now - start)}
     puts complete
   end
   
