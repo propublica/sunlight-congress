@@ -33,6 +33,7 @@ class Regulation
 
 
   index document_number: 1
+  index document_type: 1
   index stage: 1
   index rins: 1
   index published_at: 1
