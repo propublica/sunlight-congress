@@ -20,23 +20,32 @@ def config
   @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
 end
 
-def load_search_client
-  full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
-  @search_client = ElasticSearch.new "http://#{full_host}", index: config['elastic_search']['index']
+
+# load and persist search clients
+
+def configure_elasticsearch
+  full_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+  
+  Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
+
+  @search_client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
+    conn.adapter Faraday.default_adapter
+  end
+
+  @explain_client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
+    conn.response :explain_logger
+    conn.adapter Faraday.default_adapter
+  end
 end
 
-def search_client
-  @search_client
-end
 
 configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
-  # configure elasticsearch client #1 (rubberband, for searching and indexing)
-  load_search_client
-  # Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
-
+  # done in the outside scope so instance variables live forever
+  configure_elasticsearch
+  
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
@@ -72,7 +81,8 @@ end
 Queryable.add_magic_fields magic_fields
 Searchable.add_magic_fields magic_fields
 Searchable.config = config
-Searchable.client = search_client
+Searchable.client = @search_client
+Searchable.explain = @explain_client
 
 
 @all_models = []

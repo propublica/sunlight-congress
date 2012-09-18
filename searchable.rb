@@ -244,7 +244,11 @@ module Searchable
   
   def self.search_for(request, client_options = {})
     # client_options only used for explain at this time
-    client.search request[0], request[1]
+    if client_options[:explain]
+      explain.search request[0], request[1]
+    else
+      client.search request[0], request[1]
+    end
   end
   
   def self.request_for(mapping, query, filter, fields, order, pagination, other)
@@ -382,6 +386,14 @@ module Searchable
 
   def self.client
     @client
+  end
+
+  def self.explain=(client)
+    @explain = client
+  end
+
+  def self.explain
+    @explain
   end
   
 
