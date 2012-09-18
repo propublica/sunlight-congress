@@ -172,8 +172,7 @@ module Utils
     # download, potentially saving to disk
     else
       puts "Downloading #{url} to #{options[:destination]}..." if options[:debug]
-      result = curl url, options[:destination]
-
+      
       body = begin
         curl = Curl::Easy.new url
         curl.follow_location = true # follow redirects
