@@ -150,8 +150,8 @@ module Searchable
 
   def self.raw_results_for(term, model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
-    request = request_for query, filter, fields, order, pagination, other
-    search_for mapping, request
+    request = request_for mapping, query, filter, fields, order, pagination, other
+    search_for request
   end
 
   def self.documents_for(term, model, fields, raw_results)
@@ -174,10 +174,10 @@ module Searchable
   
   def self.explain_for(term, model, query, filter, fields, order, pagination, other)
     mapping = model.to_s.underscore.pluralize
-    request = request_for query, filter, fields, order, pagination, other
+    request = request_for mapping, query, filter, fields, order, pagination, other
     
     begin
-      results = search_for mapping, request, explain: other[:explain]
+      results = search_for request, explain: other[:explain]
 
       # subject to a race condition here, need to think of a better solution than a class variable
       # but in practice, the explain mode is not going to be used in production, only debugging
@@ -242,12 +242,12 @@ module Searchable
     options
   end
   
-  def self.search_for(mapping, request, client_options = {})
-    client = client_for mapping, client_options
+  def self.search_for(request, client_options = {})
+    # client_options only used for explain at this time
     client.search request[0], request[1]
   end
   
-  def self.request_for(query, filter, fields, order, pagination, other)
+  def self.request_for(mapping, query, filter, fields, order, pagination, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
     
@@ -264,6 +264,7 @@ module Searchable
      
       # pagination info has to go into the second hash or rubberband messes it up
       {
+        :type => mapping,
         :from => from,
         :size => size
       }
@@ -374,23 +375,15 @@ module Searchable
   def self.config
     @config
   end
+
+  def self.client=(client)
+    @client = client
+  end
+
+  def self.client
+    @client
+  end
   
-  def self.client_for(document_type, options = {})
-    full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
-    index = "#{config['elastic_search']['index']}"
-    
-    ElasticSearch.new("http://#{full_host}", index: index, type: document_type) do |conn|
-      if options[:explain]
-        conn.response :explain_logger
-      end
-
-      conn.adapter Faraday.default_adapter
-    end
-  end
-
-  def self.es_index
-    Tire.index config['elastic_search']['index']
-  end
 
   class ExplainLogger < Faraday::Response::Middleware
 

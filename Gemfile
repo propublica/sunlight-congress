@@ -28,5 +28,4 @@ gem 'feedzirra', '0.2.0rc2'
 gem 'docsplit', '0.6.3'
 
 # elasticsearch
-gem 'rubberband', '0.9.0'
-gem 'tire', '0.4.2'
+gem 'rubberband', '0.9.5'

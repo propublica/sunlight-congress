@@ -2,8 +2,7 @@ require 'oj'
 require 'sinatra'
 require 'mongoid'
 require 'tzinfo'
-require 'elasticsearch'
-require 'tire'
+require 'rubberband'
 
 
 # insist on my API-wide timestamp format
@@ -21,20 +20,22 @@ def config
   @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
 end
 
+def load_search_client
+  full_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+  @search_client = ElasticSearch.new "http://#{full_host}", index: config['elastic_search']['index']
+end
+
+def search_client
+  @search_client
+end
+
 configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
   # configure elasticsearch client #1 (rubberband, for searching and indexing)
-  Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
-
-  # TODO: get rid of this once we have a persistent client
-  # configure elasticsearch client #2 (Tire, for refreshing)
-  host = config['elastic_search']['host']
-  port = config['elastic_search']['port']
-  Tire.configure do
-    url "http://#{host}:#{port}"
-  end
+  load_search_client
+  # Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
 
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
@@ -71,6 +72,7 @@ end
 Queryable.add_magic_fields magic_fields
 Searchable.add_magic_fields magic_fields
 Searchable.config = config
+Searchable.client = search_client
 
 
 @all_models = []

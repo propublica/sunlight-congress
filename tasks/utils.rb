@@ -1,7 +1,6 @@
 require 'nokogiri'
 require 'curb'
 require 'httparty'
-require 'tire'
 require 'yajl'
 
 module Utils
@@ -27,7 +26,7 @@ module Utils
 
   # indexes a document immediately
   def self.es_store!(collection, id, document)
-    Searchable.client_for(collection).index document, id: id
+    Searchable.client.index document, id: id, type: collection
   end
 
   # force a batch index of the container (useful to close out a batch)
@@ -36,18 +35,13 @@ module Utils
 
     puts "\n-- Batch indexing #{batcher.size} documents into '#{collection}' --\n\n"
 
-    Searchable.client_for(collection).bulk do |client|
+    Searchable.client.bulk do |client|
       batcher.each do |id, document|
-        client.index document, id: id
+        client.index document, id: id, type: collection
       end
     end
 
     batcher.clear # reset
-  end
-
-  # todo: replace with rubberband after the ES connection is not mapping-scoped
-  def self.es_refresh!
-    Searchable.es_index.refresh
   end
 
   def self.extract_usc(document, text, destination, options)
