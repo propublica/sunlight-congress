@@ -396,6 +396,18 @@ module Searchable
     @explain
   end
   
+  class DebugRequest < Faraday::Response::Middleware
+    def call(env)
+      puts "\nrequest: #{env.inspect}\n\n"
+      super
+    end
+  end
+
+  class DebugResponse < Faraday::Response::Middleware
+    def on_complete(env)
+      puts "\nresponse: #{env.inspect}\n\n"
+    end
+  end
 
   class ExplainLogger < Faraday::Response::Middleware
 
@@ -403,7 +415,6 @@ module Searchable
     def self.last_response; @@last_response; end
 
     def call(env)
-      # puts "request: #{env.inspect}\n\n"
       @@last_request = {
         body: env[:body] ? ::Oj::load(env[:body]) : nil, 
         url: env[:url].to_s
@@ -412,7 +423,6 @@ module Searchable
     end
 
     def on_complete(env)
-      # puts "response: #{env.inspect}\n\n"
       @@last_response = {
         body: env[:body] ? ::Oj::load(env[:body]) : nil,
         url: env[:url].to_s

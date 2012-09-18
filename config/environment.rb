@@ -25,17 +25,25 @@ end
 
 def configure_elasticsearch
   full_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+  options = {
+    index: config['elastic_search']['index'], 
+    auto_discovery: false
+  }
   
   Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
+  Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
+  Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
 
   Searchable.config = config
 
-  Searchable.client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
+  Searchable.client = ElasticSearch.new(full_host, options) do |conn|
+    # conn.response :debug_request # print request to STDOUT
+    # conn.response :debug_response # print response to STDOUT
     conn.adapter Faraday.default_adapter
   end
 
-  Searchable.explain = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
-    conn.response :explain_logger
+  Searchable.explain = ElasticSearch.new(full_host, options) do |conn|
+    conn.response :explain_logger # store last request and response for explain output
     conn.adapter Faraday.default_adapter
   end
 end
