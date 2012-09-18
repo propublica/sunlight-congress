@@ -184,9 +184,8 @@ class DocumentsGaoReports
       count += 1
     end
 
-    # index any leftover docs, and refresh the index
+    # index any leftover docs
     Utils.es_flush! 'documents', batcher
-    Utils.es_refresh!
 
     if failures.any?
       Report.failure self, "Failed to process #{failures.size} reports, attached", {failures: failures}

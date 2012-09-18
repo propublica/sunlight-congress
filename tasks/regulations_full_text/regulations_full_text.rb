@@ -120,9 +120,8 @@ class RegulationsFullText
       Report.warning self, "#{usc_warnings.size} warnings while extracting US Code citations", :usc_warnings => usc_warnings
     end
 
-    # index any leftover docs, and refresh the index
+    # index any leftover docs
     Utils.es_flush! 'regulations', batcher
-    Utils.es_refresh!
 
     Report.success self, "Indexed #{count} regulations as searchable"
   end
