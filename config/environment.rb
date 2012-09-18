@@ -28,11 +28,13 @@ def configure_elasticsearch
   
   Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
 
-  @search_client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
+  Searchable.config = config
+
+  Searchable.client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
     conn.adapter Faraday.default_adapter
   end
 
-  @explain_client = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
+  Searchable.explain = ElasticSearch.new(full_host, index: config['elastic_search']['index']) do |conn|
     conn.response :explain_logger
     conn.adapter Faraday.default_adapter
   end
@@ -43,7 +45,6 @@ configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
-  # done in the outside scope so instance variables live forever
   configure_elasticsearch
   
   # This is for when people search by date (with no time), or a time that omits the time zone
@@ -80,9 +81,6 @@ end
 # load in REST helpers and models
 Queryable.add_magic_fields magic_fields
 Searchable.add_magic_fields magic_fields
-Searchable.config = config
-Searchable.client = @search_client
-Searchable.explain = @explain_client
 
 
 @all_models = []
