@@ -24,9 +24,9 @@
 0 7 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True senate=True
 
 
-# votes from house and senate, download last 10 votes every 5 minutes
+# votes from house and senate, download last 10 votes every few minutes, stagger them
 */5 * * * * /projects/rtc/shared/cron/task.sh votes_house latest=10
-*/5 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
+*/9 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
 
 # re-download all votes for the year, once a day, to catch corrections
 0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1
