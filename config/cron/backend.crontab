@@ -29,8 +29,8 @@
 */9 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
 
 # re-download all votes for the year, once a day, to catch corrections
-0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1
-30 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate archive=1 force=1
+0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1 batch_size=5
+30 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate archive=1 force=1 batch_size=5
 
 
 # floor updates
