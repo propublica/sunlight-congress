@@ -247,7 +247,23 @@ module Searchable
     if client_options[:explain]
       explain.search request[0], request[1]
     else
-      client.search request[0], request[1]
+      # thrift transport may need to reconnect if ES is restarted
+      if thrift?
+        begin
+          client.search request[0], request[1]
+        rescue IOError, ElasticSearch::ConnectionFailed => ex
+          if (ex.message =~ /closed stream/) or (ex.message =~ /Broken pipe/)
+            # reset clients
+            configure_clients! 
+
+            # only one retry, no rescue
+            client.search request[0], request[1]
+          end
+        end
+
+      else # don't be so forgiving
+        client.search request[0], request[1]
+      end
     end
   end
   
@@ -394,6 +410,41 @@ module Searchable
 
   def self.explain
     @explain
+  end
+
+  def self.thrift?
+    config['elastic_search']['thrift'].present?
+  end
+
+  # load and persist search clients
+  def self.configure_clients!
+    full_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+    options = {
+      index: config['elastic_search']['index'], 
+      auto_discovery: false
+    }
+
+    Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
+    Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
+    Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
+
+    Searchable.config = config
+
+    if thrift?
+      thrift_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['thrift']}"
+      Searchable.client = ElasticSearch.new thrift_host, options.merge(:transport => ElasticSearch::Transport::Thrift)
+    else
+      Searchable.client = ElasticSearch.new(full_host, options) do |conn|
+        # conn.response :debug_request # print request to STDOUT
+        # conn.response :debug_response # print response to STDOUT
+        conn.adapter Faraday.default_adapter
+      end
+    end
+
+    Searchable.explain = ElasticSearch.new(full_host, options) do |conn|
+      conn.response :explain_logger # store last request and response for explain output
+      conn.adapter Faraday.default_adapter
+    end
   end
   
   class DebugRequest < Faraday::Response::Middleware

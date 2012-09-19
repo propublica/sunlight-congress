@@ -21,39 +21,12 @@ def config
 end
 
 
-# load and persist search clients
-
-def configure_elasticsearch
-  full_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
-  options = {
-    index: config['elastic_search']['index'], 
-    auto_discovery: false
-  }
-  
-  Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
-  Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
-  Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
-
-  Searchable.config = config
-
-  Searchable.client = ElasticSearch.new(full_host, options) do |conn|
-    # conn.response :debug_request # print request to STDOUT
-    # conn.response :debug_response # print response to STDOUT
-    conn.adapter Faraday.default_adapter
-  end
-
-  Searchable.explain = ElasticSearch.new(full_host, options) do |conn|
-    conn.response :explain_logger # store last request and response for explain output
-    conn.adapter Faraday.default_adapter
-  end
-end
-
-
 configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
-  configure_elasticsearch
+  Searchable.config = config
+  Searchable.configure_clients!
   
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
