@@ -604,6 +604,7 @@ module Utils
     attributes.delete '_id'
 
     attributes.delete 'voters'
+    attributes.delete 'voter_ids'
 
     if bill_id = attributes['bill_id']
       if bill = Bill.where(:bill_id => bill_id).first
