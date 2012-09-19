@@ -414,7 +414,6 @@ module Searchable
   end
 
   def self.thrift
-    puts "THRIFT!"
     @thrift
   end
 
