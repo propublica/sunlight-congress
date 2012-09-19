@@ -258,6 +258,8 @@ module Searchable
 
             # only one retry, no rescue
             thrift.search request[0], request[1]
+          else
+            raise ex
           end
         end
 
