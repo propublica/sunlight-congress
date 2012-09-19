@@ -7,13 +7,13 @@ module Searchable
   def self.query_for(term, model, params, search_fields)
     
     conditions = {
-      :dis_max => {
-        :queries => []
+      'dis_max' => {
+        'queries' => []
       }
     }
     
     search_fields.each do |field|
-      conditions[:dis_max][:queries] << subquery_for(term, field)
+      conditions['dis_max']['queries'] << subquery_for(term, field)
     end
     
     conditions
@@ -33,12 +33,12 @@ module Searchable
   # factored out mainly for ease of unit testing
   def self.subquery_for(term, field)
     {
-        :text => {
-          field => {
-            :query => term,
-            :type => "phrase"
-          }
+      :text => {
+        field => {
+          :query => term,
+          :type => "phrase"
         }
+      }
     }
   end
   
@@ -177,7 +177,9 @@ module Searchable
     request = request_for mapping, query, filter, fields, order, pagination, other
     
     begin
+      start = Time.now
       results = search_for request, explain: other[:explain]
+      elapsed = Time.now - start
 
       # subject to a race condition here, need to think of a better solution than a class variable
       # but in practice, the explain mode is not going to be used in production, only debugging
@@ -190,7 +192,8 @@ module Searchable
         :mapping => mapping,
         :count => results.total_entries,
         :request => last_request,
-        :response => last_response
+        :response => last_response,
+        :elapsed => elapsed
       }
     rescue ElasticSearch::RequestError => exc
       {
