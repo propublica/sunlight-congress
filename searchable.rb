@@ -250,18 +250,19 @@ module Searchable
       # thrift transport may need to reconnect if ES is restarted
       if thrift?
         begin
-          client.search request[0], request[1]
+          thrift.search request[0], request[1]
         rescue IOError, ElasticSearch::ConnectionFailed => ex
           if (ex.message =~ /closed stream/) or (ex.message =~ /Broken pipe/)
             # reset clients
             configure_clients! 
 
             # only one retry, no rescue
-            client.search request[0], request[1]
+            thrift.search request[0], request[1]
           end
         end
 
-      else # don't be so forgiving
+      # use http client, don't be so forgiving
+      else 
         client.search request[0], request[1]
       end
     end
@@ -396,6 +397,7 @@ module Searchable
     @config
   end
 
+  # http client
   def self.client=(client)
     @client = client
   end
@@ -404,6 +406,17 @@ module Searchable
     @client
   end
 
+  # thrift client
+  def self.thrift=(thrift)
+    @thrift = thrift
+  end
+
+  def self.thrift
+    puts "THRIFT!"
+    @thrift
+  end
+
+  # explain client (http + middleware)
   def self.explain=(client)
     @explain = client
   end
@@ -418,7 +431,7 @@ module Searchable
 
   # load and persist search clients
   def self.configure_clients!
-    full_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+    http_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     options = {
       index: config['elastic_search']['index'], 
       auto_discovery: false
@@ -432,16 +445,16 @@ module Searchable
 
     if thrift?
       thrift_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['thrift']}"
-      Searchable.client = ElasticSearch.new thrift_host, options.merge(:transport => ElasticSearch::Transport::Thrift)
-    else
-      Searchable.client = ElasticSearch.new(full_host, options) do |conn|
-        # conn.response :debug_request # print request to STDOUT
-        # conn.response :debug_response # print response to STDOUT
-        conn.adapter Faraday.default_adapter
-      end
+      Searchable.thrift = ElasticSearch.new thrift_host, options.merge(:transport => ElasticSearch::Transport::Thrift)
     end
 
-    Searchable.explain = ElasticSearch.new(full_host, options) do |conn|
+    Searchable.client = ElasticSearch.new(http_host, options) do |conn|
+      # conn.response :debug_request # print request to STDOUT
+      # conn.response :debug_response # print response to STDOUT
+      conn.adapter Faraday.default_adapter
+    end
+
+    Searchable.explain = ElasticSearch.new(http_host, options) do |conn|
       conn.response :explain_logger # store last request and response for explain output
       conn.adapter Faraday.default_adapter
     end
