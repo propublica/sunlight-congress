@@ -14,7 +14,7 @@
 
 # full bill text from GPO
 */30 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
-0 5,11 * * * /projects/rtc/shared/cron/task.sh bill_text_archive
+0 5,11 * * * /projects/rtc/shared/cron/task.sh bill_text_archive batch_size=10
 
 # popular bill names, check once an hour
 */60 * * * * /projects/rtc/shared/cron/task.sh bills_popular_names
@@ -29,8 +29,8 @@
 */9 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
 
 # re-download all votes for the year, once a day, to catch corrections
-0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1 batch_size=5
-30 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate archive=1 force=1 batch_size=5
+0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house archive=1 force=1 batch_size=10
+30 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate archive=1 force=1 batch_size=10
 
 
 # floor updates
@@ -61,7 +61,7 @@
 # by default, will get last 7 days, very quick, especially with caching
 */2 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
 # by default, only indexes unindexed regulations, take new batches 100 at a time every 5min
-*/5 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text limit=100
+*/5 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text limit=100 batch=10
 
 
 
