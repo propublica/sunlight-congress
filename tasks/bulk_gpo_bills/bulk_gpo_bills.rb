@@ -9,10 +9,9 @@ class BulkGpoBills
   # Options can be passed in to archive whole years, or use cached data.
   # 
   # options:
-  #   archive: archive the whole year, don't limit it to 3 days.
+  #   year: archive a year of data, don't limit it to 3 days
   #   cache: use cached data, don't re-download.
   #
-  #   year: the year of data to fetch (defaults to current year)
   #   limit: only download a certain number of bills (stop short, useful for testing/development)
   #   bill_version_id: only download a specific bill version. ignores other options. 
   #     (examples: hr3590-111-ih, sres32-111-enr)
@@ -22,7 +21,7 @@ class BulkGpoBills
 
     # only care about the last 3 days of new information by default
     # but allow for archiving of an entire year's sitemap
-    archive_only_since = options[:archive] ? nil : 3.days.ago.midnight.utc # 5am EST
+    archive_only_since = options[:year] ? nil : 3.days.ago.midnight.utc # 5am EST
 
     # populate with bill info to fetch
     bill_versions = [] # holds arrays with: [gpo_type, number, session, version_code]
