@@ -57,55 +57,70 @@ module Searchable
     end
     
     if fields.any?
-      {
-        :and => fields.map {|field, value| subfilter_for model, field, value}
-      }
+      subfilters = fields.map do |field, value| 
+        valid_operators = [nil, "gt", "gte", "lt", "lte"]
+
+        # field may have an operator on the end, pluck it out
+        field, operator = field.split "__"
+        next unless valid_operators.include?(operator)
+
+        # value is a string, infer whether it needs casting
+        parsed = value_for value, model.fields[field]
+
+        subfilter_for model, field, parsed, operator
+      end.compact
+
+      # join subfilters together as an AND filter
+      {:and => subfilters}
     else
       nil
     end
   end
   
-  def self.subfilter_for(model, field, value)
-    parsed = value_for value, model.fields[field]
-    
-    if parsed.is_a?(String)
+  def self.subfilter_for(model, field, value, operator)
+    if value.is_a?(String)
+      # operators don't mean anything here
       {
         :query => {
           :text => {
             field.to_s => {
-              :query => parsed,
+              :query => value,
               :type => "phrase"
             }
           }
         }
       }
-    elsif parsed.is_a?(Fixnum)
-      {
-        :numeric_range => {
-          field.to_s => {
-            :from => parsed.to_s,
-            :to => parsed.to_s
-          }
-        }
-      }
-    elsif parsed.is_a?(Boolean)
+
+    elsif value.is_a?(Boolean)
+      # operators don't mean anything here
       {
         :term => {
-          field.to_s => parsed.to_s
+          field.to_s => value.to_s
         }
       }
-    elsif parsed.is_a?(Time)
-      from = parsed
-      to = from + 1.day
-      {
-        :range => {
-          field.to_s => {
-            :from => from.iso8601,
-            :to => to.iso8601,
-            :include_upper => false
-          }
+
+    elsif value.is_a?(Fixnum)
+      if operator.nil?
+        {:term => {field.to_s => value.to_s}}
+      else
+        options = {operator => value.to_s}
+        {:range => {field.to_s => options}}
+      end
+
+    elsif value.is_a?(Time)
+      if operator.nil?
+        from = value
+        to = from + 1.day
+        options = {
+          :from => from.iso8601,
+          :to => to.iso8601,
+          :include_upper => false
         }
-      }
+      else
+        options = {operator => value.iso8601}
+      end
+
+      {:range => {field.to_s => options}}
     end
   end
   
