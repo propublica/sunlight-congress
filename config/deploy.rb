@@ -33,7 +33,12 @@ role :app, domain
 role :web, domain
 
 set :use_sudo, false
-after "deploy", "deploy:cleanup"
+
+# not sure why the issue
+if environment != 'staging'
+  after "deploy", "deploy:cleanup"
+end
+
 after "deploy:update_code", "deploy:shared_links"
 after "deploy:update_code", "deploy:bundle_install"
 after "deploy:update_code", "deploy:create_indexes"
