@@ -293,7 +293,12 @@ module Searchable
     size = pagination[:per_page]
     
     if filter
-      other[:filter] = filter
+      query = {
+        :filtered => {
+          :filter => filter,
+          :query => query
+        }
+      }
     end
     
     [
@@ -303,7 +308,7 @@ module Searchable
         :fields => fields
       }.merge(other), 
      
-      # pagination info has to go into the second hash or rubberband messes it up
+      # mapping and pagination info has to go into the second hash
       {
         :type => mapping,
         :from => from,
