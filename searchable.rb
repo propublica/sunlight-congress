@@ -222,9 +222,9 @@ module Searchable
         :query => term,
         :mapping => mapping,
         :count => results.total_entries,
+        :elapsed => elapsed,
         :request => last_request,
-        :response => last_response,
-        :elapsed => elapsed
+        :response => last_response
       }
     rescue ElasticSearch::RequestError => exc
       {
