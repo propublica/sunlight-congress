@@ -88,17 +88,24 @@ module Searchable
   
   def self.subfilter_for(model, field, value, operator)
     if value.is_a?(String)
-      # operators don't mean anything here
-      {
-        :query => {
-          :text => {
-            field.to_s => {
-              :query => value,
-              :type => "phrase"
+      if operator.nil?
+        {
+          :query => {
+            :text => {
+              field.to_s => {
+                :query => value,
+                :type => "phrase"
+              }
             }
           }
         }
-      }
+
+      # strings can be filtered on ranges
+      # especially effective on date fields forced to be strings
+      else
+        options = {operator => value.to_s}
+        {:range => {field.to_s => options}}
+      end
 
     elsif value.is_a?(Boolean)
       # operators don't mean anything here
