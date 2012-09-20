@@ -56,24 +56,33 @@ module Searchable
       fields[model.cite_field] = params[:citation]
     end
     
-    if fields.any?
-      subfilters = fields.map do |field, value| 
-        valid_operators = [nil, "gt", "gte", "lt", "lte"]
+    return nil unless fields.any?
+    subfilters = fields.map do |field, value| 
+      valid_operators = [nil, "gt", "gte", "lt", "lte"]
 
-        # field may have an operator on the end, pluck it out
-        field, operator = field.split "__"
-        next unless valid_operators.include?(operator)
+      # field may have an operator on the end, pluck it out
+      field, operator = field.split "__"
+      next unless valid_operators.include?(operator)
 
-        # value is a string, infer whether it needs casting
-        parsed = value_for value, model.fields[field]
+      # value is a string, infer whether it needs casting
+      parsed = value_for value, model.fields[field]
 
-        subfilter_for model, field, parsed, operator
-      end.compact
+      subfilter_for model, field, parsed, operator
+    end.compact
 
-      # join subfilters together as an AND filter
-      {:and => subfilters}
+    return nil unless subfilters.any?
+
+    if subfilters.size == 1
+      subfilters.first
     else
-      nil
+      # join subfilters together as an AND filter
+      # use the alternate form of the AND filter that allows caching
+      {
+        :and => {
+          :filters => subfilters,
+          :_cache => true
+        }
+      }
     end
   end
   
