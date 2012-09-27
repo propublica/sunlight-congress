@@ -104,17 +104,31 @@ helpers do
 
   def citations_for(model, documents, params)
     # only citation-enabled models
-    return documents unless params[:citation] and model.cite_key
+    return documents unless params[:citation].present? and model.cite_key
 
     # must explicitly ask for extra information and performance hit
-    return documents unless params[:citation_details]
+    return documents unless params[:citation_details].present?
+
+    citation_ids = params[:citation].split "|"
+    if citation_ids.size > 1
+      criteria = {citation_id: {"$in" => citation_ids}}
+    else
+      criteria = {citation_id: citation_ids.first}
+    end
 
     documents.map do |document|
-      citations = Citation.where(
-        document_id: document[model.cite_key.to_s],
-        citation_id: params[:citation]
-      ).first
-      document['citations'] = citations['citations'] if citations
+      matches = Citation.where(
+        criteria.merge(document_id: document[model.cite_key.to_s])
+      )
+      
+      if matches.any?
+        citations = []
+        matches.each do |match|
+          citations += match['citations']
+        end
+        document['citations'] = citations
+      end
+
       document
     end
   end

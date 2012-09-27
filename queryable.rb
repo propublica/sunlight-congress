@@ -88,7 +88,14 @@ module Queryable
     end
 
     if params[:citation].present? and model.cite_field
-      conditions[model.cite_field] = params[:citation]
+      citation_ids = params[:citation].split "|"
+      if citation_ids.size == 1
+        criteria = citation_ids.first
+      else
+        criteria = {"$all" => citation_ids}
+      end
+        
+      conditions[model.cite_field] = criteria
     end
 
     conditions
