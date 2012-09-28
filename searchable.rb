@@ -67,7 +67,12 @@ module Searchable
       # value is a string, infer whether it needs casting
       parsed = value_for value, model.fields[field]
 
-      subfilter_for model, field, parsed, operator
+      # handle citations specially
+      if field == model.cite_field
+        citation_filter_for model, field, value
+      else
+        subfilter_for model, field, parsed, operator
+      end
     end.compact
 
     return nil unless subfilters.any?
@@ -85,8 +90,23 @@ module Searchable
       }
     end
   end
+
+  # the citation subfilter is itself an 'and' filter on a set of term subfilters
+  def self.citation_filter_for(model, field, value)
+    citation_ids = value.split "|"
+    
+    subfilters = citation_ids.map do |citation_id|
+      subfilter_for model, field, citation_id
+    end
+
+    if subfilters.size == 1
+      subfilters.first
+    else
+      {:and => subfilters}
+    end
+  end
   
-  def self.subfilter_for(model, field, value, operator)
+  def self.subfilter_for(model, field, value, operator = nil)
     if value.is_a?(String)
       if operator.nil?
         {
