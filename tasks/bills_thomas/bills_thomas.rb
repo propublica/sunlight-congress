@@ -14,7 +14,7 @@ class BillsThomas
     missing_committees = []
     bad_bills = []
 
-    unless File.exists?("data/thomas/bills/#{session}")
+    unless File.exists?("data/unitedstates/congress/#{session}/bills")
       Report.failure self, "Data not available on disk for the requested session of Congress."
       return
     end
@@ -36,10 +36,10 @@ class BillsThomas
     if options[:bill_id]
       bill_ids = [options[:bill_id]]
     else
-      paths = Dir.glob("data/thomas/bills/#{session}/*/*")
+      paths = Dir.glob("data/unitedstates/congress/#{session}/bills/*/*")
       bill_ids = paths.map {|path| "#{File.basename(path).sub "con", "c"}-#{session}"}
       if options[:limit]
-        bill_ids = bills.first options[:limit].to_i
+        bill_ids = bill_ids.first options[:limit].to_i
       end
     end
     
@@ -48,7 +48,7 @@ class BillsThomas
       type, number, session, code, chamber = Utils.bill_fields_from bill_id
       
       thomas_type = Utils.gpo_type_for type # thomas parser uses same bill types
-      path = "data/thomas/bills/#{session}/#{thomas_type}/#{thomas_type}#{number}/data.json"
+      path = "data/unitedstates/congress/#{session}/bills/#{thomas_type}/#{thomas_type}#{number}/data.json"
 
       doc = Oj.load open(path)
       
@@ -154,7 +154,7 @@ class BillsThomas
     # cached by thomas ID
     if legislators[sponsor['thomas_id']]
       legislators[sponsor['thomas_id']] 
-    elsif legislator = legislator_match(sponsor['name'], sponsor['title'], sponsor['state'], sponsor['district'])
+    elsif legislator = legislator_for(sponsor['thomas_id'])
       # cache it for next time
       legislators[sponsor['thomas_id']] = legislator
       legislator
@@ -173,7 +173,7 @@ class BillsThomas
 
       if legislators[cosponsor['thomas_id']]
         person = legislators[cosponsor['thomas_id']]
-      elsif person = legislator_match(cosponsor['name'], cosponsor['title'], cosponsor['state'], cosponsor['district'])
+      elsif person = legislator_for(cosponsor['thomas_id'])
         # cache it for next time
         legislators[cosponsor['thomas_id']] = person
       end
@@ -267,78 +267,9 @@ class BillsThomas
     related
   end
 
-  # this is terrible, and temporary
-  def self.legislator_match(name, title, state, district)
-    last_name, rest = name.split(/,\s?/)
-    first_name, middle_name = rest.split(" ")
-
-    # hardcoded - a couple weird last names, mostly people who moved chambers
-    if last_name == "McMorris Rodgers"
-      bioguide_id = "M001159"
-    elsif last_name == "Herrera Beutler"
-      bioguide_id = "H001056"
-    elsif last_name == "Diaz-Balart" and first_name == "Mario"
-      bioguide_id = "D000600"
-    elsif last_name == "Diaz-Balart" and first_name == "Lincoln" 
-      bioguide_id = "D000299"
-    elsif last_name == "Boozman"
-      bioguide_id = "B001236"
-    elsif last_name == "Blunt"
-      bioguide_id = "B000575"
-    elsif last_name == "Moran" and state == "KS"
-      bioguide_id = "M000934"
-    elsif last_name == "Moran" and state == "VA"
-      bioguide_id = "M000933"
-    elsif last_name == "Heller"
-      bioguide_id = "H001041"
-    elsif last_name == "Jackson-Lee"
-      bioguide_id = "J000032"
-    elsif last_name == "Hunter" and middle_name == "D."
-      bioguide_id = "H001048"
-    end
-
-    if bioguide_id
-      return Utils.legislator_for(Legislator.where(bioguide_id: bioguide_id).first)
-    end
-
-    if title == "Sen"
-      criteria = {last_name: last_name, chamber: "senate", state: state}
-    else
-      criteria = {last_name: last_name, chamber: "house", state: state, district: (district || "0")}
-    end
-    
-    match = nil
-
-    number = Legislator.where(criteria).count
-    if number > 1
-      criteria[:first_name] = first_name
-
-      number = Legislator.where(criteria).count
-      if number == 1
-        match = Legislator.where(criteria).first
-      else
-        criteria.delete :first_name
-        criteria[:nickname] = first_name
-        number = Legislator.where(criteria).count
-        if number == 1
-          match = Legislator.where(criteria).first
-        else
-          criteria[:middle_name] = middle_name
-          number = Legislator.where(criteria).count
-          if number == 1
-            match = Legislator.where(criteria).first
-          else
-            puts "Too many results even after narrowing for #{criteria.inspect}"
-          end
-        end
-      end
-    elsif number == 0
-      puts "No results for #{criteria.inspect}, giving up"
-    elsif number == 1
-      match =  Legislator.where(criteria).first
-    end
-
-    match ? Utils.legislator_for(match) : nil
+  def self.legislator_for(thomas_id)
+    legislator = Legislator.where("ids.thomas" => thomas_id).first
+    legislator ? Utils.legislator_for(legislator) : nil
   end
   
   def self.committee_match(name, cached_committees)

@@ -84,7 +84,10 @@ class Legislators
 
   def self.attributes_from_united_states(us_legislator)
     {
-      ids: us_legislator['id'],
+      ids: {
+        bioguide: us_legislator['id']['bioguide'],
+        thomas: us_legislator['id']['thomas'].to_i.to_s # cut off leading 0's
+      },
       names: us_legislator['name'],
       other_names: us_legislator['other_names'],
       bio: us_legislator['bio'],
