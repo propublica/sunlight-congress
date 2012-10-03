@@ -84,7 +84,7 @@ class BillsThomas
         popular_title: doc['popular_title'],
         titles: doc['titles'],
         summary: doc['summary'],
-        state: doc['state'],
+        state: doc['status'],
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
         cosponsors: cosponsors,
