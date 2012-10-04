@@ -7,7 +7,7 @@
 0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
 
 # bills synced from gathered THOMAS data - doesn't hit THOMAS itself
-30 3,15 * * * /projects/rtc/shared/cron/task.sh bills_thomas 
+0 4,16 * * * /projects/rtc/shared/cron/task.sh bills_thomas 
 
 # amendments synced from GovTrack - sync twice a day
 0 4,16 * * * /projects/rtc/shared/cron/task.sh amendments_archive
