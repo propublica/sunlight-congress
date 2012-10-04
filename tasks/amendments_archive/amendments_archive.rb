@@ -24,7 +24,7 @@ class AmendmentsArchive
     
     
     legislators = {}
-    Legislator.only(Utils.legislator_fields).all.each do |legislator|
+    Legislator.where(govtrack_id: {"$exists" => true}).only(Utils.legislator_fields).each do |legislator|
       legislators[legislator.govtrack_id] = Utils.legislator_for legislator
     end
     
