@@ -118,7 +118,10 @@ helpers do
 
     documents.map do |document|
       matches = Citation.where(
-        criteria.merge(document_id: document[model.cite_key.to_s])
+        criteria.merge(
+          document_id: document[model.cite_key.to_s],
+          document_type: model.to_s
+        )
       )
       
       if matches.any?
