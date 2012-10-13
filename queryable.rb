@@ -87,7 +87,7 @@ module Queryable
       end
     end
 
-    if params[:citation].present? and model.cite_field
+    if params[:citation].present? and model.cite_key
       citation_ids = params[:citation].split "|"
       if citation_ids.size == 1
         criteria = citation_ids.first
@@ -95,7 +95,7 @@ module Queryable
         criteria = {"$all" => citation_ids}
       end
         
-      conditions[model.cite_field] = criteria
+      conditions['citation_ids'] = criteria
     end
 
     conditions
@@ -240,14 +240,6 @@ module Queryable
   # include Queryable::Model
   module Model
     module ClassMethods
-
-      def cite_field(field = nil)
-        if field
-          @cite_field = field
-        else
-          @cite_field
-        end
-      end
       
       def cite_key(field = nil)
         if field

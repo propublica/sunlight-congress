@@ -44,81 +44,65 @@ module Utils
     batcher.clear # reset
   end
 
-  def self.extract_usc(document, text, destination, options)
+  def self.citations_for(document, text, destination, options)
+
     if File.exists?(destination) and options[:recite].blank?
       puts "\tUsing cached citation JSON" if options[:debug]
       body = File.read destination
       hash = MultiJson.load body
     else
       url = "http://#{config['citation']['hostname']}/citation/find.json"
-      puts "\tExtracting citations from citation-api..." if options[:debug]
-      curl = Curl.post url, text: CGI.escape(text), "options[context]" => (options[:cite_context] || 250)
+      puts "\tExtracting citations..." if options[:debug]
+      curl = Curl.post url, 
+        text: CGI.escape(text), 
+        "options[excerpt]" => (options[:cite_excerpt] || 250),
+        "options[types]" => "usc,law"
       body = curl.body_str
       hash = MultiJson.load body
       Utils.write destination, JSON.pretty_generate(hash)
     end
 
-    puts body if ENV['usc_debug'].present?
+    puts body if ENV['cite_debug'].present?
     
-    ids = []
-    citations = {}
 
+    # index citations by ID: assumes they are unique even across types
+    citations = {}
     hash['results'].each do |result|
-      id = result['usc']['id']
-      ids << id if !ids.include?(id)
+      id = result[result['type']]['id']
       citations[id] ||= []
       citations[id] << result
-
-      # index another citation for each parent subsection
-      # index each parent in turn 
-      #  - if citation has 2 subsections, index a parent with 1 subsection, then 0
-      (0...result['usc']['subsections'].size).to_a.reverse.each do |i|
-        # neither #dup nor #clone works correctly here - frustrating
-        new_result = {
-          'type' => result['type'],
-          'context' => result['context'],
-          'match' => result['match'],
-          'usc' => result['usc'].dup # lets me use it on a subobject...okay
-        }
-
-        new_subsections = result['usc']['subsections'][0...i]
-        new_id = [result['usc']['title'], 'usc', result['usc']['section'], new_subsections].flatten.join("_")
-        # ignore display field, we don't care
-        new_result['usc']['id'] = new_id
-        new_result['usc']['subsections'] = new_subsections
-
-        ids << new_id if !ids.include?(new_id)
-        citations[new_id] ||= []
-        citations[new_id] << new_result
-      end
-
     end
 
+    # document's unique key as defined in model
     document_id = document[document.class.cite_key.to_s]
     
     # clear existing citations for this document
     Citation.where(document_id: document_id).delete_all
 
-    # index every citation found for this document
-    citations.each do |id, cs|
+    citations.each do |citation_id, matches|
       citation = Citation.find_or_initialize_by(
         document_id: document_id,
-        # document_type: document.class.to_s,
-        citation_id: id,
-        # citation_type: "usc"
+        document_type: document.class.to_s,
+        citation_id: citation_id,
+        # citation_type: "usc" # not needed?
       )
-      citation.citations = cs
+      citation.citations = matches
       citation.save!
     end
 
-    {
-      'extracted_ids' => ids
-    }
+    puts "Extracted citations from #{document_id}: #{citations.keys.inspect}" if options[:debug]
+
+    citations.keys
+
   rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
     Curl::Err::RecvError, Curl::Err::HostResolutionError,
     Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
     Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
+    nil
+  rescue Curl::Err::GotNothingError => ex
+    puts "Crashed citation API! Waiting 5 seconds..."
+    sleep 5 # wait for it to come back up
     nil
   rescue MultiJson::DecodeError => ex
     puts "Got bad response back from citation API"

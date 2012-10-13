@@ -24,11 +24,7 @@ class Document
   result_fields *(self.basic_fields)
   searchable_fields *(self.search_fields + [:text])
 
-  # enable citation search
-  cite_key :document_id
-  cite_field "usc.extracted_ids"
-
-
+  
   include Mongoid::Document
   include Mongoid::Timestamps
 
@@ -57,4 +53,9 @@ class Document
   index categories: 1
 
   index gao_id: 1
+
+
+  # citations
+  cite_key :document_id
+  index citation_ids: 1
 end

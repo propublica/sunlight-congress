@@ -30,8 +30,7 @@ class BillTextArchive
     notes = []
 
     # used to keep batches of indexes
-    bill_batcher = []
-    version_batcher = []
+    batcher = []
     
     targets.each do |bill|
       type = bill.bill_type
@@ -47,19 +46,10 @@ class BillTextArchive
       
       # accumulate a massive string
       last_bill_version_text = ""
-      last_usc = {}
       
       # accumulate an array of version objects
       bill_versions = [] 
       
-      # pick the subset of fields from the bill document that will appear on bills and bill_versions
-      # -- unlike the mongo-side of things, we pick a curated subset of fields
-      bill_fields = Utils.bill_for(bill).merge(
-        :sponsor => bill['sponsor'],
-        :summary => bill['summary'],
-        :keywords => bill['keywords'],
-        :last_action => bill['last_action']
-      )
       
       version_files.each do |file|
         # strip off the version code
@@ -86,32 +76,21 @@ class BillTextArchive
           urls = urls_for mods_doc
 
           if issued_on.blank?
-            warnings << {:message => "Had MODS data but no date available for #{bill_version_id}, SKIPPING", :bill_version_id => bill_version_id}
+            warnings << {message: "Had MODS data but no date available for #{bill_version_id}, SKIPPING"}
             next
           end
 
         else
-          puts "[#{bill.bill_id}][#{code}] No MODS data" if options[:debug]
+          puts "[#{bill.bill_id}][#{code}] No MODS data, skipping!" if options[:debug]
           
-          # backup attempt to get an issued_on, from the dublin core info of the bill doc itself
-          # GovTrack adds this Dublin Core information, perhaps by extracting it from the XML
-          # If we were ever to switch to GPO directly, this would have to be accounted for
-          xml_file = "data/govtrack/#{session}/bill_text/#{type}/#{type}#{bill.number}#{code}.xml"
-          if File.exists?(xml_file)
-            xml_doc = Nokogiri::XML open(xml_file)
-            issued_on = backup_issued_on_for xml_doc
+          # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
+          # So if any other bill triggers this, send me a warning so I can check it out.
+          if bill_version_id != "hr81-112-enr"
+            warnings << {message: "No MODS data available for #{bill_version_id}, SKIPPING"}
           end
           
-          if issued_on.blank?
-            # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
-            # So if any other bill triggers this, send me a warning so I can check it out.
-            if bill_version_id != "hr81-112-enr"
-              warnings << {:message => "Neither MODS data nor Govtrack's Dublin Core date available for #{bill_version_id}, SKIPPING", :bill_version_id => bill_version_id}
-            end
-            
-            # either way, skip over the bill version, it's probably invalid
-            next
-          end
+          # either way, skip over the bill version, it's probably invalid
+          next
         end
         
         
@@ -119,52 +98,25 @@ class BillTextArchive
         full_doc = Nokogiri::HTML File.read(file)
         full_text = full_doc.at("pre").text
         full_text = clean_text full_text
+        
+        # write text to disk if asked
+        Utils.write(text_cache(bill), full_text) if options[:cache_text]
+
 
 
         # put up top here because it's the first line of debug output for a bill
-        puts "[#{bill.bill_id}][#{code}] Indexing..." if options[:debug]
+        puts "[#{bill.bill_id}][#{code}] Processing..." if options[:debug]
 
 
-        # extract US Code citations
-        usc = Utils.extract_usc bill, full_text, citation_cache(bill), options
-        unless usc.is_a?(Hash)
-          warnings << {message: "Failed to extract USC from #{bill_version_id}"}
-          usc = {}
-        end
-
-        # temporary
-        if usc['extracted_ids'] and usc['extracted_ids'].any?
-          puts "\t[#{bill_version_id}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
-        end
-        
-
-        version_attributes = {
-          updated_at: Time.now,
-          bill_version_id: bill_version_id,
-          version_code: code,
-          version_name: version_name,
-          issued_on: issued_on,
-          urls: urls,
-
-          usc: usc,
-          
-          bill: bill_fields,
-          full_text: full_text
-        }
-
-        # commit the version to the version index
-        Utils.es_batch! 'bill_versions', bill_version_id, version_attributes, version_batcher, options
-        
-        # archive it in MongoDB for easy reference in other scripts
+        # archive text in MongoDB for use later (this is dumb)
         version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
-        version_archive.attributes = version_attributes
+        version_archive.attributes = {full_text: full_text}
         version_archive.save!
         
         version_count += 1
         
-        # store in the bill object for redundant storage on bill object itself
+        # keep just the last version
         last_bill_version_text = full_text 
-        last_usc = usc
 
         bill_versions << {
           version_code: code,
@@ -188,44 +140,61 @@ class BillTextArchive
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
       
-      puts "[#{bill.bill_id}] Indexing versions for whole bill..." if options[:debug]
 
-      Utils.es_batch!('bills', bill.bill_id,
-        bill_fields.merge(
-          versions: last_bill_version_text,
-          version_codes: bill_version_codes,
-          versions_count: versions_count,
-          last_version: last_version,
-          last_version_on: last_version_on,
+      unless citation_ids = Utils.citations_for(bill, last_bill_version_text, citation_cache(bill), options)
+        warnings << {message: "Failed to extract citations from #{bill.bill_id}, code: #{last_version[:version_code]}"}
+        citation_ids = []
+      end
 
-          usc: last_usc,
 
-          updated_at: Time.now
-        ),
-        bill_batcher, options
-      )
-      
-      puts "[#{bill.bill_id}] Indexed versions for whole bill." if options[:debug]
-      
-      # Update the bill document in Mongo with an array of version codes
+      # Update bill in Mongo
       bill.attributes = {
         version_info: bill_versions,
+        
         version_codes: bill_version_codes,
         versions_count: versions_count,
         last_version: last_version,
         last_version_on: last_version_on,
-        usc: last_usc
+        citation_ids: citation_ids
       }
-
       bill.save!
+
       puts "[#{bill.bill_id}] Updated bill with version codes." if options[:debug]
+
+
+      # Update bill in ES
+      puts "[#{bill.bill_id}] Indexing..." if options[:debug]
+
+      # special subset of fields for ES
+      bill_fields = Utils.bill_for(bill).merge(
+        sponsor: bill['sponsor'],
+        summary: bill['summary'],
+        keywords: bill['keywords'],
+        last_action: bill['last_action']
+      )
+
+      Utils.es_batch!('bills', bill.bill_id,
+        bill_fields.merge(
+          versions: last_bill_version_text,
+          updated_at: Time.now,
+
+          version_codes: bill_version_codes,
+          versions_count: versions_count,
+          last_version: last_version,
+          last_version_on: last_version_on,
+          citation_ids: citation_ids
+        ),
+        batcher, options
+      )
       
+      puts "[#{bill.bill_id}] Indexed." if options[:debug]
+      
+
       bill_count += 1
     end
     
     # index any leftover docs
-    Utils.es_flush! 'bills', bill_batcher
-    Utils.es_flush! 'bill_versions', version_batcher
+    Utils.es_flush! 'bills', batcher
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
@@ -235,7 +204,7 @@ class BillTextArchive
       Report.note self, "Notes found while parsing bill text and metadata", notes: notes
     end
     
-    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session} from GovTrack.us."
+    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session}."
   end
   
   def self.clean_text(text)
@@ -301,6 +270,10 @@ class BillTextArchive
 
   def self.citation_cache(bill)
     "data/citation/bills/#{bill.session}/#{bill.bill_id}.json"
+  end
+
+  def self.text_cache(bill)
+    "data/citation/bills/#{bill.session}/#{bill.bill_id}.txt"
   end
   
 end

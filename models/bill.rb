@@ -37,10 +37,6 @@ class Bill
   search_fields :short_title, :official_title, :popular_title, :summary, :keywords, :nicknames
   
 
-  # used by both Searchable and Queryable
-  cite_key :bill_id
-  cite_field "usc.extracted_ids"
-  
   # MongoDB behavior
   
   include Mongoid::Document
@@ -77,12 +73,14 @@ class Bill
   index enacted: 1
   index enacted_at: 1
 
-  index "usc.extracted_ids" => 1
-  
   index last_version_on: 1
-  
   index abbreviated: 1
 
   # spell out YYYY-MM-DD fields as strings
   field :last_version_on
+
+
+  # citations
+  cite_key :bill_id
+  index citation_ids: 1
 end

@@ -53,7 +53,7 @@ module Searchable
 
     # citation parameter dynamically inserts filter on citation field
     if params[:citation]
-      fields[model.cite_field] = params[:citation]
+      fields['citation_ids'] = params[:citation]
     end
     
     return nil unless fields.any?
@@ -68,7 +68,7 @@ module Searchable
       parsed = value_for value, model.fields[field]
 
       # handle citations specially
-      if field == model.cite_field
+      if field == 'citation_ids'
         citation_filter_for model, field, value
       else
         subfilter_for model, field, parsed, operator

@@ -48,7 +48,7 @@ class RegulationsFullText
     end
 
     missing_links = []
-    usc_warnings = []
+    citation_warnings = []
 
     # hold batched docs
     batcher = []
@@ -80,17 +80,11 @@ class RegulationsFullText
       next unless full_text # warning will have been filed
 
 
-      # extract USC citations, place them on both elasticsearch and mongo objects
-      unless usc = Utils.extract_usc(regulation, full_text, citation_cache(regulation), options)
-        usc_warnings << {message: "Failed to extract USC from #{document_number}"}
-        usc = {}
+      unless citation_ids = Utils.citations_for(regulation, full_text, citation_cache(regulation), options)
+        citation_warnings << {message: "Failed to extract citations from #{document_number}"}
+        citation_ids = []
       end
       
-      # temporary
-      if usc['extracted_ids'] and usc['extracted_ids'].any?
-        puts "\t[#{document_number}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
-      end
-
       # load in the part of the regulation from mongo that gets synced to ES
       fields = {}
       Regulation.result_fields.each do |field|
@@ -100,24 +94,24 @@ class RegulationsFullText
       # index into elasticsearch
       puts "[#{regulation.document_number}] Indexing..."
       fields['full_text'] = full_text
-      fields['usc'] = usc
+      fields['citation_ids'] = citation_ids
       Utils.es_batch! 'regulations', regulation.document_number, fields, batcher, options
 
       # update in mongo
-      puts "\tMarking object as indexed and adding any extracted citations..." if options[:debug]
+      puts "\tMarking object as indexed and adding any citations..." if options[:debug]
       regulation['indexed'] = true
-      regulation['usc'] = usc
+      regulation['citation_ids'] = citation_ids
       regulation.save!
 
       count += 1
     end
 
     if missing_links.any?
-      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", :missing_links => missing_links
+      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", missing_links: missing_links
     end
 
-    if usc_warnings.any?
-      Report.warning self, "#{usc_warnings.size} warnings while extracting US Code citations", :usc_warnings => usc_warnings
+    if citation_warnings.any?
+      Report.warning self, "#{usc_warnings.size} warnings while extracting citations", citation_warnings: citation_warnings
     end
 
     # index any leftover docs

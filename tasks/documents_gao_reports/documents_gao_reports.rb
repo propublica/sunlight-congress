@@ -154,19 +154,13 @@ class DocumentsGaoReports
 
         # extract citations
 
-        usc = Utils.extract_usc document, full_text, cache_path_for(gao_id, "citation.json"), options
-        unless usc.is_a?(Hash)
-          warnings << {message: "Failed to extract USC from #{document_id}"}
-          usc = {}
+        unless citation_ids = Utils.citations_for(document, full_text, cache_path_for(gao_id, "citation.json"), options)
+          warnings << {message: "Failed to extract citations from #{document_id}"}
+          citation_ids = []
         end
 
-        # temporary
-        if usc['extracted_ids'] and usc['extracted_ids'].any?
-          puts "\t[#{document_id}] Found #{usc['extracted_ids'].size} USC citations: #{usc['extracted_ids'].inspect}" if options[:debug]
-        end
-
-        document['usc'] = usc # for Mongo
-        attributes['usc'] = usc # for ES
+        document['citation_ids'] = citation_ids # for Mongo
+        attributes['citation_ids'] = citation_ids # for ES
 
 
         # index in text search engine

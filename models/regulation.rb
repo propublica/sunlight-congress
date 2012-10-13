@@ -28,10 +28,7 @@ class Regulation
     :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year
   search_fields :title, :abstract
 
-  cite_key :document_number
-  cite_field "usc.extracted_ids"
-
-
+  
   index document_number: 1
   index document_type: 1
   index stage: 1
@@ -39,7 +36,6 @@ class Regulation
   index published_at: 1
   index effective_at: 1
   index agencies: 1
-  index "usc.extracted_ids" => 1
   index year: 1
   index filed_at: 1
   index pdf_updated_at: 1
@@ -48,4 +44,9 @@ class Regulation
   validates_presence_of :document_number
   validates_uniqueness_of :document_number
   validates_presence_of :stage # 'proposed', 'final'
+
+
+  # citations
+  cite_key :document_number
+  index citation_ids: 1
 end
