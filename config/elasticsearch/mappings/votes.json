@@ -3,11 +3,11 @@
     "properties": {
       "bill": {
         "properties": {
-            "last_version_text": {
-                "type": "string",
-                "store": "yes",
-                "term_vector": "with_positions_offsets"
-            }
+          "last_version_text": {
+              "type": "string",
+              "store": "yes",
+              "term_vector": "with_positions_offsets"
+          }
         }
       }
     }
