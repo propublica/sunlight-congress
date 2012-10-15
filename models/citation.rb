@@ -15,5 +15,6 @@ class Citation
   field :citations, type: Array
 
   index document_id: 1
+  index document_type: 1
   index({document_id: 1, document_type: 1, citation_id: 1})
 end
