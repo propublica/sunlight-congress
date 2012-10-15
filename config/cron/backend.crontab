@@ -44,20 +44,25 @@
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_senate
 */15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_house
 
-# CRS reports
-*/10 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
-
-# CBO cost estimates
-*/10 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
-
-# GAO reports (full text) - add 1s between requests
-*/10 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1
-
 # upcoming leadership information
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
 */15 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
 
+
+# Documents
+
+# CRS reports
+*/18 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
+
+# CBO cost estimates
+*/19 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
+
+# GAO reports (full text) - add 1s between requests
+*/20 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1
+
+
 # regulations
+
 # by default, will get last 7 days, very quick, especially with caching
 */2 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
 # by default, only indexes unindexed regulations, take new batches 100 at a time every 5min
