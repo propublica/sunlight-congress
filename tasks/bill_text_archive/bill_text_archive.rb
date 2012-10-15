@@ -128,7 +128,7 @@ class BillTextArchive
       end
       
       if bill_versions.size == 0
-        warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
+        warnings << {message: "No versions with a valid date found for bill #{bill.bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill.bill_id}
         next
       end
       
