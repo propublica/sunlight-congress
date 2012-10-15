@@ -56,7 +56,8 @@ module Utils
       curl = Curl.post url, 
         text: CGI.escape(text), 
         "options[excerpt]" => (options[:cite_excerpt] || 250),
-        "options[types]" => "usc,law"
+        "options[types]" => "usc,law",
+        "options[parents]" => "true"
       body = curl.body_str
       hash = MultiJson.load body
       Utils.write destination, JSON.pretty_generate(hash)
