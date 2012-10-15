@@ -83,8 +83,7 @@ module Utils
       citation = Citation.find_or_initialize_by(
         document_id: document_id,
         document_type: document.class.to_s,
-        citation_id: citation_id,
-        # citation_type: "usc" # not needed?
+        citation_id: citation_id
       )
       citation.citations = matches
       citation.save!
@@ -145,6 +144,7 @@ module Utils
   #   json: if true, returns parsed content, and caches it to disk in pretty (indented) form
   #   rate_limit: number of seconds to sleep after each download (can be a decimal)
   def self.download(url, options = {})
+
     # cache if caching is opted-into, and the cache exists
     if options[:cache] and options[:destination] and File.exists?(options[:destination])
       puts "Cached #{url} from #{options[:destination]}, not downloading..." if options[:debug]
