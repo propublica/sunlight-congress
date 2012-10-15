@@ -38,3 +38,11 @@ regulations_archive year=2012
 
 bills_thomas session=112
 	(*) repeat for 111
+
+==============================
+
+	rake task:bill_text_archive recite=1 debug=1 session=112 && rake task:bill_text_archive recite=1 debug=1 session=111
+
+	rake task:regulations_full_text debug=1 recite=1 rearchive_year=2012 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2011 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2010 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2009
+
+	rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2012 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2011 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2010 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2009
