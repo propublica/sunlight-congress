@@ -33,6 +33,15 @@
       "citation_ids": {
         "index": "not_analyzed",
         "type": "string"
+      },
+      "last_action": {
+        "dynamic" : "true",
+        "properties": {
+          "number": {
+            "index": "not_analyzed",
+            "type": "string"
+          }
+        }
       }
     }
   }
