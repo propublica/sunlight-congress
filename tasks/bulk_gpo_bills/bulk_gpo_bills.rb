@@ -118,7 +118,7 @@ class BulkGpoBills
     puts "[#{year}] Fetching sitemap from GPO..." if options[:debug]
     cache_url = "data/gpo/BILLS/sitemap-#{year}.xml"
 
-    if body = Utils.download(url, options.merge(destination: cache_url))
+    if body = Utils.download(url)
       Nokogiri::XML body
     end
   end
