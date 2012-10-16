@@ -58,7 +58,7 @@
 */19 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
 
 # GAO reports (full text) - add 1s between requests
-*/20 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1
+*/20 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1 batch_size=10
 
 
 # regulations
