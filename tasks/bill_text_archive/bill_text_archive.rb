@@ -39,7 +39,7 @@ class BillTextArchive
       version_files = Dir.glob("data/gpo/BILLS/#{session}/#{type}/#{type}#{bill.number}-#{session}-[a-z]*.htm")
       
       if version_files.empty?
-        notes << {:message => "Skipping bill, GPO has no version information for it (yet)", :bill_id => bill.bill_id}
+        warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill.bill_id}
         next
       end
       
