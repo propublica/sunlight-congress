@@ -76,6 +76,8 @@ class Bill
   index last_version_on: 1
   index abbreviated: 1
 
+  index updated_at: 1
+
   # spell out YYYY-MM-DD fields as strings
   field :last_version_on
 

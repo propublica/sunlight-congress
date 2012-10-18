@@ -19,7 +19,7 @@ class BillTextArchive
       targets = Bill.where bill_id: options[:bill_id]
     else
       # only index unabbreviated bills from the specified session
-      targets = Bill.where abbreviated: false, session: session
+      targets = Bill.asc(:updated_at).where abbreviated: false, session: session
       
       if options[:limit]
         targets = targets.limit options[:limit].to_i
