@@ -4,11 +4,13 @@ class RegulationsArchive
 
   # Downloads metadata about proposed and final regulations from FederalRegister.gov.
   # By default, grabs the last 7 days of both types of regulations.
-  # Does not index full text.
-
+  #
   # options:
   #   document_number: index a specific document only.
-  #   public_inspection: if document_number is given, get the public_inspection version.
+  #
+  #   public_inspection: 
+  #     if document_number is given, get the public_inspection version.
+  #     if document_number is not given, fetch current public inspection documents.
   #
   #   year: 
   #     if month is given, is combined with month to index that specific month.
@@ -137,7 +139,7 @@ class RegulationsArchive
     response['results'].each do |article|
       document_number = article['document_number']
       
-      if save_regulation!(:article, document_number, options)
+      if rule = save_regulation!(:article, document_number, options)
         count += 1
       end
     end
@@ -145,11 +147,13 @@ class RegulationsArchive
     Report.success self, "Added #{count} #{stage} regulations from FederalRegister.gov"
   end
 
-  def self.save_regulation!(document_type, document_number, options)
-    puts "[#{document_type}][#{document_number}] Fetching rule..." if options[:debug]
 
-    endpoint = {article: "articles", public_inspection: "public-inspection-documents"}[document_type]
-    url = "http://api.federalregister.gov/v1/#{endpoint}/#{document_number}.json"
+  # save a PI doc or regulation into mongo
+
+  def self.save_regulation!(document_type, document_number, options)
+    puts "\n[#{document_type}][#{document_number}] Fetching rule..." if options[:debug]
+
+    url = details_url_for document_type, document_number
     destination = destination_for document_type, document_number, "json"
 
     unless details = Utils.download(url, options.merge(destination: destination, json: true))
@@ -192,7 +196,7 @@ class RegulationsArchive
     }
 
     # common to public inspection documents and to articles
-    rule.attributes = {
+    attributes = {
       stage: type_to_stage[details['type']],
       agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
       agency_ids: details['agencies'].map {|agency| agency['id']},
@@ -206,7 +210,7 @@ class RegulationsArchive
     }
 
     if document_type == :article
-      rule.attributes = {
+      attributes.merge!(
         title: details['title'],
         abstract: details['abstract'],
         effective_at: details['effective_on'],
@@ -219,7 +223,7 @@ class RegulationsArchive
 
         rins: details['regulation_id_numbers'],
         docket_ids: details['docket_ids']
-      }
+      )
 
     elsif document_type == :public_inspection
       # The title field can sometimes be blank, in which case it can be cobbled together.
@@ -232,7 +236,7 @@ class RegulationsArchive
         title = [details['toc_subject'], details['toc_doc']].join(" ")
       end
 
-      rule.attributes = {
+      attributes.merge!(
         title: title,
         num_pages: details['num_pages'],
         pdf_updated_at: details['pdf_updated_at'],
@@ -245,28 +249,72 @@ class RegulationsArchive
         # for PI docs, main timestamp is based on filing date
         published_at: details['filed_at'],
         year: details['filed_at'].year
-      }
+      )
     end
 
-    if rule.new_record?
-      rule[:indexed] = false
+    puts "[#{document_number}] Saving..."
+    rule.attributes = attributes
+    rule.save!
+
+    rule
+  end
+
+
+  def self.text_for(document_type, document_number, format, url, options)
+    destination = destination_for document_type, document_number, format
+    
+    unless Utils.download(url, options.merge(destination: destination))
+      Report.warning self, "Error while polling FR.gov, aborting for now", url: url
+      return nil
     end
 
-    # lump the rest into a catch-all
-    rule[:federal_register] = details.to_hash
 
-    begin
-      rule.save!
-    rescue BSON::InvalidDocument => ex
-      Report.failure self, "BSON date exception, trying to save the following hash:\n\n#{JSON.pretty_generate attrs}"
-      raise ex # re-raise after filing report, crash the task
+    body = File.read destination
+
+    if format == :xml
+      text = full_text_for Nokogiri::XML(body)
+      text_destination = destination_for document_type, document_number, :txt
+      Utils.write text_destination, text
+      text
+    elsif format == :html
+      text = full_text_for Nokogiri::HTML(body)
+      text_destination = destination_for document_type, document_number, :txt
+      Utils.write text_destination, text
+      text
+    else # text, it's done
+      pi_text_for body
     end
+  end
 
-    true
+
+  def self.full_text_for(doc)
+    return nil unless doc
+
+    strings = (doc/"//*/text()").map do |text| 
+      text.inner_text.strip
+    end.select {|text| text.present?}
+
+    strings.join " "
+  end
+
+  def self.pi_text_for(body)
+    body.gsub /[\n\r]/, ' '
+  end
+
+
+  # urls/directories
+
+  def self.details_url_for(document_type, document_number)
+    endpoint = {article: "articles", public_inspection: "public-inspection-documents"}[document_type]
+    "http://api.federalregister.gov/v1/#{endpoint}/#{document_number}.json"
   end
 
   def self.destination_for(document_type, document_number, format)
     yearish = document_number.split("-").first
     "data/federalregister/#{yearish}/#{document_number}/#{document_type}.#{format}"
+  end
+
+  def self.citation_cache(document_number)
+    RegulationsArchive.destination_for "citation", document_number, "json"
   end
 end
