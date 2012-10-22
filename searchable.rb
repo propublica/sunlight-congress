@@ -33,10 +33,10 @@ module Searchable
   # factored out mainly for ease of unit testing
   def self.subquery_for(term, field)
     {
-      :text => {
+      text: {
         field => {
-          :query => term,
-          :type => "phrase"
+          query: term,
+          type: "phrase"
         }
       }
     }
@@ -110,11 +110,11 @@ module Searchable
     if value.is_a?(String)
       if operator.nil?
         {
-          :query => {
-            :text => {
+          query: {
+            text: {
               field.to_s => {
-                :query => value,
-                :type => "phrase"
+                query: value,
+                type: "phrase"
               }
             }
           }
@@ -124,23 +124,23 @@ module Searchable
       # especially effective on date fields forced to be strings
       else
         options = {operator => value.to_s}
-        {:range => {field.to_s => options}}
+        {range: {field.to_s => options}}
       end
 
     elsif value.is_a?(Boolean)
       # operators don't mean anything here
       {
-        :term => {
+        term: {
           field.to_s => value.to_s
         }
       }
 
     elsif value.is_a?(Fixnum)
       if operator.nil?
-        {:term => {field.to_s => value.to_s}}
+        {term: {field.to_s => value.to_s}}
       else
         options = {operator => value.to_s}
-        {:range => {field.to_s => options}}
+        {range: {field.to_s => options}}
       end
 
     elsif value.is_a?(Time)
@@ -148,15 +148,15 @@ module Searchable
         from = value
         to = from + 1.day
         options = {
-          :from => from.iso8601,
-          :to => to.iso8601,
-          :include_upper => false
+          from: from.iso8601,
+          to: to.iso8601,
+          include_upper: false
         }
       else
         options = {operator => value.iso8601}
       end
 
-      {:range => {field.to_s => options}}
+      {range: {field.to_s => options}}
     end
   end
   
