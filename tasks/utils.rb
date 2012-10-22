@@ -156,7 +156,7 @@ module Utils
 
     # download, potentially saving to disk
     else
-      puts "Downloading #{url} to #{options[:destination]}..." if options[:debug]
+      puts "Downloading #{url} to #{options[:destination] || "[not cached]"}..." if options[:debug]
       
       body = begin
         curl = Curl::Easy.new url
