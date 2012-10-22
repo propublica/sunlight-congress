@@ -48,9 +48,11 @@
 */120 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
 */120 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
 
-# regulations
-*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_archive
-*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_full_text
+
+# Regulations
+
+*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1
+*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
 
 
 

@@ -1,5 +1,3 @@
-require 'httparty'
-
 class RegulationsArchive
 
   # Downloads metadata about proposed and final regulations from FederalRegister.gov.
@@ -19,10 +17,13 @@ class RegulationsArchive
   #     if year is given, is combined with year to index that specific month.
   #     if year is not given, does nothing.
   #
-  #   cache: use disk cache for requests to individual regulations
+  #   cache: 
+  #     cache requests for detail JSON on individual documents
+  #     will not cache search requests, is safe to turn on for syncing new documents
     
   def self.run(options = {})
 
+    # single regulation
     if options[:document_number]
       if options[:public_inspection]
         save_regulation! :public_inspection, options[:document_number], options
@@ -30,10 +31,15 @@ class RegulationsArchive
         save_regulation! :article, options[:document_number], options
       end
 
+    # load current day's public inspections
+    elsif options[:public_inspection]
+      load_public_inspections options
+    
+    # proposed and final regulations
     else
-
       ["PRORULE", "RULE"].each do |stage|
-      
+        
+        # a whole month or year
         if options[:year]
           year = options[:year].to_i
           months = options[:month] ? [options[:month].to_i] : (1..12).to_a.reverse
@@ -44,17 +50,14 @@ class RegulationsArchive
             load_regulations stage, beginning, ending, options
           end
 
+        # default to last 7 days
         else
-          # default to last 7 days
           ending = Time.now.midnight
           beginning = ending - 7.days
           load_regulations stage, beginning, ending, options
         end
 
       end
-
-      # load current day's public inspections
-      load_public_inspections options
     end
   end
 
