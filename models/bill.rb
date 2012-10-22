@@ -70,6 +70,8 @@ class Bill
   index senate_override_result_at: 1
   index awaiting_signature: 1
   index awaiting_signature_since: 1
+  index vetoed: 1
+  index vetoed_at: 1
   index enacted: 1
   index enacted_at: 1
 
