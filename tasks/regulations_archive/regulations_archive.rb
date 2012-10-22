@@ -22,21 +22,20 @@ class RegulationsArchive
   #     will not cache search requests, is safe to turn on for syncing new documents
     
   def self.run(options = {})
+    document_type = options[:public_inspection] ? :public_inspection : :article
 
     # single regulation
     if options[:document_number]
-      if options[:public_inspection]
-        save_regulation! :public_inspection, options[:document_number], options
-      else
-        save_regulation! :article, options[:document_number], options
-      end
+      targets = [options[:document_number]]
 
     # load current day's public inspections
-    elsif options[:public_inspection]
-      load_public_inspections options
+    elsif document_type == :public_inspection
+      targets = pi_docs_for options
     
     # proposed and final regulations
-    else
+    elsif document_type == :article
+      targets = []
+
       ["PRORULE", "RULE"].each do |stage|
         
         # a whole month or year
@@ -47,21 +46,149 @@ class RegulationsArchive
           months.each do |month|
             beginning = Time.parse("#{year}-#{month}-01")
             ending = (beginning + 1.month) - 1.day
-            load_regulations stage, beginning, ending, options
+            targets += regulations_for stage, beginning, ending, options
           end
 
         # default to last 7 days
         else
           ending = Time.now.midnight
           beginning = ending - 7.days
-          load_regulations stage, beginning, ending, options
+          targets += regulations_for stage, beginning, ending, options
         end
 
       end
     end
+
+    warnings = []
+    count = 0
+
+    targets.each do |document_number|
+
+      puts "\n[#{document_type}][#{document_number}] Fetching rule..." if options[:debug]
+      url = details_url_for document_type, document_number
+      destination = destination_for document_type, document_number, "json"
+
+      unless details = Utils.download(url, options.merge(destination: destination, json: true))
+        warnings << {message: "Error while polling FR.gov for article details at #{url}, skipping article", url: url}
+        next
+      end
+
+      rule = Regulation.find_or_initialize_by document_number: document_number
+
+      if !rule.new_record? and (document_type == :public_inspection) and (rule['document_type'] != "public_inspection")
+        puts "\tNot storing public inspection, document already released..." if options[:debug]
+        next
+      end
+
+      if !rule.new_record? and (document_type == :article) and (rule['document_type'] != "article")
+        puts "\tArticle replacing public inspection document, wiping fields..." if options[:debug]
+        rule.destroy
+        rule = Regulation.new document_number: document_number
+      end
+
+      # turn Dates into Times
+      ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
+        # one other field is 'dates', and I don't know what the possible values are for that yet
+        if details[field]
+          details[field] = Utils.noon_utc_for details[field].to_time
+        end
+      end
+
+      # Since we're using the Yajl parser, we need to parse timestamps ourselves
+      ['filed_at', 'pdf_updated_at'].each do |field|
+        if details[field]
+          details[field] = Utils.utc_parse details[field]
+        end
+      end
+
+      # maps FR document type to rule stage
+      type_to_stage = {
+        "Proposed Rule" => "proposed",
+        "Rule" => "final"
+      }
+
+      # common to public inspection documents and to articles
+      attributes = {
+        stage: type_to_stage[details['type']],
+        agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
+        agency_ids: details['agencies'].map {|agency| agency['id']},
+        publication_date: details['publication_date'],
+
+        federal_register_url: details['html_url'],
+        federal_register_json_url: url,
+        pdf_url: details['pdf_url'],
+
+        document_type: document_type.to_s
+      }
+
+
+      if document_type == :article
+        attributes.merge!(
+          title: details['title'],
+          abstract: details['abstract'],
+          effective_at: details['effective_on'],
+          full_text_xml_url: details['full_text_xml_url'],
+          body_html_url: details['body_html_url'],
+
+          # for articles, main timestamp is based on publication_date
+          published_at: details['publication_date'],
+          year: details['publication_date'].year,
+
+          rins: details['regulation_id_numbers'],
+          docket_ids: details['docket_ids']
+        )
+
+      elsif document_type == :public_inspection
+        # The title field can sometimes be blank, in which case it can be cobbled together.
+        # According to FR.gov team, this produces the final title 95% of the time.
+        # They aren't comfortable with calling it the 'title' - but I think I am.
+        title = nil
+        if details['title'].present?
+          title = details['title']
+        elsif details['toc_subject'].present? and details['toc_doc'].present?
+          title = [details['toc_subject'], details['toc_doc']].join(" ")
+        end
+
+        attributes.merge!(
+          title: title,
+          num_pages: details['num_pages'],
+          pdf_updated_at: details['pdf_updated_at'],
+          raw_text_url: details['raw_text_url'],
+          filed_at: details['filed_at'],
+
+          # different key name for PI docs for some reason
+          docket_ids: details['docket_numbers'],
+          
+          # for PI docs, main timestamp is based on filing date
+          published_at: details['filed_at'],
+          year: details['filed_at'].year
+        )
+      end
+
+      puts "[#{document_number}] Saving..."
+      rule.attributes = attributes
+      rule.save!
+
+      count += 1
+    end
+
+    
+    if warnings.any?
+      Report.warning self, "#{warnings.size} warnings", warnings: warnings
+    end
+
+
+    if document_type == :article
+      Report.success self, "Processed #{count} RULE and PRORULE regulations"
+    elsif document_type == :public_inspection
+      Report.success self, "Processed #{count} current RULE and PRORULE public inspection docs"
+    end
   end
 
-  def self.load_public_inspections(options)
+
+  # document numbers for current PI docs
+
+  def self.pi_docs_for(options)
     base_url = "http://api.federalregister.gov/v1/public-inspection-documents/current.json"
     base_url << "?fields[]=document_number&fields[]=type"
 
@@ -69,12 +196,12 @@ class RegulationsArchive
 
     unless response = Utils.download(base_url, options.merge(json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
-      return
+      return []
     end
 
     if response['errors']
       Report.error self, "Errors, not sure what this looks like...", errors: response['errors']
-      return
+      return []
     end
 
     if response['count'] >= 1000
@@ -82,26 +209,21 @@ class RegulationsArchive
       # continue on
     end
 
-    count = 0
-
-    response['results'].each do |article|
-      document_number = article['document_number']
-      
+    response['results'].map do |article|
       # the current.json endpoint can't also be filtered by type, so we'll filter client-side
       if ["proposed rule", "rule"].include?(article['type'].downcase)
-        if save_regulation!(:public_inspection, document_number, options)
-          count += 1
-        end
+        article['document_number']
       else
         # puts "Skipping non-rule PI doc..." if options[:debug]
+        nil
       end
-    end
-
-    Report.success self, "Added #{count} current RULE and PRORULE public inspection docs"
+    end.compact
   end
 
 
-  def self.load_regulations(stage, beginning, ending, options)
+  # document numbers for published regs in the given range
+
+  def self.regulations_for(stage, beginning, ending, options)
     base_url = "http://api.federalregister.gov/v1/articles.json"
     base_url << "?conditions[type]=#{stage}"
     base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
@@ -118,12 +240,12 @@ class RegulationsArchive
     
     unless response = Utils.download(base_url, options.merge(json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
-      return
+      return []
     end
 
     if response['errors']
       Report.error self, "Errors, not sure what this looks like...", errors: response['errors']
-      return
+      return []
     end
 
     if response['count'] >= 1000
@@ -136,130 +258,12 @@ class RegulationsArchive
     # not an error, just means there's no results in this timeframe (like for future months)
     unless response['results']
       puts "No results for this time frame" if options[:debug]
-      return
+      return []
     end
 
-    response['results'].each do |article|
-      document_number = article['document_number']
-      
-      if rule = save_regulation!(:article, document_number, options)
-        count += 1
-      end
+    response['results'].map do |article|
+      article['document_number']
     end
-
-    Report.success self, "Added #{count} #{stage} regulations from FederalRegister.gov"
-  end
-
-
-  # save a PI doc or regulation into mongo
-
-  def self.save_regulation!(document_type, document_number, options)
-    puts "\n[#{document_type}][#{document_number}] Fetching rule..." if options[:debug]
-
-    url = details_url_for document_type, document_number
-    destination = destination_for document_type, document_number, "json"
-
-    unless details = Utils.download(url, options.merge(destination: destination, json: true))
-      Report.warning self, "Error while polling FR.gov for article details at #{url}, skipping article", url: url
-      return
-    end
-
-    rule = Regulation.find_or_initialize_by document_number: document_number
-
-    if !rule.new_record? and (document_type == :public_inspection) and (rule['document_type'] != "public_inspection")
-      puts "\tNot storing public inspection, document already released..." if options[:debug]
-      return
-    end
-
-    if !rule.new_record? and (document_type == :article) and (rule['document_type'] != "article")
-      puts "\tArticle replacing public inspection document, wiping fields..." if options[:debug]
-      rule.destroy
-      rule = Regulation.new document_number: document_number
-    end
-
-    # turn Dates into Times
-    ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
-      # one other field is 'dates', and I don't know what the possible values are for that yet
-      if details[field]
-        details[field] = Utils.noon_utc_for details[field].to_time
-      end
-    end
-
-    # Since we're using the Yajl parser, we need to parse timestamps ourselves
-    ['filed_at', 'pdf_updated_at'].each do |field|
-      if details[field]
-        details[field] = Utils.utc_parse details[field]
-      end
-    end
-
-    # maps FR document type to rule stage
-    type_to_stage = {
-      "Proposed Rule" => "proposed",
-      "Rule" => "final"
-    }
-
-    # common to public inspection documents and to articles
-    attributes = {
-      stage: type_to_stage[details['type']],
-      agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
-      agency_ids: details['agencies'].map {|agency| agency['id']},
-      publication_date: details['publication_date'],
-
-      federal_register_url: details['html_url'],
-      federal_register_json_url: url,
-      pdf_url: details['pdf_url'],
-
-      document_type: document_type.to_s
-    }
-
-    if document_type == :article
-      attributes.merge!(
-        title: details['title'],
-        abstract: details['abstract'],
-        effective_at: details['effective_on'],
-        full_text_xml_url: details['full_text_xml_url'],
-        body_html_url: details['body_html_url'],
-
-        # for articles, main timestamp is based on publication_date
-        published_at: details['publication_date'],
-        year: details['publication_date'].year,
-
-        rins: details['regulation_id_numbers'],
-        docket_ids: details['docket_ids']
-      )
-
-    elsif document_type == :public_inspection
-      # The title field can sometimes be blank, in which case it can be cobbled together.
-      # According to FR.gov team, this produces the final title 95% of the time.
-      # They aren't comfortable with calling it the 'title' - but I think I am.
-      title = nil
-      if details['title'].present?
-        title = details['title']
-      elsif details['toc_subject'].present? and details['toc_doc'].present?
-        title = [details['toc_subject'], details['toc_doc']].join(" ")
-      end
-
-      attributes.merge!(
-        title: title,
-        num_pages: details['num_pages'],
-        pdf_updated_at: details['pdf_updated_at'],
-        raw_text_url: details['raw_text_url'],
-        filed_at: details['filed_at'],
-
-        # different key name for PI docs for some reason
-        docket_ids: details['docket_numbers'],
-        
-        # for PI docs, main timestamp is based on filing date
-        published_at: details['filed_at'],
-        year: details['filed_at'].year
-      )
-    end
-
-    puts "[#{document_number}] Saving..."
-    rule.attributes = attributes
-    rule.save!
-
-    rule
   end
 
 
@@ -318,6 +322,6 @@ class RegulationsArchive
   end
 
   def self.citation_cache(document_number)
-    RegulationsArchive.destination_for "citation", document_number, "json"
+    destination_for "citation", document_number, "json"
   end
 end
