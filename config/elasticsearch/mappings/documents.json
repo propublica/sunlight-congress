@@ -9,6 +9,18 @@
       "citation_ids": {
         "index": "not_analyzed",
         "type": "string"
+      },
+      "document_type": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "document_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "gao_id": {
+        "index": "not_analyzed",
+        "type": "string"
       }
     }
   }
