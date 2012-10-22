@@ -74,7 +74,7 @@ class BulkGpoBills
         failures << {url: mods_url, dest: mods_dest}
       end
 
-      sleep 0.1
+      # sleep 0.1
 
       text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/html/BILLS-#{session}#{gpo_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
@@ -82,7 +82,7 @@ class BulkGpoBills
         failures << {url: text_url, dest: text_dest}
       end
 
-      sleep 0.1
+      # sleep 0.1
 
       xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{gpo_type}#{number}#{version_code}/xml/BILLS-#{session}#{gpo_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
@@ -90,7 +90,7 @@ class BulkGpoBills
         failures << {url: xml_url, dest: xml_dest}
       end
 
-      sleep 0.1
+      # sleep 0.1
 
       count += 1
     end
