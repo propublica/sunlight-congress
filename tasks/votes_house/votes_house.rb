@@ -11,10 +11,8 @@ class VotesHouse
   # already downloaded files (to support resuming).
   # 
   # options:
-  #   archive: archive the whole year, don't limit it to 1 days. Will not re-download existing files.
   #   force: if archiving, force it to re-download existing files.
-  #
-  #   year: the year of data to fetch (defaults to current year)
+  #   year: archive an entire year of data (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
 
@@ -22,26 +20,21 @@ class VotesHouse
     year = options[:year] ? options[:year].to_i : Time.now.year
     initialize_disk! year
 
-    latest = options[:latest] ? options[:latest].to_i : 20
-
-    count = 0
-
-    # fill with the numbers of the rolls to get for that year
     to_get = []
 
     if options[:number]
       to_get = [options[:number].to_i]
     else
-
       # count down from the top
       unless latest_roll = latest_roll_for(year, options)
         Report.failure self, "Failed to find the latest new roll on the clerk's page, can't go on."
         return
       end
       
-      if options[:archive]
+      if options[:year] # year implies archive
         from_roll = 1
       else
+        latest = 20
         from_roll = (latest_roll - latest) + 1
         from_roll = 1 if from_roll < 1
       end
@@ -53,20 +46,20 @@ class VotesHouse
       end
     end
 
-    download_failures = []
+    count = 0
 
+    download_failures = []
+    es_failures = []
     missing_bioguide_ids = []
     missing_bill_ids = []
     missing_amendment_ids = []
 
-    batcher = [] # used to persist a batch indexing container
+    batcher = [] # ES batch indexing
 
     legislators = {}
     Legislator.only(Utils.legislator_fields).all.each do |legislator|
       legislators[legislator.bioguide_id] = Utils.legislator_for legislator
     end
-
-    es_failures = []
 
     to_get.each do |number|
       roll_id = "h#{number}-#{year}"
