@@ -12,12 +12,17 @@ class VotesHouse
   # 
   # options:
   #   force: if archiving, force it to re-download existing files.
-  #   year: archive an entire year of data (defaults to latest 20)
+  #   year: archive an entire year of data. 'current' for current year (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
 
   def self.run(options = {})
-    year = options[:year] ? options[:year].to_i : Time.now.year
+    year = if options[:year].nil? or (options[:year] == 'current')
+      Time.now.year
+    else
+      options[:year].to_i
+    end
+
     initialize_disk! year
 
     to_get = []
@@ -34,7 +39,7 @@ class VotesHouse
       if options[:year] # year implies archive
         from_roll = 1
       else
-        latest = 20
+        latest = options[:latest] ? options[:latest].to_i : 20
         from_roll = (latest_roll - latest) + 1
         from_roll = 1 if from_roll < 1
       end

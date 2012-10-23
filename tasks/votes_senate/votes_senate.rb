@@ -17,7 +17,12 @@ class VotesSenate
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
   
   def self.run(options = {})
-    year = options[:year] ? options[:year].to_i : Time.now.year
+    year = if options[:year].nil? or (options[:year] == 'current')
+      Time.now.year
+    else
+      options[:year].to_i
+    end
+    
     initialize_disk! year
 
     to_get = []
@@ -34,7 +39,7 @@ class VotesSenate
       if options[:year]
         from_roll = 1
       else
-        latest = 20
+        latest = options[:latest] ? options[:latest].to_i : 20
         from_roll = (latest_roll - latest) + 1
         from_roll = 1 if from_roll < 1
       end
