@@ -28,8 +28,12 @@ house_live archive=True captions=True senate=True
 
 ==============================
 
-	rake task:bill_text_archive recite=1 debug=1 session=112 && rake task:bill_text_archive recite=1 debug=1 session=111
+	rake task:bill_text_archive debug=1 session=112 batch_size=10 && rake task:bill_text_archive debug=1 session=111 batch_size=10
 
-	rake task:regulations_full_text debug=1 recite=1 rearchive_year=2012 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2011 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2010 && rake task:regulations_full_text debug=1 recite=1 rearchive_year=2009
+	rake task:regulations_archive cache=1 debug=1 year=2012 batch_size=10 && rake task:regulations_archive debug=1 cache=1 year=2011 batch_size=10 && rake task:regulations_archive debug=1 cache=1 year=2010 batch_size=10 && rake task:regulations_archive debug=1 year=2009 cache=1 batch_size=10
 
-	rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2012 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2011 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2010 && rake task:documents_gao_reports cache=1 debug=1 recite=1 year=2009
+	rake task:documents_gao_reports cache=1 debug=1 year=2012 && rake task:documents_gao_reports cache=1 debug=1 year=2011 && rake task:documents_gao_reports cache=1 debug=1 year=2010 && rake task:documents_gao_reports cache=1 debug=1 year=2009
+
+	rake task:votes_house year=2012 debug=1 && rake task:votes_house year=2011 debug=1 && rake task:votes_house year=2010 debug=1 && rake task:votes_house year=2009 debug=1
+
+	rake task:votes_senate year=2012 debug=1 && rake task:votes_senate year=2011 debug=1 && rake task:votes_senate year=2010 debug=1 && rake task:votes_senate year=2009 debug=1
