@@ -63,7 +63,9 @@
 
 # Regulations
 
-*/10 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1
+# formally published proposed and final regs, last 2 days - takes <2m even without cache
+*/10 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 days=2
+# pre-release regs (public inspection docs)
 */60 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
 
 

@@ -17,6 +17,10 @@ class RegulationsArchive
   #     if year is given, is combined with year to index that specific month.
   #     if year is not given, does nothing.
   #
+  #   days:
+  #     if year is given, does nothing.
+  #     if year is not given, fetches last N days of regulations. (Defaults to 7.)
+  #
   #   limit: limit processing to N documents
   #
   #   cache: 
@@ -55,8 +59,9 @@ class RegulationsArchive
 
         # default to last 7 days
         else
-          ending = Time.now.midnight
-          beginning = ending - 7.days
+          days = options[:days] ? options[:days].to_i : 7
+          ending = Time.now.midnight # only yyyy-mm-dd is used, time of day doesn't matter
+          beginning = ending - days.days
           targets += regulations_for stage, beginning, ending, options
         end
 

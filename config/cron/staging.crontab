@@ -51,7 +51,7 @@
 
 # Regulations
 
-*/120 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1
+*/119 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1
 */120 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
 
 
