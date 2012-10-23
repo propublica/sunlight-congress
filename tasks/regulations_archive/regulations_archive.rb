@@ -17,9 +17,13 @@ class RegulationsArchive
   #     if year is given, is combined with year to index that specific month.
   #     if year is not given, does nothing.
   #
+  #   limit: limit processing to N documents
+  #
   #   cache: 
   #     cache requests for detail JSON on individual documents
   #     will not cache search requests, is safe to turn on for syncing new documents
+  #
+  #   skip_text: do not do full text processing (mongo only)
     
   def self.run(options = {})
     document_type = options[:public_inspection] ? :public_inspection : :article
@@ -59,8 +63,17 @@ class RegulationsArchive
       end
     end
 
-    warnings = []
+    if options[:limit]
+      targets = targets.first options[:limit].to_i
+    end
+
     count = 0
+    search_count = 0
+
+    warnings = []
+    missing_links = []
+    citation_warnings = []
+    batcher = [] # ES batcher
 
     targets.each do |document_number|
 
@@ -165,24 +178,91 @@ class RegulationsArchive
         )
       end
 
-      puts "[#{document_number}] Saving..."
+      # save the mongo document
+      puts "[#{document_number}] Saving to MongoDB..."
       rule.attributes = attributes
       rule.save!
-
       count += 1
+
+      
+      next if options[:skip_text]
+      puts "[#{document_number}] Fetching full text..."
+
+      full_text = nil
+
+      if document_type == :article
+        if rule['full_text_xml_url']
+          full_text = text_for :article, document_number, :xml, rule['full_text_xml_url'], options
+          
+        elsif rule['body_html_url'] 
+          full_text = text_for :article, document_number, :html, rule['body_html_url'], options
+
+        else
+          missing_links << document_number
+        end
+      else
+        if rule['raw_text_url']
+          full_text = text_for :public_inspection, document_number, :txt, rule['raw_text_url'], options
+        else
+          missing_links << document_number
+        end
+      end
+
+      unless full_text
+        # warning will have been filed
+        puts "[#{document_number}] No full text to index, moving on..."
+        next
+      end
+
+
+      unless citation_ids = Utils.citations_for(rule, full_text, citation_cache(document_number), options)
+        citation_warnings << {message: "Failed to extract citations from #{document_number}"}
+        citation_ids = []
+      end
+      
+      # load in the part of the regulation from mongo that gets synced to ES
+      fields = {}
+      Regulation.result_fields.each do |field|
+        fields[field] = rule[field.to_s]
+      end
+
+      # index into elasticsearch
+      puts "[#{document_number}] Indexing text of regulation..."
+      fields['full_text'] = full_text
+      fields['citation_ids'] = citation_ids
+
+      Utils.es_batch! 'regulations', document_number, fields, batcher, options
+
+      # re-save Mongo record with citation IDs
+      rule['citation_ids'] = citation_ids
+      rule.save!
+
+      search_count += 1
     end
+
+    # index any leftover docs
+    Utils.es_flush! 'regulations', batcher
 
     
     if warnings.any?
       Report.warning self, "#{warnings.size} warnings", warnings: warnings
     end
 
+    if missing_links.any?
+      Report.warning self, "Missing #{missing_links.count} XML and HTML links for full text", missing_links: missing_links
+    end
+
+    if citation_warnings.any?
+      Report.warning self, "#{citation_warnings.size} warnings while extracting citations", citation_warnings: citation_warnings
+    end
 
     if document_type == :article
       Report.success self, "Processed #{count} RULE and PRORULE regulations"
     elsif document_type == :public_inspection
       Report.success self, "Processed #{count} current RULE and PRORULE public inspection docs"
     end
+
+    Report.success self, "Indexed #{search_count} documents as searchable"
   end
 
 
