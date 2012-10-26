@@ -34,6 +34,10 @@ house_live archive=True captions=True senate=True
 
 	rake task:documents_gao_reports cache=1 debug=1 year=2012 && rake task:documents_gao_reports cache=1 debug=1 year=2011 && rake task:documents_gao_reports cache=1 debug=1 year=2010 && rake task:documents_gao_reports cache=1 debug=1 year=2009
 
-	rake task:votes_house year=2012 debug=1 && rake task:votes_house year=2011 debug=1 && rake task:votes_house year=2010 debug=1 && rake task:votes_house year=2009 debug=1
+	rake task:votes_house year=2012 batch_size=10 debug=1 && rake task:votes_house year=2011 debug=1 batch_size=10 && rake task:votes_house year=2010 batch_size=10 debug=1 && rake task:votes_house year=2009 debug=1 batch_size=10 
 
-	rake task:votes_senate year=2012 debug=1 && rake task:votes_senate year=2011 debug=1 && rake task:votes_senate year=2010 debug=1 && rake task:votes_senate year=2009 debug=1
+	rake task:votes_senate year=2012 batch_size=10 debug=1 && rake task:votes_senate year=2011 batch_size=10 debug=1 && rake task:votes_senate year=2010 debug=1 batch_size=10 && rake task:votes_senate year=2009 batch_size=10 debug=1
+
+	
+	rake task:house_live archive=True captions=True
+	rake task:house_live archive=True captions=True senate=True
