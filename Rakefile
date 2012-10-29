@@ -9,6 +9,23 @@ task :environment do
   require 'pony'
 end
 
+# does not hinge on the environment, test_helper loads it itself
+task :default => :test
+task :test do
+  responses = Dir.glob("test/**/*_test.rb").map do |file|
+    puts "\nRunning #{file}:\n"
+    system "ruby #{file}"
+  end
+  
+  if responses.any? {|code| code == false}
+    puts "\nFAILED\n"
+    exit -1
+  else
+    puts "\nSUCCESS\n"
+    exit 0
+  end
+end
+
 namespace :development do
   desc "Load a fake 'development' api key into the db"
   task :api_key => :environment do
