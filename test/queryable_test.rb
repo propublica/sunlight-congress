@@ -20,7 +20,6 @@ class QueryableTest < Test::Unit::TestCase
     search_fields :name, :bio
 
     cite_key :ssn
-    cite_field :club_memberships
     
     # not actually persisted anywhere, just want the model behavior
     include Mongoid::Document
@@ -61,7 +60,7 @@ class QueryableTest < Test::Unit::TestCase
 
   def test_conditions_for_inserts_citation_filter_if_requested
     conditions = Queryable.conditions_for Person, chamber: "senate", citation: "098"
-    assert_equal({chamber: "senate", club_memberships: "098"}, conditions)
+    assert_equal({chamber: "senate", "citation_ids" => "098"}, conditions)
   end
 
   

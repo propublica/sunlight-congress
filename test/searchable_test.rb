@@ -11,6 +11,7 @@ require File.join ".", File.dirname(__FILE__), "../searchable"
 class SearchableTest < Test::Unit::TestCase
   
   class Person
+    include Mongoid::Document
     include Searchable::Model
     
     result_fields :name, :born_at, :ssn
@@ -22,13 +23,12 @@ class SearchableTest < Test::Unit::TestCase
     # for citation logic, which requires it also be queryable
     include Queryable::Model
     cite_key :ssn
-    cite_field :club_memberships # what an evil government
   end
   
   # represents an ElasticSearch Hit object
   class FakeHit
     # float, doc score
-    attr_accessor :_score
+    attr_accessor :_score, :_type
     
     # hash with keys that are fields and values that are arrays of highlighted text
     attr_accessor :highlight
@@ -37,14 +37,17 @@ class SearchableTest < Test::Unit::TestCase
     attr_accessor :fields
     
     def self.default_score; 1.0; end
+    def self.default_type; "fake_hit"; end
     
     def initialize(options = nil)
       # default values
       self._score = FakeHit.default_score
+      self._type = FakeHit.default_type
       self.highlight = nil
       
       if options
         self._score = options[:_score] if options[:_score]
+        self._type = options[:_type] if options[:_type]
         self.highlight = options[:highlight] if options[:highlight]
         self.fields = options[:fields] if options[:fields]
       end
@@ -156,67 +159,50 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal "whatever", Searchable.term_for({:query => "WHAteveR"})
   end
   
-  def test_query_for_uses_dis_max_query
-    conditions = Searchable.query_for "sideburns", Person, {}, ['bio']
-    assert_not_nil conditions[:dis_max]
-    assert_not_nil conditions[:dis_max][:queries]
-    assert conditions[:dis_max][:queries].is_a?(Array)
-  end
-  
-  def test_query_for_incorporates_search_query
-    search_fields = ['bio', 'name']
-    term = "sideburns"
-    
-    query = Searchable.query_for term, Person, {}, search_fields
-    subqueries = query[:dis_max][:queries]
-    assert_equal 2, subqueries.size
-    assert subqueries.include?(Searchable.subquery_for(term, 'bio')), "No bio subquery."
-    assert subqueries.include?(Searchable.subquery_for(term, 'name')), "No name subquery."
-  end
-  
   
   # filtering
   
   def test_filter_for_parses_filters_into_anded_subfilters
-    filter = Searchable.filter_for Person, {:favorite_drug => "opium", :fingers => "9"}
+    filter = Searchable.filter_for Person, {'favorite_drug' => "opium", 'fingers' => "9"}
     
     assert_not_nil filter[:and]
-    assert filter[:and].is_a?(Array)
+    assert filter[:and].is_a?(Hash)
+    assert_not_nil filter[:and][:filters]
+    assert filter[:and][:filters].is_a?(Array)
     
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'fingers', "9"))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'fingers', 9))
   end
 
   def test_filter_for_includes_citation
-    filter = Searchable.filter_for Person, {favorite_drug: "opium", fingers: "9", citation: "communism"}
+    filter = Searchable.filter_for Person, {'favorite_drug' => "opium", 'fingers' => "9", :citation => "communism"}
     
     assert_not_nil filter[:and]
-    assert filter[:and].is_a?(Array)
-    assert_equal 3, filter[:and].size
+    assert filter[:and].is_a?(Hash)
+    assert_not_nil filter[:and][:filters]
+    assert filter[:and][:filters].is_a?(Array)
     
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'fingers', "9"))
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'club_memberships', 'communism'))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'fingers', 9))
+
+    citation_filter = Searchable.citation_filter_for(Person, 'citation_ids', 'communism')
+    assert filter[:and][:filters].include?(citation_filter), filter[:and][:filters].inspect
   end
 
   def test_filter_for_with_only_citation
     filter = Searchable.filter_for Person, {citation: "communism"}
-    
-    assert_not_nil filter[:and]
-    assert filter[:and].is_a?(Array)
-    assert_equal 1, filter[:and].size
-
-    assert filter[:and].include?(Searchable.subfilter_for(Person, 'club_memberships', 'communism'))
-  end
-  
-  def test_filter_for_doesnt_know_about_operators
-    filter = Searchable.filter_for Person, {:fingers__gt => "9"}
-    assert_equal Searchable.subfilter_for(Person, "fingers__gt", "9"), filter[:and][0]
+    assert_equal filter, Searchable.citation_filter_for(Person, 'citation_ids', 'communism')
   end
   
   def test_filter_for_allows_subfields_in_filters
+    # one subfilter is left alone
     filter = Searchable.filter_for Person, {'fingers.left' => "9"}
-    assert_equal Searchable.subfilter_for(Person, "fingers.left", "9"), filter[:and][0]
+    assert_equal Searchable.subfilter_for(Person, "fingers.left", 9), filter
+
+    # more than one are 'and'-ed together
+    filter = Searchable.filter_for Person, {'fingers.left' => "9", 'fingers.right' => "10"}
+    assert_equal Searchable.subfilter_for(Person, "fingers.left", 9), filter[:and][:filters][0]
+    assert_equal Searchable.subfilter_for(Person, "fingers.right", 10), filter[:and][:filters][1]
   end
   
   def test_filter_for_ignores_magic_fields_in_filters
@@ -224,8 +210,7 @@ class SearchableTest < Test::Unit::TestCase
     assert !Searchable.magic_fields.include?(field)
     
     filter = Searchable.filter_for Person, {"hands" => "two", Searchable.magic_fields.first => "anything"}
-    assert_equal 1, filter[:and].size
-    assert_equal Searchable.subfilter_for(Person, "hands", "two"), filter[:and][0]
+    assert_equal Searchable.subfilter_for(Person, "hands", "two"), filter
   end
   
   def test_filter_for_with_no_valid_filters_yields_nil
@@ -250,21 +235,34 @@ class SearchableTest < Test::Unit::TestCase
     
     assert_equal filter, Searchable.subfilter_for(Person, field, value)
   end
-  
+
   def test_subfilter_for_integers
     field = "fingers"
     value = "9" # it will start out as a string in the params
     
     filter = {
-      :numeric_range => {
+      :term => {
+        field.to_s => value
+      }
+    }
+    
+    assert_equal filter, Searchable.subfilter_for(Person, field, 9)
+  end
+  
+  def test_subfilter_for_integer_ranges
+    field = "fingers"
+    operator = "gt"
+    value = "9" # it will start out as a string in the params
+    
+    filter = {
+      :range => {
         field.to_s => {
-          :from => value,
-          :to => value
+          'gt' => value
         }
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(Person, field, 9, "gt")
   end
   
   def test_subfilter_for_booleans
@@ -277,7 +275,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(Person, field, true)
   end
   
   def test_subfilter_for_dates
@@ -297,13 +295,14 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(Person, field, from)
   end
   
   # should act like dates, until we support ranges
   def test_subfilter_for_times
     field = "born_at"
     value = "2011-05-06T07:00:00Z"
+    parsed_value = Searchable.value_for value, nil
     from = Time.zone.parse(value).midnight.utc
     to = from + 1.day
     
@@ -317,7 +316,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(Person, field, parsed_value)
   end
   
   def test_subfilter_for_allows_override_of_type
@@ -354,7 +353,8 @@ class SearchableTest < Test::Unit::TestCase
     attributes = {
       :search => {
                   :score => FakeHit.default_score,
-                  :query => term
+                  :query => term,
+                  :type => FakeHit.default_type
                  },
       'bill_version_id' => "s627-112-rs",
       'version_code' => "rs"
@@ -378,7 +378,8 @@ class SearchableTest < Test::Unit::TestCase
     attributes = {
       :search => {
                   :score => 2.0,
-                  :query => term
+                  :query => term,
+                  :type => FakeHit.default_type
                  },
       'bill_version_id' => "s627-112-rs",
       'version_code' => "rs"
@@ -408,6 +409,7 @@ class SearchableTest < Test::Unit::TestCase
       :search => {
                   :score => FakeHit.default_score,
                   :query => term,
+                  :type => FakeHit.default_type,
                   :highlight => highlight
                  },
       'bill_version_id' => "s627-112-rs",
@@ -431,7 +433,8 @@ class SearchableTest < Test::Unit::TestCase
     attributes = {
       :search => {
                   :score => FakeHit.default_score,
-                  :query => term
+                  :query => term,
+                  :type => FakeHit.default_type
                  },
       'bill' => {
                  'bill_id' => 's627-112',

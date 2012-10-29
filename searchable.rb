@@ -65,7 +65,7 @@ module Searchable
       next unless valid_operators.include?(operator)
 
       # value is a string, infer whether it needs casting
-      parsed = value_for value, model.fields[field]
+      parsed = value_for value, model.fields[field] # requires all ES models to be Mongo models...
 
       # handle citations specially
       if field == 'citation_ids'
