@@ -5,7 +5,6 @@ task :environment do
   require 'bundler/setup'
   require './config/environment'
   
-  require './tasks/report'
   require 'pony'
 end
 
@@ -29,8 +28,6 @@ end
 namespace :development do
   desc "Load a fake 'development' api key into the db"
   task :api_key => :environment do
-    require './analytics/api_key'
-    
     key = ENV['key'] || "development"
     email = ENV['email'] || "#{key}@example.com"
     
@@ -45,13 +42,10 @@ end
 
 desc "Run through each model and create all indexes" 
 task :create_indexes => :environment do
-  require './analytics/api_key'
-  require './analytics/hits'
-  
   begin
     models = Dir.glob('models/*.rb').map do |file|
       File.basename(file, File.extname(file)).camelize.constantize
-    end + [ApiKey, Report, Hit]
+    end
     
     models.each do |model| 
       if model.respond_to? :create_indexes

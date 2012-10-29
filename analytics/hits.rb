@@ -17,21 +17,22 @@ after queryable_route do
   
   query_hash = process_query_hash query_hash
   
-  hit = Hit.create(
-    :key => api_key,
+  hit = Hit.create!(
+    key: api_key,
     
-    :method_type => 'queryable',
-    :method => params[:captures][0],
-    :format => params[:captures][1],
+    method_type: 'queryable',
+    method: params[:captures][0],
+    format: params[:captures][1],
     
-    :query_hash => query_hash,
-    :sections => (params[:sections] || '').split(','),
+    query_hash: query_hash,
+    sections: (params[:sections] || '').split(','),
     
-    :user_agent => request.env['HTTP_USER_AGENT'],
-    :app_version => request.env['HTTP_X_APP_VERSION'],
-    :os_version => request.env['HTTP_X_OS_VERSION'],
-    :app_channel => request.env['HTTP_X_APP_CHANNEL'],
-    :created_at => Time.now.utc # don't need updated_at
+    user_agent: request.env['HTTP_USER_AGENT'],
+    app_version: request.env['HTTP_X_APP_VERSION'],
+    os_version: request.env['HTTP_X_OS_VERSION'],
+    app_channel: request.env['HTTP_X_APP_CHANNEL'],
+
+    created_at: Time.now.utc # don't need updated_at
   )
 end
 
@@ -51,39 +52,24 @@ after searchable_route do
   query_hash = process_query_hash query_hash
   
   hit = Hit.create(
-    :key => api_key,
+    key: api_key,
     
-    :method_type => 'searchable',
-    :method => "search.#{params[:captures][0]}",
-    :format => params[:captures][1],
+    method_type: 'searchable',
+    method: "search.#{params[:captures][0]}",
+    format: params[:captures][1],
     
-    :query => params[:query],
-    :search => params[:search],
+    query: params[:query],
+    search: params[:search],
     
-    :query_hash => query_hash,
-    :sections => (params[:sections] || '').split(','),
+    query_hash: query_hash,
+    sections: (params[:sections] || '').split(','),
     
-    :user_agent => request.env['HTTP_USER_AGENT'],
-    :app_version => request.env['HTTP_X_APP_VERSION'],
-    :os_version => request.env['HTTP_X_OS_VERSION'],
-    :app_channel => request.env['HTTP_X_APP_CHANNEL'],
-    :created_at => Time.now.utc # don't need updated_at
+    user_agent: request.env['HTTP_USER_AGENT'],
+    app_version: request.env['HTTP_X_APP_VERSION'],
+    os_version: request.env['HTTP_X_OS_VERSION'],
+    app_channel: request.env['HTTP_X_APP_CHANNEL'],
+    created_at: Time.now.utc # don't need updated_at
   )
-end
-
-class Hit
-  include Mongoid::Document
-  
-  index created_at: 1
-  index method: 1
-  index method_type: 1
-  index key: 1
-  index format: 1
-  index user_agent: 1
-  index app_version: 1
-  index os_version: 1
-  index app_channel: 1
-  index({key: 1, method: 1})
 end
 
 def process_query_hash(hash)
