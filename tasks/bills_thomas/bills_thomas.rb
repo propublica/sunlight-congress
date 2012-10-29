@@ -87,6 +87,7 @@ class BillsThomas
         titles: doc['titles'],
         summary: doc['summary'],
         state: doc['status'],
+        enacted_as: doc['enacted_as'],
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
         cosponsors: cosponsors,
