@@ -34,6 +34,8 @@ after queryable_route do
 
     created_at: Time.now.utc # don't need updated_at
   )
+
+  HitReport.log! Time.zone.now.strftime("%Y-%m-%d"), api_key, params[:captures][0]
 end
 
 after searchable_route do
@@ -50,12 +52,14 @@ after searchable_route do
   query_hash.delete 'page'
   
   query_hash = process_query_hash query_hash
+
+  method = "search.#{params[:captures][0]}"
   
   hit = Hit.create(
     key: api_key,
     
     method_type: 'searchable',
-    method: "search.#{params[:captures][0]}",
+    method: method,
     format: params[:captures][1],
     
     query: params[:query],
@@ -70,6 +74,8 @@ after searchable_route do
     app_channel: request.env['HTTP_X_APP_CHANNEL'],
     created_at: Time.now.utc # don't need updated_at
   )
+
+  HitReport.log! Time.zone.now.strftime("%Y-%m-%d"), api_key, method
 end
 
 def process_query_hash(hash)
