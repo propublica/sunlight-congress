@@ -67,7 +67,9 @@ class BillsThomas
       actions = actions_for(doc['actions'])
       last_action = last_action_for actions
       
-      # committees = committees_for filename, doc, cached_committees, missing_committees
+      committees, missing = committees_for doc, cached_committees
+      missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
+
       related_bills = related_bills_for doc['related_bills']
       
       passage_votes = passage_votes_for actions
@@ -93,12 +95,12 @@ class BillsThomas
         actions: actions,
         last_action: last_action,
         last_action_at: last_action ? last_action['acted_at'] : nil,
-        :passage_votes => passage_votes,
-        :passage_votes_count => passage_votes.size,
-        :last_passage_vote_at => last_passage_vote_at,
+        passage_votes: passage_votes,
+        passage_votes_count: passage_votes.size,
+        last_passage_vote_at: last_passage_vote_at,
         introduced_at: Utils.ensure_utc(doc['introduced_at']),
         keywords: doc['subjects'],
-        # :committees => committees,
+        committees: committees,
         related_bills: related_bills,
         abbreviated: false
       }
@@ -230,27 +232,25 @@ class BillsThomas
   end
   
   
-  def self.committees_for(filename, doc, cached_committees, missing_committees)
+  def self.committees_for(doc, cached_committees)
     committees = {}
+    missing = []
     
-    doc.search("//committees/committee").each do |elem|
-      activity = elem['activity'].split(/, ?/).map {|a| a.downcase}
-      committee_name = elem['name']
-      subcommittee_name = elem['subcommittee']
-      
-      if subcommittee_name.blank? # we're not getting subcommittees, way too hard to match them up
-        if committee = committee_match(committee_name, cached_committees)
-          committees[committee['committee_id']] = {
-            :activity => activity,
-            :committee => Utils.committee_for(committee)
-          }
-        else
-          missing_committees << [committee_name, filename]
-        end
+    doc["committees"].each do |committee|
+      # we're not getting subcommittees, way too hard to match them up
+      next if committee['subcommittee'].present?
+
+      if match = cached_committees[committee['committee']]
+        committees[match['committee_id']] = {
+          activity: committee['activity'],
+          committee: Utils.committee_for(match)
+        }
+      else
+        missing << committee_name
       end
     end
     
-    committees
+    [committees, missing]
   end
 
   def self.related_bills_for(related_bills)
@@ -273,7 +273,7 @@ class BillsThomas
   end
   
   def self.committee_match(name, cached_committees)
-    Committee.where(:committee_id => cached_committees[name]).first
+    cached_committees[name]
   end
   
   def self.cached_committees_for(session, doc)
@@ -287,7 +287,13 @@ class BillsThomas
     committees["House Ethics"] = "HSSO"
     committees["Senate Caucus on International Narcotics Control"] = "SCNC"
     committees["Commission on Security and Cooperation in Europe (Helsinki Commission)"] = "JCSE"
-    
+    committees["House Intelligence (Permanent Select)"] = "HSIG"
+
+    committees.each do |name, id|
+      committees[name] = Committee.where(:committee_id => id).first
+      puts "Couldn't find committee #{name}!" unless committees[name]
+    end
+
     committees
   end
 
