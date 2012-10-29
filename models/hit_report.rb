@@ -9,8 +9,6 @@ class HitReport
   field :count, type: Integer
 
   index({day: 1, key: 1, method: 1})
-  index key: 1
-  index method: 1
 
   def self.log!(day, key, method)
     collection = Mongoid.session(:default)[:hit_reports]
