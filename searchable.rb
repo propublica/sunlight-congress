@@ -214,11 +214,11 @@ module Searchable
     
     {
       mapping => documents,
-      :count => raw_results.total_entries,
-      :page => {
-        :count => documents.size,
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
+      count: raw_results.total_entries,
+      page: {
+        count: documents.size,
+        per_page: pagination[:per_page],
+        page: pagination[:page]
       }
     }
   end
@@ -239,18 +239,18 @@ module Searchable
       last_response = ExplainLogger.last_response
       
       {
-        :query => term,
-        :mapping => mapping,
-        :count => results.total_entries,
-        :elapsed => elapsed,
-        :request => last_request,
-        :response => last_response
+        query: term,
+        mapping: mapping,
+        count: results.total_entries,
+        elapsed: elapsed,
+        request: last_request,
+        response: last_response
       }
     rescue ElasticSearch::RequestError => exc
       {
-        :request => request,
-        :mapping => mapping,
-        :error => error_from(exc)
+        request: request,
+        mapping: mapping,
+        error: error_from(exc)
       }
     end
   end
@@ -264,18 +264,18 @@ module Searchable
     
     options = {
       # turn on explanation fields on each hit, for the discerning debugger
-      :explain => params[:explain].present?,
+      explain: params[:explain].present?,
       
       # compute a score even if the sort is not on the score
-      :track_scores => true
+      track_scores: true
     }
       
     if params[:highlight] == "true"
       
       highlight = {
-        :fields => {},
-        :order => "score",
-        :fragment_size => 200
+        fields: {},
+        order: "score",
+        fragment_size: 200
       }
       
       search_fields.each {|field| highlight[:fields][field] = {}}
@@ -330,32 +330,32 @@ module Searchable
     
     if filter
       query = {
-        :filtered => {
-          :filter => filter,
-          :query => query
+        filtered: {
+          filter: filter,
+          query: query
         }
       }
     end
     
     [
       {
-        :query => query,
-        :sort => order,
-        :fields => fields
+        query: query,
+        sort: order,
+        fields: fields
       }.merge(other), 
      
       # mapping and pagination info has to go into the second hash
       {
-        :type => mapping,
-        :from => from,
-        :size => size
+        type: mapping,
+        from: from,
+        size: size
       }
     ]
   end
   
   def self.attributes_for(term, hit, model, fields)
     attributes = {}
-    search = {score: hit._score, query: term}
+    search = {score: hit._score, query: term, type: hit._type.singularize}
     
     hit.fields ||= {}
     
@@ -399,7 +399,7 @@ module Searchable
     page = (params[:page] || 1).to_i
     page = 1 if page <= 0 or page > max_page
     
-    {:per_page => per_page, :page => page}
+    {per_page: per_page, page: page}
   end
   
   
@@ -505,7 +505,7 @@ module Searchable
 
     if thrift?
       thrift_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['thrift']}"
-      Searchable.thrift = ElasticSearch.new thrift_host, options.merge(:transport => ElasticSearch::Transport::Thrift)
+      Searchable.thrift = ElasticSearch.new thrift_host, options.merge(transport: ElasticSearch::Transport::Thrift)
     end
 
     Searchable.client = ElasticSearch.new(http_host, options) do |conn|
