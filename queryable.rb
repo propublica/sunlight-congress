@@ -140,11 +140,11 @@ module Queryable
     
     {
       key => documents,
-      :count => count,
-      :page => {
-        :count => documents.size,
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
+      count: count,
+      page: {
+        count: documents.size,
+        per_page: pagination[:per_page],
+        page: pagination[:page]
       }
     }
   end
@@ -153,14 +153,14 @@ module Queryable
     criteria = criteria_for model, conditions, fields, order, pagination
     
     {
-      :conditions => conditions,
-      :fields => fields,
-      :order => order,
-      :explain => criteria.explain,
-      :count => criteria.count,
-      :page => {
-        :per_page => pagination[:per_page],
-        :page => pagination[:page]
+      conditions: conditions,
+      fields: fields,
+      order: order,
+      explain: criteria.explain,
+      count: criteria.count,
+      page: {
+        per_page: pagination[:per_page],
+        page: pagination[:page]
       }
     }
   end
@@ -186,7 +186,7 @@ module Queryable
     page = (params[:page] || 1).to_i
     page = 1 if page <= 0 or page > max_page
     
-    {:per_page => per_page, :page => page}
+    {per_page: per_page, page: page}
   end
   
   def self.regex_for(value, i = true)
