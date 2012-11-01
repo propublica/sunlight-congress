@@ -4,7 +4,7 @@ module Searchable
     (params[:query] || params[:q]).strip.downcase
   end
   
-  def self.query_for(term, model, params, search_fields)
+  def self.query_for(term, params, search_fields)
     
     conditions = {
       'dis_max' => {
@@ -19,7 +19,7 @@ module Searchable
     conditions
   end
 
-  def self.relaxed_query_for(string, model, params, search_fields)
+  def self.relaxed_query_for(string, params, search_fields)
     conditions = {
       'query_string' => {
         'query' => string,
@@ -42,7 +42,7 @@ module Searchable
     }
   end
   
-  def self.filter_for(model, params)
+  def self.filter_for(models, params)
     fields = {}
 
     params.keys.each do |key| 
@@ -65,14 +65,18 @@ module Searchable
       next unless valid_operators.include?(operator)
 
       # value is a string, infer whether it needs casting
-      type = model.respond_to?(:fields) ? model.fields[field] : nil
+      models = [models] unless models.is_a?(Array)
+      types = models.select {|model| model.respond_to?(:fields) and model.fields[field]}
+      # for multiple models, just pick the first (no known clashes anyway)
+      type = types.any? ? types.first.fields[field] : nil
+
       parsed = value_for value, type
 
       # handle citations specially
       if field == 'citation_ids'
-        citation_filter_for model, field, value
+        citation_filter_for field, value
       else
-        subfilter_for model, field, parsed, operator
+        subfilter_for field, parsed, operator
       end
     end.compact
 
@@ -93,11 +97,11 @@ module Searchable
   end
 
   # the citation subfilter is itself an 'and' filter on a set of term subfilters
-  def self.citation_filter_for(model, field, value)
+  def self.citation_filter_for(field, value)
     citation_ids = value.split "|"
     
     subfilters = citation_ids.map do |citation_id|
-      subfilter_for model, field, citation_id
+      subfilter_for field, citation_id
     end
 
     if subfilters.size == 1
@@ -107,7 +111,7 @@ module Searchable
     end
   end
   
-  def self.subfilter_for(model, field, value, operator = nil)
+  def self.subfilter_for(field, value, operator = nil)
     if value.is_a?(String)
       if operator.nil?
         {
@@ -163,8 +167,10 @@ module Searchable
   
   # default to all the fields that the model declares as searchable,
   # but allow the user to limit it to a smaller subset of those fields
-  def self.search_fields_for(model, params)
-    default_fields = model.searchable_fields.map {|field| field.to_s}
+  def self.search_fields_for(models, params)
+    models = [models] unless models.is_a?(Array)
+
+    default_fields = models.map {|m| m.searchable_fields.map {|field| field.to_s}}.flatten.uniq
     if params[:search].blank?
       default_fields
     else
@@ -172,7 +178,7 @@ module Searchable
     end
   end
   
-  def self.order_for(model, params)
+  def self.order_for(params)
     key = params[:order].present? ? params[:order].to_s : "_score"
       
     sort = nil
@@ -185,36 +191,43 @@ module Searchable
     [{key => sort}]
   end
   
-  def self.fields_for(model, params)
+  def self.fields_for(models, params)
+    models = [models] unless models.is_a?(Array)
+
     sections = if params[:fields].blank?
-      model.result_fields.map {|field| field.to_s}
+      models.map {|model| model.result_fields.map {|field| field.to_s}}.flatten
     else
-      params[:fields].split(',').uniq
+      params[:fields].split ','
     end
 
-    if params[:citation] and model.cite_key
-      cite_key = model.cite_key.to_s
-      sections << cite_key unless sections.include?(cite_key)
+    if params[:citation]
+      models.each do |model|
+        next unless model.cite_key
+        cite_key = model.cite_key.to_s
+        sections << cite_key
+      end
     end
 
-    sections
+    sections.uniq
   end
 
-  def self.raw_results_for(term, model, query, filter, fields, order, pagination, other)
-    mapping = model.to_s.underscore.pluralize
-    request = request_for mapping, query, filter, fields, order, pagination, other
+  def self.raw_results_for(term, models, query, filter, fields, order, pagination, other)
+    request = request_for models, query, filter, fields, order, pagination, other
     search_for request
   end
 
-  def self.documents_for(term, model, fields, raw_results)
-    raw_results.hits.map {|hit| attributes_for term, hit, model, fields}
+  def self.documents_for(term, fields, raw_results)
+    raw_results.hits.map {|hit| attributes_for term, hit, fields}
+  end
+
+  def self.mapping_for(models)
+    models.map {|m| m.to_s.underscore.pluralize}.join ","
   end
   
-  def self.results_for(term, model, raw_results, documents, pagination)
-    mapping = model.to_s.underscore.pluralize
-    
+  def self.results_for(term, models, raw_results, documents, pagination)
+    document_type = (models.size == 1) ? mapping_for(models) : "results"
     {
-      mapping => documents,
+      document_type => documents,
       count: raw_results.total_entries,
       page: {
         count: documents.size,
@@ -224,9 +237,9 @@ module Searchable
     }
   end
   
-  def self.explain_for(term, model, query, filter, fields, order, pagination, other)
-    mapping = model.to_s.underscore.pluralize
-    request = request_for mapping, query, filter, fields, order, pagination, other
+  def self.explain_for(term, models, query, filter, fields, order, pagination, other)
+    request = request_for models, query, filter, fields, order, pagination, other
+    mapping = mapping_for models
     
     begin
       start = Time.now
@@ -261,7 +274,7 @@ module Searchable
     JSON.parse exception.message.sub(/^\(\d+\)\s*/, '')
   end
   
-  def self.other_options_for(model, params, search_fields)
+  def self.other_options_for(params, search_fields)
     
     options = {
       # turn on explanation fields on each hit, for the discerning debugger
@@ -325,7 +338,7 @@ module Searchable
     end
   end
   
-  def self.request_for(mapping, query, filter, fields, order, pagination, other)
+  def self.request_for(models, query, filter, fields, order, pagination, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
     
@@ -347,14 +360,14 @@ module Searchable
      
       # mapping and pagination info has to go into the second hash
       {
-        type: mapping,
+        type: mapping_for(models),
         from: from,
         size: size
       }
     ]
   end
   
-  def self.attributes_for(term, hit, model, fields)
+  def self.attributes_for(term, hit, fields)
     attributes = {}
     search = {score: hit._score, query: term, type: hit._type.singularize}
     
@@ -386,7 +399,7 @@ module Searchable
     end
   end
   
-  def self.pagination_for(model, params)
+  def self.pagination_for(params)
     default_per_page = 20
     max_per_page = 50
     max_page = 200000000 # let's keep it realistic

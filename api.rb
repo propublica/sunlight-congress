@@ -57,36 +57,36 @@ end
 get searchable_route do
   error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query] or params[:q]
 
-  model = params[:captures][0].singularize.camelize.constantize
+  models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize}
   format = params[:captures][1]
 
   term = Searchable.term_for params
-  fields = Searchable.fields_for model, params
-  search_fields = Searchable.search_fields_for model, params
+  fields = Searchable.fields_for models, params
+  search_fields = Searchable.search_fields_for models, params
 
   if search_fields.empty?
     error 400, "You must search one of the following fields for #{params[:captures][0]}: #{model.searchable_fields.join(", ")}"
   end
   
   if params[:query]
-    query = Searchable.query_for term, model, params, search_fields
+    query = Searchable.query_for term, params, search_fields
   elsif params[:q]
-    query = Searchable.relaxed_query_for term, model, params, search_fields
+    query = Searchable.relaxed_query_for term, params, search_fields
   end
 
-  filter = Searchable.filter_for model, params
-  order = Searchable.order_for model, params
-  pagination = Searchable.pagination_for model, params
-  other = Searchable.other_options_for model, params, search_fields
+  filter = Searchable.filter_for models, params
+  order = Searchable.order_for params
+  pagination = Searchable.pagination_for params
+  other = Searchable.other_options_for params, search_fields
   
   begin
     if params[:explain] == 'true'
-      results = Searchable.explain_for term, model, query, filter, fields, order, pagination, other
+      results = Searchable.explain_for term, models, query, filter, fields, order, pagination, other
     else
-      raw_results = Searchable.raw_results_for term, model, query, filter, fields, order, pagination, other
-      documents = Searchable.documents_for term, model, fields, raw_results
-      documents = citations_for model, documents, params
-      results = Searchable.results_for term, model, raw_results, documents, pagination
+      raw_results = Searchable.raw_results_for term, models, query, filter, fields, order, pagination, other
+      documents = Searchable.documents_for term, fields, raw_results
+      documents = citations_for models, documents, params
+      results = Searchable.results_for term, models, raw_results, documents, pagination
     end
   rescue ElasticSearch::RequestError => exc
     results = Searchable.error_from exc
@@ -102,25 +102,40 @@ end
 
 helpers do
 
-  def citations_for(model, documents, params)
-    # only citation-enabled models
-    return documents unless params[:citation].present? and model.cite_key
+  def citations_for(models, documents, params)
+    models = [models] unless models.is_a?(Array)
 
     # must explicitly ask for extra information and performance hit
     return documents unless params[:citation_details].present?
 
+    # only citation-enabled models
+    return documents unless params[:citation].present? and models.select {|model| model.cite_key.nil?}.empty?
+
+    criteria = {}
+
     citation_ids = params[:citation].split "|"
     if citation_ids.size > 1
-      criteria = {citation_id: {"$in" => citation_ids}}
+      criteria.merge! citation_id: {"$in" => citation_ids}
     else
-      criteria = {citation_id: citation_ids.first}
+      criteria.merge! citation_id: citation_ids.first
+    end
+
+    if models.size > 1
+      criteria.merge! document_type: {"$in" => models.map(&:to_s)}
+    else
+      criteria.merge! document_type: models.first.to_s
     end
 
     documents.map do |document|
+      if models.size > 1
+        model = document[:search][:type].camelize.constantize
+      else
+        model = models.first
+      end
+
       matches = Citation.where(
         criteria.merge(
-          document_id: document[model.cite_key.to_s],
-          document_type: model.to_s
+          document_id: document[model.cite_key.to_s]
         )
       )
       

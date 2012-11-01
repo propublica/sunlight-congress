@@ -89,5 +89,5 @@ def searchable_models
 end
 
 def searchable_route
-  @search_route ||= /^\/search\/(#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
+  @search_route ||= /^\/search\/((?:(?:#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\.(json|xml)$/
 end

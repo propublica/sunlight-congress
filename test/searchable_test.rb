@@ -11,7 +11,6 @@ require File.join ".", File.dirname(__FILE__), "../searchable"
 class SearchableTest < Test::Unit::TestCase
   
   class Person
-    include Mongoid::Document
     include Searchable::Model
     
     result_fields :name, :born_at, :ssn
@@ -23,6 +22,13 @@ class SearchableTest < Test::Unit::TestCase
     # for citation logic, which requires it also be queryable
     include Queryable::Model
     cite_key :ssn
+  end
+
+  class Animal
+    include Searchable::Model
+
+    result_fields :name, :born_at, :tag
+    searchable_fields :name, :diary
   end
   
   # represents an ElasticSearch Hit object
@@ -62,6 +68,8 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal fields.sort, Searchable.fields_for(Person, {fields: ""}).sort
     assert_equal fields.sort, Searchable.fields_for(Person, {fields: nil}).sort
     assert_equal fields.sort, Searchable.fields_for(Person, {}).sort
+    assert_equal ["name", "born_at", "ssn", "tag"].sort, Searchable.fields_for([Person, Animal], {}).sort
+    assert_equal ["name", "ssn", "tag"].sort, Searchable.fields_for([Person, Animal], {fields: "name,ssn,tag"}).sort
   end
   
   def test_fields_for_allows_fields_outside_result_fields
@@ -103,49 +111,54 @@ class SearchableTest < Test::Unit::TestCase
   # ordering
   
   def test_order_for_defaults_to_score_desc
-    assert_equal([{"_score" => "desc"}], Searchable.order_for(Person, {}))
-    assert_equal([{"_score" => "desc"}], Searchable.order_for(Person, {:order => ""}))
-    assert_equal([{"_score" => "desc"}], Searchable.order_for(Person, {:order => nil}))
+    assert_equal([{"_score" => "desc"}], Searchable.order_for({}))
+    assert_equal([{"_score" => "desc"}], Searchable.order_for({:order => ""}))
+    assert_equal([{"_score" => "desc"}], Searchable.order_for({:order => nil}))
   end
   
   def test_order_for_uses_sort_and_order_params
-    assert_equal([{"anything" => "desc"}], Searchable.order_for(Person, {:order => "anything"}))
-    assert_equal([{"anything" => "desc"}], Searchable.order_for(Person, {:order => "anything", :sort => "desc"}))
-    assert_equal([{"anything" => "asc"}], Searchable.order_for(Person, {:order => "anything", :sort => "asc"}))
-    assert_equal([{"anything.else" => "asc"}], Searchable.order_for(Person, {:order => "anything.else", :sort => "asc"}))
+    assert_equal([{"anything" => "desc"}], Searchable.order_for({:order => "anything"}))
+    assert_equal([{"anything" => "desc"}], Searchable.order_for({:order => "anything", :sort => "desc"}))
+    assert_equal([{"anything" => "asc"}], Searchable.order_for({:order => "anything", :sort => "asc"}))
+    assert_equal([{"anything.else" => "asc"}], Searchable.order_for({:order => "anything.else", :sort => "asc"}))
   end
   
   def test_order_for_enforces_asc_or_desc
-    assert_equal([{"anything" => "desc"}], Searchable.order_for(Person, {:order => "anything", :sort => "asdfkjashdf"}))
-    assert_equal([{"anything" => "asc"}], Searchable.order_for(Person, {:order => "anything", :sort => "ASC"}))
-    assert_equal([{"anything" => "desc"}], Searchable.order_for(Person, {:order => "anything", :sort => "ASCII"}))
+    assert_equal([{"anything" => "desc"}], Searchable.order_for({:order => "anything", :sort => "asdfkjashdf"}))
+    assert_equal([{"anything" => "asc"}], Searchable.order_for({:order => "anything", :sort => "ASC"}))
+    assert_equal([{"anything" => "desc"}], Searchable.order_for({:order => "anything", :sort => "ASCII"}))
   end
   
   def test_order_for_can_sort_score_in_asc
-    assert_equal([{"_score" => "asc"}], Searchable.order_for(Person, {:order => "_score", :sort => "asc"}))
+    assert_equal([{"_score" => "asc"}], Searchable.order_for({:order => "_score", :sort => "asc"}))
   end
   
   
   # specifying which fields to search with the query
   
   def test_search_fields_for_parses_search_parameter
-    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,bio"}).sort
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {search: "name,bio"}).sort
   end
   
   def test_search_fields_for_excludes_unspecified_fields
-    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {:search => "name,ssn,born"}).sort
-    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,ssn,bio"}).sort
+    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {search: "name,ssn,born"}).sort
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {search: "name,ssn,bio"}).sort
   end
   
   def test_search_fields_for_removes_duplicates
-    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {:search => "name,name,bio"}).sort
-    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {:search => "name,name"}).sort
+    assert_equal ["name", "bio"].sort, Searchable.search_fields_for(Person, {search: "name,name,bio"}).sort
+    assert_equal ["name"].sort, Searchable.search_fields_for(Person, {search: "name,name"}).sort
   end
   
   def test_search_fields_defaults_to_all_fields
-    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => ""}).sort
-    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {:search => nil}).sort
+    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {search: ""}).sort
+    assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {search: nil}).sort
     assert_equal ["name", "bio", "personal"].sort, Searchable.search_fields_for(Person, {}).sort
+  end
+
+  def test_search_fields_multiple_models
+    assert_equal ["name", "bio", "personal", "diary"].sort, Searchable.search_fields_for([Person, Animal], {}).sort
+    assert_equal ["bio", "diary"].sort, Searchable.search_fields_for([Animal, Person], {search: "bio,diary"}).sort
   end
   
   
@@ -170,8 +183,8 @@ class SearchableTest < Test::Unit::TestCase
     assert_not_nil filter[:and][:filters]
     assert filter[:and][:filters].is_a?(Array)
     
-    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
-    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'fingers', 9))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for('favorite_drug', 'opium'))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for('fingers', 9))
   end
 
   def test_filter_for_includes_citation
@@ -182,27 +195,27 @@ class SearchableTest < Test::Unit::TestCase
     assert_not_nil filter[:and][:filters]
     assert filter[:and][:filters].is_a?(Array)
     
-    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'favorite_drug', 'opium'))
-    assert filter[:and][:filters].include?(Searchable.subfilter_for(Person, 'fingers', 9))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for('favorite_drug', 'opium'))
+    assert filter[:and][:filters].include?(Searchable.subfilter_for('fingers', 9))
 
-    citation_filter = Searchable.citation_filter_for(Person, 'citation_ids', 'communism')
+    citation_filter = Searchable.citation_filter_for('citation_ids', 'communism')
     assert filter[:and][:filters].include?(citation_filter), filter[:and][:filters].inspect
   end
 
   def test_filter_for_with_only_citation
     filter = Searchable.filter_for Person, {citation: "communism"}
-    assert_equal filter, Searchable.citation_filter_for(Person, 'citation_ids', 'communism')
+    assert_equal filter, Searchable.citation_filter_for('citation_ids', 'communism')
   end
   
   def test_filter_for_allows_subfields_in_filters
     # one subfilter is left alone
     filter = Searchable.filter_for Person, {'fingers.left' => "9"}
-    assert_equal Searchable.subfilter_for(Person, "fingers.left", 9), filter
+    assert_equal Searchable.subfilter_for("fingers.left", 9), filter
 
     # more than one are 'and'-ed together
     filter = Searchable.filter_for Person, {'fingers.left' => "9", 'fingers.right' => "10"}
-    assert_equal Searchable.subfilter_for(Person, "fingers.left", 9), filter[:and][:filters][0]
-    assert_equal Searchable.subfilter_for(Person, "fingers.right", 10), filter[:and][:filters][1]
+    assert_equal Searchable.subfilter_for("fingers.left", 9), filter[:and][:filters][0]
+    assert_equal Searchable.subfilter_for("fingers.right", 10), filter[:and][:filters][1]
   end
   
   def test_filter_for_ignores_magic_fields_in_filters
@@ -210,13 +223,13 @@ class SearchableTest < Test::Unit::TestCase
     assert !Searchable.magic_fields.include?(field)
     
     filter = Searchable.filter_for Person, {"hands" => "two", Searchable.magic_fields.first => "anything"}
-    assert_equal Searchable.subfilter_for(Person, "hands", "two"), filter
+    assert_equal Searchable.subfilter_for("hands", "two"), filter
   end
   
   def test_filter_for_with_no_valid_filters_yields_nil
     assert_nil Searchable.filter_for(Person, {})
     assert_nil Searchable.filter_for(Person, {Searchable.magic_fields.first => "anything"})
-    assert_nil Searchable.filter_for(Person, {:whatev => ""})
+    assert_nil Searchable.filter_for(Person, {whatev: ""})
   end
   
   def test_subfilter_for_strings
@@ -233,7 +246,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(field, value)
   end
 
   def test_subfilter_for_integers
@@ -246,7 +259,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, 9)
+    assert_equal filter, Searchable.subfilter_for(field, 9)
   end
   
   def test_subfilter_for_integer_ranges
@@ -262,7 +275,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, 9, "gt")
+    assert_equal filter, Searchable.subfilter_for(field, 9, "gt")
   end
   
   def test_subfilter_for_booleans
@@ -275,7 +288,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, true)
+    assert_equal filter, Searchable.subfilter_for(field, true)
   end
   
   def test_subfilter_for_dates
@@ -295,7 +308,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, from)
+    assert_equal filter, Searchable.subfilter_for(field, from)
   end
   
   # should act like dates, until we support ranges
@@ -316,7 +329,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, parsed_value)
+    assert_equal filter, Searchable.subfilter_for(field, parsed_value)
   end
   
   def test_subfilter_for_allows_override_of_type
@@ -333,7 +346,7 @@ class SearchableTest < Test::Unit::TestCase
       }
     }
     
-    assert_equal filter, Searchable.subfilter_for(Person, field, value)
+    assert_equal filter, Searchable.subfilter_for(field, value)
   end
   
   
@@ -360,7 +373,7 @@ class SearchableTest < Test::Unit::TestCase
       'version_code' => "rs"
     }
     
-    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+    assert_equal attributes, Searchable.attributes_for(term, hit, fields)
   end
   
   def test_attributes_for_retrieves_score_from_hit
@@ -385,7 +398,7 @@ class SearchableTest < Test::Unit::TestCase
       'version_code' => "rs"
     }
     
-    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+    assert_equal attributes, Searchable.attributes_for(term, hit, fields)
   end
   
   def test_attributes_for_retrieves_highlight_from_hit
@@ -416,7 +429,7 @@ class SearchableTest < Test::Unit::TestCase
       'version_code' => "rs"
     }
     
-    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+    assert_equal attributes, Searchable.attributes_for(term, hit, fields)
   end
   
   def test_attributes_for_unwraps_dot_notation_in_fields
@@ -444,7 +457,7 @@ class SearchableTest < Test::Unit::TestCase
                  }
     }
     
-    assert_equal attributes, Searchable.attributes_for(term, hit, model, fields)
+    assert_equal attributes, Searchable.attributes_for(term, hit, fields)
   end
   
 end
