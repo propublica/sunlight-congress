@@ -27,5 +27,4 @@ class Amendment
   
   field :amendment_id
   validates_uniqueness_of :amendment_id
-  
 end

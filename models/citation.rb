@@ -9,7 +9,6 @@ class Citation
   field :document_type # e.g. "Bill"
 
   field :citation_id # e.g. 5_usc_552
-  # field :citation_type # e.g. "usc"
 
   # citations direct from citation.js, indexed by citation ID (e.g. usc.id)
   field :citations, type: Array
