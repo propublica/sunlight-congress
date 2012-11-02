@@ -62,7 +62,7 @@ class VotesHouse
     batcher = [] # ES batch indexing
 
     legislators = {}
-    Legislator.only(Utils.legislator_fields).all.each do |legislator|
+    Legislator.only(Legislator.basic_fields).all.each do |legislator|
       legislators[legislator.bioguide_id] = Utils.legislator_for legislator
     end
 
@@ -140,7 +140,7 @@ class VotesHouse
       end
       
       if amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
           vote.attributes = {
             :amendment_id => amendment_id,
             :amendment => Utils.amendment_for(amendment)

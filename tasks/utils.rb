@@ -489,27 +489,7 @@ module Utils
     }[bill_type] + " #{number}"
   end
   
-  # basic fields and common fetching of them for redundant data
-  
-  def self.legislator_fields
-    [
-      :govtrack_id, :bioguide_id,
-      :title, :first_name, :nickname, :last_name, :name_suffix, 
-      :state, :party, :chamber, :district
-    ]
-  end
-  
-  def self.bill_fields
-    Bill.basic_fields
-  end
-  
-  def self.amendment_fields
-    Amendment.basic_fields
-  end
-  
-  def self.committee_fields
-    [:name, :chamber, :committee_id]
-  end
+  # fetching
   
   def self.document_for(document, fields)
     attributes = document.attributes.dup
@@ -523,24 +503,24 @@ module Utils
   end
   
   def self.legislator_for(legislator)
-    document_for legislator, legislator_fields
+    document_for legislator, Legislator.basic_fields
   end
   
   def self.amendment_for(amendment)
-    document_for amendment, amendment_fields
+    document_for amendment, Amendment.basic_fields
   end
   
   def self.committee_for(committee)
-    document_for committee, committee_fields
+    document_for committee, Committee.basic_fields
   end
   
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
     if bill_id.is_a?(Bill)
-      document_for bill_id, bill_fields
+      document_for bill_id, Bill.basic_fields
     else
-      if bill = Bill.where(:bill_id => bill_id).only(bill_fields).first
-        document_for bill, bill_fields
+      if bill = Bill.where(:bill_id => bill_id).only(Bill.basic_fields).first
+        document_for bill, Bill.basic_fields
       else
         nil
       end

@@ -128,7 +128,7 @@ class VotesSenate
       
       # for now, only bother with amendments on bills
       if bill_id and amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Utils.amendment_fields).first
+        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
           vote.attributes = {
             :amendment_id => amendment_id,
             :amendment => Utils.amendment_for(amendment)

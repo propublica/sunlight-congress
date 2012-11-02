@@ -7,4 +7,11 @@ class Committee
   
   validates_presence_of :committee_id
   validates_presence_of :chamber
+
+
+  include Queryable::Model
+
+  default_order :created_at
+  basic_fields :committee_id, :name, :chamber
+  search_fields :name
 end

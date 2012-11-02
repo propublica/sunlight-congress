@@ -107,22 +107,22 @@ class Legislators
       middle_name: api_legislator.middlename,
       name_suffix: api_legislator.name_suffix,
       state: api_legislator.state,
-      :district => api_legislator.district,
-      :party => api_legislator.party,
-      :title => api_legislator.title,
-      :gender => api_legislator.gender,
-      :phone => api_legislator.phone,
-      :website => api_legislator.website,
-      :congress_office => api_legislator.congress_office,
-      :twitter_id => api_legislator.twitter_id,
-      :youtube_url => api_legislator.youtube_url,
+      district: api_legislator.district,
+      party: api_legislator.party,
+      title: api_legislator.title,
+      gender: api_legislator.gender,
+      phone: api_legislator.phone,
+      website: api_legislator.website,
+      congress_office: api_legislator.congress_office,
+      twitter_id: api_legislator.twitter_id,
+      youtube_url: api_legislator.youtube_url,
       
-      :chamber => {
-          'Rep' => 'house',
-          'Sen' => 'senate',
-          'Del' => 'house',
-          'Com' => 'house'
-        }[api_legislator.title]
+      chamber: {
+        'Rep' => 'house',
+        'Sen' => 'senate',
+        'Del' => 'house',
+        'Com' => 'house'
+      }[api_legislator.title]
     }
   end
   

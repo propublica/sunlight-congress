@@ -13,7 +13,7 @@ class Committees
     joint = Sunlight::Committee.all_for_chamber 'Joint'
     
     (senate + house + joint).each do |api_committee|
-      committee = Committee.find_or_initialize_by :committee_id => api_committee.id
+      committee = Committee.find_or_initialize_by committee_id: api_committee.id
       
       committee.attributes = attributes_for api_committee
       
@@ -33,13 +33,15 @@ class Committees
   
   def self.attributes_for(api_committee)
     attributes = {
-      :name => api_committee.name,
-      :chamber => api_committee.chamber.downcase,
-      :committee_id => api_committee.id
+      name: api_committee.name,
+      chamber: api_committee.chamber.downcase,
+      committee_id: api_committee.id
     }
+
     if api_committee.subcommittees
       attributes[:subcommittees] = api_committee.subcommittees.map {|sc| attributes_for sc}
     end
+    
     attributes
   end
 end

@@ -24,7 +24,7 @@ class AmendmentsArchive
     
     
     legislators = {}
-    Legislator.where(govtrack_id: {"$exists" => true}).only(Utils.legislator_fields).each do |legislator|
+    Legislator.where(govtrack_id: {"$exists" => true}).only(Legislator.basic_fields).each do |legislator|
       legislators[legislator.govtrack_id] = Utils.legislator_for legislator
     end
     
@@ -68,30 +68,30 @@ class AmendmentsArchive
       
       amendment = Amendment.find_or_initialize_by :amendment_id => amendment_id
       amendment.attributes = {
-        :session => session,
-        :number => number,
-        :chamber => chamber,
-        :state => state,
-        :offered_at => offered_at,
-        :purpose => purpose,
+        session: session,
+        number: number,
+        chamber: chamber,
+        state: state,
+        offered_at: offered_at,
+        purpose: purpose,
         
-        :actions => actions,
-        :last_action_at => last_action_at
+        actions: actions,
+        last_action_at: last_action_at
       }
       
       if sponsor
         amendment.attributes = {
-          :sponsor => sponsor,
-          :sponsor_type => sponsor_type,
-          :sponsor_id => (sponsor_type == 'legislator' ? sponsor['bioguide_id'] : sponsor[:committee_id])
+          sponsor: sponsor,
+          sponsor_type: sponsor_type,
+          sponsor_id: (sponsor_type == 'legislator' ? sponsor['bioguide_id'] : sponsor[:committee_id])
         }
       end
       
       if bill_id
         if bill = Utils.bill_for(bill_id)
           amendment.attributes = {
-            :bill_id => bill_id,
-            :bill => bill
+            bill_id: bill_id,
+            bill: bill
           }
           if bill_sequence
             amendment[:bill_sequence] = bill_sequence
@@ -139,12 +139,12 @@ class AmendmentsArchive
     # bills = bills.to_a.first 20
     
     bills.each do |bill|
-      amendments = Amendment.where(:bill_id => bill.bill_id).only(Utils.amendment_fields).all.to_a.map {|amendment| Utils.amendment_for amendment}
+      amendments = Amendment.where(:bill_id => bill.bill_id).only(Amendment.basic_fields).all.to_a.map {|amendment| Utils.amendment_for amendment}
       
       bill.attributes = {
-        :amendments => amendments,
-        :amendment_ids => amendments.map {|a| a['amendment_id']},
-        :amendments_count => amendments.size
+        amendments: amendments,
+        amendment_ids: amendments.map {|a| a['amendment_id']},
+        amendments_count: amendments.size
       }
       
       bill.save! # should be no problem
@@ -152,7 +152,7 @@ class AmendmentsArchive
       count += 1
       amendment_count += amendments.size
       
-      # puts "[#{bill.bill_id}] Updated with #{amendments.size} amendments"
+      puts "[#{bill.bill_id}] Updated with #{amendments.size} amendments" if options[:debug]
     end
     
     Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.where(:session => session).count} amendments in session #{session})."
