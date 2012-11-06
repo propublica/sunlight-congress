@@ -4,7 +4,7 @@ gem 'oj', '1.3.0'
 gem 'yajl-ruby', '1.1.0'
 gem 'tzinfo', '0.3.23'
 
-gem 'sinatra', '1.3.2'
+gem 'sinatra', '1.3.3'
 gem "mongoid", '3.0.11'
 
 gem 'ruby-hmac', '0.4.0'
