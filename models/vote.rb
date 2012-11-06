@@ -2,7 +2,7 @@ class Vote
 
   # searchable behavior
   
-  include Searchable::Model
+  include ::Searchable::Model
 
   result_fields :how, :roll_id, :number, :year, :chamber, :session, 
     :result, :bill_id, :voted_at, :last_updated, :roll_type, :question, 
@@ -12,7 +12,7 @@ class Vote
 
   
   
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :voted_at
   

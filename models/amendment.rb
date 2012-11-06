@@ -1,6 +1,6 @@
 class Amendment
   
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :offered_at
   

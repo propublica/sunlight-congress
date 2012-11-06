@@ -10,7 +10,7 @@ class Legislator
   index "ids.thomas" => 1
 
   
-  include Queryable::Model
+  include ::Queryable::Model
 
   default_order :created_at
   basic_fields :govtrack_id, :bioguide_id,

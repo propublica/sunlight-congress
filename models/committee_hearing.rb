@@ -1,6 +1,6 @@
 class CommitteeHearing
   
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :occurs_at
   

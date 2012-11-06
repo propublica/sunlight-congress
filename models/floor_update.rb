@@ -1,6 +1,6 @@
 class FloorUpdate
 
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :timestamp
   

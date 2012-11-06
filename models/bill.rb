@@ -2,7 +2,7 @@ class Bill
 
   # searchable behavior
   
-  include Searchable::Model
+  include ::Searchable::Model
   
   result_fields :bill_id, :bill_type, :code, :number, :session, :chamber, 
     :short_title, :official_title, :popular_title,
@@ -21,7 +21,7 @@ class Bill
   
   # queryable behavior
   
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :introduced_at
   

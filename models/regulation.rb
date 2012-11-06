@@ -4,7 +4,7 @@ class Regulation
 
   # elasticsearch behavior
 
-  include Searchable::Model
+  include ::Searchable::Model
 
   result_fields :document_type, :stage, :rins, :docket_ids, :publication_date, :published_at, :abstract, :title, :effective_at,
     :federal_register_url, :agency_names, :agency_ids, :full_text_xml_url, :document_number, :year,
@@ -21,7 +21,7 @@ class Regulation
   include Mongoid::Timestamps
 
 
-  include Queryable::Model
+  include ::Queryable::Model
   
   default_order :published_on
   basic_fields :stage, :rins, :docket_ids, :published_at, :abstract, :title, :effective_at,

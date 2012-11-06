@@ -1,6 +1,6 @@
 class Document
 
-  include Queryable::Model
+  include ::Queryable::Model
 
   default_order :posted_at
 
