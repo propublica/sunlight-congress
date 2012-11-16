@@ -269,7 +269,7 @@ class BillsThomas
   end
 
   def self.legislator_for(thomas_id)
-    legislator = Legislator.where("ids.thomas" => thomas_id).first
+    legislator = Legislator.where(thomas_id: thomas_id).first
     legislator ? Utils.legislator_for(legislator) : nil
   end
   

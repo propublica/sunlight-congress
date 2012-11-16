@@ -2,36 +2,51 @@ require 'sunlight'
 
 class Legislators
 
-  def self.run(options = {})
-    sync_united_states!(options) and sync_sunlight!(options)
-  end
+  # options:
+  #   cache: don't re-download unitedstates data
+  #   current: limit to current legislators only
 
-  def self.sync_united_states!(options = {})
+  def self.run(options = {})
     
     # wipe and re-clone the unitedstates legislators repo
-    FileUtils.mkdir_p "data/unitedstates"
-    FileUtils.rm_rf "data/unitedstates/congress-legislators"
-    unless system "git clone git://github.com/unitedstates/congress-legislators.git data/unitedstates/congress-legislators"
-      Report.error self, "Couldn't clone legislator data from unitedstates."
-      return false
+    unless options[:cache]
+      FileUtils.mkdir_p "data/unitedstates"
+      FileUtils.rm_rf "data/unitedstates/congress-legislators"
+      unless system "git clone git://github.com/unitedstates/congress-legislators.git data/unitedstates/congress-legislators"
+        Report.error self, "Couldn't clone legislator data from unitedstates."
+        return false
+      end
+      puts
     end
-    puts
 
     puts "Loading in YAML files..." if options[:debug]
     current_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-current.yaml")
-    historical_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-historical.yaml")
+    
+    social_media = YAML.load open("data/unitedstates/congress-legislators/legislators-social-media.yaml")
+    social_media_cache = {}
+    social_media.each {|details| social_media_cache[details['id']['bioguide']] = details}
 
     bad_legislators = []
     count = 0
 
+    us_legislators = current_legislators.map {|l| [l,true]} 
+    unless options[:current]
+      historical_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-historical.yaml")
+      us_legislators += historical_legislators.map {|l| [l, false]}
+    end
+
     # store every single legislator
-    (current_legislators + historical_legislators).each do |us_legislator|
+    us_legislators.each do |us_legislator, current|
       bioguide_id = us_legislator['id']['bioguide']
-      puts "[#{bioguide_id}] Processing legislator from unitedstates..." if options[:debug]
+      puts "[#{bioguide_id}] Processing #{current ? "active" : "inactive"} legislator from unitedstates..." if options[:debug]
 
       legislator = Legislator.find_or_initialize_by bioguide_id: bioguide_id
+      legislator.attributes = attributes_from_united_states us_legislator, current
 
-      legislator.attributes = attributes_from_united_states us_legislator
+      # append social media if present
+      if social_media_cache[bioguide_id]
+        legislator.attributes = social_media_from social_media_cache[bioguide_id]
+      end
 
       if legislator.save
         count += 1
@@ -47,82 +62,56 @@ class Legislators
     Report.success self, "Processed #{count} legislators from unitedstates"
   end
 
-  def self.sync_sunlight!(options = {})
-    Sunlight::Base.api_key = options[:config]['sunlight_api_key']
-    
-    bad_legislators = []
-    count = 0
-    
-    puts "Contacting Sunlight API..." if options[:debug]
-    api_legislators = Sunlight::Legislator.all_where :all_legislators => 1
-    
-    api_legislators.each do |api_legislator|
-      bioguide_id = api_legislator.bioguide_id
-      puts "[#{bioguide_id}] Processing legislator from API..." if options[:debug]
-
-      unless legislator = Legislator.where(bioguide_id: bioguide_id).first
-        bad_legislators << {bioguide_id: bioguide_id, message: "Couldn't locate legislator in Sunlight API by bioguide"}
-        next
-      end
-      
-      legislator.attributes = attributes_from_api api_legislator
-      
-      if legislator.save
-        count += 1
-      else
-        bad_legislators << {attributes: legislator.attributes, errors: legislator.errors.full_messages}
-      end
-    end
-    
-    if bad_legislators.any?
-      Report.warning self, "Failed to save #{bad_legislators.size} API legislators, attached", bad_legislators: bad_legislators
-    end
-    
-    Report.success self, "Processed #{count} legislators from API"
-  end
   
+  def self.attributes_from_united_states(us_legislator, current)
+    last_term = us_legislator['terms'].last
 
-  def self.attributes_from_united_states(us_legislator)
     {
-      ids: {
-        bioguide: us_legislator['id']['bioguide'],
-        thomas: us_legislator['id']['thomas'].to_i.to_s # cut off leading 0's
-      },
-      names: us_legislator['name'],
-      other_names: us_legislator['other_names'],
-      bio: us_legislator['bio'],
-      terms: us_legislator['terms']
+      in_office: current,
+
+      thomas_id: us_legislator['id']['thomas'],
+      govtrack_id: us_legislator['id']['govtrack'].to_s,
+      votesmart_id: us_legislator['id']['votesmart'].to_s,
+      crp_id: us_legislator['id']['opensecrets'],
+      first_name: us_legislator['name']['first'],
+      nickname: us_legislator['name']['nickname'],
+      last_name: us_legislator['name']['last'],
+      middle_name: us_legislator['name']['middle'],
+      name_suffix: us_legislator['name']['suffix'],
+      gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
+
+      state: last_term['state'],
+      district: last_term['district'],
+      party: party_for(last_term['party']),
+      title: last_term['type'].capitalize,
+      phone: last_term['phone'],
+      website: last_term['url'],
+      congress_office: last_term['office'],
+      chamber: {
+        'rep' => 'house',
+        'sen' => 'senate',
+        'del' => 'house',
+        'com' => 'house'
+      }[last_term['type']]
     }
   end
-    
-  def self.attributes_from_api(api_legislator)
+
+  def self.party_for(us_party)
     {
-      in_office: api_legislator.in_office,
-      govtrack_id: api_legislator.govtrack_id,
-      votesmart_id: api_legislator.votesmart_id,
-      crp_id: api_legislator.crp_id,
-      first_name: api_legislator.firstname,
-      nickname: api_legislator.nickname,
-      last_name: api_legislator.lastname,
-      middle_name: api_legislator.middlename,
-      name_suffix: api_legislator.name_suffix,
-      state: api_legislator.state,
-      district: api_legislator.district,
-      party: api_legislator.party,
-      title: api_legislator.title,
-      gender: api_legislator.gender,
-      phone: api_legislator.phone,
-      website: api_legislator.website,
-      congress_office: api_legislator.congress_office,
-      twitter_id: api_legislator.twitter_id,
-      youtube_url: api_legislator.youtube_url,
-      
-      chamber: {
-        'Rep' => 'house',
-        'Sen' => 'senate',
-        'Del' => 'house',
-        'Com' => 'house'
-      }[api_legislator.title]
+      'Democrat' => 'D',
+      'Republican' => 'R',
+      'Independent' => 'I'
+    }[us_party] || us_party
+  end
+
+  def self.youtube_url_for(username)
+    "http://www.youtube.com/#{username}"
+  end
+    
+  def self.social_media_from(details)
+    {
+      twitter_id: details['social']['twitter'],
+      youtube_url: youtube_url_for(details['social']['youtube'])
     }
   end
   
