@@ -72,6 +72,7 @@ class Legislators
       thomas_id: us_legislator['id']['thomas'],
       govtrack_id: us_legislator['id']['govtrack'].to_s,
       votesmart_id: us_legislator['id']['votesmart'].to_s,
+      lis_id: us_legislator['id']['lis'].to_s,
       crp_id: us_legislator['id']['opensecrets'],
       first_name: us_legislator['name']['first'],
       nickname: us_legislator['name']['nickname'],

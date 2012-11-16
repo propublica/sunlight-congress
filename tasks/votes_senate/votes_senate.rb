@@ -225,7 +225,7 @@ class VotesSenate
       vote = (elem / 'vote_cast').text
       lis_id = (elem / 'lis_member_id').text
 
-      legislators[lis_id] ||= lookup_legislator elem
+      legislators[lis_id] ||= lookup_legislator lis_id, elem
       
       if legislators[lis_id]
         voter = legislators[lis_id]
@@ -240,34 +240,9 @@ class VotesSenate
     [voter_ids, voters]
   end
   
-  def self.lookup_legislator(element)
-    last_name = element.at("last_name").text
-    first_name = element.at("first_name").text
-    party = element.at("party").text
-    state = element.at("state").text
-    
-    party = "I" if party == "ID"
-    
-    results = Legislator.where(
-      chamber: "senate", 
-      "$or" => [
-        {last_name: last_name}, 
-        {"other_names.last" => last_name}
-      ],
-      party: party, 
-      state: state
-    )
-
-    if results.size > 1
-      results = results.select {|l| l.nickname.present? ? l.nickname == first_name : l.first_name == first_name}
-    end
-
-    if results.size != 1
-      p party
-      p last_name
-      p state
-    end
-    results.size == 1 ? Utils.legislator_for(results.first) : nil
+  def self.lookup_legislator(lis_id, element)
+    legislator = Legislator.where(lis_id: lis_id).first
+    legislator ? Utils.legislator_for(legislator) : nil
   end
   
   def self.bill_id_for(doc, session)
