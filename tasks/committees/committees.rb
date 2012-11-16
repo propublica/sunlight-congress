@@ -23,6 +23,8 @@ class Committees
     current_committees = YAML.load open("data/unitedstates/congress-legislators/committees-current.yaml")
     memberships = YAML.load open("data/unitedstates/congress-legislators/committee-membership-current.yaml")
     
+    legislator_cache = {}
+
     bad_committees = []
     count = 0
     sub_count = 0
@@ -33,9 +35,9 @@ class Committees
       committee = Committee.find_or_initialize_by committee_id: committee_id
       
       committee.attributes = attributes_for us_committee
-      # committee.attributes = memberships_for us_committee, memberships
+      committee.attributes = memberships_for committee_id, nil, memberships, legislator_cache
 
-      # us_committees['subcommittees'].each do |subcommittee|
+      # us_committee['subcommittees'].each do |subcommittee|
       # end
       
       committee.save!
@@ -52,7 +54,8 @@ class Committees
   def self.attributes_for(us_committee, parent_id = nil)
     attributes = {
       name: us_committee['name'],
-      chamber: us_committee['type']
+      chamber: us_committee['type'],
+      subcommittee: !parent_id.nil?
     }
 
     # optional fields
@@ -68,4 +71,31 @@ class Committees
     
     attributes
   end
+
+  def self.memberships_for(committee_id, subcommittee_id, memberships, legislator_cache)
+    full_id = [committee_id, subcommittee_id].join ""
+
+    unless memberships[full_id]
+      puts "MISSING MEMBERSHIPS for #{full_id}"
+      return {}
+    end
+
+    members = memberships[full_id].map do |member|
+      legislator_cache[member['bioguide']] ||= Utils.legislator_for(Legislator.where(bioguide_id: member['bioguide']).first)
+      {
+        side: member['party'],
+        rank: member['rank'],
+        title: member['title'],
+        legislator: legislator_cache[member['bioguide']]
+      }
+    end
+
+    membership_ids = memberships[full_id].map {|m| m['bioguide']}
+
+    {
+      members: members,
+      membership_ids: membership_ids
+    }
+  end
+
 end
