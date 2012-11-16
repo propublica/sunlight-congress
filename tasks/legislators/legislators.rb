@@ -80,6 +80,8 @@ class Legislators
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
 
+      other_names: us_legislator['other_names'],
+
       state: last_term['state'],
       district: last_term['district'],
       party: party_for(last_term['party']),

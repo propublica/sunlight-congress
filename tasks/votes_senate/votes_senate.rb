@@ -248,7 +248,25 @@ class VotesSenate
     
     party = "I" if party == "ID"
     
-    results = Legislator.where :chamber => "senate", :last_name => last_name, :party => party, :state => state
+    results = Legislator.where(
+      chamber: "senate", 
+      "$or" => [
+        {last_name: last_name}, 
+        {"other_names.last" => last_name}
+      ],
+      party: party, 
+      state: state
+    )
+
+    if results.size > 1
+      results = results.select {|l| l.nickname.present? ? l.nickname == first_name : l.first_name == first_name}
+    end
+
+    if results.size != 1
+      p party
+      p last_name
+      p state
+    end
     results.size == 1 ? Utils.legislator_for(results.first) : nil
   end
   
