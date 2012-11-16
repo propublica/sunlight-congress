@@ -25,37 +25,51 @@ class Committees
     
     legislator_cache = {}
 
-    bad_committees = []
     count = 0
     sub_count = 0
     
+    # we only store current committees
+    Committee.delete_all
+
     # store committees and subcommittees as peers, *and* nest subcommittees inside their committee
     current_committees.each do |us_committee|
       committee_id = us_committee['thomas_id']
       committee = Committee.find_or_initialize_by committee_id: committee_id
       
       committee.attributes = attributes_for us_committee
-      committee.attributes = memberships_for committee_id, nil, memberships, legislator_cache
+      committee.attributes = memberships_for committee_id, memberships, legislator_cache
 
-      # us_committee['subcommittees'].each do |subcommittee|
-      # end
+      subcommittees = []
+      (us_committee['subcommittees'] || []).each do |us_subcommittee|
+        subcommittee_id = us_subcommittee['thomas_id']
+        full_id = [committee_id, subcommittee_id].join ""
+
+        subcommittee = Committee.find_or_initialize_by committee_id: full_id
+
+        # basic attributes
+        attributes = attributes_for us_subcommittee, committee
+        subcommittees << attributes
+        subcommittee.attributes = attributes
+
+        subcommittee[:parent_committee_id] = committee_id
+        subcommittee.attributes = memberships_for full_id, memberships, legislator_cache
+
+        subcommittee.save!
+        sub_count += 1
+      end
+
+      committee.attributes = {subcommittees: subcommittees}
       
       committee.save!
       count += 1
     end
     
-    if bad_committees.any?
-      Report.warning self, "Failed to save #{bad_committees.size} committee, attached", bad_committee: bad_committees
-    end
-    
-    Report.success self, "Processed #{count} current committees"
+    Report.success self, "Processed #{count} committees and #{sub_count} subcommittees"
   end
   
-  def self.attributes_for(us_committee, parent_id = nil)
+  def self.attributes_for(us_committee, parent_committee = nil)
     attributes = {
-      name: us_committee['name'],
-      chamber: us_committee['type'],
-      subcommittee: !parent_id.nil?
+      name: us_committee['name']
     }
 
     # optional fields
@@ -68,19 +82,25 @@ class Committees
     if (us_committee['type'] == 'house') and us_committee['address']
       attributes[:office] = us_committee['address'].split("; ").first
     end
+
+    if parent_committee
+      attributes[:chamber] = parent_committee[:chamber]
+      attributes[:subcommittee] = true
+    else
+      attributes[:chamber] = us_committee['type']
+      attributes[:subcommittee] = false
+    end
     
     attributes
   end
 
-  def self.memberships_for(committee_id, subcommittee_id, memberships, legislator_cache)
-    full_id = [committee_id, subcommittee_id].join ""
-
-    unless memberships[full_id]
-      puts "MISSING MEMBERSHIPS for #{full_id}"
+  def self.memberships_for(committee_id, memberships, legislator_cache)
+    unless memberships[committee_id]
+      puts "MISSING MEMBERSHIPS for #{committee_id}"
       return {}
     end
 
-    members = memberships[full_id].map do |member|
+    members = memberships[committee_id].map do |member|
       legislator_cache[member['bioguide']] ||= Utils.legislator_for(Legislator.where(bioguide_id: member['bioguide']).first)
       {
         side: member['party'],
@@ -90,11 +110,11 @@ class Committees
       }
     end
 
-    membership_ids = memberships[full_id].map {|m| m['bioguide']}
+    membership_ids = memberships[committee_id].map {|m| m['bioguide']}
 
     {
       members: members,
-      membership_ids: membership_ids
+      member_ids: membership_ids
     }
   end
 
