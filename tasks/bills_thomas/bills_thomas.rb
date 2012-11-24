@@ -247,7 +247,7 @@ class BillsThomas
           committee: Utils.committee_for(match)
         }
       else
-        missing << committee_name
+        missing << committee['committee']
       end
     end
     
@@ -291,7 +291,7 @@ class BillsThomas
     committees["House Intelligence (Permanent Select)"] = "HSIG"
 
     committees.each do |name, id|
-      committees[name] = Committee.where(:committee_id => id).first
+      committees[name] = Committee.where(committee_id: id).first
       puts "Couldn't find committee #{name}!" unless committees[name]
     end
 
