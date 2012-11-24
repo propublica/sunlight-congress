@@ -69,7 +69,7 @@ class Legislators
     {
       in_office: current,
 
-      thomas_id: us_legislator['id']['thomas'],
+      thomas_id: us_legislator['id']['thomas'].to_i.to_s,
       govtrack_id: us_legislator['id']['govtrack'].to_s,
       votesmart_id: us_legislator['id']['votesmart'].to_s,
       lis_id: us_legislator['id']['lis'].to_s,
