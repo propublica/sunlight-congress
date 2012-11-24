@@ -277,6 +277,9 @@ class BillsThomas
     cached_committees[name]
   end
   
+  # TODO: this function should become completely trivial and obsolete
+  # when we finish locking down the committee information 
+  # from unitedstates/congress-legislators
   def self.cached_committees_for(session, doc)
     committees = {}
     
