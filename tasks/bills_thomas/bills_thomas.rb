@@ -19,19 +19,9 @@ class BillsThomas
       return
     end
     
-    unless options[:skip_sync]
-      puts "Syncing committees from GovTrack..." if options[:debug]
-      FileUtils.mkdir_p "data/govtrack"
-      unless system("rsync -az govtrack.us::govtrackdata/us/committees.xml data/govtrack/committees.xml")
-        Report.failure self, "Couldn't rsync to Govtrack.us for committees.xml."
-        return
-      end
-    end
-    
-    # legislator cache
+    # caches
     legislators = {}
-    
-    cached_committees = cached_committees_for session, Nokogiri::XML(open("data/govtrack/committees.xml"))
+    committee_cache = {}
     
     if options[:bill_id]
       bill_ids = [options[:bill_id]]
@@ -67,7 +57,7 @@ class BillsThomas
       actions = actions_for(doc['actions'])
       last_action = last_action_for actions
       
-      committees, missing = committees_for doc, cached_committees
+      committees, missing = committees_for doc['committees'], session, committee_cache
       missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
 
       related_bills = related_bills_for doc['related_bills']
@@ -233,18 +223,18 @@ class BillsThomas
   end
   
   
-  def self.committees_for(doc, cached_committees)
+  def self.committees_for(elements, session, committee_cache)
     committees = {}
     missing = []
     
-    doc["committees"].each do |committee|
+    elements.each do |committee|
       # we're not getting subcommittees, way too hard to match them up
       next if committee['subcommittee'].present?
 
-      if match = cached_committees[committee['committee']]
+      if match = committee_match(committee['committee_id'], session, committee_cache)
         committees[match['committee_id']] = {
           activity: committee['activity'],
-          committee: Utils.committee_for(match)
+          committee: match
         }
       else
         missing << committee['committee']
@@ -273,32 +263,14 @@ class BillsThomas
     legislator ? Utils.legislator_for(legislator) : nil
   end
   
-  def self.committee_match(name, cached_committees)
-    cached_committees[name]
-  end
-  
-  # TODO: this function should become completely trivial and obsolete
-  # when we finish locking down the committee information 
-  # from unitedstates/congress-legislators
-  def self.cached_committees_for(session, doc)
-    committees = {}
-    
-    doc.search("/committees/committee/thomas-names/name[@session=#{session}]").each do |elem|
-      committees[elem.text] = Utils.committee_id_for elem.parent.parent['code']
-    end
-    
-    # hardcode in a fix to a usual problem, sigh
-    committees["House Ethics"] = "HSSO"
-    committees["Senate Caucus on International Narcotics Control"] = "SCNC"
-    committees["Commission on Security and Cooperation in Europe (Helsinki Commission)"] = "JCSE"
-    committees["House Intelligence (Permanent Select)"] = "HSIG"
-
-    committees.each do |name, id|
-      committees[name] = Committee.where(committee_id: id).first
-      puts "Couldn't find committee #{name}!" unless committees[name]
+  def self.committee_match(id, session, committee_cache)
+    unless committee_cache[id]
+      if committee = Committee.where(committee_id: id).first
+        committee_cache[id] = Utils.committee_for(committee)
+      end
     end
 
-    committees
+    committee_cache[id]
   end
 
 end
