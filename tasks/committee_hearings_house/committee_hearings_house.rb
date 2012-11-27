@@ -170,6 +170,10 @@ class CommitteeHearingsHouse
 
   def self.subcommittee_for(subcommittee_name)
     subcommittee_name = subcommittee_name.gsub /^Subcommittee (on )?/i, ''
+    
+    # known House mistake
+    subcommittee_name = subcommittee_name.gsub "Oceans and Insular Affairs", "Oceans, and Insular Affairs"
+
     subcommittee = Committee.where(name: /^#{subcommittee_name}$/i).first
     subcommittee ? subcommittee.committee_id : nil
   end
