@@ -6,6 +6,7 @@ class Committee
   index chamber: 1
   index subcommittee: 1
   index membership_ids: 1
+  index congresses: 1
   
   validates_presence_of :committee_id
   validates_presence_of :chamber
