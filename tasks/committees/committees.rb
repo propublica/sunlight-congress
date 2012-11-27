@@ -120,7 +120,7 @@ class Committees
     end
 
     if us_committee['congresses']
-      attributes[:congresses] = us_committee['congresses'].split(/, ?/).map &:to_i
+      attributes[:congresses] = us_committee['congresses']
     end
 
     if parent_committee
