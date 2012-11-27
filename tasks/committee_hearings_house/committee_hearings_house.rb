@@ -110,11 +110,13 @@ class CommitteeHearingsHouse
 
       # first piece of bottom is the host, but we extracted that more reliably already
       # second piece of bottom is the subcommittee name, or "Full Committee"
-      
-      if bottom_pieces[1] and (bottom_pieces[1] =~ /subcommittee/i)
-        subcommittee_name = bottom_pieces[1]
+
+      if bottom_pieces[1] and (bottom_pieces[1] =~ /subcommittee[^s]/i)
+        unless subcommittee_id = subcommittee_for(bottom_pieces[1])
+          bad_committee_lookups << bottom_pieces[1]
+        end
       else
-        subcommittee_name = nil
+        subcommittee_id = nil
       end
 
       bill_ids = bill_ids_for title, session
@@ -145,9 +147,12 @@ class CommitteeHearingsHouse
         # only from House right now
         hearing_url: hearing_url,
         hearing_type: hearing_type,
-        subcommittee_name: subcommittee_name,
         dc: dc
       }
+
+      if subcommittee_id
+        hearing[:subcommittee_id] = subcommittee_id
+      end
 
       hearing.save!
       count += 1
@@ -161,6 +166,12 @@ class CommitteeHearingsHouse
     # ignore case
     name = (committee_name !~ /^(?:House|Joint) /) ? "House #{committee_name}" : committee_name
     Committee.where(name: /^#{name}$/i).first
+  end
+
+  def self.subcommittee_for(subcommittee_name)
+    subcommittee_name = subcommittee_name.gsub /^Subcommittee (on )?/i, ''
+    subcommittee = Committee.where(name: /^#{subcommittee_name}$/i).first
+    subcommittee ? subcommittee.committee_id : nil
   end
 
   def self.room_for(room)
