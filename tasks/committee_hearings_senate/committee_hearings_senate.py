@@ -23,19 +23,16 @@ def run(db, es, options = {}):
           if re.search("^No.*?scheduled\.?$", meeting.matter.contents[0]):
             continue
             
-          committee_id = meeting.cmte_code.contents[0].strip()
-          committee_id = re.sub("(\d+)$", "", committee_id)
-          
-          # resolve discrepancies between Sunlight and the Senate
-          committee_id = rtc_utils.committee_id_for(committee_id)
-          if not committee_id:
-            continue
+          full_id = meeting.cmte_code.contents[0].strip()
+          committee_id, subcommittee_id = re.search("^([A-Z]+)(\d+)$", full_id).groups()
+          if subcommittee_id == "00": subcommittee_id = None
           
           committee = committee_for(db, committee_id)
+          
 
           # Don't warn if it's a bill-specific conference committee
           if not committee and committee_id != "JCC":
-            db.warning("Couldn't locate committee by committee_id \"%s\" while parsing Senate committee hearings" % committee_id, {'committee_id': committee_id})
+            db.warning("Couldn't locate committee by committee_id %s" % committee_id, {'committee_id': committee_id})
           
           committee_url = meeting.committee['url']
 
@@ -84,6 +81,9 @@ def run(db, es, options = {}):
               'chamber': 'senate', 
               'committee_id': committee_id
             }
+            if subcommittee_id:
+              hearing['subcommittee_id'] = subcommittee_id
+
             hearing['created_at'] = datetime.datetime.now()
           
           hearing['updated_at'] = datetime.datetime.now()

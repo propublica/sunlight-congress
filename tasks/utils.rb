@@ -252,20 +252,6 @@ module Utils
     }[govtrack_type.to_sym]
   end
   
-  # map RTC type to GovTrack type
-  def self.govtrack_type_for(bill_type)
-    {
-      'hr' => 'h',
-      'hres' => 'hr',
-      'hjres' => 'hj',
-      'hcres' => 'hc',
-      's' => 's',
-      'sres' => 'sr',
-      'sjres' => 'sj',
-      'scres' => 'sc'
-    }[bill_type.to_s]
-  end
-
   def self.gpo_type_for(bill_type)
     {
       'hr' => 'hr',
@@ -525,11 +511,6 @@ module Utils
         nil
       end
     end
-  end
-  
-  # known discrepancies between us and GovTrack
-  def self.committee_id_for(govtrack_id)
-    govtrack_id
   end
   
   def self.bill_ids_for(text, session)

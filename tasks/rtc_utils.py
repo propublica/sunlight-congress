@@ -17,47 +17,6 @@ def current_session(year=None):
 def parse_iso8601(timestamp):
   return iso8601.parse_date(timestamp).astimezone(tz.gettz('GMT'))
 
-# hacky hardcoded fix to deal with GovTrack committee ID issues
-def committee_id_for(govtrack_id, govtrack_name = None):
-  if not govtrack_id and govtrack_name != None:
-    govtrack_name = govtrack_name.replace(": ", "")
-    govtrack_name = govtrack_name.replace(";", "")
-    govtrack_name = govtrack_name.replace(", ", "")
-    if govtrack_name == "House Transportation":
-      return "HSPW"
-    elif govtrack_name == "House Natural Resources":
-      return "HSII"
-    elif govtrack_name == "House Agriculture":
-      return "HSAG"
-    elif govtrack_name == "House Armed Services":
-      return "HSAS"
-    elif govtrack_name == "House Foreign Affairs":
-      return "HSFA"
-    elif govtrack_name == "House Veterans' Affairs":
-      return "HSVR"
-    elif govtrack_name == "House Science, Space, and Technology":
-      return "HSSY"
-    elif govtrack_name == "House Appropriations":
-      return "HSAP"
-    elif govtrack_name == "House Energy and Commerce":
-      return "HSIF"
-    elif govtrack_name == "House Ways and Means":
-      return "HSWM"
-    else:
-      return None
-      
-  elif govtrack_id == "HLIG":
-    return "HSIG"
-  else:
-    return govtrack_id
-
-
-RTC_MAP = {'hr':'hr', 'hres':'hres', 'hjres':'hjres', 'hconres':'hcres', 's':'s', 'sres':'sres', 'sjres':'sjres', 'sconres':'scres'}
-
-GT_MAP = {'h':'hr', 'hr':'hres', 'hj': 'hjres', 'hc': 'hcres', 's':'s', 'sj':'sjres', 'sc':'scres', 'sr':'sres'}
-
-def bill_type_for(govtrack_type):
-    return GT_MAP[govtrack_type]
 
 def extract_rolls(data, chamber, year):
     roll_ids = []
@@ -124,20 +83,3 @@ def extract_legislators(text, chamber, db):
                 bioguide_ids.append(p['bioguide_id'])
 
     return (legislator_names, bioguide_ids)
-
-
-
-# string cleaning functions found at:
-# http://love-python.blogspot.com/2008/07/strip-html-tags-using-python.html
-
-def remove_extra_spaces(data):
-    p = re.compile(r'\s+')
-    return p.sub(' ', data)
-
-def remove_html_tags(data):
-    p = re.compile(r'<.*?>')
-    return p.sub('', data)
-    
-def clean_description(data):
-    data = remove_extra_spaces(remove_html_tags(data.replace("\n", "")))
-    return data.strip()
