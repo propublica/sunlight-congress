@@ -25,7 +25,10 @@ def run(db, es, options = {}):
             
           full_id = meeting.cmte_code.contents[0].strip()
           committee_id, subcommittee_id = re.search("^([A-Z]+)(\d+)$", full_id).groups()
-          if subcommittee_id == "00": subcommittee_id = None
+          if subcommittee_id == "00": 
+            subcommittee_id = None
+          else:
+            subcommittee_id = full_id
           
           committee = committee_for(db, committee_id)
           
@@ -81,11 +84,11 @@ def run(db, es, options = {}):
               'chamber': 'senate', 
               'committee_id': committee_id
             }
-            if subcommittee_id:
-              hearing['subcommittee_id'] = subcommittee_id
 
             hearing['created_at'] = datetime.datetime.now()
           
+          if subcommittee_id:
+            hearing['subcommittee_id'] = subcommittee_id
           hearing['updated_at'] = datetime.datetime.now()
           
           hearing.update({
