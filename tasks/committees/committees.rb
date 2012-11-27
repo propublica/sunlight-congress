@@ -46,6 +46,7 @@ class Committees
       
       # we need to know whether it's current or historical
       unless us_committee['congresses']
+        puts "No 'congresses' field for current committee #{committee_id}, not okay"
         bad_committees << committee_id
         next
       end
@@ -65,9 +66,13 @@ class Committees
 
         # we need to know whether it's current or historical
         unless us_subcommittee['congresses']
-          puts "No 'congresses' field for #{full_id}" if options[:debug]
-          bad_committees << full_id
-          next
+          if memberships[full_id]
+            puts "No 'congresses' field for current subcommittee #{full_id}"
+            bad_committees << full_id
+            next
+          else
+            # probably just an old committee, this is fine
+          end
         end
 
         subcommittee = Committee.find_or_initialize_by committee_id: full_id
