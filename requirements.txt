@@ -13,3 +13,4 @@ iso8601==0.1.4
 #git+git://github.com/sunlightlabs/pyes.git
 requests
 git+git://github.com/aparo/pyes.git
+ipython
