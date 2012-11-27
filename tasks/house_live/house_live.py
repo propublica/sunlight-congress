@@ -15,7 +15,7 @@ from boto.s3.key import Key
 import re
 
 ESCAPE_CHARS_RE = re.compile(r'(?<!\\)(?P<char>[&|+\-!(){}[\]^"~*?:])')
-API_PREFIX = 'http://govflix.com/api/'
+API_PREFIX = 'http://search.granicus.com/api/'
 PARSING_ERRORS = []
 
 AWS_ACCESS_KEY_ID = None
@@ -194,7 +194,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                     bills.append(bill)
                 
                 bill_name = db['bills'].find_one({'bill_id':bill })
-                if  bill_name and bill_name['short_title'] and bill_name['short_title'] != '':
+                if  bill_name and bill_name.has_key('short_title') and bill_name['short_title'] and bill_name['short_title'] != '':
                     events += bill_name['short_title'] + '; '
                 elif bill_name:
                     events += bill_name['code'].upper() + '; '
@@ -396,6 +396,8 @@ def query_api(db, api_url, data=None):
 
     h = httplib2.Http()
     response, text = h.request(api_url, body=data)
+    print "Making request %s" % api_url
+    print "with data: %s" % data
 
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
