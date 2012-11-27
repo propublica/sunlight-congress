@@ -44,9 +44,16 @@ class Committees
     current_committees.each do |us_committee|
       committee_id = us_committee['thomas_id']
       
+      current = false
+      if memberships[committee_id]
+        current = true
+      elsif us_committee['congresses'] and us_committee['congresses'].include?(session)
+        current = true
+      end
+
       # we need to know whether it's current or historical
-      unless us_committee['congresses']
-        puts "No 'congresses' field for current committee #{committee_id}, not okay"
+      unless current
+        puts "Non-current committee #{committee_id} appearing in current file, not okay"
         bad_committees << committee_id
         next
       end
@@ -54,25 +61,24 @@ class Committees
       committee = Committee.find_or_initialize_by committee_id: committee_id
       
       committee.attributes = attributes_for us_committee
-
-      if committee[:congresses].include?(session)
-        committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
-      end
-
+      committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
+      
       subcommittees = []
       (us_committee['subcommittees'] || []).each do |us_subcommittee|
         subcommittee_id = us_subcommittee['thomas_id']
         full_id = [committee_id, subcommittee_id].join ""
 
-        # we need to know whether it's current or historical
-        unless us_subcommittee['congresses']
-          if memberships[full_id]
-            puts "No 'congresses' field for current subcommittee #{full_id}"
-            bad_committees << full_id
-            next
-          else
-            # probably just an old committee, this is fine
-          end
+        current = false
+        if memberships[full_id]
+          current = true
+        elsif us_subcommittee['congresses'] and us_subcommittee['congresses'].include?(session)
+          current = true
+        end
+        
+        unless current
+          # puts "Skipping old subcommittee" if options[:debug]
+          # probably just an old subcommittee, this is fine
+          next
         end
 
         subcommittee = Committee.find_or_initialize_by committee_id: full_id
@@ -81,10 +87,7 @@ class Committees
         attributes = attributes_for us_subcommittee, committee
         subcommittees << attributes
         subcommittee.attributes = attributes
-
-        if committee[:congresses].include?(session)
-          subcommittee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
-        end
+        subcommittee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
 
         subcommittee[:parent_committee_id] = committee_id
         subcommittee.save!
