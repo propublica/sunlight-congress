@@ -46,7 +46,7 @@ module Searchable
     fields = {}
 
     params.keys.each do |key| 
-      if !magic_fields.include?(key.to_sym) and params[key].present?
+      if !Environment.magic_fields.include?(key.to_sym) and params[key].present?
         fields[key] = params[key]
       end
     end
@@ -447,31 +447,6 @@ module Searchable
     end
   end
   
-  def self.original_magic_fields
-    [
-      :search, 
-      :query, :q,
-      :highlight, :highlight_tags, :highlight_size,
-      :default_operator
-    ]
-  end
-  
-  def self.add_magic_fields(fields)
-    @extra_magic_fields = fields
-  end
-  
-  def self.magic_fields
-    (@extra_magic_fields || []) + original_magic_fields
-  end
-  
-  def self.config=(config)
-    @config = config
-  end
-  
-  def self.config
-    @config
-  end
-
   # http client
   def self.client=(client)
     @client = client
@@ -500,11 +475,13 @@ module Searchable
   end
 
   def self.thrift?
-    config['elastic_search']['thrift'].present?
+    Environment.config['elastic_search']['thrift'].present?
   end
 
   # load and persist search clients
   def self.configure_clients!
+    config = Environment.config
+
     http_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     options = {
       index: config['elastic_search']['index'], 
@@ -514,8 +491,6 @@ module Searchable
     Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
     Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
     Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
-
-    Searchable.config = config
 
     if thrift?
       thrift_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['thrift']}"

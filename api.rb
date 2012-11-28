@@ -19,14 +19,6 @@ end
 # disable XSS check, this is an API and it's okay to use it with JSONP
 disable :protection
 
-# backwards compatibility - 'sections' will still work
-before do
-  if params[:sections].present?
-    params[:fields] = params[:sections]
-  elsif params[:fields].present?
-    params[:sections] = params[:fields]
-  end
-end
 
 get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize

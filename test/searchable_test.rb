@@ -220,9 +220,9 @@ class SearchableTest < Test::Unit::TestCase
   
   def test_filter_for_ignores_magic_fields_in_filters
     field = "hands"
-    assert !Searchable.magic_fields.include?(field)
+    assert !magic_fields.include?(field)
     
-    filter = Searchable.filter_for Person, {"hands" => "two", Searchable.magic_fields.first => "anything"}
+    filter = Searchable.filter_for Person, {"hands" => "two", magic_fields.first => "anything"}
     assert_equal Searchable.subfilter_for("hands", "two"), filter
   end
   

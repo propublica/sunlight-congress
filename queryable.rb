@@ -46,7 +46,7 @@ module Queryable
         operator = operators[$2]
       end
       
-      if !magic_fields.include? key.to_sym
+      if !Environment.magic_fields.include? key.to_sym
         
         # transform 'value' to the correct type for this key if needed
         if [:nin, :in, :all].include?(operator)
@@ -122,8 +122,7 @@ module Queryable
   def self.attributes_for(document, fields)
     attributes = document.attributes
 
-    # 'indexed' is a special field used to help sync docs between mongodb and elasticsearch
-    exclude_fields = ['_id', 'created_at', 'updated_at', 'indexed']
+    exclude_fields = ['_id', 'created_at', 'updated_at']
 
     exclude_fields.each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
     attributes
@@ -220,20 +219,6 @@ module Queryable
         value
       end
     end
-  end
-  
-  def self.original_magic_fields
-    [
-      :search
-    ]
-  end
-  
-  def self.add_magic_fields(fields)
-    @extra_magic_fields = fields
-  end
-  
-  def self.magic_fields
-    (@extra_magic_fields || []) + original_magic_fields
   end
   
   # inside a queryable model, do:
