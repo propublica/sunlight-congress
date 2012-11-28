@@ -167,23 +167,6 @@ module Queryable
     model.where(conditions).only(fields).order_by(order).skip(skip).limit(limit)
   end
   
-  def self.pagination_for(params)
-    default_per_page = 20
-    max_per_page = 50
-    max_page = 200000000 # let's keep it realistic
-    
-    # rein in per_page to somewhere between 1 and the max
-    per_page = (params[:per_page] || default_per_page).to_i
-    per_page = default_per_page if per_page <= 0
-    per_page = max_per_page if per_page > max_per_page
-    
-    # valid page number, please
-    page = (params[:page] || 1).to_i
-    page = 1 if page <= 0 or page > max_page
-    
-    {per_page: per_page, page: page}
-  end
-  
   def self.regex_for(value, i = true)
     regex_value = value.to_s.dup
     %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}

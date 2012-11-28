@@ -27,7 +27,7 @@ get queryable_route do
   fields = Queryable.fields_for model, params
   conditions = Queryable.conditions_for model, params
   order = Queryable.order_for model, params
-  pagination = Queryable.pagination_for params
+  pagination = pagination_for params
 
   if params[:explain] == 'true'
     results = Queryable.explain_for model, conditions, fields, order, pagination
@@ -66,8 +66,8 @@ get searchable_route do
 
   filter = Searchable.filter_for models, params
   order = Searchable.order_for params
-  pagination = Searchable.pagination_for params
   other = Searchable.other_options_for params, search_fields
+  pagination = pagination_for params
   
   begin
     if params[:explain] == 'true'
@@ -165,6 +165,23 @@ helpers do
   def xml(results)
     response['Content-Type'] = 'application/xml'
     results.to_xml :root => 'results', :dasherize => false
+  end
+
+  def pagination_for(params)
+    default_per_page = 20
+    max_per_page = 50
+    max_page = 200000000 # let's keep it realistic
+    
+    # rein in per_page to somewhere between 1 and the max
+    per_page = (params[:per_page] || default_per_page).to_i
+    per_page = default_per_page if per_page <= 0
+    per_page = max_per_page if per_page > max_per_page
+    
+    # valid page number, please
+    page = (params[:page] || 1).to_i
+    page = 1 if page <= 0 or page > max_page
+    
+    {per_page: per_page, page: page}
   end
   
 end
