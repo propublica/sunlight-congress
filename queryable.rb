@@ -55,9 +55,6 @@ module Queryable
           value = value_for value, model.fields[key]
         end
         
-#         puts
-#         puts "value: #{value.inspect} (#{value.class})"
-        
         if operator
           if conditions[key].nil? or conditions[key].is_a?(Hash)
             conditions[key] ||= {}

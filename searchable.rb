@@ -1,25 +1,10 @@
 module Searchable
 
   def self.term_for(params)
-    (params[:query] || params[:q]).strip.downcase
+    params[:query].strip.downcase
   end
   
-  def self.query_for(term, params, search_fields)
-    
-    conditions = {
-      'dis_max' => {
-        'queries' => []
-      }
-    }
-    
-    search_fields.each do |field|
-      conditions['dis_max']['queries'] << subquery_for(term, field)
-    end
-    
-    conditions
-  end
-
-  def self.relaxed_query_for(string, params, search_fields)
+  def self.query_for(string, params, search_fields)
     conditions = {
       'query_string' => {
         'query' => string,
@@ -30,7 +15,6 @@ module Searchable
     }
   end
   
-  # factored out mainly for ease of unit testing
   def self.subquery_for(term, field)
     {
       text: {

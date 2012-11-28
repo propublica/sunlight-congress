@@ -18,7 +18,7 @@ class Environment
       :page, :per_page,
       
       :query, # query.fields
-      :q, :search, # tokill
+      :search, # tokill
 
       :citing, # citing.details
       :citation, :citation_details, # tokill
