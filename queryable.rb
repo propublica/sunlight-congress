@@ -130,12 +130,11 @@ module Queryable
     documents.map {|document| attributes_for document, fields}
   end
 
-  def self.results_for(model, criteria, documents, pagination)
+  def self.results_for(criteria, documents, pagination)
     count = criteria.count
-    key = model.to_s.underscore.pluralize
     
     {
-      key => documents,
+      results: documents,
       count: count,
       page: {
         count: documents.size,

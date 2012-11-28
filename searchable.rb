@@ -209,9 +209,8 @@ module Searchable
   end
   
   def self.results_for(term, models, raw_results, documents, pagination)
-    document_type = (models.size == 1) ? mapping_for(models) : "results"
     {
-      document_type => documents,
+      results: documents,
       count: raw_results.total_entries,
       page: {
         count: documents.size,

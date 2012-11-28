@@ -35,7 +35,7 @@ get queryable_route do
     criteria = Queryable.criteria_for model, conditions, fields, order, pagination
     documents = Queryable.documents_for model, criteria, fields
     documents = citations_for model, documents, params
-    results = Queryable.results_for model, criteria, documents, pagination
+    results = Queryable.results_for criteria, documents, pagination
   end
   
   if format == 'json'
