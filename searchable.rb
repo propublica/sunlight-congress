@@ -295,30 +295,11 @@ module Searchable
   end
   
   def self.search_for(request, client_options = {})
-    # client_options only used for explain at this time
+    # client_options only used for explain right now
     if client_options[:explain]
       explain.search request[0], request[1]
     else
-      # thrift transport may need to reconnect if ES is restarted
-      if thrift?
-        begin
-          thrift.search request[0], request[1]
-        rescue IOError, ElasticSearch::ConnectionFailed => ex
-          if (ex.message =~ /closed stream/) or (ex.message =~ /Broken pipe/)
-            # reset clients
-            configure_clients! 
-
-            # only one retry, no rescue
-            thrift.search request[0], request[1]
-          else
-            raise ex
-          end
-        end
-
-      # use http client, don't be so forgiving
-      else 
-        client.search request[0], request[1]
-      end
+      client.search request[0], request[1]
     end
   end
   
@@ -440,15 +421,6 @@ module Searchable
     @client
   end
 
-  # thrift client
-  def self.thrift=(thrift)
-    @thrift = thrift
-  end
-
-  def self.thrift
-    @thrift
-  end
-
   # explain client (http + middleware)
   def self.explain=(client)
     @explain = client
@@ -458,11 +430,6 @@ module Searchable
     @explain
   end
 
-  def self.thrift?
-    Environment.config['elastic_search']['thrift'].present?
-  end
-
-  # load and persist search clients
   def self.configure_clients!
     config = Environment.config
 
@@ -475,11 +442,6 @@ module Searchable
     Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
     Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
     Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
-
-    if thrift?
-      thrift_host = "#{config['elastic_search']['host']}:#{config['elastic_search']['thrift']}"
-      Searchable.thrift = ElasticSearch.new thrift_host, options.merge(transport: ElasticSearch::Transport::Thrift)
-    end
 
     Searchable.client = ElasticSearch.new(http_host, options) do |conn|
       # conn.response :debug_request # print request to STDOUT

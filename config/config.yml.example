@@ -1,10 +1,3 @@
-# this is the public OpenCRS API key, fill in yours from opencrs.com/api
-opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
-
-:services:
-  :shared_secret:
-  :api_name: realtimecongress
-
 elastic_search:
   host: localhost
   port: 9200
@@ -15,12 +8,8 @@ citation:
   hostname: localhost:3000
 
 s3: 
-    secret: 
-    key: 
-  
-debug: false
-
-log_file: /dev/null
+  secret: 
+  key: 
 
 :email:
   :via: :smtp
@@ -38,5 +27,5 @@ log_file: /dev/null
 
 # to send emails to owners of specific tasks
 :task_owners:
-  # :bills_archive: 
+  # :legislators: 
   #   - email@example.com

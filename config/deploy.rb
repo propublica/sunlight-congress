@@ -1,29 +1,25 @@
 set :environment, (ENV['target'] || 'staging')
 
-set :user, 'rtc'
+set :user, 'congress'
 set :application, user
 set :deploy_to, "/projects/#{user}/"
 
 set :sock, "#{user}.sock"
 
-if environment == 'api' # production api box
-  set :domain, 'ec2-50-17-0-114.compute-1.amazonaws.com' # unionstation
-elsif environment == 'backend' # production scraper box
-  set :domain, 'takoma.sunlightlabs.net' # takoma
-else # environment == 'staging'
-  set :domain, 'ec2-107-22-9-27.compute-1.amazonaws.com' # dupont
+if environment == 'congress' # production congress api box
+  set :domain, "ec2-174-129-173-55.compute-1.amazonaws.com"
 end
 
 
 # RVM stuff - not sure how/why this works, awesome
-set :rvm_ruby_string, '1.9.3-p194@rtc'
+# set :rvm_ruby_string, '1.9.3-p194@rtc'
 # rvm-capistrano gem must be installed outside of the bundle
-require 'rvm/capistrano'
+# require 'rvm/capistrano'
 
 
 set :scm, :git
 set :repository, "git@github.com:sunlightlabs/realtimecongress.git"
-set :branch, 'master'
+set :branch, 'congress'
 
 set :deploy_via, :remote_cache
 set :runner, user
@@ -34,11 +30,8 @@ role :web, domain
 
 set :use_sudo, false
 
-# not sure why the issue
-if environment != 'staging'
-  after "deploy", "deploy:cleanup"
-end
 
+after "deploy", "deploy:cleanup"
 after "deploy:update_code", "deploy:shared_links"
 after "deploy:update_code", "deploy:bundle_install"
 after "deploy:update_code", "deploy:create_indexes"
@@ -102,11 +95,9 @@ namespace :deploy do
     run "rm #{File.join release_path, 'public', 'system'}"
     run "rm #{File.join release_path, 'log'}"
     
-    # elasticsearch files need to stay in a shared dir so that the symlink that points to them doesn't stay pointed
-    # to stale, old releases
-    if ['staging', 'elastic'].include?(environment)
-      run "cp #{release_path}/config/elasticsearch/config/#{environment}/*.yml #{shared_path}/elasticsearch/"
-      run "cp -r #{release_path}/config/elasticsearch/mappings/ #{shared_path}/elasticsearch/"
-    end
+    # elasticsearch files need to stay in a shared dir so that the symlink that 
+    # points to them doesn't stay pointed to stale, old releases
+    run "cp #{release_path}/config/elasticsearch/config/#{environment}/*.yml #{shared_path}/elasticsearch/"
+    run "cp -r #{release_path}/config/elasticsearch/mappings/ #{shared_path}/elasticsearch/"
   end
 end
