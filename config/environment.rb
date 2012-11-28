@@ -23,7 +23,8 @@ class Environment
       :citing, # citing.details
       :citation, :citation_details, # tokill
 
-      :explain,
+      :explain, 
+      :format, # undocumented XML support
 
       :apikey, # API key gating
       :callback, :_, # jsonp support (_ is to allow cache-busting)
@@ -74,7 +75,7 @@ def queryable_models
 end
 
 def queryable_route
-  @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
+  @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})$/
 end
 
 def searchable_models
@@ -82,5 +83,5 @@ def searchable_models
 end
 
 def searchable_route
-  @search_route ||= /^\/search\/((?:(?:#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\.(json|xml)$/
+  @search_route ||= /^\/search\/((?:(?:#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)$/
 end

@@ -22,7 +22,7 @@ disable :protection
 
 get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize
-  format = params[:captures][1]
+  format = params[:format] || "json"
 
   fields = Queryable.fields_for model, params
   conditions = Queryable.conditions_for model, params
@@ -50,7 +50,7 @@ get searchable_route do
   error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
 
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize}
-  format = params[:captures][1]
+  format = params[:format] || "json"
 
   term = Searchable.term_for params
   fields = Searchable.fields_for models, params
@@ -142,7 +142,7 @@ helpers do
   end
 
   def error(status, message)
-    format = params[:captures][1]
+    format = params[:format] || "json"
 
     results = {
       error: message,
@@ -163,37 +163,8 @@ helpers do
   end
   
   def xml(results)
-    xml_exceptions results
     response['Content-Type'] = 'application/xml'
     results.to_xml :root => 'results', :dasherize => false
-  end
-  
-  # a hard-coded XML exception for vote names, which I foolishly made as keys
-  # this will be fixed in v2
-  def xml_exceptions(results)
-    if results['votes']
-      results['votes'].each do |vote|
-        if vote['vote_breakdown']
-          vote['vote_breakdown'] = dasherize_hash vote['vote_breakdown']
-        end
-      end
-    end
-  end
-  
-  def dasherize_hash(original)
-    hash = original.dup
-    
-    hash.keys.each do |key|
-      value = hash.delete key
-      key = key.tr(' ', '-')
-      if value.is_a?(Hash)
-        hash[key] = dasherize_hash(value)
-      else
-        hash[key] = value
-      end
-    end
-    
-    hash
   end
   
 end
