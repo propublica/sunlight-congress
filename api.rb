@@ -47,12 +47,12 @@ end
 
 
 get searchable_route do
-  error 400, "You must provide a search term with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
+  error 400, "You must provide a query string with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
 
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize}
   format = params[:format] || "json"
 
-  term = Searchable.term_for params
+  query_string = Searchable.query_string_for params
   fields = Searchable.fields_for models, params
   search_fields = Searchable.search_fields_for models, params
 
@@ -61,7 +61,7 @@ get searchable_route do
   end
   
   if params[:query]
-    query = Searchable.query_for term, params, search_fields
+    query = Searchable.query_for query_string, params, search_fields
   end
 
   filter = Searchable.filter_for models, params
@@ -71,12 +71,12 @@ get searchable_route do
   
   begin
     if params[:explain] == 'true'
-      results = Searchable.explain_for term, models, query, filter, fields, order, pagination, other
+      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
     else
-      raw_results = Searchable.raw_results_for term, models, query, filter, fields, order, pagination, other
-      documents = Searchable.documents_for term, fields, raw_results
+      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, other
+      documents = Searchable.documents_for query_string, fields, raw_results
       documents = citations_for models, documents, params
-      results = Searchable.results_for term, models, raw_results, documents, pagination
+      results = Searchable.results_for raw_results, documents, pagination
     end
   rescue ElasticSearch::RequestError => exc
     results = Searchable.error_from exc

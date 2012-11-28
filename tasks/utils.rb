@@ -51,7 +51,7 @@ module Utils
       body = File.read destination
       hash = MultiJson.load body
     else
-      url = "http://#{config['citation']['hostname']}/citation/find.json"
+      url = "http://#{Environment.config['citation']['hostname']}/citation/find.json"
       puts "\tExtracting citations..." if options[:debug]
       curl = Curl.post url, 
         text: CGI.escape(text), 

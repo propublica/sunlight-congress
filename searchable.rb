@@ -1,6 +1,6 @@
 module Searchable
 
-  def self.term_for(params)
+  def self.query_string_for(params)
     params[:query].strip.downcase
   end
   
@@ -11,17 +11,6 @@ module Searchable
         'default_operator' => (params[:default_operator] || "AND"),
         'use_dis_max' => true,
         'fields' => search_fields
-      }
-    }
-  end
-  
-  def self.subquery_for(term, field)
-    {
-      text: {
-        field => {
-          query: term,
-          type: "phrase"
-        }
       }
     }
   end
@@ -195,20 +184,20 @@ module Searchable
     sections.uniq
   end
 
-  def self.raw_results_for(term, models, query, filter, fields, order, pagination, other)
+  def self.raw_results_for(models, query, filter, fields, order, pagination, other)
     request = request_for models, query, filter, fields, order, pagination, other
     search_for request
   end
 
-  def self.documents_for(term, fields, raw_results)
-    raw_results.hits.map {|hit| attributes_for term, hit, fields}
+  def self.documents_for(query_string, fields, raw_results)
+    raw_results.hits.map {|hit| attributes_for query_string, hit, fields}
   end
 
   def self.mapping_for(models)
     models.map {|m| m.to_s.underscore.pluralize}.join ","
   end
   
-  def self.results_for(term, models, raw_results, documents, pagination)
+  def self.results_for(raw_results, documents, pagination)
     {
       results: documents,
       count: raw_results.total_entries,
@@ -220,7 +209,7 @@ module Searchable
     }
   end
   
-  def self.explain_for(term, models, query, filter, fields, order, pagination, other)
+  def self.explain_for(query_string, models, query, filter, fields, order, pagination, other)
     request = request_for models, query, filter, fields, order, pagination, other
     mapping = mapping_for models
     
@@ -236,7 +225,7 @@ module Searchable
       last_response = ExplainLogger.last_response
       
       {
-        query: term,
+        query: query_string,
         mapping: mapping,
         count: results.total_entries,
         elapsed: elapsed,
@@ -331,9 +320,9 @@ module Searchable
     ]
   end
   
-  def self.attributes_for(term, hit, fields)
+  def self.attributes_for(query_string, hit, fields)
     attributes = {}
-    search = {score: hit._score, query: term, type: hit._type.singularize}
+    search = {score: hit._score, query: query_string, type: hit._type.singularize}
     
     hit.fields ||= {}
     

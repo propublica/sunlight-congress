@@ -164,12 +164,12 @@ class SearchableTest < Test::Unit::TestCase
   
   # querying
   
-  def test_term_for_strips
-    assert_equal "whatever", Searchable.term_for({:query => "  \nwhatever\t"})
+  def test_query_string_strips
+    assert_equal "whatever", Searchable.query_string_for({:query => "  \nwhatever\t"})
   end
   
-  def test_term_for_downcases
-    assert_equal "whatever", Searchable.term_for({:query => "WHAteveR"})
+  def test_query_string_for_downcases
+    assert_equal "whatever", Searchable.query_string_for({:query => "WHAteveR"})
   end
   
   
