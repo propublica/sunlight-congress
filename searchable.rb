@@ -186,7 +186,11 @@ module Searchable
 
   def self.raw_results_for(models, query, filter, fields, order, pagination, other)
     request = request_for models, query, filter, fields, order, pagination, other
-    search_for request
+    if other[:explain]
+      @explain_client.search request[0], request[1]
+    else
+      @search_client.search request[0], request[1]
+    end
   end
 
   def self.documents_for(query_string, fields, raw_results)
@@ -215,7 +219,7 @@ module Searchable
     
     begin
       start = Time.now
-      results = search_for request, explain: other[:explain]
+      results = @explain_client.search request[0], request[1]
       elapsed = Time.now - start
 
       # subject to a race condition here, need to think of a better solution than a class variable
@@ -282,15 +286,6 @@ module Searchable
     options
   end
   
-  def self.search_for(request, client_options = {})
-    # client_options only used for explain right now
-    if client_options[:explain]
-      explain.search request[0], request[1]
-    else
-      client.search request[0], request[1]
-    end
-  end
-  
   def self.request_for(models, query, filter, fields, order, pagination, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
@@ -351,28 +346,8 @@ module Searchable
       hash[keys.first] = final_value
     end
   end  
-  
-  # http client
-  def self.client=(client)
-    @client = client
-  end
 
-  def self.client
-    @client
-  end
-
-  # explain client (http + middleware)
-  def self.explain=(client)
-    @explain = client
-  end
-
-  def self.explain
-    @explain
-  end
-
-  def self.configure_clients!
-    config = Api.config
-
+  def self.configure_clients!(config)
     http_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     options = {
       index: config['elastic_search']['index'], 
@@ -383,17 +358,20 @@ module Searchable
     Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
     Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
 
-    Searchable.client = ElasticSearch.new(http_host, options) do |conn|
+    @search_client = ElasticSearch.new(http_host, options) do |conn|
       # conn.response :debug_request # print request to STDOUT
       # conn.response :debug_response # print response to STDOUT
       conn.adapter Faraday.default_adapter
     end
 
-    Searchable.explain = ElasticSearch.new(http_host, options) do |conn|
+    @explain_client = ElasticSearch.new(http_host, options) do |conn|
       conn.response :explain_logger # store last request and response for explain output
       conn.adapter Faraday.default_adapter
     end
   end
+
+  # referenced by loading tasks
+  def self.client; @search_client; end
   
   class DebugRequest < Faraday::Response::Middleware
     def call(env)

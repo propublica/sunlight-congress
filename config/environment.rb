@@ -42,7 +42,7 @@ class Api
         value == "true"
       elsif value =~ /^\d+$/
         value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/)
         Time.zone.parse(value).utc rescue nil
       else
         value
@@ -62,7 +62,7 @@ class Api
       :page, :per_page,
       
       :query, # query.fields
-      :search, # tokill
+      :search, :highlight, # tokill
 
       :citing, # citing.details
       :citation, :citation_details, # tokill
@@ -92,7 +92,7 @@ configure do
   # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
   
-  Searchable.configure_clients!
+  Searchable.configure_clients! Api.config
   
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.

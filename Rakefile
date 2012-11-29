@@ -143,7 +143,7 @@ end
 def run_ruby(name)
   load "./tasks/#{name}/#{name}.rb"
   
-  options = {config: Environment.config}
+  options = {config: Api.config}
   ARGV[1..-1].each do |arg|
     key, value = arg.split '='
     if key.present? and value.present?
@@ -159,7 +159,7 @@ def run_python(name)
 end
 
 def email(report, exception = nil)
-  config = Environment.config
+  config = Api.config
 
   if config[:email][:to] and config[:email][:to].any?
     begin
@@ -175,7 +175,7 @@ def email(report, exception = nil)
 end
 
 def email_recipients_for(report)
-  config = Environment.config
+  config = Api.config
   
   task = report.source.underscore.to_sym
   
