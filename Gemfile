@@ -11,6 +11,7 @@ gem 'ruby-hmac', '0.4.0'
 gem 'pony', '1.0.1'
 
 gem 'rack', '1.4.1'
+gem 'rack-contrib'
 gem 'rake', '0.9.2.2'
 
 group :development do
