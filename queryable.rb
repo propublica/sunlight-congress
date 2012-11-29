@@ -46,13 +46,13 @@ module Queryable
         operator = operators[$2]
       end
       
-      if !Environment.magic_fields.include? key.to_sym
+      if !Api.magic_fields.include? key.to_sym
         
         # transform 'value' to the correct type for this key if needed
         if [:nin, :in, :all].include?(operator)
-          value = value.split("|").map {|v| value_for v, model.fields[key]}
+          value = value.split("|").map {|v| Api.value_for v, model.fields[key]}
         else
-          value = value_for value, model.fields[key]
+          value = Api.value_for value, model.fields[key]
         end
         
         if operator
@@ -60,11 +60,7 @@ module Queryable
             conditions[key] ||= {}
             
             if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
-              conditions[key]["$#{operator}"] = value 
-            elsif operator == :match
-              conditions[key] = regex_for value
-            elsif operator == :match_s
-              conditions[key] = regex_for value, false
+              conditions[key]["$#{operator}"] = value
             end
           else
             # let it fall, someone already assigned the filter directly
@@ -78,12 +74,6 @@ module Queryable
       end
     end
     
-    if params[:search].present? and model.search_fields
-      conditions["$or"] = model.search_fields.map do |key|
-        {key => regex_for(params[:search])}
-      end
-    end
-
     if params[:citation].present? and model.cite_key
       citation_ids = params[:citation].split "|"
       if citation_ids.size == 1
@@ -167,38 +157,7 @@ module Queryable
     model.where(conditions).only(fields).order_by(order).skip(skip).limit(limit)
   end
   
-  def self.regex_for(value, i = true)
-    regex_value = value.to_s.dup
-    %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
-    i ? /#{regex_value}/i : /#{regex_value}/
-  end
   
-  def self.value_for(value, field)
-    # type overridden in model
-    if field
-      if field.type == Boolean
-        (value == "true") if ["true", "false"].include? value
-      elsif field.type == Integer
-        value.to_i
-      elsif [Date, Time, DateTime].include?(field.type)
-        Time.zone.parse(value).utc rescue nil
-      else
-        value
-      end
-      
-    # try to autodetect type
-    else
-      if ["true", "false"].include? value # boolean
-        value == "true"
-      elsif value =~ /^\d+$/
-        value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
-        Time.zone.parse(value).utc rescue nil
-      else
-        value
-      end
-    end
-  end
   
   # inside a queryable model, do:
   # include Queryable::Model

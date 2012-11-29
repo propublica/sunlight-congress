@@ -19,7 +19,7 @@ module Searchable
     fields = {}
 
     params.keys.each do |key| 
-      if !Environment.magic_fields.include?(key.to_sym) and params[key].present?
+      if !Api.magic_fields.include?(key.to_sym) and params[key].present?
         fields[key] = params[key]
       end
     end
@@ -43,7 +43,7 @@ module Searchable
       # for multiple models, just pick the first (no known clashes anyway)
       type = types.any? ? types.first.fields[field] : nil
 
-      parsed = value_for value, type
+      parsed = Api.value_for value, type
 
       # handle citations specially
       if field == 'citation_ids'
@@ -352,36 +352,6 @@ module Searchable
     end
   end  
   
-  def self.value_for(value, type)
-    # type overridden in model
-    if type
-      if type == Boolean
-        (value == "true") if ["true", "false"].include? value
-      elsif type == Integer
-        value.to_i
-      elsif [Date, Time, DateTime].include?(type)
-        Time.zone.parse(value).utc rescue nil
-      else
-        value
-      end
-      
-    # try to autodetect type
-    else
-      if ["true", "false"].include? value # boolean
-        value == "true"
-      elsif value =~ /^\d+$/
-        value.to_i
-      elsif value =~ /^\d\d\d\d-\d\d-\d\d$/
-        Time.zone.parse(value).utc rescue nil
-      elsif value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/
-        # compress times to act like dates until we support ranges
-        Time.zone.parse(value).midnight.utc rescue nil
-      else
-        value
-      end
-    end
-  end
-  
   # http client
   def self.client=(client)
     @client = client
@@ -401,7 +371,7 @@ module Searchable
   end
 
   def self.configure_clients!
-    config = Environment.config
+    config = Api.config
 
     http_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
     options = {

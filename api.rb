@@ -27,7 +27,7 @@ get queryable_route do
   fields = Queryable.fields_for model, params
   conditions = Queryable.conditions_for model, params
   order = Queryable.order_for model, params
-  pagination = pagination_for params
+  pagination = Api.pagination_for params
 
   if params[:explain] == 'true'
     results = Queryable.explain_for model, conditions, fields, order, pagination
@@ -67,7 +67,7 @@ get searchable_route do
   filter = Searchable.filter_for models, params
   order = Searchable.order_for params
   other = Searchable.other_options_for params, search_fields
-  pagination = pagination_for params
+  pagination = Api.pagination_for params
   
   begin
     if params[:explain] == 'true'
@@ -167,7 +167,11 @@ helpers do
     results.to_xml :root => 'results', :dasherize => false
   end
 
-  def pagination_for(params)
+end
+
+
+class Api
+  def self.pagination_for(params)
     default_per_page = 20
     max_per_page = 50
     max_page = 200000000 # let's keep it realistic
@@ -183,5 +187,31 @@ helpers do
     
     {per_page: per_page, page: page}
   end
-  
+
+  def self.value_for(value, field)
+    # type overridden in model
+    if field
+      if field.type == Boolean
+        (value == "true") if ["true", "false"].include? value
+      elsif field.type == Integer
+        value.to_i
+      elsif [Date, Time, DateTime].include?(field.type)
+        Time.zone.parse(value).utc rescue nil
+      else
+        value
+      end
+      
+    # try to autodetect type
+    else
+      if ["true", "false"].include? value # boolean
+        value == "true"
+      elsif value =~ /^\d+$/
+        value.to_i
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+        Time.zone.parse(value).utc rescue nil
+      else
+        value
+      end
+    end
+  end
 end

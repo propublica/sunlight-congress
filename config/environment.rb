@@ -4,7 +4,7 @@ require 'mongoid'
 require 'tzinfo'
 require 'rubberband'
 
-class Environment
+class Api
 
   def self.config
     @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
