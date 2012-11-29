@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
-
 require './config/environment'
+
+require 'sinatra'
 require './analytics/api_key'
 require './analytics/hits'
 
