@@ -3,14 +3,6 @@ elastic_search:
   port: 9200
   index: rtc
 
-# information for the Citation extraction API (https://github.com/unitedstates/citation)
-citation:
-  hostname: localhost:3000
-
-s3: 
-  secret: 
-  key: 
-
 :email:
   :via: :smtp
   :to:
@@ -29,3 +21,12 @@ s3:
 :task_owners:
   # :legislators: 
   #   - email@example.com
+
+# used to upload video caption files
+s3: 
+  secret: 
+  key: 
+
+# used to extract citations (https://github.com/unitedstates/citation)
+citation:
+  hostname: localhost:3000
