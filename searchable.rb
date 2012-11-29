@@ -355,17 +355,13 @@ module Searchable
     }
 
     Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
-    Faraday.register_middleware :response, debug_request: Searchable::DebugRequest
-    Faraday.register_middleware :response, debug_response: Searchable::DebugResponse
 
     @search_client = ElasticSearch.new(http_host, options) do |conn|
-      # conn.response :debug_request # print request to STDOUT
-      # conn.response :debug_response # print response to STDOUT
       conn.adapter Faraday.default_adapter
     end
 
     @explain_client = ElasticSearch.new(http_host, options) do |conn|
-      conn.response :explain_logger # store last request and response for explain output
+      conn.response :explain_logger
       conn.adapter Faraday.default_adapter
     end
   end
@@ -373,21 +369,7 @@ module Searchable
   # referenced by loading tasks
   def self.client; @search_client; end
   
-  class DebugRequest < Faraday::Response::Middleware
-    def call(env)
-      puts "\nrequest: #{env.inspect}\n\n"
-      super
-    end
-  end
-
-  class DebugResponse < Faraday::Response::Middleware
-    def on_complete(env)
-      puts "\nresponse: #{env.inspect}\n\n"
-    end
-  end
-
   class ExplainLogger < Faraday::Response::Middleware
-
     def self.last_request; @@last_request; end
     def self.last_response; @@last_response; end
 
