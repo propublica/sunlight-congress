@@ -2,6 +2,10 @@ require 'csv'
 
 class BillsPopularNames
 
+  # options:
+  #   cache: only download if missing
+  #   remote: override link to CSV
+
   def self.run(options = {})
 
     FileUtils.mkdir_p "data/sunlight"
@@ -9,7 +13,7 @@ class BillsPopularNames
     remote = options[:remote] || "https://raw.github.com/sunlightlabs/bill-nicknames/master/bill-nicknames.csv"
     destination = "data/sunlight/bill-nicknames.csv"
 
-    unless options[:skip_download]
+    unless options[:cache] and File.exists?(destination)
       unless results = Utils.curl(remote, destination)
         Report.failure self, "Couldn't download bill nicknames, bailing out."
         return
@@ -21,9 +25,14 @@ class BillsPopularNames
 
     CSV.foreach(destination) do |row|
       next unless row[0] and ["hr", "hres", "hjres", "hcronres", "s" ,"sres", "sjres", "sconres"].include?(row[0])
-      bill_id = bill_id_for row
       
+      bill_type = row[0].strip
+      number = row[1].strip
+      session = row[2].strip
       term = row[3].strip
+
+      bill_id = "#{bill_type}#{number}-#{session}"
+      
       if term.present?
         nicknames[bill_id] ||= []
         nicknames[bill_id] << term
@@ -46,20 +55,6 @@ class BillsPopularNames
     end
 
     Report.success self, "Updated #{count} bills with their popular nicknames."
-  end
-
-  def self.bill_id_for(row)
-    bill_type = row[0].strip
-
-    # I regret doing "hcres" and "scres" in this system, but it's what I'm stuck with
-    if ["hconres", "sconres"].include?(bill_type)
-      bill_type = bill_type.gsub "con", "c"
-    end
-
-    number = row[1].strip
-    session = row[2].strip
-
-    "#{bill_type}#{number}-#{session}"
   end
 
 end

@@ -324,10 +324,7 @@ class VotesHouse
       type = code.gsub /\d/, ''
       number = code.gsub type, ''
       
-      type.gsub! "hconres", "hcres" # house uses H CON RES
-      type.gsub! "sconres", "scres" # just in case
-      
-      if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
+      if !["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].include?(type)
         return nil, nil
       else
         return type, number

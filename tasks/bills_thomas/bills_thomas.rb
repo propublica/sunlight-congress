@@ -37,8 +37,7 @@ class BillsThomas
     bill_ids.each do |bill_id|
       type, number, session, code, chamber = Utils.bill_fields_from bill_id
       
-      thomas_type = Utils.gpo_type_for type # thomas parser uses same bill types
-      path = "data/unitedstates/congress/#{session}/bills/#{thomas_type}/#{thomas_type}#{number}/data.json"
+      path = "data/unitedstates/congress/#{session}/bills/#{type}/#{type}#{number}/data.json"
 
       doc = Oj.load open(path)
       

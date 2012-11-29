@@ -196,7 +196,7 @@ class AmendmentsArchive
   def self.bill_id_for(doc, session)
     elem = doc.at :amends
     number = elem['number']
-    type = Utils.bill_type_for elem['type']
+    type = bill_type_for elem['type']
     if number and type
       "#{type}#{number}-#{session}"
     else
@@ -226,6 +226,20 @@ class AmendmentsArchive
     else
       nil
     end
+  end
+
+  # map govtrack type to RTC type
+  def self.bill_type_for(govtrack_type)
+    {
+      :h => 'hr',
+      :hr => 'hres',
+      :hj => 'hjres',
+      :hc => 'hcres',
+      :s => 's',
+      :sr => 'sres',
+      :sj => 'sjres',
+      :sc => 'scres'
+    }[govtrack_type.to_sym]
   end
 
 end

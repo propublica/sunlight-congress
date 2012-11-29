@@ -239,33 +239,6 @@ module Utils
     ((year + 1) / 2) - 894
   end
   
-  # map govtrack type to RTC type
-  def self.bill_type_for(govtrack_type)
-    {
-      :h => 'hr',
-      :hr => 'hres',
-      :hj => 'hjres',
-      :hc => 'hcres',
-      :s => 's',
-      :sr => 'sres',
-      :sj => 'sjres',
-      :sc => 'scres'
-    }[govtrack_type.to_sym]
-  end
-  
-  def self.gpo_type_for(bill_type)
-    {
-      'hr' => 'hr',
-      'hres' => 'hres',
-      'hjres' => 'hjres',
-      'hcres' => 'hconres',
-      's' => 's',
-      'sres' => 'sres',
-      'sjres' => 'sjres',
-      'scres' => 'sconres'
-    }[bill_type.to_s]
-  end
-  
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
   def self.bill_version_name_for(version_code)
     {
@@ -467,12 +440,12 @@ module Utils
     {
       "hres" => "H. Res.",
       "hjres" => "H. Joint Res.",
-      "hcres" => "H. Con. Res.",
+      "hconres" => "H. Con. Res.",
       "hr" => "H.R.",
       "s" => "S.",
       "sres" => "S. Res.",
       "sjres" => "S. Joint Res.",
-      "scres" => "S. Con. Res."
+      "sconres" => "S. Con. Res."
     }[bill_type] + " #{number}"
   end
   

@@ -256,9 +256,7 @@ class VotesSenate
       type = code.gsub /\d/, ''
       number = code.gsub type, ''
       
-      type.gsub! "hconres", "hcres" # house uses H CON RES
-      
-      if ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
+      if ["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].include?(type)
         "#{type}#{number}-#{session}"
       else
         nil
