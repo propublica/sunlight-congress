@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 require './config/environment'
 
 require 'sinatra'
@@ -8,14 +9,16 @@ require './analytics/hits'
 disable :protection
 disable :logging
 
+include Api::Routes
+helpers Api::Helpers
 
-get Api.queryable_route do
+get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize rescue nil
   error 400, "Bad method" unless model
 
-  format = Api.format_for params
-  fields = Api.fields_for model, params
-  pagination = Api.pagination_for params
+  format = format_for params
+  fields = fields_for model, params
+  pagination = pagination_for params
 
   conditions = Api::Queryable.conditions_for model, params
   order = Api::Queryable.order_for model, params
@@ -37,13 +40,13 @@ get Api.queryable_route do
 end
 
 
-get Api.searchable_route do
+get searchable_route do
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize rescue nil}.compact
   error 400, "Bad method" unless models.any?
   
-  format = Api.format_for params
-  fields = Api.fields_for models, params
-  pagination = Api.pagination_for params
+  format = format_for params
+  fields = fields_for models, params
+  pagination = pagination_for params
 
   search_fields = Api::Searchable.search_fields_for models
 

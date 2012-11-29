@@ -1,12 +1,14 @@
-before(Api.queryable_route) {request.env['start_time'] = Time.now}
-before(Api.searchable_route) {request.env['start_time'] = Time.now}
+include Api::Routes
 
-after(Api.queryable_route) {log_hit}
-after(Api.searchable_route) {log_hit}
+before(queryable_route) {request.env['start_time'] = Time.now}
+before(searchable_route) {request.env['start_time'] = Time.now}
+
+after(queryable_route) {log_hit}
+after(searchable_route) {log_hit}
 
 def log_hit
-  return unless api_key
-  
+  return unless response.status == 200
+
   query_hash = process_query_hash request.env['rack.request.query_hash']
   query_hash.delete 'apikey'
   query_hash.delete 'per_page'
