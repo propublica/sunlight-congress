@@ -220,15 +220,15 @@ class SearchableTest < Test::Unit::TestCase
   
   def test_filter_for_ignores_magic_fields_in_filters
     field = "hands"
-    assert !Environment.magic_fields.include?(field)
+    assert !Api.magic_fields.include?(field)
     
-    filter = Searchable.filter_for Person, {"hands" => "two", Environment.magic_fields.first => "anything"}
+    filter = Searchable.filter_for Person, {"hands" => "two", Api.magic_fields.first => "anything"}
     assert_equal Searchable.subfilter_for("hands", "two"), filter
   end
   
   def test_filter_for_with_no_valid_filters_yields_nil
     assert_nil Searchable.filter_for(Person, {})
-    assert_nil Searchable.filter_for(Person, {Environment.magic_fields.first => "anything"})
+    assert_nil Searchable.filter_for(Person, {Api.magic_fields.first => "anything"})
     assert_nil Searchable.filter_for(Person, {whatev: ""})
   end
   
@@ -311,26 +311,6 @@ class SearchableTest < Test::Unit::TestCase
     assert_equal filter, Searchable.subfilter_for(field, from)
   end
   
-  # should act like dates, until we support ranges
-  def test_subfilter_for_times
-    field = "born_at"
-    value = "2011-05-06T07:00:00Z"
-    parsed_value = Searchable.value_for value, nil
-    from = Time.zone.parse(value).midnight.utc
-    to = from + 1.day
-    
-    filter = {
-      :range => {
-        field.to_s => {
-          :from => from.iso8601,
-          :to => to.iso8601,
-          :include_upper => false
-        }
-      }
-    }
-    
-    assert_equal filter, Searchable.subfilter_for(field, parsed_value)
-  end
   
   def test_subfilter_for_allows_override_of_type
     field = "prisoner_id"

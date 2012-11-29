@@ -6,6 +6,50 @@ require 'rubberband'
 
 class Api
 
+  def self.pagination_for(params)
+    default_per_page = 20
+    max_per_page = 50
+    max_page = 200000000 # let's keep it realistic
+    
+    # rein in per_page to somewhere between 1 and the max
+    per_page = (params[:per_page] || default_per_page).to_i
+    per_page = default_per_page if per_page <= 0
+    per_page = max_per_page if per_page > max_per_page
+    
+    # valid page number, please
+    page = (params[:page] || 1).to_i
+    page = 1 if page <= 0 or page > max_page
+    
+    {per_page: per_page, page: page}
+  end
+
+  def self.value_for(value, field)
+    # type overridden in model
+    if field
+      if field.type == Boolean
+        (value == "true") if ["true", "false"].include? value
+      elsif field.type == Integer
+        value.to_i
+      elsif [Date, Time, DateTime].include?(field.type)
+        Time.zone.parse(value).utc rescue nil
+      else
+        value
+      end
+      
+    # try to autodetect type
+    else
+      if ["true", "false"].include? value # boolean
+        value == "true"
+      elsif value =~ /^\d+$/
+        value.to_i
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\d$/) or (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
+        Time.zone.parse(value).utc rescue nil
+      else
+        value
+      end
+    end
+  end
+
   def self.config
     @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
   end
