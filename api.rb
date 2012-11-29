@@ -50,21 +50,15 @@ end
 get searchable_route do
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize rescue nil}.compact
   error 400, "Bad method" unless models.any?
-  error 400, "You must provide a query string with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
   
   format = Api.format_for params
   fields = Api.fields_for models, params
 
-  query_string = Searchable.query_string_for params
   search_fields = Searchable.search_fields_for models
 
-  if search_fields.empty?
-    error 400, "You must search one of the following fields for #{params[:captures][0]}: #{model.searchable_fields.join(", ")}"
-  end
-  
-  if params[:query]
-    query = Searchable.query_for query_string, params, search_fields
-  end
+  # query is actually optional, these may both end up null
+  query_string = Searchable.query_string_for params
+  query = Searchable.query_for query_string, params, search_fields
 
   filter = Searchable.filter_for models, params
   order = Searchable.order_for params

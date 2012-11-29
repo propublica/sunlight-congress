@@ -1,13 +1,15 @@
 module Searchable
 
   def self.query_string_for(params)
-    params[:query].strip.downcase
+    params[:query].present? ? params[:query].strip.downcase : nil
   end
   
-  def self.query_for(string, params, search_fields)
+  def self.query_for(query_string, params, search_fields)
+    return unless query_string.present?
+
     conditions = {
       query_string: {
-        query: string,
+        query: query_string,
         default_operator: "AND",
         use_dis_max: true,
         fields: search_fields
@@ -263,21 +265,29 @@ module Searchable
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
     
-    if filter
-      query = {
-        filtered: {
-          filter: filter,
-          query: query
+    query_filter = {}
+    if query and filter
+      query_filter = {
+        query: {
+          filtered: {
+            filter: filter,
+            query: query
+          }
         }
       }
+    elsif query
+      query_filter = {query: query}
+    elsif filter
+      query_filter = {filter: filter}
+    else
+      # uh oh?
     end
     
     [
       {
-        query: query,
         sort: order,
         fields: fields
-      }.merge(other), 
+      }.merge(query_filter).merge(other), 
      
       # mapping and pagination info has to go into the second hash
       {
@@ -290,7 +300,7 @@ module Searchable
   
   def self.attributes_for(query_string, hit, fields)
     attributes = {}
-    search = {score: hit._score, query: query_string, type: hit._type.singularize}
+    search = {score: hit._score, type: hit._type.singularize}
     
     hit.fields ||= {}
     
