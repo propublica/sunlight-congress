@@ -4,8 +4,10 @@ require './analytics/sunlight_services'
 
 before do
   if request.get?
-    unless ApiKey.allowed? api_key
-      halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+    unless Api.config[:debug] and Api.config[:debug][:ignore_apikey]
+      unless ApiKey.allowed? api_key
+        halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+      end
     end
   else
     unless SunlightServices.verify params, config[:services][:shared_secret], config[:services][:api_name]

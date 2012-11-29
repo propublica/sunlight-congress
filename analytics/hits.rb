@@ -5,6 +5,8 @@ after(queryable_route) {log_hit}
 after(searchable_route) {log_hit}
 
 def log_hit
+  return unless api_key
+  
   query_hash = process_query_hash request.env['rack.request.query_hash']
   query_hash.delete 'apikey'
   query_hash.delete 'per_page'
