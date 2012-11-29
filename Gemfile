@@ -7,7 +7,7 @@ gem 'rack-contrib'
 gem 'oj', '1.3.0' # for serialization
 gem 'yajl-ruby', '1.1.0' # for parsing
 
-gem "mongoid", '3.0.11'
+gem "mongoid", '3.0.14'
 gem 'rubberband', '0.9.5'
 
 gem 'tzinfo', '0.3.23'
