@@ -75,7 +75,7 @@ class BillsThomas
         official_title: doc['official_title'],
         popular_title: doc['popular_title'],
         titles: doc['titles'],
-        summary: doc['summary'],
+        summary: summary_for(doc['summary']),
         state: doc['status'],
         enacted_as: doc['enacted_as'],
         sponsor: sponsor,
@@ -271,6 +271,10 @@ class BillsThomas
     end
 
     committee_cache[id]
+  end
+
+  def self.summary_for(summary)
+    summary.is_a?(Hash) ? summary['text'] : summary
   end
 
 end
