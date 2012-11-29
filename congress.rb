@@ -1,21 +1,16 @@
 #!/usr/bin/env ruby
 
 require './config/environment'
-
-require 'sinatra'
-require './analytics/api_key'
-require './analytics/hits'
-
-disable :protection
-disable :logging
+require './analytics/sunlight_services'
 
 include Api::Routes
 helpers Api::Helpers
 
-get queryable_route do
-  model = params[:captures][0].singularize.camelize.constantize rescue nil
-  error 400, "Bad method" unless model
 
+get queryable_route do
+  check_key!
+
+  model = params[:captures][0].singularize.camelize.constantize rescue nil
   format = format_for params
   fields = fields_for model, params
   pagination = pagination_for params
@@ -32,6 +27,8 @@ get queryable_route do
     results = Api::Queryable.results_for criteria, documents, pagination
   end
   
+  hit! "query", format
+
   if format == 'json'
     json results
   elsif format == 'xml'
@@ -41,9 +38,9 @@ end
 
 
 get searchable_route do
+  check_key!
+
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize rescue nil}.compact
-  error 400, "Bad method" unless models.any?
-  
   format = format_for params
   fields = fields_for models, params
   pagination = pagination_for params
@@ -71,6 +68,8 @@ get searchable_route do
     results = Api::Searchable.error_from exc
   end
   
+  hit! "search", format
+
   if format == 'json'
     json results
   elsif format == 'xml'
@@ -131,7 +130,7 @@ helpers do
   end
 
   def error(status, message)
-    format = Api.format_for params
+    format = format_for params
 
     results = {
       error: message,
@@ -153,7 +152,42 @@ helpers do
   
   def xml(results)
     response['Content-Type'] = 'application/xml'
-    results.to_xml :root => 'results', :dasherize => false
+    results.to_xml root: 'results', dasherize: false
+  end
+
+  def hit!(method_type, format)
+    method = params[:captures][0]
+    key = api_key || "debug"
+    now = Time.zone.now
+
+    hit = Hit.create!(
+      key: key,
+      
+      method: method,
+      method_type: method_type,
+      format: format,
+      
+      user_agent: request.env['HTTP_USER_AGENT'],
+      app_version: request.env['HTTP_X_APP_VERSION'],
+      os_version: request.env['HTTP_X_OS_VERSION'],
+      app_channel: request.env['HTTP_X_APP_CHANNEL'],
+
+      created_at: now.utc
+    )
+
+    HitReport.log! now.strftime("%Y-%m-%d"), key, method
+  end
+
+  def api_key
+    params[:apikey] || request.env['HTTP_X_APIKEY']
+  end
+
+  def check_key!
+    unless Environment.config[:debug] and Environment.config[:debug][:ignore_apikey]
+      unless ApiKey.allowed? api_key
+        halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+      end
+    end
   end
 
 end

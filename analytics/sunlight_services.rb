@@ -2,6 +2,57 @@ require 'cgi'
 require 'hmac-sha1'
 require 'net/http'
 
+# Require an API key
+
+before do
+  if request.post?
+    unless SunlightServices.verify params, Environment.config[:services][:shared_secret], Environment.config[:services][:api_name]
+      halt 403, 'Bad signature' 
+    end
+  end
+end
+
+# key management endpoints
+
+post '/analytics/create_key/' do
+  begin
+    ApiKey.create!(
+      key: params[:key],
+      email: params[:email],
+      status: params[:status]
+    )
+  rescue
+    halt 403, "Could not create key, duplicate key or email"
+  end
+end
+
+post '/analytics/update_key/' do
+  if key = ApiKey.where(key: params[:key]).first
+    begin
+      key.attributes = {email: params[:email], status: params[:status]}
+      key.save!
+    rescue
+      halt 403, "Could not update key, errors: #{key.errors.full_messages.join ', '}"
+    end
+  else
+    halt 404, 'Could not locate API key by the given key'
+  end
+end
+
+post '/analytics/update_key_by_email/' do
+  if key = ApiKey.where(email: params[:email]).first
+    begin
+      key.attributes = {key: params[:key], status: params[:status]}
+      key.save!
+    rescue
+      halt 403, "Could not update key, errors: #{key.errors.full_messages.join ', '}"
+    end
+  else
+    halt 404, 'Could not locate API key by the given email'
+  end
+end
+
+
 class SunlightServices
   
   def self.report(key, endpoint, calls, date, api, shared_secret)

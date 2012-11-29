@@ -1,8 +1,8 @@
 module Api
-
+  
   # used in controllers, and in queryable/searchable modules
   module Helpers
-    
+
     def format_for(params)
       params[:format] || "json"
     end

@@ -3,6 +3,10 @@ require 'mongoid'
 require 'tzinfo'
 require 'rubberband'
 
+require 'sinatra'
+disable :protection
+disable :logging
+
 require './api/api'
 require './api/queryable'
 require './api/searchable'
@@ -15,10 +19,12 @@ class Environment
   end
 end
 
-Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
+configure do
+  Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
-Api::Searchable.configure_clients!
+  Api::Searchable.configure_clients!
 
-Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
-Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
-Oj.default_options = {mode: :compat, time_format: :ruby}
+  Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
+  Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
+  Oj.default_options = {mode: :compat, time_format: :ruby}
+end
