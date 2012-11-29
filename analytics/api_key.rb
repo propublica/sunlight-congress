@@ -4,13 +4,13 @@ require './analytics/sunlight_services'
 
 before do
   if request.get?
-    unless Api.config[:debug] and Api.config[:debug][:ignore_apikey]
+    unless Environment.config[:debug] and Environment.config[:debug][:ignore_apikey]
       unless ApiKey.allowed? api_key
         halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
       end
     end
   else
-    unless SunlightServices.verify params, config[:services][:shared_secret], config[:services][:api_name]
+    unless SunlightServices.verify params, Environment.config[:services][:shared_secret], Environment.config[:services][:api_name]
       halt 403, 'Bad signature' 
     end
   end

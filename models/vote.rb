@@ -33,7 +33,4 @@ class Vote
   index how: 1
   index bill_id: 1
   index amendment_id: 1
-  
-  field :roll_id
-  validates_uniqueness_of :roll_id, :allow_nil => true
 end

@@ -24,6 +24,5 @@ class Amendment
   index sponsor_id: 1
   index sponsor_type: 1
   
-  field :amendment_id
   validates_uniqueness_of :amendment_id
 end

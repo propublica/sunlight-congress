@@ -1,8 +1,8 @@
-before(queryable_route) {request.env['start_time'] = Time.now}
-before(searchable_route) {request.env['start_time'] = Time.now}
+before(Api.queryable_route) {request.env['start_time'] = Time.now}
+before(Api.searchable_route) {request.env['start_time'] = Time.now}
 
-after(queryable_route) {log_hit}
-after(searchable_route) {log_hit}
+after(Api.queryable_route) {log_hit}
+after(Api.searchable_route) {log_hit}
 
 def log_hit
   return unless api_key
@@ -52,7 +52,6 @@ def process_query_hash(hash)
   new_hash
 end
 
-# helper function to recursively rewrite a hash to break out dot-separated fields into sub-documents
 def break_out(hash, keys, final_value)
   if keys.size > 1
     first = keys.first

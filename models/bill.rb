@@ -54,14 +54,8 @@ class Bill
   index vetoed_at: 1
   index enacted: 1
   index enacted_at: 1
-
   index last_version_on: 1
   index abbreviated: 1
-
   index updated_at: 1
-
-  # spell out YYYY-MM-DD fields as strings
-  field :last_version_on
-
   index citation_ids: 1
 end

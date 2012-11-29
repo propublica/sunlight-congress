@@ -24,9 +24,6 @@ class Document
   validates_presence_of :title
   validates_presence_of :document_type
 
-  # gao_id looks like a number, but treat as a string
-  field :gao_id
-
   index document_id: 1
   index posted_at: 1
   index document_type: 1

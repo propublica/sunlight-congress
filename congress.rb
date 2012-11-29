@@ -1,42 +1,31 @@
 #!/usr/bin/env ruby
 
 require './config/environment'
-
 require './analytics/api_key'
 require './analytics/hits'
 
-set :logging, false
-
-configure(:development) do |config|
-  require 'sinatra/reloader'
-  config.also_reload "./config/environment.rb"
-  config.also_reload "./models/*.rb"
-  config.also_reload "./queryable.rb"
-  config.also_reload "./searchable.rb"
-end
-
-# disable XSS check, this is an API and it's okay to use it with JSONP
 disable :protection
+disable :logging
 
 
-get queryable_route do
+get Api.queryable_route do
   model = params[:captures][0].singularize.camelize.constantize rescue nil
   error 400, "Bad method" unless model
 
   format = Api.format_for params
   fields = Api.fields_for model, params
-
-  conditions = Queryable.conditions_for model, params
-  order = Queryable.order_for model, params
   pagination = Api.pagination_for params
 
+  conditions = Api::Queryable.conditions_for model, params
+  order = Api::Queryable.order_for model, params
+
   if params[:explain] == 'true'
-    results = Queryable.explain_for model, conditions, fields, order, pagination
+    results = Api::Queryable.explain_for model, conditions, fields, order, pagination
   else
-    criteria = Queryable.criteria_for model, conditions, fields, order, pagination
-    documents = Queryable.documents_for model, criteria, fields
+    criteria = Api::Queryable.criteria_for model, conditions, fields, order, pagination
+    documents = Api::Queryable.documents_for model, criteria, fields
     documents = citations_for model, documents, params
-    results = Queryable.results_for criteria, documents, pagination
+    results = Api::Queryable.results_for criteria, documents, pagination
   end
   
   if format == 'json'
@@ -47,35 +36,35 @@ get queryable_route do
 end
 
 
-get searchable_route do
+get Api.searchable_route do
   models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize rescue nil}.compact
   error 400, "Bad method" unless models.any?
   
   format = Api.format_for params
   fields = Api.fields_for models, params
+  pagination = Api.pagination_for params
 
-  search_fields = Searchable.search_fields_for models
+  search_fields = Api::Searchable.search_fields_for models
 
   # query is actually optional, these may both end up null
-  query_string = Searchable.query_string_for params
-  query = Searchable.query_for query_string, params, search_fields
+  query_string = Api::Searchable.query_string_for params
+  query = Api::Searchable.query_for query_string, params, search_fields
 
-  filter = Searchable.filter_for models, params
-  order = Searchable.order_for params
-  other = Searchable.other_options_for params, search_fields
-  pagination = Api.pagination_for params
+  filter = Api::Searchable.filter_for models, params
+  order = Api::Searchable.order_for params
+  other = Api::Searchable.other_options_for params, search_fields
   
   begin
     if params[:explain] == 'true'
-      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
+      results = Api::Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
     else
-      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, other
-      documents = Searchable.documents_for query_string, fields, raw_results
+      raw_results = Api::Searchable.raw_results_for models, query, filter, fields, order, pagination, other
+      documents = Api::Searchable.documents_for query_string, fields, raw_results
       documents = citations_for models, documents, params
-      results = Searchable.results_for raw_results, documents, pagination
+      results = Api::Searchable.results_for raw_results, documents, pagination
     end
   rescue ElasticSearch::RequestError => exc
-    results = Searchable.error_from exc
+    results = Api::Searchable.error_from exc
   end
   
   if format == 'json'
@@ -138,7 +127,7 @@ helpers do
   end
 
   def error(status, message)
-    format = params[:format] || "json"
+    format = Api.format_for params
 
     results = {
       error: message,

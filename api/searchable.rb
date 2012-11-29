@@ -1,4 +1,4 @@
-module Searchable
+module Api::Searchable
 
   def self.query_string_for(params)
     params[:query].present? ? params[:query].strip.downcase : nil
@@ -39,19 +39,12 @@ module Searchable
       field, operator = field.split "__"
       next unless valid_operators.include?(operator)
 
-      # value is a string, infer whether it needs casting
-      models = [models] unless models.is_a?(Array)
-      types = models.select {|model| model.respond_to?(:fields) and model.fields[field]}
-      # for multiple models, just pick the first (no known clashes anyway)
-      type = types.any? ? types.first.fields[field] : nil
+      value = Api.value_for value
 
-      parsed = Api.value_for value, type
-
-      # handle citations specially
       if field == 'citation_ids'
         citation_filter_for field, value
       else
-        subfilter_for field, parsed, operator
+        subfilter_for field, value, operator
       end
     end.compact
 
@@ -225,8 +218,7 @@ module Searchable
     JSON.parse exception.message.sub(/^\(\d+\)\s*/, '')
   end
   
-  def self.other_options_for(params, search_fields)
-    
+  def self.other_options_for(params, search_fields)  
     options = {
       # turn on explanation fields on each hit, for the discerning debugger
       explain: params[:explain].present?,
@@ -330,10 +322,10 @@ module Searchable
     end
   end  
 
-  def self.configure_clients!(config)
-    http_host = "http://#{config['elastic_search']['host']}:#{config['elastic_search']['port']}"
+  def self.configure_clients!
+    http_host = "http://#{Environment.config['elastic_search']['host']}:#{Environment.config['elastic_search']['port']}"
     options = {
-      index: config['elastic_search']['index'], 
+      index: Environment.config['elastic_search']['index'], 
       auto_discovery: false
     }
 
@@ -341,7 +333,7 @@ module Searchable
       conn.adapter Faraday.default_adapter
     end
 
-    Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
+    Faraday.register_middleware :response, explain_logger: ExplainLogger
     @explain_client = ElasticSearch.new(http_host, options) do |conn|
       conn.response :explain_logger
       conn.adapter Faraday.default_adapter

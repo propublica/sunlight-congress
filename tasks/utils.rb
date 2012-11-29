@@ -25,7 +25,7 @@ module Utils
 
   # indexes a document immediately
   def self.es_store!(collection, id, document)
-    Searchable.client.index document, id: id, type: collection
+    Api::Searchable.client.index document, id: id, type: collection
   end
 
   # force a batch index of the container (useful to close out a batch)
@@ -34,7 +34,7 @@ module Utils
 
     puts "\n-- Batch indexing #{batcher.size} documents into '#{collection}' --\n\n"
 
-    Searchable.client.bulk do |client|
+    Api::Searchable.client.bulk do |client|
       batcher.each do |id, document|
         client.index document, id: id, type: collection
       end

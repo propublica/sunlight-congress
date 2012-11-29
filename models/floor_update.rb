@@ -18,6 +18,4 @@ class FloorUpdate
   index legislator_ids: 1
   index timestamp: 1
   index session: 1
-  
-  field :legislative_day
 end

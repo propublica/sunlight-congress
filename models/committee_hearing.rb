@@ -21,6 +21,4 @@ class CommitteeHearing
 
   index dc: 1
   index bill_ids: 1
-  
-  field :legislative_day
 end

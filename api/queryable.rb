@@ -1,4 +1,4 @@
-module Queryable
+module Api::Queryable
   
   def self.conditions_for(model, params)
     conditions = {}
@@ -15,8 +15,6 @@ module Queryable
         "__gte" => :gte,
         "__lte" => :lte, 
         "__ne" => :ne,
-        "__match" => :match,
-        "__match_s" => :match_s,
         "__exists" => :exists,
         "__in" => :in,
         "__nin" => :nin,
@@ -30,12 +28,11 @@ module Queryable
       end
       
       if !Api.magic_fields.include? key.to_sym
-        
         # transform 'value' to the correct type for this key if needed
         if [:nin, :in, :all].include?(operator)
-          value = value.split("|").map {|v| Api.value_for v, model.fields[key]}
+          value = value.split("|").map {|v| Api.value_for v}
         else
-          value = Api.value_for value, model.fields[key]
+          value = Api.value_for value
         end
         
         if operator

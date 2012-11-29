@@ -16,6 +16,4 @@ class UpcomingBill
   index legislative_day: 1
   index source_type: 1
   index bill_id: 1
-  
-  field :legislative_day
 end

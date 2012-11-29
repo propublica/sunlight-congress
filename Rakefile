@@ -143,7 +143,7 @@ end
 def run_ruby(name)
   load "./tasks/#{name}/#{name}.rb"
   
-  options = {config: Api.config}
+  options = {config: Environment.config}
   ARGV[1..-1].each do |arg|
     key, value = arg.split '='
     if key.present? and value.present?
@@ -159,14 +159,12 @@ def run_python(name)
 end
 
 def email(report, exception = nil)
-  config = Api.config
-
-  if config[:email][:to] and config[:email][:to].any?
+  if Environment.config[:email][:to] and Environment.config[:email][:to].any?
     begin
       if report.is_a?(Report)
-        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report), :to => email_recipients_for(report))
+        Pony.mail Environment.config[:email].merge(:subject => email_subject(report), :body => email_body(report), :to => email_recipients_for(report))
       else
-        Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
+        Pony.mail Environment.config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
       end
     rescue Errno::ECONNREFUSED
       puts "Couldn't email report, connection refused! Check system settings."
@@ -175,14 +173,12 @@ def email(report, exception = nil)
 end
 
 def email_recipients_for(report)
-  config = Api.config
-  
   task = report.source.underscore.to_sym
   
-  recipients = config[:email][:to].dup # always begin with master recipients
+  recipients = Environment.config[:email][:to].dup # always begin with master recipients
   
-  if config[:task_owners] and config[:task_owners][task]
-    recipients += config[:task_owners][task]
+  if Environment.config[:task_owners] and Environment.config[:task_owners][task]
+    recipients += Environment.config[:task_owners][task]
   end
   
   recipients.uniq
