@@ -1,7 +1,7 @@
 namespace :analytics do
 
   desc "Send analytics to the central API analytics department."
-  task :report => :environment do
+  task report: :environment do
     begin
       require './analytics/sunlight_services'
     
@@ -16,8 +16,8 @@ namespace :analytics do
       # baked into HitReport
       reports = HitReport.for_day day
       
-      api_name = config[:services][:api_name]
-      shared_secret = config[:services][:shared_secret]
+      api_name = Api.config[:services][:api_name]
+      shared_secret = Api.config[:services][:shared_secret]
       
       if test
         puts "\nWould report for #{day}:\n\n#{reports.inspect}\n\nTotal hits: #{reports.sum {|r| r['count']}}\n\n"

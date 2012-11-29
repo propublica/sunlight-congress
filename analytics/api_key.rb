@@ -39,27 +39,27 @@ post '/analytics/create_key/' do
 end
 
 post '/analytics/update_key/' do
-  if key = ApiKey.where(:key => params[:key]).first
+  if key = ApiKey.where(key: params[:key]).first
     begin
-      key.attributes = {:email => params[:email], :status => params[:status]}
+      key.attributes = {email: params[:email], status: params[:status]}
       key.save!
     rescue
       halt 403, "Could not update key, errors: #{key.errors.full_messages.join ', '}"
     end
   else
-    halt 404, 'Could not locate api key by the given key'
+    halt 404, 'Could not locate API key by the given key'
   end
 end
 
 post '/analytics/update_key_by_email/' do
-  if key = ApiKey.where(:email => params[:email]).first
+  if key = ApiKey.where(email: params[:email]).first
     begin
-      key.attributes = {:key => params[:key], :status => params[:status]}
+      key.attributes = {key: params[:key], status: params[:status]}
       key.save!
     rescue
       halt 403, "Could not update key, errors: #{key.errors.full_messages.join ', '}"
     end
   else
-    halt 404, 'Could not locate api key by the given email'
+    halt 404, 'Could not locate API key by the given email'
   end
 end
