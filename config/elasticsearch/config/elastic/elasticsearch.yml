@@ -1,6 +1,4 @@
-# used in any part of cluster
-
-cluster.name: RealTimeCongress2
+cluster.name: Congress
 
 index:
   number_of_shards: 5 # default
@@ -16,19 +14,5 @@ http:
 bootstrap:
   mlockall: true
 
-
 node.master: true # default
 node.data: true # default
-
-
-# depends on cloud-aws plugin being installed
-
-discovery.type: ec2
-discovery.ec2.groups: elasticsearch
-discovery.ec2.tag.app: rtc
-discovery.ec2.tag.active: true
-
-cloud:
-  aws:
-    access_key: # fill in
-    secret_key: # fill in
