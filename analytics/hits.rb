@@ -1,8 +1,5 @@
-# log all hits in the database, along with their API key
-
-def api_key
-  params[:apikey] || request.env['HTTP_X_APIKEY']
-end
+before(queryable_route) {request.env['start_time'] = Time.now}
+before(searchable_route) {request.env['start_time'] = Time.now}
 
 after(queryable_route) {log_hit}
 after(searchable_route) {log_hit}
@@ -15,7 +12,7 @@ def log_hit
 
   method_type = (env["PATH_INFO"] =~ /^\/search/) ? "search" : "query"
   method = params[:captures][0]
-  
+
   hit = Hit.create!(
     key: api_key,
     
@@ -30,11 +27,19 @@ def log_hit
     os_version: request.env['HTTP_X_OS_VERSION'],
     app_channel: request.env['HTTP_X_APP_CHANNEL'],
 
-    created_at: Time.now.utc # don't need updated_at
+    created_at: Time.now.utc,
+    elapsed: (Time.now - request.env['start_time'])
   )
 
   HitReport.log! Time.zone.now.strftime("%Y-%m-%d"), api_key, method
 end
+
+def api_key
+  params[:apikey] || request.env['HTTP_X_APIKEY']
+end
+
+
+# processing query hash to remove periods from keys
 
 def process_query_hash(hash)
   new_hash = {}

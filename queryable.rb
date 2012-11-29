@@ -115,12 +115,17 @@ module Queryable
   def self.explain_for(model, conditions, fields, order, pagination)
     criteria = criteria_for model, conditions, fields, order, pagination
     
+    start = Time.now
+    criteria.to_a
+    elapsed = Time.now - start
+
     {
       conditions: conditions,
       fields: fields,
       order: order,
       explain: criteria.explain,
       count: criteria.count,
+      elapsed: elapsed,
       page: {
         per_page: pagination[:per_page],
         page: pagination[:page]
