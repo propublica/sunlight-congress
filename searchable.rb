@@ -354,12 +354,11 @@ module Searchable
       auto_discovery: false
     }
 
-    Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
-
     @search_client = ElasticSearch.new(http_host, options) do |conn|
       conn.adapter Faraday.default_adapter
     end
 
+    Faraday.register_middleware :response, explain_logger: Searchable::ExplainLogger
     @explain_client = ElasticSearch.new(http_host, options) do |conn|
       conn.response :explain_logger
       conn.adapter Faraday.default_adapter
@@ -390,7 +389,6 @@ module Searchable
   end
 
   module Model
-    
     module ClassMethods
       
       def result_fields(*fields)

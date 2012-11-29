@@ -26,9 +26,11 @@ end
 
 post '/analytics/create_key/' do
   begin
-    ApiKey.create! :key => params[:key],
-        :email => params[:email],
-        :status => params[:status]
+    ApiKey.create!(
+      key: params[:key],
+      email: params[:email],
+      status: params[:status]
+    )
   rescue
     halt 403, "Could not create key, duplicate key or email"
   end

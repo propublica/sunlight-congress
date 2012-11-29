@@ -10,7 +10,6 @@ set :logging, false
 configure(:development) do |config|
   require 'sinatra/reloader'
   config.also_reload "./config/environment.rb"
-  config.also_reload "./analytics/*.rb"
   config.also_reload "./models/*.rb"
   config.also_reload "./queryable.rb"
   config.also_reload "./searchable.rb"
@@ -21,7 +20,9 @@ disable :protection
 
 
 get queryable_route do
-  model = params[:captures][0].singularize.camelize.constantize
+  model = params[:captures][0].singularize.camelize.constantize rescue nil
+  error 400, "Bad method" unless model
+
   format = params[:format] || "json"
 
   fields = Queryable.fields_for model, params
@@ -47,9 +48,10 @@ end
 
 
 get searchable_route do
+  models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize rescue nil}.compact
+  error 400, "Bad method" unless models.any?
   error 400, "You must provide a query string with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
-
-  models = params[:captures][0].split(",").map {|m| m.singularize.camelize.constantize}
+  
   format = params[:format] || "json"
 
   query_string = Searchable.query_string_for params

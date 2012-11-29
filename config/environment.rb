@@ -57,7 +57,7 @@ class Api
   # special fields used by the system, cannot be used on a model (on the top level)
   def self.magic_fields
     [
-      :fields,
+      :model, :fields,
       :order, :sort, 
       :page, :per_page,
       
@@ -103,29 +103,20 @@ configure do
   Oj.default_options = {mode: :compat, time_format: :ruby}
 end
 
-@all_models = []
+@models = []
 Dir.glob('models/*.rb').each do |filename|
   load filename
   model_name = File.basename filename, File.extname(filename)
-  @all_models << model_name.camelize.constantize
+  @models << model_name.camelize.constantize
 end
-
-def all_models
-  @all_models
-end
-
-def queryable_models
-  @queryable_models ||= all_models.select {|model| model.respond_to?(:queryable?) and model.queryable?}
-end
+def models; @models; end
 
 def queryable_route
-  @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})$/
-end
-
-def searchable_models
-  @search_models ||= all_models.select {|model| model.respond_to?(:searchable?) and model.searchable?}
+  queryable = models.select {|model| model.respond_to?(:queryable?) and model.queryable?}
+  @queryable_route ||= /^\/(#{queryable.map {|m| m.to_s.underscore.pluralize}.join "|"})$/
 end
 
 def searchable_route
-  @search_route ||= /^\/search\/((?:(?:#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)$/
+  searchable = models.select {|model| model.respond_to?(:searchable?) and model.searchable?}
+  @search_route ||= /^\/search\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)$/
 end
