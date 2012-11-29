@@ -1,6 +1,5 @@
 require 'nokogiri'
 require 'curb'
-require 'httparty'
 require 'yajl'
 
 module Utils
