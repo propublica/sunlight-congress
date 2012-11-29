@@ -23,9 +23,9 @@ get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize rescue nil
   error 400, "Bad method" unless model
 
-  format = params[:format] || "json"
+  format = Api.format_for params
+  fields = Api.fields_for model, params
 
-  fields = Queryable.fields_for model, params
   conditions = Queryable.conditions_for model, params
   order = Queryable.order_for model, params
   pagination = Api.pagination_for params
@@ -52,11 +52,11 @@ get searchable_route do
   error 400, "Bad method" unless models.any?
   error 400, "You must provide a query string with the 'query' parameter (for phrase searches) or 'q' parameter (for query string searches)." unless params[:query]
   
-  format = params[:format] || "json"
+  format = Api.format_for params
+  fields = Api.fields_for models, params
 
   query_string = Searchable.query_string_for params
-  fields = Searchable.fields_for models, params
-  search_fields = Searchable.search_fields_for models, params
+  search_fields = Searchable.search_fields_for models
 
   if search_fields.empty?
     error 400, "You must search one of the following fields for #{params[:captures][0]}: #{model.searchable_fields.join(", ")}"

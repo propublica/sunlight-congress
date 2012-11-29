@@ -1,9 +1,8 @@
+# private mongodb collection - not accessible directly through frontend
+# used as a store for citation information, especially excerpts
 class Citation
   include Mongoid::Document
   include Mongoid::Timestamps
-
-  # private mongodb collection - not accessible directly through frontend
-  # used as a store for citation information, especially excerpts
 
   field :document_id # e.g. the bill_id value
   field :document_type # e.g. "Bill"

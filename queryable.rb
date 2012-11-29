@@ -1,22 +1,5 @@
 module Queryable
   
-  def self.fields_for(model, params)
-    return nil if params[:fields].blank?
-    
-    sections = params[:fields].split ','
-    
-    if sections.include?('basic')
-      sections.delete 'basic' # does nothing if not present
-      sections += model.basic_fields.map {|field| field.to_s}
-    end
-
-    if params[:citation] and model.cite_key
-      sections << model.cite_key.to_s
-    end
-
-    sections.uniq
-  end
-  
   def self.conditions_for(model, params)
     conditions = {}
     
@@ -89,12 +72,7 @@ module Queryable
   end
   
   def self.order_for(model, params)
-    key = nil
-    if params[:order].present?
-      key = params[:order].to_sym
-    else
-      key = model.default_order
-    end
+    key = params[:order].present? ? params[:order].to_sym : :_id
     
     sort = nil
     if params[:sort].present? and [:desc, :asc].include?(params[:sort].downcase.to_sym)
@@ -156,54 +134,4 @@ module Queryable
     
     model.where(conditions).only(fields).order_by(order).skip(skip).limit(limit)
   end
-  
-  
-  
-  # inside a queryable model, do:
-  # include Queryable::Model
-  module Model
-    module ClassMethods
-      
-      def cite_key(field = nil)
-        if field
-          @cite_key = field
-        else
-          @cite_key
-        end
-      end
-
-      def default_order(order = nil)
-        if order
-          @default_order = order
-        else
-          @default_order
-        end
-      end
-      
-      def basic_fields(*fields)
-        if fields.any?
-          @basic_fields = fields
-        else
-          @basic_fields
-        end
-      end
-      
-      def search_fields(*fields)
-        if fields.any?
-          @search_fields = fields
-        else
-          @search_fields
-        end
-      end
-      
-      def queryable?
-        true
-      end
-    end
-    
-    def self.included(base)
-      base.extend ClassMethods
-    end
-  end
-  
 end

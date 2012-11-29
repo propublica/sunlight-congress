@@ -1,28 +1,20 @@
 class Vote
-
-  # searchable behavior
+  include Api::Model
+  publicly :queryable, :searchable
   
-  include ::Searchable::Model
+  search_fields :question, 
+    "bill.last_version_text", "bill.summary", "bill.keywords", 
+    "bill.official_title", "bill.popular_title", "bill.short_title", 
+    "amendment.purpose"
 
-  result_fields :how, :roll_id, :number, :year, :chamber, :session, 
+  basic_fields :how, :roll_id, :number, :year, :chamber, :session, 
     :result, :bill_id, :voted_at, :last_updated, :roll_type, :question, 
     :required, :vote_type, :passage_type, :amendment_id, :vote_breakdown
   
-  searchable_fields :question, "bill.last_version_text", "bill.summary", "bill.keywords", "bill.official_title", "bill.popular_title", "bill.short_title", "amendment.purpose"
+  
 
-  
-  
-  include ::Queryable::Model
-  
-  default_order :voted_at
-  
-  basic_fields :how, :roll_id, :number, :year, :chamber, :session, 
-    :result, :bill_id, :voted_at, :last_updated, :roll_type,  :question, 
-    :required, :vote_type, :passage_type, :amendment_id, :vote_breakdown
-  
-  search_fields :question
-  
-  
+  # MongoDB behavior
+
   include Mongoid::Document
   include Mongoid::Timestamps
   

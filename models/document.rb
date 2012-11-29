@@ -1,28 +1,16 @@
 class Document
+  include Api::Model
+  publicly :queryable, :searchable
 
-  include ::Queryable::Model
+  basic_fields :document_id, :posted_at, :published_at,
+    :document_type, :document_type_name,
+    :title, :source_url, :url,
+    :gao_id, :categories 
+     
+  search_fields :title, :categories, :text
 
-  default_order :posted_at
-
-  basic_fields :document_id, :posted_at, :published_at, # all
-    :document_type, :document_type_name, # all
-    :title, :source_url, :url, # all
-
-    :party, :chamber, :notice_type, :for_date, # whip_notice
-    :order_code, # crs_report
-    :description, :estimate_id, # cbo_estimate 
-    :gao_id, # gao_report
-    :categories # cbo_estimate, gao_reports
-
-  search_fields :title, # all
-    :description, # cbo_estimate
-    :categories # cbo_estimate, gao_reports
-
-
-  include Searchable::Model
-
-  result_fields *(self.basic_fields)
-  searchable_fields *(self.search_fields + [:text])
+  cite_key :document_id
+  
 
   
   include Mongoid::Document
@@ -53,9 +41,5 @@ class Document
   index categories: 1
 
   index gao_id: 1
-
-
-  # citations
-  cite_key :document_id
   index citation_ids: 1
 end

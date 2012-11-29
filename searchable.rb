@@ -6,11 +6,11 @@ module Searchable
   
   def self.query_for(string, params, search_fields)
     conditions = {
-      'query_string' => {
-        'query' => string,
-        'default_operator' => (params[:default_operator] || "AND"),
-        'use_dis_max' => true,
-        'fields' => search_fields
+      query_string: {
+        query: string,
+        default_operator: "AND",
+        use_dis_max: true,
+        fields: search_fields
       }
     }
   end
@@ -18,7 +18,7 @@ module Searchable
   def self.filter_for(models, params)
     fields = {}
 
-    params.keys.each do |key| 
+    params.keys.each do |key|
       if !Api.magic_fields.include?(key.to_sym) and params[key].present?
         fields[key] = params[key]
       end
@@ -138,17 +138,9 @@ module Searchable
     end
   end
   
-  # default to all the fields that the model declares as searchable,
-  # but allow the user to limit it to a smaller subset of those fields
-  def self.search_fields_for(models, params)
+  def self.search_fields_for(models)
     models = [models] unless models.is_a?(Array)
-
-    default_fields = models.map {|m| m.searchable_fields.map {|field| field.to_s}}.flatten.uniq
-    if params[:search].blank?
-      default_fields
-    else
-      params[:search].split(',').uniq.select {|field| default_fields.include? field}
-    end
+    models.map {|m| m.search_fields.map {|field| field.to_s}}.flatten.uniq
   end
   
   def self.order_for(params)
@@ -164,26 +156,6 @@ module Searchable
     [{key => sort}]
   end
   
-  def self.fields_for(models, params)
-    models = [models] unless models.is_a?(Array)
-
-    sections = if params[:fields].blank?
-      models.map {|model| model.result_fields.map {|field| field.to_s}}.flatten
-    else
-      params[:fields].split ','
-    end
-
-    if params[:citation]
-      models.each do |model|
-        next unless model.cite_key
-        cite_key = model.cite_key.to_s
-        sections << cite_key
-      end
-    end
-
-    sections.uniq
-  end
-
   def self.raw_results_for(models, query, filter, fields, order, pagination, other)
     request = request_for models, query, filter, fields, order, pagination, other
     if other[:explain]
@@ -214,6 +186,7 @@ module Searchable
   end
   
   def self.explain_for(query_string, models, query, filter, fields, order, pagination, other)
+    # could get moved up to api handler
     request = request_for models, query, filter, fields, order, pagination, other
     mapping = mapping_for models
     
@@ -385,45 +358,6 @@ module Searchable
         body: env[:body] ? ::Oj::load(env[:body]) : nil,
         url: env[:url].to_s
       }
-    end
-  end
-
-  module Model
-    module ClassMethods
-      
-      def result_fields(*fields)
-        if fields.any?
-          @result_fields = fields
-        else
-          @result_fields
-        end
-      end
-      
-      def searchable_fields(*fields)
-        if fields.any?
-          @searchable_fields = fields
-        else
-          @searchable_fields
-        end
-      end
-      
-      # a way of overriding assumptions about a field's type, like Mongoid provides
-      def field_type(name, type = nil)
-        @fields ||= {}
-        if type
-          @fields[name.to_s] = type
-        else
-          @fields[name.to_s]
-        end
-      end
-      
-      def searchable?
-        true
-      end
-    end
-    
-    def self.included(base)
-      base.extend ClassMethods
     end
   end
   

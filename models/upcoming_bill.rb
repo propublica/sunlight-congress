@@ -1,13 +1,15 @@
 class UpcomingBill
+  include Api::Model
+  publicly :queryable
+
+  basic_fields :chamber, :session, :legislative_day, :bill_id, 
+    :source_url, :source_type, :context, :permalink
+
+  search_fields :context
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
-  
-  include ::Queryable::Model
-  
-  default_order :legislative_day
-  
-  basic_fields :chamber, :session, :legislative_day, :bill_id, :source_url, :source_type, :context, :permalink
-  
   
   index chamber: 1
   index session: 1

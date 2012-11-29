@@ -1,13 +1,12 @@
 class FloorUpdate
+  include Api::Model
+  publicly :queryable
 
-  include ::Queryable::Model
-  
-  default_order :timestamp
-  
   basic_fields :chamber, :legislative_day, :timestamp, 
     :events, :roll_ids, :bill_ids, :legislator_ids, :session
   
   search_fields :events
+  
   
   
   include Mongoid::Document

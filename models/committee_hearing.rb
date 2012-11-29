@@ -1,14 +1,13 @@
 class CommitteeHearing
-  
-  include ::Queryable::Model
-  
-  default_order :occurs_at
+  include Api::Model
+  publicly :queryable
   
   basic_fields :session, :chamber, :committee_id, :occurs_at, :description, 
     :room, :legislative_day, :time_of_day, :bill_ids, :dc, :hearing_url,
     :hearing_type, :subcommittee_name
   
   search_fields :description
+
   
   
   include Mongoid::Document
@@ -22,7 +21,6 @@ class CommitteeHearing
 
   index dc: 1
   index bill_ids: 1
-  
   
   field :legislative_day
 end

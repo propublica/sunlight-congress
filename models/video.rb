@@ -1,13 +1,16 @@
 class Video
-  include Mongoid::Document
-
+  include Api::Model
+  publicly :queryable
+    
+  basic_fields :duration, :legislative_day, :video_id, 
+    :clip_urls, :pubdate, :chamber, :legislator_names, 
+    :bioguide_ids, :bills, :clip_id, :session, :rolls
   
-  include ::Queryable::Model
-  
-  default_order :pubdate
-  basic_fields :duration, :legislative_day, :video_id, :clip_urls, :pubdate, :chamber, :legislator_names, :bioguide_ids, :bills, :clip_id, :session, :rolls
   search_fields "clips.events"
   
+
+
+  include Mongoid::Document
   
   index video_id: 1
   index clip_id: 1

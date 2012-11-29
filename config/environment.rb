@@ -6,6 +6,28 @@ require 'rubberband'
 
 class Api
 
+  def self.format_for(params)
+    params[:format] || "json"
+  end
+
+  def self.fields_for(models, params)
+    models = [models] unless models.is_a?(Array)
+
+    fields = if params[:fields].blank?
+      models.map {|model| model.basic_fields.map {|field| field.to_s}}.flatten
+    else
+      params[:fields].split ','
+    end
+
+    models.each do |model|
+      if model.cite_key
+        fields << model.cite_key.to_s
+      end
+    end
+
+    fields.uniq
+  end
+
   def self.pagination_for(params)
     default_per_page = 20
     max_per_page = 50
@@ -61,8 +83,8 @@ class Api
       :order, :sort, 
       :page, :per_page,
       
-      :query, # query.fields
-      :search, :highlight, # tokill
+      :query, :search,
+      :highlight, :highlight_tags, :highlight_size, # tokill
 
       :citing, # citing.details
       :citation, :citation_details, # tokill
@@ -76,11 +98,18 @@ class Api
     ]
   end
 
+  # installs a few methods when Api::Model is mixed in
+  module Model
+    module ClassMethods
+      def publicly(*types); types.any? ? @publicly = types : @publicly; end
+      def basic_fields(*fields); fields.any? ? @basic_fields = fields : @basic_fields; end
+      def search_fields(*fields); fields.any? ? @search_fields = fields : @search_fields; end
+      def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
+    end
+    def self.included(base); base.extend ClassMethods; end
+  end
+  
 end
-
-
-# insist on my API-wide timestamp format
-Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
 
 
 # workhorse API handlers
@@ -94,6 +123,9 @@ configure do
   
   Searchable.configure_clients! Api.config
   
+  # insist on my API-wide timestamp format
+  Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
+
   # This is for when people search by date (with no time), or a time that omits the time zone
   # We will assume users mean Eastern time, which is where Congress is.
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
@@ -112,11 +144,11 @@ end
 def models; @models; end
 
 def queryable_route
-  queryable = models.select {|model| model.respond_to?(:queryable?) and model.queryable?}
+  queryable = models.select {|model| model.respond_to?(:publicly) and model.publicly.include?(:queryable)}
   @queryable_route ||= /^\/(#{queryable.map {|m| m.to_s.underscore.pluralize}.join "|"})$/
 end
 
 def searchable_route
-  searchable = models.select {|model| model.respond_to?(:searchable?) and model.searchable?}
+  searchable = models.select {|model| model.respond_to?(:publicly) and model.publicly.include?(:searchable)}
   @search_route ||= /^\/search\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)$/
 end

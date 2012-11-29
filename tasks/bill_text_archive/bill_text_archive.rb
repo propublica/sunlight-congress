@@ -139,7 +139,7 @@ class BillTextArchive
 
       versions_count = bill_versions.size
       bill_version_codes = bill_versions.map {|v| v[:version_code]}
-      
+        
 
       unless citation_ids = Utils.citations_for(bill, last_bill_version_text, citation_cache(bill), options)
         warnings << {message: "Failed to extract citations from #{bill.bill_id}, code: #{last_version[:version_code]}"}
