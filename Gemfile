@@ -1,19 +1,20 @@
 source 'http://rubygems.org'
 
-gem 'oj', '1.3.0'
-gem 'yajl-ruby', '1.1.0'
-gem 'tzinfo', '0.3.23'
-
 gem 'sinatra', '1.3.3'
+gem 'rack', '1.4.1'
+gem 'rack-contrib'
+
+gem 'oj', '1.3.0' # for serialization
+gem 'yajl-ruby', '1.1.0' # for parsing
+
 gem "mongoid", '3.0.11'
 gem 'rubberband', '0.9.5'
 
+gem 'tzinfo', '0.3.23'
 gem 'ruby-hmac', '0.4.0'
 gem 'pony', '1.0.1'
-
-gem 'rack', '1.4.1'
-gem 'rack-contrib'
 gem 'rake', '0.9.2.2'
+
 
 group :development do
   gem 'sinatra-reloader', '0.5.0'
