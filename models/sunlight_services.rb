@@ -1,3 +1,7 @@
+require 'cgi'
+require 'hmac-sha1'
+require 'net/http'
+
 class SunlightServices
   
   def self.report(key, endpoint, calls, date, api, shared_secret)

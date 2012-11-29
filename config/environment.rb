@@ -2,9 +2,6 @@ require 'oj'
 require 'mongoid'
 require 'tzinfo'
 require 'rubberband'
-require 'cgi'
-require 'hmac-sha1'
-require 'net/http'
 
 require 'sinatra'
 disable :protection

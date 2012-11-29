@@ -1,10 +1,7 @@
-load './analytics/report.rake'
-
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require './config/environment'
-  
   require 'pony'
 end
 
