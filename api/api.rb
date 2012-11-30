@@ -8,6 +8,8 @@ module Api
     end
 
     def fields_for(models, params)
+      return nil if params[:fields] == "all" # undocumented, useful for debugging
+
       models = [models] unless models.is_a?(Array)
 
       fields = if params[:fields].blank?

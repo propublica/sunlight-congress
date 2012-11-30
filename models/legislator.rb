@@ -10,15 +10,21 @@ class Legislator
       :phone, :office, :website, :contact_form,
       :twitter_id, :facebook_id, :youtube_id
 
-  search_fields :first_name, :last_name, :middle_name, :nickname
+  search_fields :first_name, :last_name, :middle_name, :nickname, "other_names.last"
 
 
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  index in_office: 1
+
   index bioguide_id: 1
   index govtrack_id: 1
   index thomas_id: 1
-  index in_office: 1
+  index votesmart_id: 1
+  index crp_id: 1
+  index lis_id: 1
+
   index chamber: 1
+  index state: 1
 end

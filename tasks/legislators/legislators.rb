@@ -138,14 +138,16 @@ class Legislators
       # these go on the top level and are only correct for the current term
       ['phone', 'fax', 'url', 'address', 'office', 'contact_form'].each {|field| term.delete field}
 
+      type = term.delete 'type'
+
       term['party'] = party_for term['party']
-      term['title'] = term['type'].capitalize
+      term['title'] = type.capitalize
       term['chamber'] = {
         'rep' => 'house',
         'sen' => 'senate',
         'del' => 'house',
         'com' => 'house'
-      }[term['type']]
+      }[type]
 
       term
     end
