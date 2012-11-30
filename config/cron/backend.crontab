@@ -10,7 +10,7 @@
 0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills_thomas 
 
 # amendments synced from GovTrack - sync twice a day
-0 4,16 * * * /projects/congress/shared/cron/task.sh amendments_archive
+0 4,16 * * * /projects/congress/shared/cron/task.sh amendments
 
 # full bill text from GPO
 */30 * * * * /projects/congress/shared/cron/task.sh bulk_gpo_bills
@@ -46,13 +46,13 @@
 */15 * * * * /projects/congress/shared/cron/task.sh upcoming_house
 
 # GAO reports (full text) - add 1s between requests
-*/20 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports rate_limit=1 batch_size=10
+*/20 * * * * /projects/congress/shared/cron/task.sh gao_reports rate_limit=1 batch_size=10
 
 # Regulations
 # formally published proposed and final regs, last 2 days - takes <2m even without cache
-*/10 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1 days=2
+*/10 * * * * /projects/congress/shared/cron/task.sh regulations cache=1 days=2
 # pre-release regs (public inspection docs)
-*/60 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
+*/60 * * * * /projects/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
 
 
 # leave the newline here

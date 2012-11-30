@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-class AmendmentsArchive
+class Amendments
 
   # options:
   #   limit: limit to N amendments

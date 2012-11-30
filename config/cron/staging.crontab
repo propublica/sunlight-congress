@@ -2,7 +2,7 @@
 0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
 
 # bills from THOMAS, amendments through GovTrack
-0 4,16 * * * /projects/congress/shared/cron/task.sh bills_thomas && /projects/congress/shared/cron/task.sh amendments_archive
+0 4,16 * * * /projects/congress/shared/cron/task.sh bills_thomas && /projects/congress/shared/cron/task.sh amendments
 
 # full bill text from GPO
 */120 * * * * /projects/congress/shared/cron/task.sh bulk_gpo_bills
@@ -33,15 +33,15 @@
 */120 * * * * /projects/congress/shared/cron/task.sh hearings_house
 
 # GAO reports (full text)
-10 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports cache=1
+10 * * * * /projects/congress/shared/cron/task.sh gao_reports cache=1
 
 # upcoming leadership information
 */120 * * * * /projects/congress/shared/cron/task.sh upcoming_senate
 */120 * * * * /projects/congress/shared/cron/task.sh upcoming_house
 
 # Regulations
-*/119 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1
-*/120 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
+*/119 * * * * /projects/congress/shared/cron/task.sh regulations cache=1
+*/120 * * * * /projects/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
 
 
 # leave the newline here

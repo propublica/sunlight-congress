@@ -1,4 +1,4 @@
-class RegulationsArchive
+class Regulations
 
   # Downloads metadata about proposed and final regulations from FederalRegister.gov.
   # By default, grabs the last 7 days of both types of regulations.

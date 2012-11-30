@@ -3,7 +3,7 @@
 require 'nokogiri'
 require 'docsplit'
 
-class DocumentsGaoReports
+class GaoReports
 
   # Fetches and indexes GAO reports. Can fetch entire years; by default, asks for the last 7 days.
   # options:
