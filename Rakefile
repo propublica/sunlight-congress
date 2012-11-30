@@ -254,3 +254,36 @@ namespace :analytics do
     end
   end
 end
+
+namespace :elasticsearch do
+  task init: :environment do
+    single = ENV['mapping'] || ENV['only'] || nil
+    force = ENV['force'] || ENV['delete'] || false
+
+    mappings = single ? [single] : Dir.glob('config/elasticsearch/mappings/*.json').map {|dir| File.basename dir, File.extname(dir)}
+
+    host = Environment.config['elastic_search']['host']
+    port = Environment.config['elastic_search']['port']
+    index = Environment.config['elastic_search']['index']
+    index_url = "http://#{host}:#{port}/#{index}/"
+
+    system "curl -XPUT '#{index_url}'"
+    puts
+    puts "Ensured index exists" 
+    puts
+
+    mappings.each do |mapping|
+      if force
+        system "curl -XDELETE '#{index_url}/#{mapping}/_mapping'"
+        puts
+        puts "Deleted #{mapping}"
+        puts
+      end
+
+      system "curl -XPUT '#{index_url}/#{mapping}/_mapping' -d @config/elasticsearch/mappings/#{mapping}.json"
+      puts
+      puts "Created #{mapping}"
+      puts
+    end
+  end
+end
