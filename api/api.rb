@@ -8,7 +8,7 @@ module Api
     end
 
     def fields_for(models, params)
-      return nil if params[:fields] == "all" # undocumented, useful for debugging
+      return nil if params[:fields] == "all"
 
       models = [models] unless models.is_a?(Array)
 
@@ -38,6 +38,9 @@ module Api
       # valid page number, please
       page = (params[:page] || 1).to_i
       page = 1 if page <= 0 or page > max_page
+
+      # debug override - if all fields asked for, limit to 1
+      per_page = 1 if params[:fields] == "all"
       
       {per_page: per_page, page: page}
     end
