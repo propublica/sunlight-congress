@@ -11,12 +11,17 @@ disable :logging
 require './api/api'
 require './api/queryable'
 require './api/searchable'
+require './api/citable'
 require './tasks/utils'
 Dir.glob('models/*.rb').each {|f| load f}
 
 class Environment
   def self.config
     @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
+  end
+
+  def self.check_key?
+    !(config[:debug] and config[:debug][:ignore_apikey])
   end
 end
 
