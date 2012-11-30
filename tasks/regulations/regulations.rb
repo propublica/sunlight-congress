@@ -105,12 +105,12 @@ class Regulations
       end
 
       # turn Dates into Times
-      ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
-        # one other field is 'dates', and I don't know what the possible values are for that yet
-        if details[field]
-          details[field] = Utils.noon_utc_for details[field].to_time
-        end
-      end
+      # ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
+      #   # one other field is 'dates', and I don't know what the possible values are for that yet
+      #   if details[field]
+      #     details[field] = details[field].to_time
+      #   end
+      # end
 
       # Since we're using the Yajl parser, we need to parse timestamps ourselves
       ['filed_at', 'pdf_updated_at'].each do |field|

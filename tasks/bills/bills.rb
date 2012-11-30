@@ -19,7 +19,6 @@ class Bills
       return
     end
     
-    # caches
     legislators = {}
     committee_cache = {}
     
@@ -50,52 +49,52 @@ class Bills
         sponsor = nil # occurs at least in hjres45-111, debt ceiling bill
       end
 
-      cosponsors, missing = cosponsors_for doc['cosponsors'], legislators
+      cosponsors, withdrawn, missing = cosponsors_for doc['cosponsors'], legislators
       missing_legislators << missing.map {|m| [bill_id, missing]} if missing.any?
 
-      actions = actions_for(doc['actions'])
-      last_action = last_action_for actions
+      actions = actions_for doc['actions']
       
-      committees, missing = committees_for doc['committees'], congress, committee_cache
+      committees, missing = committees_for doc['committees'], committee_cache
       missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
 
-      related_bills = related_bills_for doc['related_bills']
+      related_bill_ids = doc['related_bills'].map {|details| details['bill_id']}
       
-      passage_votes = passage_votes_for actions
-      last_passage_vote_at = passage_votes.last ? passage_votes.last[:voted_at] : nil
+      votes = votes_for actions
       
       bill.attributes = {
         bill_type: type,
         number: number,
         congress: congress,
         chamber: {'h' => 'house', 's' => 'senate'}[type.first.downcase],
+        
         short_title: doc['short_title'],
         official_title: doc['official_title'],
         popular_title: doc['popular_title'],
-        titles: doc['titles'],
-        summary: doc['summary'],
-        state: doc['status'],
-        enacted_as: doc['enacted_as'],
+
+        keywords: doc['subjects'],
+        summary: summary_for(doc['summary']),
+        
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
         cosponsors: cosponsors,
-        cosponsor_ids: cosponsors.map {|c| c['bioguide_id']},
-        cosponsors_count: cosponsors.size,
+        cosponsor_ids: cosponsors.map {|c| c['legislator']['bioguide_id']},
+        withdrawn_cosponsors: withdrawn,
+        withdrawn_cosponsor_ids: withdrawn.map {|c| c['legislator']['bioguide_id']},
+
+        introduced_at: doc['introduced_at'],
+        history: doc['history'],
+        enacted_as: doc['enacted_as'],
+
         actions: actions,
-        last_action: last_action,
-        last_action_at: last_action ? last_action['acted_at'] : nil,
-        passage_votes: passage_votes,
-        passage_votes_count: passage_votes.size,
-        last_passage_vote_at: last_passage_vote_at,
-        introduced_at: Utils.ensure_utc(doc['introduced_at']),
-        keywords: doc['subjects'],
+        last_action_at: actions.any? ? actions.last['acted_at'] : nil,
+
+        votes: votes,
+        last_vote_at: votes.last ? votes.last['acted_at'] : nil,
+
         committees: committees,
-        related_bills: related_bills,
-        abbreviated: false
+        committee_ids: committees.map {|c| c['committee']['committee_id']},
+        related_bill_ids: related_bill_ids,
       }
-      
-      # merge in timeline attributes
-      bill.attributes = history_for doc['history']
       
       if bill.save
         count += 1
@@ -122,24 +121,6 @@ class Bills
     
     Report.success self, "Synced #{count} bills for congress ##{congress} from GovTrack.us."
   end
-  
-  # just process the dates, sigh
-  def self.actions_for(actions)
-    actions.map do |action|
-      action['acted_at'] = Utils.ensure_utc action['acted_at']
-      action
-    end
-  end
-
-  def self.history_for(history)
-    times = %w{ enacted_at vetoed_at house_passage_result_at senate_passage_result_at 
-      house_override_result_at senate_override_result_at awaiting_signature_since }
-    times.each do |field|
-      history[field] = Utils.ensure_utc(history[field]) if history[field]
-    end
-
-    history
-  end
 
   def self.sponsor_for(sponsor, legislators)
     # cached by thomas ID
@@ -157,6 +138,7 @@ class Bills
   
   def self.cosponsors_for(cosponsors, legislators)
     new_cosponsors = []
+    withdrawn_cosponsors = []
     missing = []
 
     cosponsors.each do |cosponsor|
@@ -170,90 +152,84 @@ class Bills
       end
 
       if person
-        new_cosponsors << person.merge(
-          sponsored_at: Utils.ensure_utc(cosponsor['sponsored_at']),
-          withdrawn_at: (Utils.ensure_utc(cosponsor['withdrawn_at']) if cosponsor['withdrawn_at'])
-        )
+        cosponsorship = {'sponsored_at' => cosponsor['sponsored_at']}
+        if cosponsor['withdrawn_at']
+          cosponsorship['withdrawn_at'] = cosponsor['withdrawn_at']
+          withdrawn_cosponsors << cosponsorship.merge('legislator' => person)
+        else
+          new_cosponsors << cosponsorship.merge('legislator' => person)
+        end
       else
         missing << cosponsor
       end
 
     end
 
-    [new_cosponsors, missing]
+    [new_cosponsors, withdrawn_cosponsors, missing]
   end
   
-  # go through the actions and find the last one that is in the past
-  # (some bills will have future scheduled committee hearings as "actions")
-  def self.last_action_for(actions)
-    return nil if actions.size == 0
-    
+  # clean up on some fields in actions
+  def self.actions_for(actions)
     now = Time.now
-    actions.reverse.each do |action|
-      return action if action['acted_at'] < now
-    end
-    
-    nil
-  end
-  
-  def self.passage_votes_for(actions)
-    chamber = {'h' => 'house', 's' => 'senate'}
-    actions.select {|a| (a['type'] == 'vote') or (a['type'] == 'vote2')}.map do |action|
-      voted_at = Utils.ensure_utc action['acted_at']
-      chamber_code = action['where']
-      how = action['how']
-      
-      result = {
-        how: how,
-        result: action['result'], 
-        voted_at: voted_at,
-        text: action['text'],
-        chamber: chamber[chamber_code],
-        passage_type: action['type']
-      }
-      
-      if action['roll'].present?
-        result[:roll_id] = "#{chamber_code}#{action['roll']}-#{voted_at.year}"
+
+    actions.map do |action|
+      if action['acted_at'].is_a?(String)
+        time = Time.parse(action['acted_at'])
+      else
+        time = action['acted_at']
       end
-      
-      result
-    end
+
+      # discard future 'actions', that's not what this is about
+      next if time > now
+
+      if where = action.delete('where')
+        action['chamber'] = {'h' => 'house', 's' => 'senate'}[where]
+
+        # can only do this if 'where' is present (which it should be)
+        if roll = action.delete('roll')
+          action['roll_id'] = "#{where}#{roll}-#{time.year}"
+        end
+      end
+
+      # not ready to commit to having these yet
+      action.delete 'committee'
+      action.delete 'subcommittee'
+      action.delete 'in_committee'
+      action.delete 'status'
+
+      action
+    end.compact
   end
   
-  
-  def self.committees_for(elements, congress, committee_cache)
-    committees = {}
+  def self.votes_for(actions)
+    actions.select do |action| 
+      (action['type'] =~ /vote/)
+    end
+  end
+    
+  def self.committees_for(elements, committee_cache)
+    committees = []
     missing = []
     
     elements.each do |committee|
       # we're not getting subcommittees, way too hard to match them up
-      next if committee['subcommittee'].present?
+      if committee['subcommittee_id'].present?
+        committee_id = committee['committee_id'] + committee['subcommittee_id']
+      else
+        committee_id = committee['committee_id']
+      end
 
-      if match = committee_match(committee['committee_id'], committee_cache)
-        committees[match['committee_id']] = {
-          activity: committee['activity'],
-          committee: match
+      if match = committee_match(committee_id, committee_cache)
+        committees << {
+          'activity' => committee['activity'],
+          'committee' => match
         }
       else
-        missing << committee['committee']
+        missing << committee_id
       end
     end
     
     [committees, missing]
-  end
-
-  def self.related_bills_for(related_bills)
-    related = {}
-    
-    related_bills.each do |details|
-      relation = details['reason']
-      bill_id = details['bill_id']
-      
-      related[relation] ||= []
-      related[relation] << bill_id
-    end
-    
-    related
   end
 
   def self.legislator_for(thomas_id)
@@ -269,6 +245,10 @@ class Bills
     end
 
     committee_cache[id]
+  end
+
+  def self.summary_for(summary)
+    summary ? summary['text'] : nil
   end
 
 end

@@ -208,23 +208,6 @@ module Utils
     body ? Nokogiri::XML(body) : nil
   end
   
-  # If it's a full timestamp with hours and minutes and everything, store that
-  # Otherwise, if it's just a day, store the day with a date of noon UTC
-  # So that it's the same date everywhere
-  def self.ensure_utc(timestamp)
-    if timestamp =~ /:/
-      Time.xmlschema timestamp
-    else
-      noon_utc_for timestamp
-    end
-  end
-  
-  # given a timestamp of the form "2011-02-18", return noon UTC on that day
-  def self.noon_utc_for(timestamp)
-    time = timestamp.is_a?(String) ? Time.parse(timestamp) : timestamp
-    time.getutc + (12-time.getutc.hour).hours
-  end
-
   def self.utc_parse(timestamp)
     time = Time.zone.parse(timestamp)
     time ? time.utc : nil

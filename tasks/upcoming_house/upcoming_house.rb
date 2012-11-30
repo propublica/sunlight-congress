@@ -94,16 +94,13 @@ class UpcomingHouse
     end
     
     if date_results and date_results.any? and date_results.first.any?
-      date_str = date_results.first.first
-      month, day, year = date_str.split "-"
-      date = Utils.noon_utc_for Time.local(year, month, day)
+      date = date_results.first.first
       permalink = pdf_url
 
     # but if the PDF URL is messed up, try to get it from the header
     else
       begin
         date = Date.parse doc.css("#news_text").first.css("b").first.text
-        date = Utils.noon_utc_for date.to_time
       rescue ArgumentError
         date = nil
       end

@@ -54,7 +54,7 @@ class GaoReports
       # details directly from JSON
       categories = details['topics'] || []
       categories += [details['bucket_term']] if details['bucket_term']
-      published_at = Utils.noon_utc_for details['docdate']
+      published_on = details['docdate']
       posted_at = Time.parse details['actual_release_date']
       report_number = details['rptno']
       title = details['title']
@@ -127,7 +127,7 @@ class GaoReports
         url: (landing_url || pdf_url),
         
         source_url: pdf_url,
-        published_at: published_at,
+        published_on: published_on,
 
         description: description,
         gao_id: gao_id,

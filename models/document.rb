@@ -2,7 +2,7 @@ class Document
   include Api::Model
   publicly :queryable, :searchable
 
-  basic_fields :document_id, :posted_at, :published_at,
+  basic_fields :document_id, :posted_at, :published_on,
     :document_type, :document_type_name,
     :title, :source_url, :url,
     :gao_id, :categories 

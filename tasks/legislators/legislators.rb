@@ -87,6 +87,8 @@ class Legislators
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
 
+      term_start: last_term['start'],
+      term_end: last_term['end'],
       state: last_term['state'],
       district: last_term['district'],
       party: party_for(last_term['party']),
@@ -111,6 +113,7 @@ class Legislators
     end
 
     if attributes[:chamber] == "senate"
+      attributes[:senate_class] = last_term['class']
       attributes[:lis_id] = us_legislator['id']['lis'].to_s
     end
 
