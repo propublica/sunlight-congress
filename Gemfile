@@ -22,7 +22,6 @@ end
 
 # used in tasks
 gem 'curb', '0.8.1'
-gem 'sunlight', '1.1.0'
 gem 'nokogiri', '1.5.5'
 gem 'feedzirra', '0.2.0rc2'
 gem 'docsplit', '0.6.3'

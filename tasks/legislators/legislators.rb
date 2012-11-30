@@ -1,5 +1,3 @@
-require 'sunlight'
-
 class Legislators
 
   # options:
