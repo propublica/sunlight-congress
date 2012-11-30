@@ -24,20 +24,20 @@ class BulkGpoBills
     archive_only_since = options[:year] ? nil : 3.days.ago.midnight.utc # 5am EST
 
     # populate with bill info to fetch
-    bill_versions = [] # holds arrays with: [bill_type, number, session, version_code]
+    bill_versions = [] # holds arrays with: [bill_type, number, congress, version_code]
 
     if options[:bill_version_id]
-      bill_type, number, session, version_code = options[:bill_version_id].match(/(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)-(\d+)-(\w+)$/).captures
-      bill_versions = [[bill_type, number, session, version_code]]
+      bill_type, number, congress, version_code = options[:bill_version_id].match(/(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)-(\d+)-(\w+)$/).captures
+      bill_versions = [[bill_type, number, congress, version_code]]
 
-      # initialize the disk for whatever session this bill version is
-      initialize_disk session
+      # initialize the disk for whatever congress this bill version is
+      initialize_disk congress
 
     else
-      # initialize disk, with buffer in case the sitemap references a past session (it happens)
-      current_session = Utils.session_for_year year
-      (current_session - 2).upto(current_session) do |session|
-        initialize_disk session
+      # initialize disk, with buffer in case the sitemap references a past congress (it happens)
+      current_congress = Utils.congress_for_year year
+      (current_congress - 2).upto(current_congress) do |congress|
+        initialize_disk congress
       end
 
       unless sitemap_doc = sitemap_doc_for(year, options)
@@ -63,10 +63,10 @@ class BulkGpoBills
     count = 0
     failures = []
     
-    bill_versions.each do |bill_type, number, session, version_code|
-      dest_prefix = "data/gpo/BILLS/#{session}/#{bill_type}/#{bill_type}#{number}-#{session}-#{version_code}"
+    bill_versions.each do |bill_type, number, congress, version_code|
+      dest_prefix = "data/gpo/BILLS/#{congress}/#{bill_type}/#{bill_type}#{number}-#{congress}-#{version_code}"
 
-      mods_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{bill_type}#{number}#{version_code}/mods.xml"
+      mods_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/mods.xml"
       mods_dest = "#{dest_prefix}.mods.xml"
       unless Utils.download(mods_url, options.merge(destination: mods_dest))
         failures << {url: mods_url, dest: mods_dest}
@@ -74,7 +74,7 @@ class BulkGpoBills
 
       # sleep 0.1
 
-      text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{bill_type}#{number}#{version_code}/html/BILLS-#{session}#{bill_type}#{number}#{version_code}.htm"
+      text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/html/BILLS-#{congress}#{bill_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
       unless Utils.download(text_url, options.merge(destination: text_dest))
         failures << {url: text_url, dest: text_dest}
@@ -82,7 +82,7 @@ class BulkGpoBills
 
       # sleep 0.1
 
-      xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{session}#{bill_type}#{number}#{version_code}/xml/BILLS-#{session}#{bill_type}#{number}#{version_code}.xml"
+      xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/xml/BILLS-#{congress}#{bill_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
       unless Utils.download(xml_url, options.merge(destination: xml_dest))
         failures << {url: xml_url, dest: xml_dest}
@@ -105,9 +105,9 @@ class BulkGpoBills
     end
   end
 
-  def self.initialize_disk(session)
+  def self.initialize_disk(congress)
     ["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].each do |bill_type|
-      FileUtils.mkdir_p "data/gpo/BILLS/#{session}/#{bill_type}"
+      FileUtils.mkdir_p "data/gpo/BILLS/#{congress}/#{bill_type}"
     end
   end
 

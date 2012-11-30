@@ -2,7 +2,7 @@ class Bill
   include Api::Model
   publicly :queryable, :searchable
   
-  basic_fields :bill_id, :bill_type, :number, :session, :chamber, :sponsor_id,
+  basic_fields :bill_id, :bill_type, :number, :congress, :chamber, :sponsor_id,
     :short_title, :official_title, :popular_title,
     :cosponsors_count, :amendments_count, :passage_votes_count, 
     :last_action_at, :last_passage_vote_at,
@@ -26,7 +26,7 @@ class Bill
   index bill_type: 1
   index code: 1
   index chamber: 1
-  index session: 1
+  index congress: 1
 
   index nicknames: 1
   

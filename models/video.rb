@@ -4,7 +4,7 @@ class Video
     
   basic_fields :duration, :legislative_day, :video_id, 
     :clip_urls, :pubdate, :chamber, :legislator_names, 
-    :bioguide_ids, :bills, :clip_id, :session, :rolls
+    :bioguide_ids, :bills, :clip_id, :congress, :rolls
   
   search_fields "clips.events"
   
@@ -17,6 +17,7 @@ class Video
   index chamber: 1
   index legislative_day: 1
   index pubdate: 1
+  index congress: 1
   index bills: 1
   index rolls: 1
   index legislator_names: 1

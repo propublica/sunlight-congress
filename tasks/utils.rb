@@ -230,12 +230,12 @@ module Utils
     time ? time.utc : nil
   end
   
-  # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
-  def self.current_session
-    session_for_year Time.now.year
+  # e.g. 2009 & 2010 -> 111th congress, 2011 & 2012 -> 112th congress
+  def self.current_congress
+    congress_for_year Time.now.year
   end
   
-  def self.session_for_year(year)
+  def self.congress_for_year(year)
     ((year + 1) / 2) - 894
   end
   
@@ -396,13 +396,13 @@ module Utils
   end
   
   def self.bill_from(bill_id)
-    type, number, session, code, chamber = bill_fields_from bill_id
+    type, number, congress, code, chamber = bill_fields_from bill_id
     
-    bill = Bill.new :bill_id => bill_id
+    bill = Bill.new bill_id: bill_id
     bill.attributes = {
       bill_type: type,
       number: number,
-      session: session,
+      congress: congress,
       code: code,
       chamber: chamber
     }
@@ -413,24 +413,24 @@ module Utils
   def self.bill_fields_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
-    session = bill_id.match(/-(\d+)$/)[1].to_i
+    congress = bill_id.match(/-(\d+)$/)[1].to_i
     
     code = "#{type}#{number}"
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
     
-    [type, number, session, code, chamber]
+    [type, number, congress, code, chamber]
   end
   
   def self.amendment_from(amendment_id)
     chamber = {'h' => 'house', 's' => 'senate'}[amendment_id.gsub(/[^a-z]/, '')]
     number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
-    session = amendment_id.match(/-(\d+)$/)[1].to_i
+    congress = amendment_id.match(/-(\d+)$/)[1].to_i
     
     amendment = Amendment.new :amendment_id => amendment_id
     amendment.attributes = {
-      :chamber => chamber,
-      :number => number,
-      :session => session
+      chamber: chamber,
+      number: number,
+      congress: congress
     }
     
     amendment
@@ -479,7 +479,7 @@ module Utils
     if bill_id.is_a?(Bill)
       document_for bill_id, Bill.basic_fields
     else
-      if bill = Bill.where(:bill_id => bill_id).only(Bill.basic_fields).first
+      if bill = Bill.where(bill_id: bill_id).only(Bill.basic_fields).first
         document_for bill, Bill.basic_fields
       else
         nil
@@ -487,20 +487,20 @@ module Utils
     end
   end
   
-  def self.bill_ids_for(text, session)
+  def self.bill_ids_for(text, congress)
     matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches = matches.map {|code| bill_code_to_id code, session}
+    matches = matches.map {|code| bill_code_to_id code, congress}
     matches.uniq
   end
     
-  def self.bill_code_to_id(code, session)
-    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
+  def self.bill_code_to_id(code, congress)
+    "#{code.tr(" ", "").tr('.', '').downcase}-#{congress}"
   end
 
   # takes an upcoming_bill object and a bill_id, and updates the latest_upcoming list
   # Removes all elements from the list that match the source_type of the given upcoming item, adds this one.
   def self.update_bill_upcoming!(bill_id, upcoming_bill)
-    if bill = Bill.where(:bill_id => bill_id).first
+    if bill = Bill.where(bill_id: bill_id).first
       old_latest_upcoming = (bill['latest_upcoming'] || []).dup
       new_latest_upcoming = old_latest_upcoming.select do |upcoming|
         upcoming['source_type'] != upcoming_bill[:source_type]

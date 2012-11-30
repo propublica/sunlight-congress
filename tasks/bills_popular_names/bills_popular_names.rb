@@ -29,10 +29,10 @@ class BillsPopularNames
       
       bill_type = row[0].strip
       number = row[1].strip
-      session = row[2].strip
+      congress = row[2].strip
       term = row[3].strip
 
-      bill_id = "#{bill_type}#{number}-#{session}"
+      bill_id = "#{bill_type}#{number}-#{congress}"
       
       if term.present?
         nicknames[bill_id] ||= []
@@ -45,7 +45,7 @@ class BillsPopularNames
 
     count = 0
     nicknames.each do |bill_id, names|
-      unless bill = Bill.where(:bill_id => bill_id).first
+      unless bill = Bill.where(bill_id: bill_id).first
         puts "Couldn't find bill by #{bill_id}, skipping."
         next
       end

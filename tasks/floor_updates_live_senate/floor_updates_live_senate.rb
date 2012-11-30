@@ -54,7 +54,7 @@ class FloorUpdatesLiveSenate
     # If it does exist...we leave it alone.
     # This is *not* an archival script, and the timestamps will also be inaccurate at first - we must accept this.
     
-    session = Utils.current_session
+    congress = Utils.current_congress
     
     updates.keys.sort.each do |legislative_day|
       todays = FloorUpdate.where(:legislative_day => legislative_day).all.map {|u| u['events']}.flatten
@@ -72,7 +72,7 @@ class FloorUpdatesLiveSenate
         
         floor_update = FloorUpdate.new(
           :chamber => "senate",
-          :session => session,
+          :congress => congress,
           :legislative_day => legislative_day,
           :timestamp => Time.now,
           :events => [item],
@@ -107,9 +107,9 @@ class FloorUpdatesLiveSenate
   end
   
   def self.extract_bills(text)
-    session = Utils.current_session
+    congress = Utils.current_congress
     matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches.map {|code| "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}" }
+    matches.map {|code| "#{code.tr(" ", "").tr('.', '').downcase}-#{congress}" }
   end
   
   def self.extract_rolls(text)

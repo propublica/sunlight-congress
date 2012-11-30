@@ -27,7 +27,7 @@ class FloorUpdatesLiveHouse
     doc = Nokogiri::XML xml
     
     
-    session = session_for doc
+    congress = congress_for doc
     chamber = 'house'
     legislative_day = legislative_day_for doc
     legislative_day_stamp = legislative_day.strftime "%Y-%m-%d"
@@ -41,9 +41,9 @@ class FloorUpdatesLiveHouse
         
       update.attributes = {
         :events => [item],
-        :session => session,
+        :congress => congress,
         :legislative_day => legislative_day_stamp,
-        :bill_ids => bill_ids_for(action, item, session),
+        :bill_ids => bill_ids_for(action, item, congress),
         :roll_ids => roll_ids_for(item, year),
         :legislator_ids => legislator_ids_for(item)
       }
@@ -97,7 +97,7 @@ class FloorUpdatesLiveHouse
     end
   end
   
-  def self.session_for(doc)
+  def self.congress_for(doc)
     doc.at("legislative_congress")['congress'].to_i
   end
   
@@ -110,19 +110,19 @@ class FloorUpdatesLiveHouse
     matches.map {|number| "h#{number}-#{year}"}
   end
   
-  def self.bill_ids_for(action, text, session)
+  def self.bill_ids_for(action, text, congress)
     matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches = matches.map {|code| bill_code_to_id code, session}
+    matches = matches.map {|code| bill_code_to_id code, congress}
     
     if action_item = action.at(:action_item)
-      matches << bill_code_to_id(action_item.text, session)
+      matches << bill_code_to_id(action_item.text, congress)
     end
     
     matches.uniq
   end
     
-  def self.bill_code_to_id(code, session)
-    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
+  def self.bill_code_to_id(code, congress)
+    "#{code.tr(" ", "").tr('.', '').downcase}-#{congress}"
   end
   
   def self.legislator_ids_for(text)

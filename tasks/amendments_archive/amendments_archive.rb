@@ -1,25 +1,32 @@
 require 'nokogiri'
 
 class AmendmentsArchive
+
+  # options:
+  #   limit: limit to N amendments
+  #   cache: don't sync data
   
   def self.run(options = {})
-    options[:session] = (options[:session] ? options[:session].to_i : Utils.current_session)
+    options[:congress] = (options[:congress] ? options[:congress].to_i : Utils.current_congress)
+
     load_amendments options
     update_bills options
   end
   
   def self.load_amendments(options)
-    session = options[:session]
+    congress = options[:congress]
     count = 0
     
     missing_ids = []
     missing_committees = []
     bad_amendments = []
     
-    FileUtils.mkdir_p "data/govtrack/#{session}/amendments"
-    unless system("rsync -az govtrack.us::govtrackdata/us/#{session}/bills.amdt/ data/govtrack/#{session}/amendments/")
-      Report.failure self, "Couldn't rsync to Govtrack.us."
-      return
+    unless options[:cache]
+      FileUtils.mkdir_p "data/govtrack/#{congress}/amendments"
+      unless system("rsync -az govtrack.us::govtrackdata/us/#{congress}/bills.amdt/ data/govtrack/#{congress}/amendments/")
+        Report.failure self, "Couldn't rsync to Govtrack.us."
+        return
+      end
     end
     
     
@@ -28,11 +35,8 @@ class AmendmentsArchive
       legislators[legislator.govtrack_id] = Utils.legislator_for legislator
     end
     
-    amendments = Dir.glob "data/govtrack/#{session}/amendments/*.xml"
+    amendments = Dir.glob "data/govtrack/#{congress}/amendments/*.xml"
     
-    # debug helpers
-    # amendments = Dir.glob "data/govtrack/111/amendments/h541.xml"
-    # amendments = amendments.first 20
 
     if options[:limit]
       amendments = amendments.first options[:limit].to_i
@@ -41,34 +45,32 @@ class AmendmentsArchive
     amendments.each do |path|
       doc = Nokogiri::XML open(path)
       
-      filename = File.basename path
-      
       number = doc.root.attributes['number'].text.to_i
       chamber_type = doc.root['chamber']
       chamber = {'h' => 'house', 's' => 'senate'}[chamber_type]
-      amendment_id = "#{chamber_type}#{number}-#{session}"
+      amendment_id = "#{chamber_type}#{number}-#{congress}"
       state = state_for doc
       offered_at = Utils.ensure_utc doc.at(:offered)['datetime']
       purpose = purpose_for doc
       
-      bill_id = bill_id_for doc, session
+      bill_id = bill_id_for doc, congress
       bill_sequence = bill_sequence_for doc
       
       sponsor_type = sponsor_type_for doc
-      sponsor = nil
       if sponsor_type == 'legislator'
-        sponsor = sponsor_for filename, doc, legislators, missing_ids
+        sponsor = sponsor_for amendment_id, doc, legislators, missing_ids
+        sponsor_id = sponsor['bioguide_id']
       else
-        sponsor = sponsor_committee_for filename, doc, chamber, missing_committees
+        sponsor = sponsor_committee_for amendment_id, doc, chamber, missing_committees
+        sponsor_id = sponsor[:committee_id]
       end
       
       actions = actions_for doc
       last_action_at = actions.last ? actions.last[:acted_at] : nil
       
-      
-      amendment = Amendment.find_or_initialize_by :amendment_id => amendment_id
+      amendment = Amendment.find_or_initialize_by amendment_id: amendment_id
       amendment.attributes = {
-        session: session,
+        congress: congress,
         number: number,
         chamber: chamber,
         state: state,
@@ -83,7 +85,7 @@ class AmendmentsArchive
         amendment.attributes = {
           sponsor: sponsor,
           sponsor_type: sponsor_type,
-          sponsor_id: (sponsor_type == 'legislator' ? sponsor['bioguide_id'] : sponsor[:committee_id])
+          sponsor_id: sponsor_id
         }
       end
       
@@ -93,6 +95,7 @@ class AmendmentsArchive
             bill_id: bill_id,
             bill: bill
           }
+
           if bill_sequence
             amendment[:bill_sequence] = bill_sequence
           end
@@ -125,28 +128,24 @@ class AmendmentsArchive
       Report.failure self, "Failed to save #{bad_amendments.size} amendments.", amendment: bad_amendments.last
     end
     
-    Report.success self, "Synced #{count} amendments for session ##{session} from GovTrack.us."
+    Report.success self, "Synced #{count} amendments for congress ##{congress} from GovTrack.us."
   end
   
   
   def self.update_bills(options)
-    session = options[:session]
+    congress = options[:congress]
     
     count = 0
     amendment_count = 0
     
-    bills = Bill.where(:bill_id => {"$in" => Amendment.where(:session => session).distinct(:bill_id)}).all
-    # bills = bills.to_a.first 20
+    bills = Bill.where congress: congress
+    
+    if options[:limit]
+      bills = bills.to_a.first options[:limit].to_i
+    end
     
     bills.each do |bill|
-      amendments = Amendment.where(:bill_id => bill.bill_id).only(Amendment.basic_fields).all.to_a.map {|amendment| Utils.amendment_for amendment}
-      
-      bill.attributes = {
-        amendments: amendments,
-        amendment_ids: amendments.map {|a| a['amendment_id']},
-        amendments_count: amendments.size
-      }
-      
+      bill[:amendment_ids] = Amendment.where(bill_id: bill.bill_id).distinct :amendment_id
       bill.save! # should be no problem
       
       count += 1
@@ -155,7 +154,7 @@ class AmendmentsArchive
       puts "[#{bill.bill_id}] Updated with #{amendments.size} amendments" if options[:debug]
     end
     
-    Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.where(:session => session).count} amendments in session #{session})."
+    Report.success self, "Updated #{count} bills with #{amendment_count} amendments (out of #{Amendment.where(congress: congress).count} amendments in congress #{congress})."
   end
   
   def self.state_for(doc)
@@ -171,34 +170,34 @@ class AmendmentsArchive
     end
   end
   
-  def self.sponsor_for(filename, doc, legislators, missing_ids)
+  def self.sponsor_for(amendment_id, doc, legislators, missing_ids)
     sponsor = doc.at :sponsor
     if legislators[sponsor['id']]
       legislators[sponsor['id']]
     else
-      missing_ids << [sponsor['id'], filename]
+      missing_ids << [sponsor['id'], amendment_id]
       nil
     end
   end
   
-  def self.sponsor_committee_for(filename, doc, chamber, missing_committees)
+  def self.sponsor_committee_for(amendment_id, doc, chamber, missing_committees)
     name = doc.at(:sponsor)['committee']
     chamber = chamber.capitalize
     full_name = name.sub /^#{chamber}/, "#{chamber} Committee on"
-    if committee = Committee.where(:name => full_name).first
+    if committee = Committee.where(name: full_name).first
       Utils.committee_for committee
     else
-      missing_committees << [name, filename]
+      missing_committees << [name, amendment_id]
       nil
     end
   end
   
-  def self.bill_id_for(doc, session)
+  def self.bill_id_for(doc, congress)
     elem = doc.at :amends
     number = elem['number']
     type = bill_type_for elem['type']
     if number and type
-      "#{type}#{number}-#{session}"
+      "#{type}#{number}-#{congress}"
     else
       nil
     end
@@ -213,9 +212,9 @@ class AmendmentsArchive
   def self.actions_for(doc)
     doc.search('//actions/*').reject {|a| a.class == Nokogiri::XML::Text}.map do |action|
       {
-        :acted_at => Utils.ensure_utc(action['datetime']),
-        :text => (action/:text).inner_text,
-        :type => action.name
+        acted_at: Utils.ensure_utc(action['datetime']),
+        text: (action/:text).inner_text,
+        type: action.name
       }
     end
   end

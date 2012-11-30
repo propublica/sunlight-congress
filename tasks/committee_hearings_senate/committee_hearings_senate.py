@@ -42,7 +42,7 @@ def run(db, es, options = {}):
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
           legislative_day = occurs_at.strftime("%Y-%m-%d")
-          session = rtc_utils.current_session(occurs_at.year)
+          congress = rtc_utils.current_congress(occurs_at.year)
           
           try:
             time_str = meeting.time.contents[0].strip()
@@ -62,7 +62,7 @@ def run(db, es, options = {}):
           # content is double-escaped, e.g. &amp;quot;
           description = parser.unescape(parser.unescape(description))
 
-          bill_ids = rtc_utils.extract_bills(description, session)
+          bill_ids = rtc_utils.extract_bills(description, congress)
           
 
           documents = db['committee_hearings'].find({
@@ -98,7 +98,7 @@ def run(db, es, options = {}):
             'description': description, 
             'legislative_day': legislative_day,
             'time_of_day': time_of_day,
-            'session': session,
+            'congress': congress,
             'committee_url': committee_url,
             'dc': True
           })

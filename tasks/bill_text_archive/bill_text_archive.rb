@@ -5,12 +5,12 @@ class BillTextArchive
   # Indexes full text of versions of bills into ElasticSearch.
   # 
   # options:
-  #   session: which session (e.g. 111, 112) of Congress to load
+  #   congress: which congress (e.g. 111, 112) of Congress to load
   #   limit: number of bills to stop at (useful for development)
   #   bill_id: index only a specific bill.
   
   def self.run(options = {})
-    session = options[:session] ? options[:session].to_i : Utils.current_session
+    congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
 
     bill_count = 0
     version_count = 0
@@ -18,8 +18,8 @@ class BillTextArchive
     if options[:bill_id]
       targets = Bill.where bill_id: options[:bill_id]
     else
-      # only index unabbreviated bills from the specified session
-      targets = Bill.where abbreviated: false, session: session
+      # only index unabbreviated bills from the specified congress
+      targets = Bill.where abbreviated: false, congress: congress
       
       if options[:limit]
         targets = targets.limit options[:limit].to_i
@@ -36,7 +36,7 @@ class BillTextArchive
       type = bill.bill_type
       
       # find all the versions of text for that bill
-      version_files = Dir.glob("data/gpo/BILLS/#{session}/#{type}/#{type}#{bill.number}-#{session}-[a-z]*.htm")
+      version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{bill.number}-#{congress}-[a-z]*.htm")
       
       if version_files.empty?
         warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill.bill_id}
@@ -62,7 +62,7 @@ class BillTextArchive
         # metadata from associated GPO MODS file
         # -- MODS file is a constant reasonable size no matter how big the bill is
         
-        mods_file = "data/gpo/BILLS/#{session}/#{type}/#{bill_version_id}.mods.xml"
+        mods_file = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.mods.xml"
         mods_doc = nil
         if File.exists?(mods_file)
           mods_doc = Nokogiri::XML open(mods_file)
@@ -204,7 +204,7 @@ class BillTextArchive
       Report.note self, "Notes found while parsing bill text and metadata", notes: notes
     end
     
-    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for session ##{session}."
+    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for congress ##{congress}."
   end
   
   def self.clean_text(text)
@@ -269,11 +269,11 @@ class BillTextArchive
   end
 
   def self.citation_cache(bill)
-    "data/citation/bills/#{bill.session}/#{bill.bill_id}.json"
+    "data/citation/bills/#{bill.congress}/#{bill.bill_id}.json"
   end
 
   def self.text_cache(bill)
-    "data/citation/bills/#{bill.session}/#{bill.bill_id}.txt"
+    "data/citation/bills/#{bill.congress}/#{bill.bill_id}.txt"
   end
   
 end

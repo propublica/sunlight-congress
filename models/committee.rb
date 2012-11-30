@@ -19,9 +19,4 @@ class Committee
   index subcommittee: 1
   index membership_ids: 1
   index congresses: 1
-  
-  validates_presence_of :committee_id
-  validates_presence_of :chamber
-  validates_presence_of :subcommittee
-  validates_presence_of :name
 end

@@ -65,7 +65,7 @@ class CommitteeHearingsHouse
 
     count = 0
 
-    session = Utils.session_for_year year.to_i
+    congress = Utils.congress_for_year year.to_i
     chamber = "house"
 
     doc = Nokogiri::HTML body
@@ -119,7 +119,7 @@ class CommitteeHearingsHouse
         subcommittee_id = nil
       end
 
-      bill_ids = bill_ids_for title, session
+      bill_ids = bill_ids_for title, congress
 
       hearing = CommitteeHearing.where(
         chamber: chamber, 
@@ -137,7 +137,7 @@ class CommitteeHearingsHouse
         description: title,
         room: room,
         legislative_day: datestamp,
-        session: session,
+        congress: congress,
         committee: Utils.committee_for(committee),
 
         # optional
@@ -211,9 +211,9 @@ class CommitteeHearingsHouse
     end
   end
 
-  def self.bill_ids_for(string, session)
+  def self.bill_ids_for(string, congress)
     string.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)/i).map do |match|
-      "#{match[0].downcase.gsub(/[\s\.]/, '').gsub("con", "c")}-#{session}"
+      "#{match[0].downcase.gsub(/[\s\.]/, '').gsub("con", "c")}-#{congress}"
     end.uniq
   end
 

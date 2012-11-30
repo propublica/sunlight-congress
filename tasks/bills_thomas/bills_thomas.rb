@@ -1,21 +1,21 @@
 class BillsThomas
   
   # options:
-  #   session: The session of Congress to update.
+  #   congress: The congress to update.
   #   bill_id: The particular bill to update. Useful for development.
   #   limit: A limit on the number of processed bills. Useful for development.
   #   skip_sync: Don't sync to GovTrack for committee information.
 
   def self.run(options = {})
-    session = options[:session] ? options[:session].to_i : Utils.current_session
+    congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
     
     count = 0
     missing_legislators = []
     missing_committees = []
     bad_bills = []
 
-    unless File.exists?("data/unitedstates/congress/#{session}/bills")
-      Report.failure self, "Data not available on disk for the requested session of Congress."
+    unless File.exists?("data/unitedstates/congress/#{congress}/bills")
+      Report.failure self, "Data not available on disk for the requested Congress."
       return
     end
     
@@ -26,8 +26,8 @@ class BillsThomas
     if options[:bill_id]
       bill_ids = [options[:bill_id]]
     else
-      paths = Dir.glob("data/unitedstates/congress/#{session}/bills/*/*")
-      bill_ids = paths.map {|path| "#{File.basename(path).sub "con", "c"}-#{session}"}
+      paths = Dir.glob("data/unitedstates/congress/#{congress}/bills/*/*")
+      bill_ids = paths.map {|path| "#{File.basename(path).sub "con", "c"}-#{congress}"}
       if options[:limit]
         bill_ids = bill_ids.first options[:limit].to_i
       end
@@ -35,9 +35,9 @@ class BillsThomas
     
     
     bill_ids.each do |bill_id|
-      type, number, session, code, chamber = Utils.bill_fields_from bill_id
+      type, number, congress, code, chamber = Utils.bill_fields_from bill_id
       
-      path = "data/unitedstates/congress/#{session}/bills/#{type}/#{type}#{number}/data.json"
+      path = "data/unitedstates/congress/#{congress}/bills/#{type}/#{type}#{number}/data.json"
 
       doc = Oj.load open(path)
       
@@ -56,7 +56,7 @@ class BillsThomas
       actions = actions_for(doc['actions'])
       last_action = last_action_for actions
       
-      committees, missing = committees_for doc['committees'], session, committee_cache
+      committees, missing = committees_for doc['committees'], congress, committee_cache
       missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
 
       related_bills = related_bills_for doc['related_bills']
@@ -68,7 +68,7 @@ class BillsThomas
         bill_type: type,
         number: number,
         code: code,
-        session: session,
+        congress: congress,
         chamber: {'h' => 'house', 's' => 'senate'}[type.first.downcase],
         short_title: doc['short_title'],
         official_title: doc['official_title'],
@@ -121,7 +121,7 @@ class BillsThomas
       Report.failure self, "Failed to save #{bad_bills.size} bills.", bill: bad_bills.last
     end
     
-    Report.success self, "Synced #{count} bills for session ##{session} from GovTrack.us."
+    Report.success self, "Synced #{count} bills for congress ##{congress} from GovTrack.us."
   end
   
   # just process the dates, sigh
@@ -222,7 +222,7 @@ class BillsThomas
   end
   
   
-  def self.committees_for(elements, session, committee_cache)
+  def self.committees_for(elements, congress, committee_cache)
     committees = {}
     missing = []
     
@@ -230,7 +230,7 @@ class BillsThomas
       # we're not getting subcommittees, way too hard to match them up
       next if committee['subcommittee'].present?
 
-      if match = committee_match(committee['committee_id'], session, committee_cache)
+      if match = committee_match(committee['committee_id'], committee_cache)
         committees[match['committee_id']] = {
           activity: committee['activity'],
           committee: match
@@ -262,7 +262,7 @@ class BillsThomas
     legislator ? Utils.legislator_for(legislator) : nil
   end
   
-  def self.committee_match(id, session, committee_cache)
+  def self.committee_match(id, committee_cache)
     unless committee_cache[id]
       if committee = Committee.where(committee_id: id).first
         committee_cache[id] = Utils.committee_for(committee)

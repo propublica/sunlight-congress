@@ -41,7 +41,7 @@ class UpcomingSenateDaily
       next unless legislative_date = Utils.utc_parse(entry.title)
       
       legislative_day = legislative_date.strftime "%Y-%m-%d"
-      session = Utils.session_for_year legislative_date.year
+      congress = Utils.congress_for_year legislative_date.year
       
       since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now.midnight.utc
       
@@ -80,7 +80,7 @@ class UpcomingSenateDaily
         
         text_pieces << text
         
-        bill_ids = Utils.bill_ids_for text, session
+        bill_ids = Utils.bill_ids_for text, congress
         day_bill_ids += bill_ids
         
         bill_ids.each do |bill_id|
@@ -88,7 +88,7 @@ class UpcomingSenateDaily
             upcoming_bills[legislative_day][bill_id][:context] << text
           else
             upcoming_bills[legislative_day][bill_id] = {
-              :session => session,
+              :congress => congress,
               :chamber => "senate",
               :context => [text],
               :bill_id => bill_id,

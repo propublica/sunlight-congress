@@ -25,7 +25,7 @@ class UpcomingHouseDaily
     end
     
     legislative_day = posted_at.strftime("%Y-%m-%d")
-    session = Utils.session_for_year posted_at.year
+    congress = Utils.congress_for_year posted_at.year
     
     element = doc.css("div#news_text").first
     unless element
@@ -33,7 +33,7 @@ class UpcomingHouseDaily
       return
     end
     
-    bill_ids = Utils.bill_ids_for element.text, session
+    bill_ids = Utils.bill_ids_for element.text, congress
     
     
     # clear out existing upcoming bills for the day
@@ -47,7 +47,7 @@ class UpcomingHouseDaily
       bill = Utils.bill_for bill_id
 
       upcoming = UpcomingBill.new(
-        :session => session,
+        :congress => congress,
         :chamber => "house",
         :bill_id => bill_id,
         :legislative_day => legislative_day,

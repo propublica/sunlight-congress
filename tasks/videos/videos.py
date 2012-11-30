@@ -319,12 +319,12 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         new_vid['legislative_day'] = legislative_day.strftime('%Y-%m-%d')
         new_vid['chamber'] = chamber
-        new_vid['session'] =  rtc_utils.current_session(legislative_day.year)
+        new_vid['congress'] =  rtc_utils.current_congress(legislative_day.year)
 
         if chamber == 'house':
-            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['session'], chamber)
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['congress'], chamber)
         elif chamber == 'senate':
-            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['session'], new_vid['duration'], dateparse(new_vid['pubdate']).year)
+            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['congress'], new_vid['duration'], dateparse(new_vid['pubdate']).year)
 
         #make sure the last clip has a duration
         if new_vid['clips'] and len(new_vid['clips']) > 0:

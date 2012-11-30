@@ -8,7 +8,7 @@ def EST():
 def in_est(dt):
   return dt.astimezone(EST())
 
-def current_session(year=None):
+def current_congress(year=None):
   if not year:
     year = datetime.datetime.now().year
   return ((year + 1) / 2) - 894
@@ -30,7 +30,7 @@ def extract_rolls(data, chamber, year):
   
   return roll_ids
     
-def extract_bills(text, session):
+def extract_bills(text, congress):
   bill_ids = []
   
   p = re.compile('((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)', flags=re.IGNORECASE)
@@ -38,7 +38,7 @@ def extract_bills(text, session):
   
   if bill_matches:
     for b in bill_matches:
-      bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), session)
+      bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
       if bill_text not in bill_ids:
         bill_ids.append(bill_text)
   

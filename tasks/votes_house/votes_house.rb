@@ -86,10 +86,10 @@ class VotesHouse
         next
       end
       
-      session = doc.at(:congress).inner_text.to_i
+      congress = doc.at(:congress).inner_text.to_i
       
       bill_type, bill_number = bill_code_for doc
-      bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{session}" : nil
+      bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{congress}" : nil
       amendment_id = amendment_id_for doc, bill_id
       
       voter_ids, voters = votes_for doc, legislators, missing_bioguide_ids
@@ -110,7 +110,7 @@ class VotesHouse
 
         :vacated => vacated,
         
-        :session => session,
+        :congress => congress,
         
         :roll_type => roll_type,
         :question => question,

@@ -68,7 +68,7 @@ class VotesSenate
       url = url_for year, number
       
       roll_id = "s#{number}-#{year}"
-      session = Utils.session_for_year year
+      congress = Utils.congress_for_year year
 
       puts "[#{roll_id}] Syncing to disc..." if options[:debug]
       unless download_roll year, number, download_failures, options
@@ -80,8 +80,8 @@ class VotesSenate
       puts "[#{roll_id}] Saving vote information..." if options[:debug]
       
 
-      bill_id = bill_id_for doc, session
-      amendment_id = amendment_id_for doc, session
+      bill_id = bill_id_for doc, congress
+      amendment_id = amendment_id_for doc, congress
       voter_ids, voters = votes_for doc, legislators, missing_legislators
 
       roll_type = doc.at("question").text
@@ -97,7 +97,7 @@ class VotesSenate
         :year => year,
         :number => number,
         
-        :session => session,
+        :congress => congress,
         
         :roll_type => roll_type,
         :question => question,
@@ -180,9 +180,9 @@ class VotesSenate
   
   # find the latest roll call number listed on the Senate roll call vote page for a given year
   def self.latest_roll_for(year, options = {})
-    subsession = {0 => 2, 1 => 1}[year % 2]
-    session = Utils.session_for_year year
-    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{session}_#{subsession}.htm"
+    session = {0 => 2, 1 => 1}[year % 2]
+    congress = Utils.congress_for_year year
+    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.htm"
     
     puts "[#{year}] Fetching index page for #{year} (#{url}) from Senate website..." if options[:debug]
     return nil unless doc = Utils.html_for(url)
@@ -194,9 +194,9 @@ class VotesSenate
   end
   
   def self.url_for(year, number)
-    subsession = {0 => 2, 1 => 1}[year % 2]
-    session = Utils.session_for_year year
-    "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{session}#{subsession}/vote_#{session}_#{subsession}_#{zero_prefix number}.xml"
+    session = {0 => 2, 1 => 1}[year % 2]
+    congress = Utils.congress_for_year year
+    "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{congress}#{session}/vote_#{congress}_#{session}_#{zero_prefix number}.xml"
   end
   
   def self.zero_prefix(number)
@@ -245,7 +245,7 @@ class VotesSenate
     legislator ? Utils.legislator_for(legislator) : nil
   end
   
-  def self.bill_id_for(doc, session)
+  def self.bill_id_for(doc, congress)
     elem = doc.at 'document_name'
     if !(elem and elem.text.present?)
       elem = doc.at 'amendment_to_document_number'
@@ -257,7 +257,7 @@ class VotesSenate
       number = code.gsub type, ''
       
       if ["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].include?(type)
-        "#{type}#{number}-#{session}"
+        "#{type}#{number}-#{congress}"
       else
         nil
       end
@@ -290,11 +290,11 @@ class VotesSenate
     bill
   end
   
-  def self.amendment_id_for(doc, session)
+  def self.amendment_id_for(doc, congress)
     elem = doc.at 'amendment_number'
     if elem and elem.text.present?
       number = elem.text.gsub(/[^\d]/, '').to_i
-      "s#{number}-#{session}"
+      "s#{number}-#{congress}"
     else
       nil
     end
