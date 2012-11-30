@@ -5,30 +5,13 @@ task :environment do
   require 'pony'
 end
 
-# does not hinge on the environment, test_helper loads it itself
-task :default => :test
-task :test do
-  responses = Dir.glob("test/**/*_test.rb").map do |file|
-    puts "\nRunning #{file}:\n"
-    system "ruby #{file}"
-  end
-  
-  if responses.any? {|code| code == false}
-    puts "\nFAILED\n"
-    exit -1
-  else
-    puts "\nSUCCESS\n"
-    exit 0
-  end
-end
-
 desc "Load a fake api key into the db"
 task :api_key => :environment do
   key = ENV['key'] || "development"
   email = ENV['email'] || "#{key}@example.com"
   
-  if ApiKey.where(:key => key).first.nil?
-    ApiKey.create! :status => "A", :email => email, :key => key
+  if ApiKey.where(key: key).first.nil?
+    ApiKey.create! status: "A", email: email, key: key
     puts "Created '#{key}' API key under email #{email}"
   else
     puts "'#{key}' API key already exists"
