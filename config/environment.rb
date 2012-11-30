@@ -39,9 +39,9 @@ class Email
   end
 
   def self.report(report)
-    subject = report.to_s
+    subject = "[#{report.status}] #{report.source} | #{report.message}"
 
-    body = "#{report.id.to_s}\n\n#{report['message']}"
+    body = "#{report.id}\n\n#{report.message}"
 
     if report['attached']['exception']
       body += "\n\n#{exception_message report}"
