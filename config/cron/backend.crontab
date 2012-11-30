@@ -7,17 +7,17 @@
 0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
 
 # bills synced from gathered THOMAS data
-0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills_thomas 
+0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills
 
 # amendments synced from GovTrack - sync twice a day
 0 4,16 * * * /projects/congress/shared/cron/task.sh amendments
 
 # full bill text from GPO
-*/30 * * * * /projects/congress/shared/cron/task.sh bulk_gpo_bills
-0 5,11 * * * /projects/congress/shared/cron/task.sh bill_text_archive batch_size=10
+*/30 * * * * /projects/congress/shared/cron/task.sh bills_bulk
+0 5,11 * * * /projects/congress/shared/cron/task.sh bills_text batch_size=10
 
 # popular bill names, check once an hour
-*/60 * * * * /projects/congress/shared/cron/task.sh bills_popular_names
+*/60 * * * * /projects/congress/shared/cron/task.sh bills_nicknames
 
 # video
 0 9 * * *    /projects/congress/shared/cron/task.sh videos captions=True

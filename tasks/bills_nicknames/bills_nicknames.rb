@@ -1,6 +1,6 @@
 require 'csv'
 
-class BillsPopularNames
+class BillsNicknames
 
   # options:
   #   cache: only download if missing

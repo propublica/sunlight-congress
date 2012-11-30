@@ -1,4 +1,4 @@
-class BillsThomas
+class Bills
   
   # options:
   #   congress: The congress to update.

@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-class BillTextArchive
+class BillsText
 
   # Indexes full text of versions of bills into ElasticSearch.
   # 
