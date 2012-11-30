@@ -193,7 +193,7 @@ end
 namespace :analytics do
 
   desc "Send analytics to the central API analytics department."
-  task report: :environment do
+  task :report => :environment do
     begin
       
       # default to yesterday
@@ -239,7 +239,7 @@ namespace :analytics do
 end
 
 namespace :elasticsearch do
-  task init: :environment do
+  task :init => :environment do
     single = ENV['mapping'] || ENV['only'] || nil
     force = ENV['force'] || ENV['delete'] || false
 
