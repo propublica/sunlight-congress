@@ -4,12 +4,13 @@ class BillsPopularNames
 
   def self.run(options = {})
 
-    FileUtils.mkdir_p "data/sunlight"
+    FileUtils.mkdir_p "data/unitedstates"
 
-    remote = options[:remote] || "https://raw.github.com/sunlightlabs/bill-nicknames/master/bill-nicknames.csv"
-    destination = "data/sunlight/bill-nicknames.csv"
+    remote = options[:remote] || "https://raw.github.com/unitedstates/bill-nicknames/master/bill-nicknames.csv"
+    destination = "data/unitedstates/bill-nicknames.csv"
 
     unless options[:skip_download]
+      puts "Downloading bill-nicknames.csv..."
       unless results = Utils.curl(remote, destination)
         Report.failure self, "Couldn't download bill nicknames, bailing out."
         return
