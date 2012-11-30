@@ -25,8 +25,8 @@
 
 
 # floor updates
-*/120 * * * *  /projects/congress/shared/cron/task.sh floor_updates_live_senate
-*/120 * * * *  /projects/congress/shared/cron/task.sh floor_updates_live_house
+*/120 * * * *  /projects/congress/shared/cron/task.sh floor_senate
+*/120 * * * *  /projects/congress/shared/cron/task.sh floor_house
 
 # committee hearings
 */120 * * * * /projects/congress/shared/cron/task.sh committee_hearings_senate

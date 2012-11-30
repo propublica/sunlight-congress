@@ -2,7 +2,7 @@
 
 require 'nokogiri'
 
-class FloorUpdatesLiveSenate
+class FloorSenate
   
   def self.run(options = {})
     

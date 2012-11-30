@@ -1,7 +1,7 @@
 require 'open-uri'
 require 'nokogiri'
 
-class FloorUpdatesLiveHouse
+class FloorHouse
   
   def self.run(options = {})
     url = get_xml_url options
