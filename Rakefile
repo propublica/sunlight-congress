@@ -2,7 +2,6 @@ task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require './config/environment'
-  require 'pony'
 end
 
 desc "Load a fake api key into the db"
@@ -81,11 +80,8 @@ Dir.glob('tasks/*/').each do |file|
 end
 
 
-def run_task(name)
-  require './tasks/utils'
-  
+def run_task(name)  
   task_name = name.camelize
-  
   start = Time.now
   
   begin
@@ -93,8 +89,6 @@ def run_task(name)
       run_ruby name
     elsif File.exist? "tasks/#{name}/#{name}.py"
       run_python name
-    else
-      raise Exception.new "Couldn't locate task file"
     end
     
   rescue Exception => ex
@@ -105,7 +99,7 @@ def run_task(name)
     end
     
   else
-    puts Report.complete(task_name, "Completed running #{name}", {elapsed: (Time.now - start)})
+    Report.complete(task_name, "Completed running #{name}", {elapsed: (Time.now - start)})
   end
   
   Report.unread.where(source: task_name).all.each do |report|

@@ -2,6 +2,7 @@ require 'oj'
 require 'mongoid'
 require 'tzinfo'
 require 'rubberband'
+require 'pony'
 
 require 'sinatra'
 disable :protection
@@ -10,7 +11,7 @@ disable :logging
 require './api/api'
 require './api/queryable'
 require './api/searchable'
-
+require './tasks/utils'
 Dir.glob('models/*.rb').each {|f| load f}
 
 class Environment

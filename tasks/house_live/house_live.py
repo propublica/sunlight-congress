@@ -25,11 +25,11 @@ BUCKET_NAME = 'assets.realtimecongress.org'
 def run(db, es, options = {}):
     
     
-    if options.has_key('s3'):
+    if options['config'].has_key('s3'):
         global AWS_ACCESS_KEY_ID
         global AWS_SECRET_ACCESS_KEY
-        AWS_ACCESS_KEY_ID = options['s3']['key']
-        AWS_SECRET_ACCESS_KEY = options['s3']['secret']
+        AWS_ACCESS_KEY_ID = options['config']['s3']['key']
+        AWS_SECRET_ACCESS_KEY = options['config']['s3']['secret']
 
     archive = False
     captions = False

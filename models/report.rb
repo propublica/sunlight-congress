@@ -80,7 +80,7 @@ class Report
   end
 
   def to_s
-    "[#{status}] #{source}#{to_minutes(elapsed.to_i) if elapsed} | #{message}"
+    "[#{status}] #{source}#{to_minutes(elapsed.to_i) if elapsed}\n\t#{message}"
   end
   
   def to_minutes(seconds)
