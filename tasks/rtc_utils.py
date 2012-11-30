@@ -38,7 +38,7 @@ def extract_bills(text, congress):
   
   if bill_matches:
     for b in bill_matches:
-      bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', '').replace("con", "c"), congress)
+      bill_text = "%s-%s" % (b[0].lower().replace(" ", '').replace('.', ''), congress)
       if bill_text not in bill_ids:
         bill_ids.append(bill_text)
   

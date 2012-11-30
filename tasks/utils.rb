@@ -396,14 +396,13 @@ module Utils
   end
   
   def self.bill_from(bill_id)
-    type, number, congress, code, chamber = bill_fields_from bill_id
+    type, number, congress, chamber = bill_fields_from bill_id
     
     bill = Bill.new bill_id: bill_id
     bill.attributes = {
       bill_type: type,
       number: number,
       congress: congress,
-      code: code,
       chamber: chamber
     }
     
@@ -415,10 +414,9 @@ module Utils
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
     congress = bill_id.match(/-(\d+)$/)[1].to_i
     
-    code = "#{type}#{number}"
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
     
-    [type, number, congress, code, chamber]
+    [type, number, congress, chamber]
   end
   
   def self.amendment_from(amendment_id)

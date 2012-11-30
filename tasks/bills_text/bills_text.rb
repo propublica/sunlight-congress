@@ -54,10 +54,10 @@ class BillsText
       version_files.each do |file|
         # strip off the version code
         bill_version_id = File.basename file, File.extname(file)
-        code = bill_version_id.match(/\-(\w+)$/)[1]
+        version_code = bill_version_id.match(/\-(\w+)$/)[1]
         
         # standard GPO version name
-        version_name = Utils.bill_version_name_for code
+        version_name = Utils.bill_version_name_for version_code
         
         # metadata from associated GPO MODS file
         # -- MODS file is a constant reasonable size no matter how big the bill is
@@ -81,7 +81,7 @@ class BillsText
           end
 
         else
-          puts "[#{bill.bill_id}][#{code}] No MODS data, skipping!" if options[:debug]
+          puts "[#{bill.bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
           
           # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
           # So if any other bill triggers this, send me a warning so I can check it out.
@@ -105,7 +105,7 @@ class BillsText
 
 
         # put up top here because it's the first line of debug output for a bill
-        puts "[#{bill.bill_id}][#{code}] Processing..." if options[:debug]
+        puts "[#{bill.bill_id}][#{version_code}] Processing..." if options[:debug]
 
 
         # archive text in MongoDB for use later (this is dumb)
@@ -119,7 +119,7 @@ class BillsText
         last_bill_version_text = full_text 
 
         bill_versions << {
-          version_code: code,
+          version_code: version_code,
           issued_on: issued_on,
           version_name: version_name,
           bill_version_id: bill_version_id,
@@ -142,7 +142,7 @@ class BillsText
         
 
       unless citation_ids = Utils.citations_for(bill, last_bill_version_text, citation_cache(bill), options)
-        warnings << {message: "Failed to extract citations from #{bill.bill_id}, code: #{last_version[:version_code]}"}
+        warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
         citation_ids = []
       end
 

@@ -27,7 +27,7 @@ class Bills
       bill_ids = [options[:bill_id]]
     else
       paths = Dir.glob("data/unitedstates/congress/#{congress}/bills/*/*")
-      bill_ids = paths.map {|path| "#{File.basename(path).sub "con", "c"}-#{congress}"}
+      bill_ids = paths.map {|path| "#{File.basename path}-#{congress}"}
       if options[:limit]
         bill_ids = bill_ids.first options[:limit].to_i
       end
@@ -35,7 +35,7 @@ class Bills
     
     
     bill_ids.each do |bill_id|
-      type, number, congress, code, chamber = Utils.bill_fields_from bill_id
+      type, number, congress, chamber = Utils.bill_fields_from bill_id
       
       path = "data/unitedstates/congress/#{congress}/bills/#{type}/#{type}#{number}/data.json"
 
@@ -67,7 +67,6 @@ class Bills
       bill.attributes = {
         bill_type: type,
         number: number,
-        code: code,
         congress: congress,
         chamber: {'h' => 'house', 's' => 'senate'}[type.first.downcase],
         short_title: doc['short_title'],
