@@ -20,8 +20,8 @@
 */60 * * * * /projects/congress/shared/cron/task.sh bills_popular_names
 
 # video
-0 9 * * *    /projects/congress/shared/cron/task.sh house_live captions=True
-0 7 * * *    /projects/congress/shared/cron/task.sh house_live captions=True senate=True
+0 9 * * *    /projects/congress/shared/cron/task.sh videos captions=True
+0 7 * * *    /projects/congress/shared/cron/task.sh videos captions=True senate=True
 
 
 # votes from house and senate, download last 10 votes every few minutes, stagger them
