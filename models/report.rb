@@ -74,6 +74,10 @@ class Report
   def note?
     status == 'NOTE'
   end
+
+  def exception?
+    failure? and attached['exception']
+  end
   
   def mark_read!
     update_attributes read: true
@@ -81,6 +85,16 @@ class Report
 
   def to_s
     "[#{status}] #{source}#{to_minutes(elapsed.to_i) if elapsed}\n\t#{message}"
+  end
+
+  def exception_message
+    msg = "#{attached['exception']['type']}: #{attached['exception']['message']}\n\n" 
+    
+    if attached['exception']['backtrace'].respond_to?(:each)
+      attached['exception']['backtrace'].each {|line| msg += "#{line}\n"}
+    end
+    
+    msg
   end
   
   def to_minutes(seconds)

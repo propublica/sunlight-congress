@@ -92,18 +92,19 @@ def run_task(name)
     end
     
   rescue Exception => ex
-    if ENV['raise'] == "true"
+    if ENV['raise']
       raise ex
     else
-      Report.exception task_name, "Exception running #{name}, message and backtrace attached", ex, {elapsed: (Time.now - start)}
+      Report.exception task_name, "Exception running #{name}", ex, {elapsed: (Time.now - start)}
     end
     
   else
-    Report.complete(task_name, "Completed running #{name}", {elapsed: (Time.now - start)})
+    Report.complete task_name, "Completed running #{name}", {elapsed: (Time.now - start)}
   end
   
   Report.unread.where(source: task_name).all.each do |report|
     puts report
+    puts report.exception_message if report.exception?
     Email.report report if report.failure? or report.warning? or report.note?
     report.mark_read!
   end

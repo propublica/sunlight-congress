@@ -49,7 +49,7 @@ class Email
     body = "#{report.id}\n\n#{report.message}"
 
     if report['attached']['exception']
-      body += "\n\n#{exception_message report}"
+      body += "\n\n#{report.exception_message}"
     end
     
     attrs = report.attributes.dup
@@ -70,16 +70,6 @@ class Email
     recipients = Environment.config[:recipients][:admin].dup
     recipients += task_owners if task_owners = Environment.config[:recipients][task]
     recipients.uniq
-  end
-
-  def self.exception_message(report)
-    msg = "#{report[:attached]['exception']['type']}: #{report[:attached]['exception']['message']}\n\n" 
-    
-    if report[:attached]['exception']['backtrace'].respond_to?(:each)
-      report[:attached]['exception']['backtrace'].each {|line| msg += "#{line}\n"}
-    end
-    
-    msg
   end
 
   def self.send_email(subject, body, to)
