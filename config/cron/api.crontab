@@ -1,1 +1,3 @@
-0 6 * * *  /projects/rtc/shared/cron/analytics.sh
+0 6 * * *  /projects/congress/shared/cron/analytics.sh
+
+# leave newline

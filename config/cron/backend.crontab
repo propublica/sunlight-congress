@@ -1,74 +1,58 @@
 # sync THOMAS data with Github once a day
-0 13 * * *   /projects/rtc/sync-github.sh
+0 13 * * *   /projects/congress/sync-github.sh
 
-############# RTC Tasks ########################3
+############# congress Tasks ########################3
 
 # legislators and committees from Sunlight API
-0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
+0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
 
 # bills synced from gathered THOMAS data
-0 4,16 * * * /projects/rtc/run-thomas.sh && /projects/rtc/shared/cron/task.sh bills_thomas 
+0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills_thomas 
 
 # amendments synced from GovTrack - sync twice a day
-0 4,16 * * * /projects/rtc/shared/cron/task.sh amendments_archive
+0 4,16 * * * /projects/congress/shared/cron/task.sh amendments_archive
 
 # full bill text from GPO
-*/30 * * * * /projects/rtc/shared/cron/task.sh bulk_gpo_bills
-0 5,11 * * * /projects/rtc/shared/cron/task.sh bill_text_archive batch_size=10
+*/30 * * * * /projects/congress/shared/cron/task.sh bulk_gpo_bills
+0 5,11 * * * /projects/congress/shared/cron/task.sh bill_text_archive batch_size=10
 
 # popular bill names, check once an hour
-*/60 * * * * /projects/rtc/shared/cron/task.sh bills_popular_names
+*/60 * * * * /projects/congress/shared/cron/task.sh bills_popular_names
 
 # video
-0 9 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True
-0 7 * * *    /projects/rtc/shared/cron/task.sh house_live captions=True senate=True
+0 9 * * *    /projects/congress/shared/cron/task.sh house_live captions=True
+0 7 * * *    /projects/congress/shared/cron/task.sh house_live captions=True senate=True
 
 
 # votes from house and senate, download last 10 votes every few minutes, stagger them
-*/5 * * * * /projects/rtc/shared/cron/task.sh votes_house latest=10
-*/9 * * * * /projects/rtc/shared/cron/task.sh votes_senate latest=10
+*/5 * * * * /projects/congress/shared/cron/task.sh votes_house latest=10
+*/9 * * * * /projects/congress/shared/cron/task.sh votes_senate latest=10
 
 # re-download all votes for the year, once a day, to catch corrections
-0 4 * * *  /projects/rtc/shared/cron/task.sh votes_house year=current force=1 batch_size=10
-30 4 * * *  /projects/rtc/shared/cron/task.sh votes_senate year=current force=1 batch_size=10
+0 4 * * *  /projects/congress/shared/cron/task.sh votes_house year=current force=1 batch_size=10
+30 4 * * *  /projects/congress/shared/cron/task.sh votes_senate year=current force=1 batch_size=10
 
 
 # floor updates
-*/1 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_senate
-*/2 * * * *  /projects/rtc/shared/cron/task.sh floor_updates_live_house
-
-# whip notices
-*/15 * * * *   /projects/rtc/shared/cron/task.sh documents_whip_notices
+*/1 * * * *  /projects/congress/shared/cron/task.sh floor_updates_live_senate
+*/2 * * * *  /projects/congress/shared/cron/task.sh floor_updates_live_house
 
 # committee hearings
-*/15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_senate
-*/15 * * * * /projects/rtc/shared/cron/task.sh committee_hearings_house
+*/15 * * * * /projects/congress/shared/cron/task.sh committee_hearings_senate
+*/15 * * * * /projects/congress/shared/cron/task.sh committee_hearings_house
 
 # upcoming leadership information
-*/15 * * * * /projects/rtc/shared/cron/task.sh upcoming_senate_daily
-*/15 * * * * /projects/rtc/shared/cron/task.sh upcoming_house_daily
-
-
-# Documents
-
-# CRS reports
-*/18 * * * * /projects/rtc/shared/cron/task.sh documents_crs_reports
-
-# CBO cost estimates
-*/19 * * * * /projects/rtc/shared/cron/task.sh documents_cbo_estimates
+*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_senate_daily
+*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_house_daily
 
 # GAO reports (full text) - add 1s between requests
-*/20 * * * * /projects/rtc/shared/cron/task.sh documents_gao_reports rate_limit=1 batch_size=10
-
+*/20 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports rate_limit=1 batch_size=10
 
 # Regulations
-
 # formally published proposed and final regs, last 2 days - takes <2m even without cache
-*/10 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 days=2
+*/10 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1 days=2
 # pre-release regs (public inspection docs)
-*/60 * * * * /projects/rtc/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
-
+*/60 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1 public_inspection=1
 
 
 # leave the newline here
-
