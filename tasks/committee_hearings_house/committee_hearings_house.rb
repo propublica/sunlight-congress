@@ -119,7 +119,7 @@ class CommitteeHearingsHouse
         subcommittee_id = nil
       end
 
-      bill_ids = bill_ids_for title, congress
+      bill_ids = Utils.bill_ids_for title, congress
 
       hearing = CommitteeHearing.where(
         chamber: chamber, 
@@ -209,12 +209,6 @@ class CommitteeHearingsHouse
     links.map do |link|
       link['href'].split("/").last
     end
-  end
-
-  def self.bill_ids_for(string, congress)
-    string.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.)*\s?\d+)/i).map do |match|
-      "#{match[0].downcase.gsub(/[\s\.]/, '').gsub("con", "c")}-#{congress}"
-    end.uniq
   end
 
   def self.remove_smart_characters(text)

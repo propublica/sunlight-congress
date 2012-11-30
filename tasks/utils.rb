@@ -488,7 +488,7 @@ module Utils
   end
   
   def self.bill_ids_for(text, congress)
-    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
+    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.compact
     matches = matches.map {|code| bill_code_to_id code, congress}
     matches.uniq
   end
