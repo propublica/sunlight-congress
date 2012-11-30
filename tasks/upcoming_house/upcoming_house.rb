@@ -1,7 +1,7 @@
 require 'open-uri'
 require 'nokogiri'
 
-class UpcomingHouseDaily
+class UpcomingHouse
   
   def self.run(options = {})
     total_count = 0

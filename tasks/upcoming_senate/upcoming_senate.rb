@@ -3,7 +3,7 @@
 require 'feedzirra'
 require 'nokogiri'
 
-class UpcomingSenateDaily
+class UpcomingSenate
   
   def self.run(options = {})
     count = 0

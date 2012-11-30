@@ -36,8 +36,8 @@
 10 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports cache=1
 
 # upcoming leadership information
-*/120 * * * * /projects/congress/shared/cron/task.sh upcoming_senate_daily
-*/120 * * * * /projects/congress/shared/cron/task.sh upcoming_house_daily
+*/120 * * * * /projects/congress/shared/cron/task.sh upcoming_senate
+*/120 * * * * /projects/congress/shared/cron/task.sh upcoming_house
 
 # Regulations
 */119 * * * * /projects/congress/shared/cron/task.sh regulations_archive cache=1

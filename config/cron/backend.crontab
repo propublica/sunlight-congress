@@ -42,8 +42,8 @@
 */15 * * * * /projects/congress/shared/cron/task.sh hearings_house
 
 # upcoming leadership information
-*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_senate_daily
-*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_house_daily
+*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_senate
+*/15 * * * * /projects/congress/shared/cron/task.sh upcoming_house
 
 # GAO reports (full text) - add 1s between requests
 */20 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports rate_limit=1 batch_size=10
