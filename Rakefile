@@ -33,8 +33,8 @@ task :create_indexes => :environment do
         puts "Skipping #{model}, not a Mongoid model"
       end
     end
-  rescue Exception => ex
-    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}
+  rescue Exception => exception
+    Email.report Report.exception("Indexes", "Exception creating indexes", exception)
     puts "Error creating indexes, emailed report."
   end
 end
@@ -52,7 +52,7 @@ task :set_crontab => :environment do
   if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
     puts "Successfully overwrote crontab."
   else
-    email "Crontab overwriting failed on deploy."
+    Email.message "Crontab overwriting failed on deploy."
     puts "Unsuccessful in overwriting crontab, emailed report."
   end
 end
@@ -62,7 +62,7 @@ task :disable_crontab => :environment do
   if system("echo | crontab")
     puts "Successfully disabled crontab."
   else
-    email "Somehow failed at disabling crontab."
+    Email.message "Somehow failed at disabling crontab."
     puts "Unsuccessful (somehow) at disabling crontab, emailed report."
   end
 end
@@ -101,18 +101,16 @@ def run_task(name)
     if ENV['raise'] == "true"
       raise ex
     else
-      Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+      Report.exception task_name, "Exception running #{name}, message and backtrace attached", ex, {elapsed: (Time.now - start)}
     end
     
   else
-    complete = Report.complete task_name, "Completed running #{name}", {elapsed_time: (Time.now - start)}
-    puts complete
+    puts Report.complete(task_name, "Completed running #{name}", {elapsed: (Time.now - start)})
   end
   
-  # go through any reports filed from the task, and email about any failures or warnings
-  Report.unread.where(:source => task_name).all.each do |report|
+  Report.unread.where(source: task_name).all.each do |report|
     puts report
-    email report if report.failure? or report.warning? or report.note?
+    Email.report report if report.failure? or report.warning? or report.note?
     report.mark_read!
   end
 
@@ -134,60 +132,6 @@ end
 
 def run_python(name)
   system "python tasks/runner.py #{name} #{ARGV[1..-1].join ' '}"
-end
-
-def email(report, exception = nil)
-  if Environment.config[:email][:to] and Environment.config[:email][:to].any?
-    begin
-      if report.is_a?(Report)
-        Pony.mail Environment.config[:email].merge(:subject => email_subject(report), :body => email_body(report), :to => email_recipients_for(report))
-      else
-        Pony.mail Environment.config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
-      end
-    rescue Errno::ECONNREFUSED
-      puts "Couldn't email report, connection refused! Check system settings."
-    end
-  end
-end
-
-def email_recipients_for(report)
-  task = report.source.underscore.to_sym
-  
-  recipients = Environment.config[:email][:to].dup # always begin with master recipients
-  
-  if Environment.config[:task_owners] and Environment.config[:task_owners][task]
-    recipients += Environment.config[:task_owners][task]
-  end
-  
-  recipients.uniq
-end
-
-def email_subject(report)
-  "[#{report.status}] #{report.source} | #{report.message}"
-end
-
-def email_body(report)
-  msg = ""
-  msg += exception_message(report[:exception]) if report[:exception]
-  
-  attrs = report.attributes.dup
-  [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
-  
-  msg += JSON.pretty_generate attrs
-  msg
-end
-
-def exception_message(exception)
-  msg = ""
-  msg += "#{exception['type']}: #{exception['message']}" 
-  msg += "\n\n"
-  
-  if exception['backtrace'] and exception['backtrace'].respond_to?(:each)
-    exception['backtrace'].each {|line| msg += "#{line}\n"}
-    msg += "\n\n"
-  end
-  
-  msg
 end
 
 namespace :analytics do
@@ -217,23 +161,23 @@ namespace :analytics do
           begin
             SunlightServices.report(report['key'], report['method'], report['count'].to_i, day, api_name, shared_secret)
           rescue Exception => exception
-            report = Report.failure 'Analytics', "Problem filing a report, error and report data attached", {error_message: exception.message, :backtrace => exception.backtrace, :report => report, :day => day}
+            report = Report.exception 'Analytics', "Exception filing a report", exception
             puts report
-            email report
+            Email.report report
           end
         end
         
-        report = Report.success 'Analytics', "Filed #{reports.size} report(s) for #{day}.", {elapsed_time: (Time.now - start_time)}
+        report = Report.success 'Analytics', "Filed #{reports.size} report(s) for #{day}.", {elapsed: (Time.now - start_time)}
         puts report
       end
       
       
     # general exception catching for reporting
-    rescue Exception => ex
-      report = Report.failure 'Analytics', "Exception while reporting analytics, message and backtrace attached", {exception: {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+    rescue Exception => exception
+      report = Report.exception 'Analytics', "Exception reporting analytics", exception
       puts report
-      email report
-      
+      Email.report report
+
     end
   end
 end

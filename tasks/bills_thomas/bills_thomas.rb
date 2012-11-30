@@ -109,16 +109,16 @@ class BillsThomas
 
     if missing_legislators.any?
       missing_legislators = missing_legislators.uniq
-      Report.warning self, "Found #{missing_legislators.size} unmatchable legislators, attached.", {missing_legislators: missing_legislators}
+      Report.warning self, "Found #{missing_legislators.size} unmatchable legislators.", {missing_legislators: missing_legislators}
     end
     
     if missing_committees.any?
       missing_committees = missing_committees.uniq
-      Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names, attached.", {missing_committees: missing_committees}
+      Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names.", {missing_committees: missing_committees}
     end
     
     if bad_bills.any?
-      Report.failure self, "Failed to save #{bad_bills.size} bills. Attached the last failed bill's attributes and errors.", bill: bad_bills.last
+      Report.failure self, "Failed to save #{bad_bills.size} bills.", bill: bad_bills.last
     end
     
     Report.success self, "Synced #{count} bills for session ##{session} from GovTrack.us."

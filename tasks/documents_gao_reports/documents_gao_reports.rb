@@ -182,11 +182,11 @@ class DocumentsGaoReports
     Utils.es_flush! 'documents', batcher
 
     if failures.any?
-      Report.failure self, "Failed to process #{failures.size} reports, attached", {failures: failures}
+      Report.failure self, "Failed to process #{failures.size} reports", {failures: failures}
     end
 
     if warnings.any?
-      Report.warning self, "Failed to process text for #{warnings.size} reports, attached", {warnings: warnings}
+      Report.warning self, "Failed to process text for #{warnings.size} reports", {warnings: warnings}
     end
 
     Report.success self, "Created or updated #{count} GAO Reports"

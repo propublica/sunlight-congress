@@ -4,10 +4,8 @@ elastic_search:
   index: rtc
 
 :email:
+  :from: 
   :via: :smtp
-  :to:
-    -
-  :from:
   :via_options:
     :address:
     :port:
@@ -17,8 +15,10 @@ elastic_search:
     :domain:
     :enable_starttls_auto: false
 
-# to send emails to owners of specific tasks
-:task_owners:
+:recipients:
+  :admin:
+    - 
+  # to send emails to owners of specific tasks:
   # :legislators: 
   #   - email@example.com
 

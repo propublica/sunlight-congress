@@ -106,23 +106,23 @@ class AmendmentsArchive
         count += 1
         # puts "[#{amendment_id}] Saved successfully"
       else
-        bad_amendments << {:attributes => amendment.attributes, :error_messages => amendment.errors.full_messages}
+        bad_amendments << {attributes: amendment.attributes, error_messages: amendment.errors.full_messages}
         puts "[#{amendment_id}] Error saving, will file report"
       end
     end
     
     if missing_ids.any?
       missing_ids = missing_ids.uniq
-      Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs, attached.", {:missing_ids => missing_ids}
+      Report.warning self, "Found #{missing_ids.size} missing GovTrack IDs.", {missing_ids: missing_ids}
     end
     
     if missing_committees.any?
       missing_committees = missing_committees.uniq
-      Report.warning self, "Found #{missing_committees.size} missing committees by name, attached.", {:missing_committees => missing_committees}
+      Report.warning self, "Found #{missing_committees.size} missing committees by name.", {missing_committees: missing_committees}
     end
     
     if bad_amendments.any?
-      Report.failure self, "Failed to save #{bad_amendments.size} amendments. Attached the last failed amendment's attributes and errors.", :amendment => bad_amendments.last
+      Report.failure self, "Failed to save #{bad_amendments.size} amendments.", amendment: bad_amendments.last
     end
     
     Report.success self, "Synced #{count} amendments for session ##{session} from GovTrack.us."

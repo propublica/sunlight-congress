@@ -95,7 +95,7 @@ class FloorUpdatesLiveSenate
     end
     
     if failures.any?
-      Report.failure self, "Failed to save #{failures.size} floor updates, attributes attached", :failures => failures
+      Report.failure self, "Failed to save #{failures.size} floor updates.", failures: failures
     end
     
     Report.success self, "Saved #{count} new floor updates"

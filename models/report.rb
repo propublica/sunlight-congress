@@ -5,8 +5,8 @@ class Report
   field :status
   field :source
   field :message
-  field :elapsed_time, type: Float
-  field :attached, type: Hash
+  field :elapsed, type: Float
+  field :attached, type: Hash, default: {}
   
   field :read, type: Boolean, default: false
   
@@ -15,10 +15,10 @@ class Report
   index read: 1
   index created_at: 1
   
-  scope :unread , where(read: false)
+  scope :unread, where(read: false)
   
-  def self.file(status, source, message, rest = {})
-    Report.create!({source: source.to_s, status: status, message: message}.merge(rest))
+  def self.file(status, source, message, attached = {})
+    Report.create! source: source.to_s, status: status, message: message, attached: attached
   end
   
   def self.success(source, message, objects = {})
@@ -49,9 +49,9 @@ class Report
 
   def self.exception_to_hash(exception)
     {
-        'backtrace' => exception.backtrace, 
-        'message' => exception.message, 
-        'type' => exception.class.to_s
+      'backtrace' => exception.backtrace, 
+      'message' => exception.message, 
+      'type' => exception.class.to_s
     }
   end
   
@@ -80,27 +80,12 @@ class Report
   end
 
   def to_s
-    msg = "[#{status}] #{source}#{elapsed_time ? " [#{to_minutes elapsed_time.to_i}]" : ""}\n\t#{message}"
-    if self[:exception]
-      msg += "\n\t#{self[:exception]['type']}: #{self[:exception]['message']}"
-      if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
-        self[:exception]['backtrace'].each {|line| msg += "\n\t\t#{line}"}
-      end
-    end
-    msg
+    "[#{status}] #{source}#{to_minutes(elapsed.to_i) if elapsed} | #{message}"
   end
   
   def to_minutes(seconds)
     min = seconds / 60
     sec = seconds % 60
-    "#{min > 0 ? "#{min}m," : ""}#{sec}s"
-  end
-
-  def self.exception_to_hash(exception)
-    {
-        'backtrace' => exception.backtrace, 
-        'message' => exception.message, 
-        'type' => exception.class.to_s
-    }
+    " #{min > 0 ? "#{min}m," : ""}#{sec}s"
   end
 end

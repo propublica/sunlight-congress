@@ -58,7 +58,7 @@ class FloorUpdatesLiveHouse
     end
     
     if failures.any?
-      Report.failure self, "Had #{failures.size} failures, attributes attached", :failures => failures
+      Report.failure self, "Had #{failures.size} failures.", failures: failures
     end
     
     Report.success self, "Updated/created #{count} floor updates in the House."
@@ -169,9 +169,7 @@ class FloorUpdatesLiveHouse
         elsif legislators.size  == 1
           legislator_ids << legislators.first.bioguide_id
         elsif legislators.size > 1
-          ids = legislators.map(&:bioguide_id)
-          # Report.warning self, "Ambiguous legislator match for #{match[0]}, attached all matching results", :match => match, :legislator_ids => ids
-          legislator_ids += ids
+          legislator_ids += legislators.map(&:bioguide_id)
         end
         
       end

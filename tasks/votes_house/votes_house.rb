@@ -163,12 +163,12 @@ class VotesHouse
     Utils.es_flush! 'votes', batcher
 
     if download_failures.any?
-      Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", :download_failures => download_failures
+      Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", download_failures: download_failures
     end
 
     if missing_bioguide_ids.any?
       missing_bioguide_ids = missing_bioguide_ids.uniq
-      Report.warning self, "Found #{missing_bioguide_ids.size} missing Bioguide IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {missing_bioguide_ids: missing_bioguide_ids}
+      Report.warning self, "Found #{missing_bioguide_ids.size} missing Bioguide IDs. Vote counts on roll calls may be inaccurate until these are fixed.", {missing_bioguide_ids: missing_bioguide_ids}
     end
     
     if missing_bill_ids.any?

@@ -56,7 +56,7 @@ class Legislators
     end
 
     if bad_legislators.any?
-      Report.warning self, "Failed to save #{bad_legislators.size} united_states legislators, attached", bad_legislators: bad_legislators
+      Report.warning self, "Failed to save #{bad_legislators.size} united_states legislators.", bad_legislators: bad_legislators
     end
     
     Report.success self, "Processed #{count} legislators from unitedstates"
