@@ -14,13 +14,11 @@ gem 'ruby-hmac', '0.4.0'
 gem 'pony', '1.0.1'
 gem 'rake', '0.9.2.2'
 
-
 group :development do
   gem 'wirble'
   gem 'unicorn'
 end
 
-# used in tasks
 gem 'curb', '0.8.1'
 gem 'nokogiri', '1.5.5'
 gem 'feedzirra', '0.2.0rc2'
