@@ -38,8 +38,8 @@
 */2 * * * *  /projects/congress/shared/cron/task.sh floor_house
 
 # committee hearings
-*/15 * * * * /projects/congress/shared/cron/task.sh committee_hearings_senate
-*/15 * * * * /projects/congress/shared/cron/task.sh committee_hearings_house
+*/15 * * * * /projects/congress/shared/cron/task.sh hearings_senate
+*/15 * * * * /projects/congress/shared/cron/task.sh hearings_house
 
 # upcoming leadership information
 */15 * * * * /projects/congress/shared/cron/task.sh upcoming_senate_daily

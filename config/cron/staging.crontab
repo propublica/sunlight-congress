@@ -29,8 +29,8 @@
 */120 * * * *  /projects/congress/shared/cron/task.sh floor_house
 
 # committee hearings
-*/120 * * * * /projects/congress/shared/cron/task.sh committee_hearings_senate
-*/120 * * * * /projects/congress/shared/cron/task.sh committee_hearings_house
+*/120 * * * * /projects/congress/shared/cron/task.sh hearings_senate
+*/120 * * * * /projects/congress/shared/cron/task.sh hearings_house
 
 # GAO reports (full text)
 10 * * * * /projects/congress/shared/cron/task.sh documents_gao_reports cache=1
