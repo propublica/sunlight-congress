@@ -2,7 +2,7 @@
 
 require 'nokogiri'
 
-class CommitteeHearingsHouse
+class HearingsHouse
 
   def self.run(options = {})
     count = 0
