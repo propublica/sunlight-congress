@@ -22,7 +22,7 @@ end
 configure do
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
-  Api::Searchable.configure_clients!
+  Searchable.configure_clients!
 
   Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"

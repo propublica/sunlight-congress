@@ -14,16 +14,16 @@ get queryable_route do
   fields = fields_for model, params
   pagination = pagination_for params
 
-  conditions = Api::Queryable.conditions_for model, params
-  order = Api::Queryable.order_for model, params
+  conditions = Queryable.conditions_for model, params
+  order = Queryable.order_for model, params
 
   if params[:explain] == 'true'
-    results = Api::Queryable.explain_for model, conditions, fields, order, pagination
+    results = Queryable.explain_for model, conditions, fields, order, pagination
   else
-    criteria = Api::Queryable.criteria_for model, conditions, fields, order, pagination
-    documents = Api::Queryable.documents_for model, criteria, fields
+    criteria = Queryable.criteria_for model, conditions, fields, order, pagination
+    documents = Queryable.documents_for model, criteria, fields
     documents = citations_for model, documents, params
-    results = Api::Queryable.results_for criteria, documents, pagination
+    results = Queryable.results_for criteria, documents, pagination
   end
   
   hit! "query", format
@@ -44,27 +44,27 @@ get searchable_route do
   fields = fields_for models, params
   pagination = pagination_for params
 
-  search_fields = Api::Searchable.search_fields_for models
+  search_fields = Searchable.search_fields_for models
 
   # query is actually optional, these may both end up null
-  query_string = Api::Searchable.query_string_for params
-  query = Api::Searchable.query_for query_string, params, search_fields
+  query_string = Searchable.query_string_for params
+  query = Searchable.query_for query_string, params, search_fields
 
-  filter = Api::Searchable.filter_for models, params
-  order = Api::Searchable.order_for params
-  other = Api::Searchable.other_options_for params, search_fields
+  filter = Searchable.filter_for models, params
+  order = Searchable.order_for params
+  other = Searchable.other_options_for params, search_fields
   
   begin
     if params[:explain] == 'true'
-      results = Api::Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
+      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
     else
-      raw_results = Api::Searchable.raw_results_for models, query, filter, fields, order, pagination, other
-      documents = Api::Searchable.documents_for query_string, fields, raw_results
+      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, other
+      documents = Searchable.documents_for query_string, fields, raw_results
       documents = citations_for models, documents, params
-      results = Api::Searchable.results_for raw_results, documents, pagination
+      results = Searchable.results_for raw_results, documents, pagination
     end
   rescue ElasticSearch::RequestError => exc
-    results = Api::Searchable.error_from exc
+    results = Searchable.error_from exc
   end
   
   hit! "search", format
