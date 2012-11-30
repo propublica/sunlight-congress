@@ -17,9 +17,7 @@ module Api
       end
 
       models.each do |model|
-        if model.cite_key
-          fields << model.cite_key.to_s
-        end
+        fields << model.cite_key.to_s if model.cite_key
       end
 
       fields.uniq
@@ -58,8 +56,8 @@ module Api
     # special fields used by the system, cannot be used on a model (on the top level)
     def magic_fields
       [
-        :model, :fields,
-        :order, :sort, 
+        :fields, :order, 
+        :sort, #tokill
         :page, :per_page,
         
         :query, :search,
@@ -68,12 +66,11 @@ module Api
         :citing, # citing.details
         :citation, :citation_details, # tokill
 
-        :explain, 
-        :format, # undocumented XML support
+        :explain, :format,
 
-        :apikey, # API key gating
+        :apikey, 
         :callback, :_, # jsonp support (_ is to allow cache-busting)
-        :captures, :splat # Sinatra keywords to do route parsing
+        :captures, :splat # Sinatra routing keywords
       ]
     end
   end
