@@ -2,9 +2,13 @@ class Legislator
   include Api::Model
   publicly :queryable, :searchable
 
-  basic_fields :govtrack_id, :bioguide_id,
-      :title, :first_name, :nickname, :last_name, :name_suffix, 
-      :state, :party, :chamber, :district
+  basic_fields  :bioguide_id, :thomas_id, :lis_id, :fec_ids,
+      :votesmart_id, :crp_id, :govtrack_id,
+      :title, :first_name, :nickname, :middle_name, :last_name, :name_suffix, 
+      :other_names, :gender,
+      :state, :party, :chamber, :district,
+      :phone, :office, :website, :contact_form,
+      :twitter_id, :facebook_id, :youtube_id
 
   search_fields :first_name, :last_name, :middle_name, :nickname
 
