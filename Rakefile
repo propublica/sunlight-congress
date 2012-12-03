@@ -178,11 +178,12 @@ namespace :analytics do
 end
 
 namespace :elasticsearch do
+  desc "Initialize ES mapping schemas"
   task :init => :environment do
     single = ENV['mapping'] || ENV['only'] || nil
     force = ENV['force'] || ENV['delete'] || false
 
-    mappings = single ? [single] : Dir.glob('config/elasticsearch/mappings/*.json').map {|dir| File.basename dir, File.extname(dir)}
+    mappings = single ? [single] : Dir.glob('config/mappings/*.json').map {|dir| File.basename dir, File.extname(dir)}
 
     host = Environment.config['elastic_search']['host']
     port = Environment.config['elastic_search']['port']
@@ -202,7 +203,7 @@ namespace :elasticsearch do
         puts
       end
 
-      system "curl -XPUT '#{index_url}/#{mapping}/_mapping' -d @config/elasticsearch/mappings/#{mapping}.json"
+      system "curl -XPUT '#{index_url}/#{mapping}/_mapping' -d @config/mappings/#{mapping}.json"
       puts
       puts "Created #{mapping}"
       puts
