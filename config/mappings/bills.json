@@ -1,32 +1,11 @@
 {
   "bills": {
     "properties": {
-      "versions": {
+      "text": {
         "type": "string",
-        "store": "yes",
         "term_vector": "with_positions_offsets"
       },
-      "short_title": {
-        "type": "string",
-        "store": "yes"
-      },
-      "official_title": {
-        "type": "string",
-        "store": "yes"
-      },
-      "popular_title": {
-        "type": "string",
-        "store": "yes"
-      },
-      "keywords": {
-        "type": "string",
-        "store": "yes"
-      },
-      "summary": {
-        "type": "string",
-        "store": "yes"
-      },
-
+      
       "bill_id": {
         "index": "not_analyzed",
         "type": "string"
@@ -40,33 +19,41 @@
         "type": "string"
       },
 
-      "house_passage_result": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "senate_passage_result": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "house_override_result": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "senate_override_result": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "awaiting_signature": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "vetoed": {
-        "index": "not_analyzed",
-        "type": "string"
-      },
-      "enacted": {
-        "index": "not_analyzed",
-        "type": "string"
+      "history": {
+        "properties": {
+          "house_passage_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_cloture_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_passage_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "house_override_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_override_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "awaiting_signature": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "vetoed": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "enacted": {
+            "index": "not_analyzed",
+            "type": "string"
+          }
+        }
       }
     }
   }

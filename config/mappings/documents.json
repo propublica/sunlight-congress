@@ -3,7 +3,6 @@
     "properties": {
       "text": {
         "type": "string",
-        "store": "yes",
         "term_vector": "with_positions_offsets"
       },
       "citation_ids": {
