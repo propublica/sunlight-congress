@@ -4,6 +4,9 @@ require 'nokogiri'
 
 class FloorSenate
   
+  # options:
+  #   no_sleep: don't sleep for 1s between updates - produces inaccurate data,
+  #             but is tolerable to run in dev
   def self.run(options = {})
     
     count = 0
@@ -57,7 +60,7 @@ class FloorSenate
     congress = Utils.current_congress
     
     updates.keys.sort.each do |legislative_day|
-      todays = FloorUpdate.where(:legislative_day => legislative_day).all.map {|u| u['events']}.flatten
+      todays = FloorUpdate.where(legislative_day: legislative_day).all.map {|u| u['update']}
       items = updates[legislative_day]
       
       # puts legislative_day
@@ -71,14 +74,14 @@ class FloorSenate
         end
         
         floor_update = FloorUpdate.new(
-          :chamber => "senate",
-          :congress => congress,
-          :legislative_day => legislative_day,
-          :timestamp => Time.now,
-          :events => [item],
-          :bill_ids => extract_bills(item),
-          :roll_ids => extract_rolls(item),
-          :legislator_ids => extract_legislators(item)
+          chamber: "senate",
+          congress: congress,
+          legislative_day: legislative_day,
+          timestamp: Time.now,
+          update: item,
+          bill_ids: extract_bills(item),
+          roll_ids: extract_rolls(item),
+          legislator_ids: extract_legislators(item)
         )
         
         if floor_update.save

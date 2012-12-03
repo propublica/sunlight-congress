@@ -3,9 +3,9 @@ class FloorUpdate
   publicly :queryable
 
   basic_fields :chamber, :legislative_day, :timestamp, 
-    :events, :roll_ids, :bill_ids, :legislator_ids, :congress
+    :update, :roll_ids, :bill_ids, :legislator_ids, :congress
   
-  search_fields :events
+  search_fields :update
   
   
   

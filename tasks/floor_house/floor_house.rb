@@ -37,10 +37,10 @@ class FloorHouse
       timestamp = Utils.utc_parse action.at("action_time")['for-search']
       item = action.at("action_description").inner_text.strip
       
-      update = FloorUpdate.find_or_initialize_by :timestamp => timestamp, :chamber => chamber
+      update = FloorUpdate.find_or_initialize_by timestamp: timestamp, chamber: chamber
         
       update.attributes = {
-        events: [item],
+        update: item,
         congress: congress,
         legislative_day: legislative_day_stamp,
         bill_ids: bill_ids_for(action, item, congress),
@@ -126,7 +126,7 @@ class FloorHouse
     
     matches = text.scan(/((M(?:rs|s|r)\.){1}\s((?:\s?[A-Z]{1}[A-Za-z-]+){0,2})(?:,\s?([A-Z]{1}[A-Za-z-]+))?(?:(?:\sof\s([A-Z]{2}))|(?:\s?\(([A-Z]{2})\)))?)/)
     
-    query = {:chamber => "house"}
+    query = {chamber: "house"}
     
     matches.each do |match|
       title = match[1]
@@ -172,7 +172,7 @@ class FloorHouse
       if warning
         # occasionally non-members are actually mentioned in the floor feed, which causes a barrage of emails
         # the code here works well enough that I'm comfortable commenting these out for a while
-        # Report.warning self, "Couldn't find legislator match for #{match[0]}", :match => match
+        # Report.warning self, "Couldn't find legislator match for #{match[0]}", match: match
       end
     end
     
