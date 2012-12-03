@@ -14,13 +14,11 @@ class BillsText
     version_count = 0
 
     if options[:bill_id]
-      targets = Bill.where bill_id: options[:bill_id]
-      pieces = Utils.bill_fields_from options[:bill_id]
-      congress = pieces[2]
+      targets = [options[:bill_id]]
     else
       # only index unabbreviated bills from the specified congress
       congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
-      targets = Bill.where congress: congress
+      targets = Bill.where(congress: congress).distinct :bill_id
       
       if options[:limit]
         targets = targets.limit options[:limit].to_i
@@ -32,14 +30,14 @@ class BillsText
 
     # used to keep batches of indexes
     batcher = []
-    
-    targets.each do |bill|
-      type = bill.bill_type
+
+    targets.to_a.each do |bill_id|
+      type, number, congress, chamber = Utils.bill_fields_from bill_id
       
       # find all the versions of text for that bill
-      version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{bill.number}-#{congress}-[a-z]*.htm")
+      version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{number}-#{congress}-[a-z]*.htm")
       if version_files.empty?
-        warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill.bill_id}
+        warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill_id}
         next
       end
       
@@ -77,7 +75,7 @@ class BillsText
           end
 
         else
-          puts "[#{bill.bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
+          puts "[#{bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
           
           # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
           # So if any other bill triggers this, send me a warning so I can check it out.
@@ -96,12 +94,12 @@ class BillsText
         full_text = clean_text full_text
         
         # write text to disk if asked
-        Utils.write(text_cache(bill), full_text) if options[:cache_text]
+        Utils.write(text_cache(congress, bill_id), full_text) if options[:cache_text]
 
 
 
         # put up top here because it's the first line of debug output for a bill
-        puts "[#{bill.bill_id}][#{version_code}] Processing..." if options[:debug]
+        puts "[#{bill_id}][#{version_code}] Processing..." if options[:debug]
 
 
         # archive text in MongoDB for use later (this is dumb)
@@ -124,7 +122,7 @@ class BillsText
       end
       
       if bill_versions.size == 0
-        warnings << {message: "No versions with a valid date found for bill #{bill.bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill.bill_id}
+        warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
         next
       end
       
@@ -136,13 +134,17 @@ class BillsText
       # don't store the full text (except the last version's text  we preserved, in ES only)
       bill_versions.each {|v| v.delete :text}
 
-      unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(bill), options)
+
+      # load in bill for this ID
+      bill = Bill.where(bill_id: bill_id).first
+
+      unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(congress, bill_id), options)
         warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
         citation_ids = []
       end
 
-
       # Update bill in Mongo
+      
       bill.attributes = {
         versions: bill_versions,
         last_version: last_version,
@@ -151,11 +153,11 @@ class BillsText
       }
       bill.save!
 
-      puts "[#{bill.bill_id}] Updated bill with version codes." if options[:debug]
+      puts "[#{bill_id}] Updated bill with version codes." if options[:debug]
 
 
       # Update bill in ES
-      puts "[#{bill.bill_id}] Indexing..." if options[:debug]
+      puts "[#{bill_id}] Indexing..." if options[:debug]
 
       # add some non-basic fields for ES to search on, or return in results
       bill_fields = Utils.bill_for(bill).merge(
@@ -177,7 +179,7 @@ class BillsText
         batcher, options
       )
       
-      puts "[#{bill.bill_id}] Indexed." if options[:debug]
+      puts "[#{bill_id}] Indexed." if options[:debug]
       
       bill_count += 1
     end
@@ -193,7 +195,7 @@ class BillsText
       Report.note self, "Notes found while parsing bill text and metadata", notes: notes
     end
     
-    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions) for congress ##{congress}."
+    Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions)."
   end
   
   def self.clean_text(text)
@@ -257,12 +259,12 @@ class BillsText
     urls
   end
 
-  def self.citation_cache(bill)
-    "data/citation/bills/#{bill.congress}/#{bill.bill_id}.json"
+  def self.citation_cache(congress, bill_id)
+    "data/citation/bills/#{congress}/#{bill_id}.json"
   end
 
-  def self.text_cache(bill)
-    "data/citation/bills/#{bill.congress}/#{bill.bill_id}.txt"
+  def self.text_cache(congress, bill_id)
+    "data/citation/bills/#{congress}/#{bill_id}.txt"
   end
   
 end
