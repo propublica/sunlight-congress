@@ -5,7 +5,6 @@ class Report
   field :status
   field :source
   field :message
-  field :elapsed, type: Float
   field :attached, type: Hash, default: {}
   
   field :read, type: Boolean, default: false
@@ -84,7 +83,7 @@ class Report
   end
 
   def to_s
-    "[#{status}] #{source}#{to_minutes(elapsed.to_i) if elapsed}\n\t#{message}"
+    "[#{status}] #{source}#{to_minutes(attached['elapsed'].to_i) if attached['elapsed']}\n\t#{message}"
   end
 
   def exception_message
