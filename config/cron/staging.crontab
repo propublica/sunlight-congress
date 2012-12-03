@@ -2,7 +2,7 @@
 0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
 
 # bills from THOMAS, amendments through GovTrack
-0 4,16 * * * /projects/congress/shared/cron/task.sh bills && /projects/congress/shared/cron/task.sh amendments
+0 4,16 * * * /projects/congress/shared/cron/task.sh bills
 
 # full bill text from GPO
 */120 * * * * /projects/congress/shared/cron/task.sh bills_bulk

@@ -1,18 +1,15 @@
 # sync THOMAS data with Github once a day
 0 13 * * *   /projects/congress/sync-github.sh
 
-############# congress Tasks ########################3
+############# congress API tasks ########################3
 
-# legislators and committees from Sunlight API
+# legislators and committees from unitedstates
 0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
 
-# bills synced from gathered THOMAS data
+# bills from THOMAS
 0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills
 
-# amendments synced from GovTrack - sync twice a day
-0 4,16 * * * /projects/congress/shared/cron/task.sh amendments
-
-# full bill text from GPO
+# bill text from GPO
 */30 * * * * /projects/congress/shared/cron/task.sh bills_bulk
 0 5,11 * * * /projects/congress/shared/cron/task.sh bills_text batch_size=10
 
@@ -22,7 +19,6 @@
 # video
 0 9 * * *    /projects/congress/shared/cron/task.sh videos captions=True
 0 7 * * *    /projects/congress/shared/cron/task.sh videos captions=True senate=True
-
 
 # votes from house and senate, download last 10 votes every few minutes, stagger them
 */5 * * * * /projects/congress/shared/cron/task.sh votes_house latest=10
