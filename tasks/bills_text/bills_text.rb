@@ -10,16 +10,17 @@ class BillsText
   #   bill_id: index only a specific bill.
   
   def self.run(options = {})
-    congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
-
     bill_count = 0
     version_count = 0
 
     if options[:bill_id]
       targets = Bill.where bill_id: options[:bill_id]
+      pieces = Utils.bill_fields_from options[:bill_id]
+      congress = pieces[2]
     else
       # only index unabbreviated bills from the specified congress
-      targets = Bill.where abbreviated: false, congress: congress
+      congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
+      targets = Bill.where congress: congress
       
       if options[:limit]
         targets = targets.limit options[:limit].to_i
@@ -37,15 +38,10 @@ class BillsText
       
       # find all the versions of text for that bill
       version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{bill.number}-#{congress}-[a-z]*.htm")
-      
       if version_files.empty?
         warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill.bill_id}
         next
       end
-      
-      
-      # accumulate a massive string
-      last_bill_version_text = ""
       
       # accumulate an array of version objects
       bill_versions = [] 
@@ -115,15 +111,15 @@ class BillsText
         
         version_count += 1
         
-        # keep just the last version
-        last_bill_version_text = full_text 
-
         bill_versions << {
           version_code: version_code,
           issued_on: issued_on,
           version_name: version_name,
           bill_version_id: bill_version_id,
-          urls: urls
+          urls: urls,
+
+          # only the last version's text will ultimately be saved, in ES only
+          text: full_text
         }
       end
       
@@ -133,15 +129,14 @@ class BillsText
       end
       
       bill_versions = bill_versions.sort_by {|v| v[:issued_on]}
-      
       last_version = bill_versions.last
+      last_version_text = last_version[:text].dup
       last_version_on = last_version[:issued_on]
 
-      versions_count = bill_versions.size
-      bill_version_codes = bill_versions.map {|v| v[:version_code]}
-        
+      # don't store the full text (except the last version's text  we preserved, in ES only)
+      bill_versions.each {|v| v.delete :text}
 
-      unless citation_ids = Utils.citations_for(bill, last_bill_version_text, citation_cache(bill), options)
+      unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(bill), options)
         warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
         citation_ids = []
       end
@@ -149,10 +144,7 @@ class BillsText
 
       # Update bill in Mongo
       bill.attributes = {
-        version_info: bill_versions,
-        
-        version_codes: bill_version_codes,
-        versions_count: versions_count,
+        versions: bill_versions,
         last_version: last_version,
         last_version_on: last_version_on,
         citation_ids: citation_ids
@@ -165,31 +157,28 @@ class BillsText
       # Update bill in ES
       puts "[#{bill.bill_id}] Indexing..." if options[:debug]
 
-      # special subset of fields for ES
+      # add some non-basic fields for ES to search on, or return in results
       bill_fields = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
         summary: bill['summary'],
-        keywords: bill['keywords'],
-        last_action: bill['last_action']
+        keywords: bill['keywords']
       )
 
       Utils.es_batch!('bills', bill.bill_id,
         bill_fields.merge(
-          versions: last_bill_version_text,
           updated_at: Time.now,
-
-          version_codes: bill_version_codes,
-          versions_count: versions_count,
           last_version: last_version,
           last_version_on: last_version_on,
-          citation_ids: citation_ids
+          citation_ids: citation_ids,
+
+          # only ES gets only the last version of text
+          text: last_version_text
         ),
         batcher, options
       )
       
       puts "[#{bill.bill_id}] Indexed." if options[:debug]
       
-
       bill_count += 1
     end
     
