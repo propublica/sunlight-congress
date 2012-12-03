@@ -4,7 +4,8 @@
 ############# RTC Tasks ########################3
 
 # legislators and committees from Sunlight API
-# 0 3 * * *    /projects/rtc/shared/cron/task.sh legislators && /projects/rtc/shared/cron/task.sh committees
+0 3 * * *    /projects/rtc/shared/cron/task.sh legislators
+# && /projects/rtc/shared/cron/task.sh committees
 
 # bills synced from gathered THOMAS data
 0 4,16 * * * /projects/rtc/run-thomas.sh && /projects/rtc/shared/cron/task.sh bills_thomas 
