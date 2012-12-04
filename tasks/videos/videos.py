@@ -70,6 +70,7 @@ def push_to_s3(filename, s3name):
 def get_captions(client_name, clip_id):
     h = httplib2.Http()
     g_url = 'http://%s/JSON.php?clip_id=%s' % ( client_name, clip_id)
+    print "Fetching URL: %s" % g_url
     response, j = h.request(g_url)
     dirname = os.getcwd() + "/data/granicus/srt/%s/" % client_name
     filename = dirname + "%s.srt" % clip_id
@@ -138,10 +139,10 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
     clip_number = (duration / clip_segment) + 1
  
     clips = []
-    bills = []
+    bill_ids = []
     legislators = []
-    bioguide_ids = []
-    rolls = []
+    legislator_ids = []
+    roll_ids = []
     
     caps = get_captions('floor.senate.gov', clip_id)
     offset = 0
@@ -175,23 +176,23 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                     events += '; '
 
         if bio_ids: 
-            c['bioguide_ids'] = bio_ids
+            c['legislator_ids'] = bio_ids
             for bi in bio_ids:
-                if bi not in bioguide_ids:
-                    bioguide_ids.append(bi)
+                if bi not in legislator_ids:
+                    legislator_ids.append(bi)
 
         if r: 
-            c['rolls'] = r
+            c['roll_ids'] = r
             for ro in r:
-                if ro not in rolls:
-                    rolls.append(r)
+                if ro not in roll_ids:
+                    roll_ids.append(r)
         
         if b: 
-            c['bills'] = b
+            c['bill_ids'] = b
             events += 'Bills mentioned in this clip: '
             for bill in b:
-                if bill not in bills:
-                    bills.append(bill)
+                if bill not in bill_ids:
+                    bill_ids.append(bill)
                 
                 bill_name = db['bills'].find_one({'bill_id':bill })
                 if  bill_name and bill_name.has_key('short_title') and bill_name['short_title'] and bill_name['short_title'] != '':
@@ -208,7 +209,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
 
         offset = offset + clip_segment
     
-    return (clips, bills, legislators, bioguide_ids, rolls)
+    return (clips, bill_ids, legislators, legislator_ids, roll_ids)
 
 
 def get_markers(db, client_name, clip_id, congress, chamber):
@@ -216,10 +217,10 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     data = '{"filter": { "term": { "video_id": %s}}, "sort": [{"offset":{"order":"asc"}}]}' % clip_id
     markers = query_api(db, api_url, data)
     clips = []
-    bills = []
+    bill_ids = []
     legislators = []
-    bioguide_ids = []
-    rolls = []
+    legislator_ids = []
+    roll_ids = []
     
     if markers:
         for m in markers:
@@ -244,35 +245,35 @@ def get_markers(db, client_name, clip_id, congress, chamber):
                     if l not in legislators:
                         legislators.append(l)
             if bio_ids: 
-                c['bioguide_ids'] = bio_ids
+                c['legislator_ids'] = bio_ids
                 for bi in bio_ids:
-                    if bi not in bioguide_ids:
-                        bioguide_ids.append(bi)
+                    if bi not in legislator_ids:
+                        legislator_ids.append(bi)
 
             if r: 
-                c['rolls'] = r
+                c['roll_ids'] = r
                 for ro in r:
-                    if ro not in rolls:
-                        rolls.append(r)
+                    if ro not in roll_ids:
+                        roll_ids.append(r)
             
             if b: 
-                c['bills'] = b
+                c['bill_ids'] = b
                 for bill in b:
-                    if bill not in bills:
-                        bills.append(bill)
+                    if bill not in bill_ids:
+                        bill_ids.append(bill)
 
 
             clips.append(c)
 
-        return (clips, bills, legislators, bioguide_ids, rolls)
+        return (clips, bill_ids, legislators, legislator_ids, roll_ids)
 
     else:
         db.warning('There are no markers for video id: %s' % clip_id)
         return (None, None, None, None, None)
 
-def try_key(data, key, name, new_data):
+def try_key(data, key, new_key, new_data):
     if data.has_key(key):
-        new_data[name] = data[key]
+        new_data[new_key] = data[key]
         return new_data
     else:
         return new_data
@@ -302,8 +303,8 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
          
         #initialize arrays and dicts so we don't have to worry about it later
         if not new_vid.has_key('clip_urls'): new_vid['clip_urls'] = {}
-        if not new_vid.has_key('bills'): new_vid['bills'] = []
-        if not new_vid.has_key('bioguide_ids'): new_vid['bioguide_ids'] = []
+        if not new_vid.has_key('bill_ids'): new_vid['bill_ids'] = []
+        if not new_vid.has_key('legislator_ids'): new_vid['legislator_ids'] = []
         if not new_vid.has_key('legislator_names'): new_vid['legislator_names'] = []
 
         if not new_vid.has_key('created_at'): new_vid['created_at'] = datetime.now() 
@@ -312,7 +313,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         
         new_vid = try_key(v, 'id', 'clip_id', new_vid)
         new_vid = try_key(v, 'duration', 'duration', new_vid)
-        new_vid = try_key(v, 'datetime', 'pubdate', new_vid)
+        new_vid = try_key(v, 'datetime', 'published_at', new_vid)
         new_vid['clip_urls'] = try_key(v, 'http', 'mp4', new_vid['clip_urls'])
         new_vid['clip_urls'] = try_key(v, 'hls', 'hls', new_vid['clip_urls'])
         new_vid['clip_urls'] = try_key(v, 'rtmp', 'rtmp', new_vid['clip_urls'])
@@ -322,9 +323,9 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         new_vid['congress'] =  rtc_utils.current_congress(legislative_day.year)
 
         if chamber == 'house':
-            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['congress'], chamber)
+            new_vid['clips'], new_vid['bill_ids'], new_vid['legislator_names'], new_vid['legislator_ids'], new_vid['roll_ids'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['congress'], chamber)
         elif chamber == 'senate':
-            new_vid['clips'], new_vid['bills'], new_vid['legislator_names'], new_vid['bioguide_ids'], new_vid['rolls'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['congress'], new_vid['duration'], dateparse(new_vid['pubdate']).year)
+            new_vid['clips'], new_vid['bill_ids'], new_vid['legislator_names'], new_vid['legislator_ids'], new_vid['roll_ids'] = get_clips_for_senate(db, new_vid['clip_id'], new_vid['congress'], new_vid['duration'], dateparse(new_vid['published_at']).year)
 
         #make sure the last clip has a duration
         if new_vid['clips'] and len(new_vid['clips']) > 0:
@@ -347,14 +348,14 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                         'offset': c['offset'],
                         'duration': c['duration'],
                         'legislative_day': new_vid['legislative_day'],
-                        'pubdate': new_vid['pubdate'],
+                        'published_at': new_vid['published_at'],
                         'clip_urls': new_vid['clip_urls']
                 }
                 clip = try_key(c, 'legislator_names', 'legislator_names', clip)
-                clip = try_key(c, 'rolls', 'rolls', clip)
+                clip = try_key(c, 'roll_ids', 'roll_ids', clip)
                 clip = try_key(c, 'events', 'events', clip)
-                clip = try_key(c, 'bills', 'bills', clip)
-                clip = try_key(c, 'bioguide_ids', 'bioguide_ids', clip)
+                clip = try_key(c, 'bill_ids', 'bill_ids', clip)
+                clip = try_key(c, 'legislator_ids', 'legislator_ids', clip)
                 
                 if new_vid.has_key('caption_srt_file'):
                     clip['srt_link'] = new_vid['caption_srt_file'],
@@ -395,10 +396,12 @@ def get_clip_captions(video, clip, first_clip):
 def query_api(db, api_url, data=None):
 
     h = httplib2.Http()
-    response, text = h.request(api_url, body=data)
+    
     print "Making request %s" % api_url
     print "with data: %s" % data
 
+    response, text = h.request(api_url, body=data)
+    
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
         return items
