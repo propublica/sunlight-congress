@@ -1,6 +1,7 @@
 import re 
 from pysrt import SubRipTime, SubRipItem, SubRipFile
 import json
+import rfc3339
 import rtc_utils
 import urlparse
 import httplib2
@@ -314,6 +315,11 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
         new_vid = try_key(v, 'id', 'clip_id', new_vid)
         new_vid = try_key(v, 'duration', 'duration', new_vid)
         new_vid = try_key(v, 'datetime', 'published_at', new_vid)
+
+        # normalize timestamp format to RFC3339 in UTC
+        new_vid['published_at'] = rfc3339.rfc3339(parse(new_vid['published_at']), utc=True)
+
+
         new_vid['clip_urls'] = try_key(v, 'http', 'mp4', new_vid['clip_urls'])
         new_vid['clip_urls'] = try_key(v, 'hls', 'hls', new_vid['clip_urls'])
         new_vid['clip_urls'] = try_key(v, 'rtmp', 'rtmp', new_vid['clip_urls'])
