@@ -10,7 +10,7 @@ class GaoReports
   #   gao_id: specify a single report by its GAO ID.
   #   year: fetch a whole year's reports.
   #   limit: a number, limit the number of reports found.
-  #   cache: fetch everything from the disk, no network requests.
+  #   cache: fetch available docs from the disk.
 
   def self.run(options = {})
 
@@ -120,24 +120,26 @@ class GaoReports
 
       attributes = {
         document_id: document_id,
-        title: title,
-        posted_at: posted_at,
         document_type: 'gao_report',
         document_type_name: "GAO Report",
-        url: (landing_url || pdf_url),
-        
-        source_url: pdf_url,
+
+        posted_at: posted_at,
         published_on: published_on,
 
-        description: description,
-        gao_id: gao_id,
-        report_number: report_number,
+        title: title,
         categories: categories,
+        
+        url: (landing_url || pdf_url),
+        source_url: pdf_url,
 
-        # bonus
-        supplement_url: details['supplement_url'],
-        youtube_id: details['youtube_id'],
-        links: (details['additional_links'] if details['additional_links'].present?)
+        gao_report: {
+          gao_id: gao_id,
+          report_number: report_number,
+          supplement_url: details['supplement_url'],
+          youtube_id: details['youtube_id'],
+          links: (details['additional_links'] if details['additional_links'].present?),
+          description: description
+        }
       }
 
       # save to Mongo
@@ -147,12 +149,7 @@ class GaoReports
       
       # save to ElasticSearch if we got the text
       if full_text
-        
-        # post-process, strip newlines
         full_text = process_full_text full_text
-
-
-        # extract citations
 
         unless citation_ids = Utils.citations_for(document, full_text, cache_path_for(gao_id, "citation.json"), options)
           warnings << {message: "Failed to extract citations from #{document_id}"}
@@ -161,9 +158,6 @@ class GaoReports
 
         document['citation_ids'] = citation_ids # for Mongo
         attributes['citation_ids'] = citation_ids # for ES
-
-
-        # index in text search engine
 
         puts "[#{gao_id}] Indexing full text..." if options[:debug]
         attributes['text'] = full_text
@@ -178,7 +172,6 @@ class GaoReports
       count += 1
     end
 
-    # index any leftover docs
     Utils.es_flush! 'documents', batcher
 
     if failures.any?
