@@ -186,7 +186,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
             c['roll_ids'] = r
             for ro in r:
                 if ro not in roll_ids:
-                    roll_ids.append(r)
+                    roll_ids.append(ro)
         
         if b: 
             c['bill_ids'] = b
@@ -255,7 +255,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
                 c['roll_ids'] = r
                 for ro in r:
                     if ro not in roll_ids:
-                        roll_ids.append(r)
+                        roll_ids.append(ro)
             
             if b: 
                 c['bill_ids'] = b
