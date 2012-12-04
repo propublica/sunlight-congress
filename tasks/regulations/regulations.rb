@@ -204,7 +204,7 @@ class Regulations
 
       # index into elasticsearch
       puts "[#{document_number}] Indexing text of regulation..."
-      fields['full_text'] = full_text
+      fields['text'] = full_text
       fields['citation_ids'] = citation_ids
 
       Utils.es_batch! 'regulations', document_number, fields, batcher, options
