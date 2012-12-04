@@ -102,25 +102,25 @@ class VotesHouse
       
       vote = Vote.find_or_initialize_by roll_id: roll_id
       vote.attributes = {
-        :vote_type => Utils.vote_type_for(roll_type, roll_type),
-        :how => "roll",
-        :chamber => "house",
-        :year => year,
-        :number => number,
+        vote_type: Utils.vote_type_for(roll_type, roll_type),
+        chamber: "house",
+        year: year,
+        number: number,
 
-        :vacated => vacated,
+        congress: congress,
         
-        :congress => congress,
+        roll_type: roll_type,
+        question: question,
+        result: doc.at("vote-result").inner_text,
+        required: required_for(doc),
         
-        :roll_type => roll_type,
-        :question => question,
-        :result => doc.at("vote-result").inner_text,
-        :required => required_for(doc),
-        
-        :voted_at => voted_at_for(doc),
-        :voter_ids => voter_ids,
-        :voters => voters,
-        :vote_breakdown => Utils.vote_breakdown_for(voters),
+        voted_at: voted_at_for(doc),
+        voter_ids: voter_ids,
+        voters: voters,
+
+        breakdown: Utils.vote_breakdown_for(voters),
+
+        vacated: vacated
       }
       
       if bill_id

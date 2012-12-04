@@ -297,9 +297,9 @@ module Utils
   end
   
   def self.vote_breakdown_for(voters)
-    breakdown = {:total => {}, :party => {}}
+    breakdown = {total: {}, party: {}}
     
-    voters.each do|bioguide_id, voter|      
+    voters.each do |bioguide_id, voter|
       party = voter[:voter]['party']
       vote = voter[:vote]
       
@@ -319,8 +319,22 @@ module Utils
         breakdown[:party][party][vote] ||= 0
       end
     end
+
+    # transform from hash to array of hashes with no dynamic keys
+    new_breakdown = {total: [], party: []}
+    breakdown[:total].each do |vote, number|
+      new_breakdown[:total] << {vote: vote, number: number}
+    end
+
+    breakdown[:party].each do |party, totals|
+      party_breakdown = {party: party, breakdown: []}
+      totals.each do |vote, number|
+        party_breakdown[:breakdown] << {vote: vote, number: number}
+      end
+      new_breakdown[:party] << party_breakdown
+    end
     
-    breakdown
+    new_breakdown
   end
   
   

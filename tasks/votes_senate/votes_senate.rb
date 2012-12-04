@@ -91,23 +91,22 @@ class VotesSenate
 
       vote = Vote.find_or_initialize_by roll_id: roll_id
       vote.attributes = {
-        :vote_type => Utils.vote_type_for(roll_type, question),
-        :how => "roll",
-        :chamber => "senate",
-        :year => year,
-        :number => number,
+        vote_type: Utils.vote_type_for(roll_type, question),
+        chamber: "senate",
+        year: year,
+        number: number,
         
-        :congress => congress,
+        congress: congress,
         
-        :roll_type => roll_type,
-        :question => question,
-        :result => result,
-        :required => required_for(doc),
+        roll_type: roll_type,
+        question: question,
+        result: result,
+        required: required_for(doc),
         
-        :voted_at => voted_at_for(doc),
-        :voter_ids => voter_ids,
-        :voters => voters,
-        :vote_breakdown => Utils.vote_breakdown_for(voters),
+        voted_at: voted_at_for(doc),
+        voter_ids: voter_ids,
+        voters: voters,
+        breakdown: Utils.vote_breakdown_for(voters),
       }
       
       if bill_id
