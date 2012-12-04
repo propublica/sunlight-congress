@@ -104,21 +104,6 @@ class Regulations
         rule = Regulation.new document_number: document_number
       end
 
-      # turn Dates into Times
-      # ['publication_date', 'comments_close_on', 'effective_on', 'signing_date'].each do |field|
-      #   # one other field is 'dates', and I don't know what the possible values are for that yet
-      #   if details[field]
-      #     details[field] = details[field].to_time
-      #   end
-      # end
-
-      # Since we're using the Yajl parser, we need to parse timestamps ourselves
-      ['filed_at', 'pdf_updated_at'].each do |field|
-        if details[field]
-          details[field] = Utils.utc_parse details[field]
-        end
-      end
-
       # maps FR document type to rule stage
       type_to_stage = {
         "Proposed Rule" => "proposed",
@@ -127,33 +112,28 @@ class Regulations
 
       # common to public inspection documents and to articles
       attributes = {
+        document_type: document_type.to_s,
+
         stage: type_to_stage[details['type']],
         agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
         agency_ids: details['agencies'].map {|agency| agency['id']},
         publication_date: details['publication_date'],
 
-        federal_register_url: details['html_url'],
-        federal_register_json_url: url,
-        pdf_url: details['pdf_url'],
-
-        document_type: document_type.to_s
+        url: details['html_url'],
+        pdf_url: details['pdf_url']
       }
 
 
       if document_type == :article
         attributes.merge!(
           title: details['title'],
+          docket_ids: details['docket_ids'],
+          posted_at: noon_utc_for(details['publication_date']),
+
           abstract: details['abstract'],
-          effective_at: details['effective_on'],
-          full_text_xml_url: details['full_text_xml_url'],
-          body_html_url: details['body_html_url'],
-
-          # for articles, main timestamp is based on publication_date
-          published_at: details['publication_date'],
-          year: details['publication_date'].year,
-
+          effective_on: details['effective_on'],
           rins: details['regulation_id_numbers'],
-          docket_ids: details['docket_ids']
+          comments_close_on: details['comments_close_on']
         )
 
       elsif document_type == :public_inspection
@@ -169,17 +149,8 @@ class Regulations
 
         attributes.merge!(
           title: title,
-          num_pages: details['num_pages'],
-          pdf_updated_at: details['pdf_updated_at'],
-          raw_text_url: details['raw_text_url'],
-          filed_at: details['filed_at'],
-
-          # different key name for PI docs for some reason
           docket_ids: details['docket_numbers'],
-          
-          # for PI docs, main timestamp is based on filing date
-          published_at: details['filed_at'],
-          year: details['filed_at'].year
+          posted_at: Utils.utc_parse(details['filed_at'])
         )
       end
 
@@ -196,18 +167,18 @@ class Regulations
       full_text = nil
 
       if document_type == :article
-        if rule['full_text_xml_url']
-          full_text = text_for :article, document_number, :xml, rule['full_text_xml_url'], options
+        if details['full_text_xml_url']
+          full_text = text_for :article, document_number, :xml, details['full_text_xml_url'], options
           
         elsif rule['body_html_url'] 
-          full_text = text_for :article, document_number, :html, rule['body_html_url'], options
+          full_text = text_for :article, document_number, :html, details['body_html_url'], options
 
         else
           missing_links << document_number
         end
       else
-        if rule['raw_text_url']
-          full_text = text_for :public_inspection, document_number, :txt, rule['raw_text_url'], options
+        if details['raw_text_url']
+          full_text = text_for :public_inspection, document_number, :txt, details['raw_text_url'], options
         else
           missing_links << document_number
         end
@@ -227,7 +198,7 @@ class Regulations
       
       # load in the part of the regulation from mongo that gets synced to ES
       fields = {}
-      Regulation.result_fields.each do |field|
+      Regulation.basic_fields.each do |field|
         fields[field] = rule[field.to_s]
       end
 
@@ -409,4 +380,10 @@ class Regulations
   def self.citation_cache(document_number)
     destination_for "citation", document_number, "json"
   end
+
+  def self.noon_utc_for(timestamp)
+    time = Time.zone.parse timestamp
+    time.getutc + (12-time.getutc.hour).hours
+  end
+
 end
