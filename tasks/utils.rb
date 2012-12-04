@@ -392,20 +392,6 @@ module Utils
     end
   end
   
-  def self.bill_from(bill_id)
-    type, number, congress, chamber = bill_fields_from bill_id
-    
-    bill = Bill.new bill_id: bill_id
-    bill.attributes = {
-      bill_type: type,
-      number: number,
-      congress: congress,
-      chamber: chamber
-    }
-    
-    bill
-  end
-  
   def self.bill_fields_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
@@ -414,21 +400,6 @@ module Utils
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
     
     [type, number, congress, chamber]
-  end
-  
-  def self.amendment_from(amendment_id)
-    chamber = {'h' => 'house', 's' => 'senate'}[amendment_id.gsub(/[^a-z]/, '')]
-    number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
-    congress = amendment_id.match(/-(\d+)$/)[1].to_i
-    
-    amendment = Amendment.new :amendment_id => amendment_id
-    amendment.attributes = {
-      chamber: chamber,
-      number: number,
-      congress: congress
-    }
-    
-    amendment
   end
   
   def self.format_bill_code(bill_type, number)
@@ -516,29 +487,28 @@ module Utils
   # will look up an associated bill by ID and will grab its searchable fields as appropriate
   def self.search_index_vote!(vote_id, attributes, batcher, options = {})
     attributes.delete '_id'
-
     attributes.delete 'voters'
     attributes.delete 'voter_ids'
 
     if bill_id = attributes['bill_id']
-      if bill = Bill.where(:bill_id => bill_id).first
+      if bill = Bill.where(bill_id: bill_id).first
         attributes['bill'] = Utils.bill_for(bill).merge(
-          :summary => bill['summary'],
-          :keywords => bill['keywords']
+          summary: bill['summary'],
+          keywords: bill['keywords']
         )
         if bill['last_version']
-          if bill_version = BillVersion.where(:bill_version_id => bill['last_version']['bill_version_id']).only(:full_text).first
-            attributes['bill']['last_version_text'] = bill_version['full_text']
+          if bill_version = BillVersion.where(bill_version_id: bill['last_version']['bill_version_id']).only(:text).first
+            attributes['bill']['text'] = bill_version['text']
           end
         end
       end
     end
 
-    if amendment_id = attributes['amendment_id']
-      if amendment = Amendment.where(:amendment_id => amendment_id).first
-        attributes['amendment'] = Utils.amendment_for(amendment)
-      end
-    end
+    # if amendment_id = attributes['amendment_id']
+    #   if amendment = Amendment.where(:amendment_id => amendment_id).first
+    #     attributes['amendment'] = Utils.amendment_for(amendment)
+    #   end
+    # end
 
     es_batch! 'votes', vote_id, attributes, batcher, options
   end

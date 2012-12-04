@@ -9,8 +9,7 @@ class Vote
   basic_fields :roll_id, :number, :year, :chamber, :congress, 
     :question, :result, :voted_at, :required,
     :roll_type, :vote_type, :passage_type, 
-    :bill_id, :amendment_id,
-    :vacated # house-only
+    :bill_id, :amendment_id
   
   
 

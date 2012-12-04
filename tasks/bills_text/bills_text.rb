@@ -103,7 +103,7 @@ class BillsText
 
         # archive text in MongoDB for use later (this is dumb)
         version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
-        version_archive.attributes = {full_text: full_text}
+        version_archive.attributes = {text: full_text}
         version_archive.save!
         
         version_count += 1
@@ -115,7 +115,7 @@ class BillsText
           bill_version_id: bill_version_id,
           urls: urls,
 
-          # only the last version's text will ultimately be saved, in ES only
+          # only the last version's text will ultimately be saved in ES
           text: full_text
         }
       end

@@ -98,6 +98,7 @@ class VotesHouse
 
       if vacated = vacated_for(doc)
         puts "[#{roll_id}] VACATED vote detected"
+        next
       end
       
       vote = Vote.find_or_initialize_by roll_id: roll_id
@@ -118,37 +119,28 @@ class VotesHouse
         voter_ids: voter_ids,
         voters: voters,
 
-        breakdown: Utils.vote_breakdown_for(voters),
-
-        vacated: vacated
+        breakdown: Utils.vote_breakdown_for(voters)
       }
       
       if bill_id
+        vote[:bill_id] = bill_id
         if bill = Utils.bill_for(bill_id)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => bill
-          }
-        elsif bill = create_bill(bill_id, doc)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => Utils.bill_for(bill)
-          }
+          vote[:bill] = bill
         else
-          missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
+          missing_bill_ids << {roll_id: roll_id, bill_id: bill_id}
         end
       end
       
-      if amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-          vote.attributes = {
-            :amendment_id => amendment_id,
-            :amendment => Utils.amendment_for(amendment)
-          }
-        else
-          missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-        end
-      end
+      # if amendment_id
+      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
+      #     vote.attributes = {
+      #       :amendment_id => amendment_id,
+      #       :amendment => Utils.amendment_for(amendment)
+      #     }
+      #   else
+      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
+      #   end
+      # end
       
       vote.save!
 

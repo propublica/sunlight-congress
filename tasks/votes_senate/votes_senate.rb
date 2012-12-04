@@ -57,7 +57,7 @@ class VotesSenate
     es_failures = []
     missing_legislators = []
     missing_bill_ids = []
-    missing_amendment_ids = []
+    # missing_amendment_ids = []
 
     batcher = [] # ES batch indexer
 
@@ -87,7 +87,6 @@ class VotesSenate
       roll_type = doc.at("question").text
       question = doc.at("vote_question_text").text
       result = doc.at("vote_result").text
-      
 
       vote = Vote.find_or_initialize_by roll_id: roll_id
       vote.attributes = {
@@ -115,27 +114,22 @@ class VotesSenate
             :bill_id => bill_id,
             :bill => bill
           }
-        elsif bill = create_bill(bill_id, doc)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => Utils.bill_for(bill)
-          }
         else
           missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
         end
       end
       
       # for now, only bother with amendments on bills
-      if bill_id and amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-          vote.attributes = {
-            :amendment_id => amendment_id,
-            :amendment => Utils.amendment_for(amendment)
-          }
-        else
-          missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-        end
-      end
+      # if bill_id and amendment_id
+      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
+      #     vote.attributes = {
+      #       :amendment_id => amendment_id,
+      #       :amendment => Utils.amendment_for(amendment)
+      #     }
+      #   else
+      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
+      #   end
+      # end
       
       vote.save!
 
@@ -161,9 +155,9 @@ class VotesSenate
       Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", missing_bill_ids: missing_bill_ids
     end
     
-    if missing_amendment_ids.any?
-      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
-    end
+    # if missing_amendment_ids.any?
+    #   Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
+    # end
 
     Report.success self, "Successfully synced #{count} Senate roll call votes for #{year}"
   end
@@ -230,9 +224,9 @@ class VotesSenate
         voter = legislators[lis_id]
         bioguide_id = voter['bioguide_id']
         voter_ids[bioguide_id] = vote
-        voters[bioguide_id] = {:vote => vote, :voter => voter}
+        voters[bioguide_id] = {vote: vote, voter: voter}
       else
-        missing_legislators << {:lis_id => lis_id, :member_full => elem.at("member_full").text, :number => doc.at("vote_number").text.to_i}
+        missing_legislators << {lis_id: lis_id, member_full: elem.at("member_full").text, number: doc.at("vote_number").text.to_i}
       end
     end
     
@@ -265,29 +259,6 @@ class VotesSenate
     end
   end
   
-  def self.create_bill(bill_id, doc)
-    bill = Utils.bill_from bill_id
-    
-    elem = doc.at 'amendment_to_document_short_title'
-    if elem and elem.text.present?
-      bill.attributes = {:short_title => elem.text.strip}
-    else
-      elem 
-      if (elem = doc.at 'document_short_title') and elem.text.present?
-        bill.attributes = {:short_title => elem.text.strip}
-      end
-      
-      if (elem = doc.at 'document_title') and elem.text.present?
-        bill.attributes = {:official_title => elem.text.strip}
-      end
-      
-    end
-    
-    bill.save!
-    
-    bill
-  end
-  
   def self.amendment_id_for(doc, congress)
     elem = doc.at 'amendment_number'
     if elem and elem.text.present?
@@ -301,7 +272,6 @@ class VotesSenate
   def self.voted_at_for(doc)
     Utils.utc_parse doc.at("vote_date").text
   end
-
 
   def self.download_roll(year, number, failures, options = {})
     url = url_for year, number
@@ -353,17 +323,15 @@ class VotesSenate
   
 end
 
-
-require 'net/http'
-
 # Shorten timeout in Net::HTTP
+require 'net/http'
 module Net
   class HTTP
     alias old_initialize initialize
 
     def initialize(*args)
-        old_initialize(*args)
-        @read_timeout = 8 # 8 seconds
+      old_initialize(*args)
+      @read_timeout = 8 # 8 seconds
     end
   end
 end
