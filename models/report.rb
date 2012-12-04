@@ -15,6 +15,7 @@ class Report
   index created_at: 1
   
   scope :unread, where(read: false)
+  scope :latest, lambda {|status| desc(:created_at).where(status: status.upcase)}
   
   def self.file(status, source, message, attached = {})
     Report.create! source: source.to_s, status: status, message: message, attached: attached

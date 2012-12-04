@@ -41,16 +41,7 @@ def run(db, es, options = {}):
 
           date_string = meeting.date.contents[0].strip()
           occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
-          legislative_day = occurs_at.strftime("%Y-%m-%d")
           congress = rtc_utils.current_congress(occurs_at.year)
-          
-          try:
-            time_str = meeting.time.contents[0].strip()
-            time_of_day = time.strptime(time_str, "%I:%M %p")
-            time_of_day = datetime.datetime(*time_of_day[0:6])
-            time_of_day = time_of_day.strftime("%I:%M%p")
-          except ValueError:
-            time_of_day = None
           
           document = None
           if meeting.document:
@@ -65,7 +56,7 @@ def run(db, es, options = {}):
           bill_ids = rtc_utils.extract_bills(description, congress)
           
 
-          documents = db['committee_hearings'].find({
+          documents = db['hearings'].find({
             'chamber': 'senate', 
             'committee_id': committee_id, 
               
@@ -92,21 +83,20 @@ def run(db, es, options = {}):
           hearing['updated_at'] = datetime.datetime.now()
           
           hearing.update({
-            'bill_ids': bill_ids,
+            'congress': congress,
             'occurs_at': occurs_at,
             'room': room, 
+
             'description': description, 
-            'legislative_day': legislative_day,
-            'time_of_day': time_of_day,
-            'congress': congress,
-            'committee_url': committee_url,
-            'dc': True
+            'dc': True,
+
+            'bill_ids': bill_ids
           })
           
           if committee:
             hearing['committee'] = committee
           
-          db['committee_hearings'].save(hearing)
+          db['hearings'].save(hearing)
           
           count += 1
       

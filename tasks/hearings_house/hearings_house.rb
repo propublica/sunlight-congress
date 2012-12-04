@@ -16,6 +16,7 @@ class HearingsHouse
       # if a specific month is given (form "YYYY-MM")
       if options[:month]
         months = [options[:month].split("-").map(&:to_i)] 
+      
 
       # otherwise, default to this month and next month
       else
@@ -106,7 +107,11 @@ class HearingsHouse
 
       # second piece is the room, may not be there
       room = room_for(top_pieces[1]) || "TBA"
-      dc = ((room == "TBA") or !(room =~ /HOB/).nil?)
+      if (room == "TBA") or (room =~ /(HOB|SOB|Office Building|Hart|Dirksen|Russell|Cannon|Longworth|Rayburn|Capitol)/)
+        dc = true
+      else
+        dc = false
+      end
 
       # first piece of bottom is the host, but we extracted that more reliably already
       # second piece of bottom is the subcommittee name, or "Full Committee"
@@ -121,33 +126,30 @@ class HearingsHouse
 
       bill_ids = Utils.bill_ids_for title, congress
 
-      hearing = CommitteeHearing.where(
+      hearing = Hearing.where(
         chamber: chamber, 
         committee_id: committee_id, 
         "$or" => [{occurs_at: occurs_at}, {description: title}]
-      ).first || CommitteeHearing.new(chamber: chamber, committee_id: committee_id)
+      ).first || Hearing.new(chamber: chamber, committee_id: committee_id)
 
       if hearing.new_record?
         puts "Creating new committee hearing for #{committee_id} at #{occurs_at}..." if options[:debug]
       end
 
       hearing.attributes = {
-        # core
-        occurs_at: occurs_at,
-        description: title,
-        room: room,
-        legislative_day: datestamp,
         congress: congress,
+        occurs_at: occurs_at,
+        room: room,
+        description: title,
+        dc: dc,
+
         committee: Utils.committee_for(committee),
 
-        # optional
-        time_of_day: time_of_day,
         bill_ids: bill_ids,
 
         # only from House right now
-        hearing_url: hearing_url,
-        hearing_type: hearing_type,
-        dc: dc
+        url: hearing_url,
+        hearing_type: hearing_type
       }
 
       if subcommittee_id
