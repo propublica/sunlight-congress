@@ -311,7 +311,6 @@ class VotesHouse
   
   def self.create_bill(bill_id, doc)
     bill = Utils.bill_from bill_id
-    bill.attributes = {:abbreviated => true}
     bill.save!
     bill
   end

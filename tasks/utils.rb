@@ -219,7 +219,7 @@ module Utils
   end
   
   def self.congress_for_year(year)
-    ((year + 1) / 2) - 894
+    ((year.to_i + 1) / 2) - 894
   end
   
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
@@ -482,19 +482,18 @@ module Utils
   # Removes all elements from the list that match the source_type of the given upcoming item, adds this one.
   def self.update_bill_upcoming!(bill_id, upcoming_bill)
     if bill = Bill.where(bill_id: bill_id).first
-      old_latest_upcoming = (bill['latest_upcoming'] || []).dup
+      old_latest_upcoming = (bill['upcoming'] || []).dup
       new_latest_upcoming = old_latest_upcoming.select do |upcoming|
         upcoming['source_type'] != upcoming_bill[:source_type]
       end
 
-      # remove bill and bill_id sections from upcoming bill object
-      attrs = upcoming_bill.attributes.dup
-      ['bill', 'bill_id', '_id', 'created_at', 'updated_at'].each do |attr|
-        attrs.delete attr
+      attrs = {}
+      UpcomingBill.basic_fields.each do |field|
+        attrs[field] = upcoming_bill[field] unless field == :bill_id
       end
 
       new_latest_upcoming << attrs
-      bill[:latest_upcoming] = new_latest_upcoming
+      bill[:upcoming] = new_latest_upcoming
       bill.save!
     end
   end

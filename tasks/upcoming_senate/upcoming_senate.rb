@@ -7,7 +7,6 @@ class UpcomingSenate
   
   def self.run(options = {})
     count = 0
-    bill_count = 0
     
     url = "http://democrats.senate.gov/floor/daily-summary/feed/"
     
@@ -27,17 +26,19 @@ class UpcomingSenate
       return
     end
 
+    # clear out Senate's upcoming records, this will replace them
+    UpcomingBill.where(source_type: "senate_daily").delete_all
+
     bad_entries = []
-    
-    # accumulate upcoming bills 
     upcoming_bills = {}
     
-    rss.entries.reverse.each do |entry|
+    # go from most recent to oldest - stop after the most recent valid entry
+    rss.entries.each do |entry|
       doc = Nokogiri::HTML entry.content
       
       # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
       # Just ignore them
-      next unless entry.title =~ /Senate Floor Schedule/i
+      next unless entry.title =~ /Schedule/i
       next unless legislative_date = Utils.utc_parse(entry.title)
       
       legislative_day = legislative_date.strftime "%Y-%m-%d"
@@ -63,9 +64,7 @@ class UpcomingSenate
       end
       
       items.each_with_index do |item, i|
-        
         text = item.text
-        
         next unless text.present?
             
         # figure out the text item, including any following sub-items
@@ -88,35 +87,30 @@ class UpcomingSenate
             upcoming_bills[legislative_day][bill_id][:context] << text
           else
             upcoming_bills[legislative_day][bill_id] = {
-              :congress => congress,
-              :chamber => "senate",
-              :context => [text],
-              :bill_id => bill_id,
-              :legislative_day => legislative_day,
-              :source_type => "senate_daily",
-              :source_url => entry.url,
-              :permalink => entry.url
+              bill_id: bill_id,
+              source_type: "senate_daily",
+
+              congress: congress,
+              chamber: "senate",
+              legislative_day: legislative_day,
+              url: entry.url,
+
+              context: text
             }
-            if bill = Utils.bill_for(bill_id) and bill['abbreviated'] != true
+            if bill = Utils.bill_for(bill_id)
               upcoming_bills[legislative_day][bill_id][:bill] = bill
             end
           end
         end
       end
       
+      # we only want the latest one, so if we reached this point, we're done
+      break
     end
-    
-    Report.success self, "Created or updated #{count} schedules"
     
     # create any accumulated upcoming bills
     upcoming_bills.each do |legislative_day, bills|
-      # clear out the previous items for that legislative day
-      UpcomingBill.where(
-        :source_type => "senate_daily",
-        :legislative_day => legislative_day
-      ).delete_all
-      
-      puts "[#{legislative_day}][senate_daily][bill] Cleared upcoming bills" if options[:debug]
+      puts "[#{legislative_day}] Storing #{bills.size} bill(s)..." if options[:debug]
       
       bills.each do |bill_id, bill|
         upcoming = UpcomingBill.create! bill
@@ -126,12 +120,12 @@ class UpcomingSenate
           Utils.update_bill_upcoming! bill_id, upcoming
         end
 
-        bill_count += 1
+        count += 1
       end
       
     end
     
-    Report.success self, "Created or updated #{bill_count} upcoming bills"
+    Report.success self, "Created or updated #{count} upcoming bills"
 
     if bad_entries.any?
       Report.warning self, "#{bad_entries.size} expected date-less titles in feed", :bad_entries => bad_entries

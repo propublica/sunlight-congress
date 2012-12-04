@@ -268,7 +268,6 @@ class VotesSenate
   
   def self.create_bill(bill_id, doc)
     bill = Utils.bill_from bill_id
-    bill.attributes = {:abbreviated => true}
     
     elem = doc.at 'amendment_to_document_short_title'
     if elem and elem.text.present?

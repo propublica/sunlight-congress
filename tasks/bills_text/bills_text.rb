@@ -16,7 +16,6 @@ class BillsText
     if options[:bill_id]
       targets = [options[:bill_id]]
     else
-      # only index unabbreviated bills from the specified congress
       congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
       targets = Bill.where(congress: congress).distinct :bill_id
       

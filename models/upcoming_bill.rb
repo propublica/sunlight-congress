@@ -2,8 +2,9 @@ class UpcomingBill
   include Api::Model
   publicly :queryable
 
-  basic_fields :chamber, :congress, :legislative_day, :bill_id, 
-    :source_url, :source_type, :context, :permalink
+  basic_fields :bill_id, :source_type, :url,
+    :chamber, :congress, :legislative_day, 
+    :context # senate-only
 
   search_fields :context
 
