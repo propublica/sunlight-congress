@@ -4,8 +4,8 @@
       "bill": {
         "properties": {
           "text": {
-              "type": "string",
-              "term_vector": "with_positions_offsets"
+            "type": "string",
+            "term_vector": "with_positions_offsets"
           }
         }
       }
