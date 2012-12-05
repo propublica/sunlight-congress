@@ -1,18 +1,14 @@
 cluster.name: Congress
 
-index:
-  number_of_shards: 5 # default
-  number_of_replicas: 1 # default
+node.master: true
+node.data: true
 
-path:
-  data: /var/lib/elasticsearch
-  work: /mnt
+index.number_of_shards: 1
+index.number_of_replicas: 0
 
-http:
-  port: 3145
+path.data: /projects/congress/elasticsearch
+path.work: /mnt
 
-bootstrap:
-  mlockall: true
+bootstrap.mlockall: true
 
-node.master: true # default
-node.data: true # default
+http.port: 3145
