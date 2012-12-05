@@ -3,6 +3,9 @@ require 'nokogiri'
 
 class FloorHouse
   
+  # options:
+  #   day: Which day to fetch (YYYY-MM-DD)
+
   def self.run(options = {})
     url = get_xml_url options
     return unless url # a warning report will have been filed
