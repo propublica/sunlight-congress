@@ -91,21 +91,22 @@ module Api
 
     # special fields used by the system, cannot be used on a model (on the top level)
     def magic_fields
-      %w{
-        fields order sort
-        page per_page
-        
-        query
-        highlight highlight.tags highlight.size
+      [
+        "fields", "order", "sort",
+        "page", "per_page",
 
-        citing citing.details
+        "query",
 
-        explain format
+        "highlight", "highlight.tags", "highlight.size",
 
-        apikey
-        callback _    
-        captures splat
-      }
+        "citing", "citing.details",
+
+        "explain", "format",
+
+        "apikey",
+        "callback", "_",
+        "captures", "splat"
+      ]
     end
   end
 
