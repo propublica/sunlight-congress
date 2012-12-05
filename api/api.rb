@@ -42,6 +42,9 @@ module Api
         params[:fields].split ','
       end
 
+      # don't allow fetching of full text through API
+      fields.delete 'text'
+
       models.each do |model|
         fields << model.cite_key.to_s if model.cite_key
       end
