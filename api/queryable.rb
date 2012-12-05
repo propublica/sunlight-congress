@@ -64,7 +64,7 @@ module Queryable
     count = criteria.count
     
     {
-      results: documents,
+      resultsssss: documents,
       count: count,
       page: {
         count: documents.size,
