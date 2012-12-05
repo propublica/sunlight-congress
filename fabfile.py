@@ -1,6 +1,8 @@
 import time
 from fabric.api import run, execute, env
 
+environment = "production"
+
 env.use_ssh_config = True
 env.hosts = ["congress@congress"]
 
@@ -13,6 +15,8 @@ version_path = "%s/versions/%s" % (home, time.strftime("%Y%m%d%H%M%S"))
 current_path = "%s/current" % home
 
 
+## can be run only as part of deploy
+
 def checkout():
   run('git clone -q -b %s %s %s' % (branch, repo, version_path))
 
@@ -23,8 +27,27 @@ def links():
   run("ln -s %s/unicorn.rb %s/unicorn.rb" % (shared_path, version_path))
   run("ln -s %s/data %s/data" % (home, version_path))
 
+def dependencies():
+  run("rvm rvmrc trust %s" % version_path)
+  run("cd %s && bundle install --local" % version_path)
+  # run("cd %s && pip install -r tasks/requirements.txt" % version_path)
+
+def create_indexes():
+  run("cd %s && rake create_indexes" % version_path)
+
 def make_current():
   run('rm -f current && ln -s %s current' % version_path)
+
+def prune_releases():
+  pass
+
+## can be run on their own
+
+def set_crontab():
+  run("cd %s && rake set_crontab environment=%s current_path=%s" % (current_path, environment, current_path))
+
+def disable_crontab():
+  run("cd %s && rake disable_crontab" % current_path)
 
 def start():
   run("cd %s && unicorn -D -l %s/congress.sock -c unicorn.rb" % (current_path, shared_path))
@@ -35,16 +58,12 @@ def stop():
 def restart():
   run("kill -HUP `cat %s/unicorn.pid`" % shared_path)
 
-# create indexes
-# bundle install
-# pip install
-# set crontab
-# disable crontab
-# prune releases down to 5
-
 
 def deploy():
   execute(checkout)
   execute(links)
+  execute(dependencies)
+  execute(create_indexes)
   execute(make_current)
+  # execute(set_crontab)
   execute(restart)
