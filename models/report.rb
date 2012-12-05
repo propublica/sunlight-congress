@@ -6,13 +6,13 @@ class Report
   field :source
   field :message
   field :attached, type: Hash, default: {}
-  
   field :read, type: Boolean, default: false
   
   index status: 1
   index source: 1
   index read: 1
   index created_at: 1
+  index elapsed: 1
   
   scope :unread, where(read: false)
   scope :latest, lambda {|status| desc(:created_at).where(status: status.upcase)}

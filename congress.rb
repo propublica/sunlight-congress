@@ -136,7 +136,7 @@ helpers do
       app_channel: request.env['HTTP_X_APP_CHANNEL'],
 
       created_at: now.utc,
-      elapsed: (now - request.env['timer'])
+      elapsed: ((now - request.env['timer']) * 1000000).to_i
     )
 
     HitReport.log! now.strftime("%Y-%m-%d"), key, method
