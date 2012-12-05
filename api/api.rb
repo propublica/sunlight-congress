@@ -56,6 +56,22 @@ module Api
       fields.uniq
     end
 
+    def order_for(params, default_order)
+      key = ["order.asc", "order.desc", "order"].find {|k| params[k]}
+      if key
+        field = params[key]
+        direction = key.split(".")[1] || "desc"
+      else
+        field = default_order
+        direction = "desc"
+      end
+
+      p field
+      p direction
+      
+      [field, direction]
+    end
+
     # auto-detect type of argument - allow quotes to force string interpretation
     def value_for(value)
       if ["true", "false"].include? value # boolean
@@ -92,7 +108,8 @@ module Api
     # special fields used by the system, cannot be used on a model (on the top level)
     def magic_fields
       [
-        "fields", "order", "sort",
+        "fields", 
+        "order", "order.desc", "order.asc",
         "page", "per_page",
 
         "query",

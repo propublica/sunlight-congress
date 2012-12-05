@@ -115,19 +115,6 @@ module Searchable
     models.map {|m| m.search_fields.map {|field| field.to_s}}.flatten.uniq
   end
   
-  def self.order_for(params)
-    key = params[:order].present? ? params[:order].to_s : "_score"
-      
-    sort = nil
-    if params[:sort].present? and ['desc', 'asc'].include?(params[:sort].downcase.to_s)
-      sort = params[:sort].downcase.to_s
-    else
-      sort = 'desc'
-    end
-    
-    [{key => sort}]
-  end
-  
   def self.raw_results_for(models, query, filter, fields, order, pagination, other)
     request = request_for models, query, filter, fields, order, pagination, other
     if other[:explain]
@@ -252,9 +239,11 @@ module Searchable
       # uh oh?
     end
     
+    field, direction = order
+    
     [
       {
-        sort: order,
+        sort: [{field => direction}],
         fields: fields
       }.merge(query_filter).merge(other), 
      

@@ -27,19 +27,6 @@ module Queryable
     conditions
   end
   
-  def self.order_for(model, params)
-    key = params[:order].present? ? params[:order].to_sym : :_id
-    
-    sort = nil
-    if params[:sort].present? and [:desc, :asc].include?(params[:sort].downcase.to_sym)
-      sort = params[:sort].downcase.to_sym
-    else
-      sort = :desc
-    end
-    
-    [[key, sort]]
-  end
-
   def self.regex_for(value)
     regex_value = value.to_s.dup
     %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
@@ -99,6 +86,6 @@ module Queryable
     skip = pagination[:per_page] * (pagination[:page]-1)
     limit = pagination[:per_page]
     
-    model.where(conditions).only(fields).order_by(order).skip(skip).limit(limit)
+    model.where(conditions).only(fields).order_by([order]).skip(skip).limit(limit)
   end
 end

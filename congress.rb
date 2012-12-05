@@ -15,10 +15,10 @@ get queryable_route do
   fields = fields_for model, params
   pagination = pagination_for params
   filters = filters_for params
+  order = order_for params, "_id"
 
   query_string = query_string_for params
   conditions = Queryable.conditions_for model, query_string, filters
-  order = Queryable.order_for model, params
 
   if params[:explain] == 'true'
     results = Queryable.explain_for model, conditions, fields, order, pagination
@@ -47,6 +47,7 @@ get searchable_route do
   fields = fields_for models, params
   pagination = pagination_for params
   filters = filters_for params
+  order = order_for params, "_score"
 
   search_fields = Searchable.search_fields_for models
 
@@ -55,7 +56,6 @@ get searchable_route do
   query = Searchable.query_for query_string, params, search_fields
 
   filter = Searchable.filter_for filters
-  order = Searchable.order_for params
   other = Searchable.other_options_for params, search_fields
   
   begin
