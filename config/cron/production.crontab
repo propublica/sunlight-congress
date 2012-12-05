@@ -1,10 +1,19 @@
-# sync THOMAS data with Github once a day
-0 13 * * *   /projects/congress/sync-github.sh
+############# unitedstates ###########
 
-############# congress API tasks ########################3
+# sync THOMAS data with Github once a day
+# 0 13 * * *   /projects/congress/sync-github.sh
+
+
+############# congress API #########################
+
+## analytics reporting
+# 0 6 * * *  /projects/congress/shared/cron/analytics.sh
+
+
 
 # legislators and committees from unitedstates
-0 3 * * *    /projects/congress/shared/cron/task.sh legislators && /projects/congress/shared/cron/task.sh committees
+0 3 * * *    /projects/congress/shared/cron/task.sh legislators 
+# && /projects/congress/shared/cron/task.sh committees
 
 # bills from THOMAS
 0 4,16 * * * /projects/congress/run-thomas.sh && /projects/congress/shared/cron/task.sh bills
