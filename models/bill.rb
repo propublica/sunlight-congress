@@ -6,7 +6,8 @@ class Bill
     :sponsor_id, :committee_ids, :related_bill_ids,
     :short_title, :official_title, :popular_title, :nicknames,
     :introduced_at, :history, :enacted_as,
-    :last_action_at, :last_vote_at, :last_version_on
+    :last_action_at, :last_vote_at, :last_version_on,
+    :urls
 
   search_fields :popular_title, :official_title, :short_title, 
     :nicknames, :summary, :keywords, :text

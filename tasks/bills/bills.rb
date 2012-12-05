@@ -94,6 +94,8 @@ class Bills
         committees: committees,
         committee_ids: committees.map {|c| c['committee']['committee_id']},
         related_bill_ids: related_bill_ids,
+
+        urls: urls_for(bill_id)
       }
       
       if bill.save
@@ -266,4 +268,58 @@ class Bills
     summary ? summary['text'] : nil
   end
 
+  def self.urls_for(bill_id)
+    type, number, congress, chamber = Utils.bill_fields_from bill_id
+    {
+      congress: congress_gov_url(congress, type, number),
+      govtrack: govtrack_url(congress, type, number),
+      opencongress: opencongress_url(congress, type, number),
+      thomas: thomas_url(congress, type, number)
+    }
+  end
+
+  def self.opencongress_url(congress, type, number)
+    id = "#{congress}-#{govtrack_type type}#{number}"
+    "http://www.opencongress.org/bill/#{id}/show"
+  end
+  
+  def self.govtrack_url(congress, type, number)
+    "http://www.govtrack.us/congress/bills/#{congress}/#{type}#{number}"
+  end
+  
+  def self.thomas_url(congress, type, number)
+    id = "#{congress}#{type}#{number}"
+    "http://hdl.loc.gov/loc.uscongress/legislation.#{id}"
+  end
+  
+  # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
+  def self.congress_gov_url(congress, type, number)
+    "http://beta.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
+  end
+
+  def self.govtrack_type(bill_type)
+    {
+      "hr" => "h",
+      "hres" => "hr",
+      "hjres" => "hj",
+      "hconres" => "hc",
+      "s" => "s",
+      "sres" => "sr",
+      "sjres" => "sj",
+      "sconres" => "sc"
+    }[bill_type]
+  end
+  
+  def self.congress_gov_type(bill_type)
+    {
+      "hr" => "house-bill",
+      "hres" => "house-resolution",
+      "hconres" => "house-concurrent-resolution",
+      "hjres" => "house-joint-resolution",
+      "s" => "senate-bill",
+      "sres" => "senate-resolution",
+      "sconres" => "senate-concurrent-resolution",
+      "sjres" => "senate-joint-resolution"
+    }[bill_type]
+  end
 end
