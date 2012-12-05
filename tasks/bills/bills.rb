@@ -82,7 +82,7 @@ class Bills
         withdrawn_cosponsor_ids: withdrawn.map {|c| c['legislator']['bioguide_id']},
 
         introduced_at: doc['introduced_at'],
-        history: doc['history'],
+        history: history_for(doc['history']),
         enacted_as: doc['enacted_as'],
 
         actions: actions,
@@ -135,6 +135,17 @@ class Bills
       nil
     end
   end
+
+  # just make sure all the dates are in UTC
+  def self.history_for(history)
+    new_history = history.dup
+    history.each do |key, value|
+      if (key =~ /_at$/) and (value =~ /:/)
+        new_history[key] = Utils.utc_parse(value)
+      end
+    end
+    new_history
+  end
   
   def self.cosponsors_for(cosponsors, legislators)
     new_cosponsors = []
@@ -181,6 +192,10 @@ class Bills
 
       # discard future 'actions', that's not what this is about
       next if time > now
+
+      if action['acted_at'] =~ /:/
+        action['acted_at'] = Utils.utc_parse action['acted_at']
+      end
 
       if where = action.delete('where')
         action['chamber'] = {'h' => 'house', 's' => 'senate'}[where]
