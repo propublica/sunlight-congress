@@ -10,9 +10,9 @@ branch = "congress"
 repo = "git://github.com/sunlightlabs/congress.git"
 
 home = "/projects/congress"
-shared_path = "%s/shared" % home
-version_path = "%s/versions/%s" % (home, time.strftime("%Y%m%d%H%M%S"))
-current_path = "%s/current" % home
+shared_path = "%s/congress/shared" % home
+version_path = "%s/congress/versions/%s" % (home, time.strftime("%Y%m%d%H%M%S"))
+current_path = "%s/congress/current" % home
 
 
 ## can be run only as part of deploy
@@ -30,13 +30,14 @@ def links():
 def dependencies():
   run("rvm rvmrc trust %s" % version_path)
   run("cd %s && bundle install --local" % version_path)
-  # run("cd %s && pip install -r tasks/requirements.txt" % version_path)
+  run("workon congress")
+  run("cd %s && pip install -r tasks/requirements.txt" % version_path)
 
 def create_indexes():
   run("cd %s && rake create_indexes" % version_path)
 
 def make_current():
-  run('rm -f current && ln -s %s current' % version_path)
+  run('rm -f %s && ln -s %s %s' % (current_path, version_path, current_path))
 
 def prune_releases():
   pass
