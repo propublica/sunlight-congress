@@ -1,6 +1,6 @@
 module Queryable
 
-  def self.conditions_for(filters)
+  def self.conditions_for(model, query, filters)
     conditions = {}
 
     filters.each do |field, filter|
@@ -18,6 +18,12 @@ module Queryable
       conditions[field] = operator ? {"$#{operator}" => value} : value
     end
 
+    if query.present? and model.search_fields
+      conditions["$or"] = model.search_fields.map do |key|
+        {key => regex_for(query)}
+      end
+    end
+
     conditions
   end
   
@@ -32,6 +38,12 @@ module Queryable
     end
     
     [[key, sort]]
+  end
+
+  def self.regex_for(value)
+    regex_value = value.to_s.dup
+    %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
+    /#{regex_value}/i
   end
 
   def self.attributes_for(document, fields)

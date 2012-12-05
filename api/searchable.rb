@@ -1,9 +1,5 @@
 module Searchable
 
-  def self.query_string_for(params)
-    params[:query].present? ? params[:query].strip.downcase : nil
-  end
-  
   def self.query_for(query_string, params, search_fields)
     return unless query_string.present?
 

@@ -9,7 +9,6 @@ class Video
     :legislator_names,  :caption_srt_file,
     :legislator_ids, :bill_ids, :roll_ids
 
-
   include Mongoid::Document
   
   index video_id: 1

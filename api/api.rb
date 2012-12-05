@@ -2,6 +2,10 @@ module Api
   
   module Helpers
 
+    def query_string_for(params)
+      params[:query].present? ? params[:query].strip.downcase : nil
+    end
+
     def format_for(params)
       params[:format] || "json"
     end

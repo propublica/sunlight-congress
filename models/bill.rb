@@ -8,8 +8,8 @@ class Bill
     :introduced_at, :history, :enacted_as,
     :last_action_at, :last_vote_at, :last_version_on
 
-  search_fields :versions, :summary, :keywords, 
-    :popular_title, :official_title, :short_title, :nicknames
+  search_fields :popular_title, :official_title, :short_title, 
+    :nicknames, :summary, :keywords, :text
 
   cite_key :bill_id
 

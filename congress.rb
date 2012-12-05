@@ -16,7 +16,8 @@ get queryable_route do
   pagination = pagination_for params
   filters = filters_for params
 
-  conditions = Queryable.conditions_for filters
+  query_string = query_string_for params
+  conditions = Queryable.conditions_for model, query_string, filters
   order = Queryable.order_for model, params
 
   if params[:explain] == 'true'
@@ -50,7 +51,7 @@ get searchable_route do
   search_fields = Searchable.search_fields_for models
 
   # query is actually optional, these may both end up null
-  query_string = Searchable.query_string_for params
+  query_string = query_string_for params
   query = Searchable.query_for query_string, params, search_fields
 
   filter = Searchable.filter_for filters
