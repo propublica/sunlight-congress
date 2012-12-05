@@ -1,69 +1,22 @@
 module Queryable
-  extend Api::Helpers
 
-  def self.conditions_for(model, params)
+  def self.conditions_for(filters)
     conditions = {}
-    
-    params.each do |key, value|
-      
-      # if there's a special operator (>, <, !, __ne, etc.), strip it off the key
-      operators = {
-        ">" => :gte, 
-        "<" => :lte, 
-        "!" => :ne,
-        "__gt" => :gt, 
-        "__lt" => :lt,
-        "__gte" => :gte,
-        "__lte" => :lte, 
-        "__ne" => :ne,
-        "__exists" => :exists,
-        "__in" => :in,
-        "__nin" => :nin,
-        "__all" => :all
-      }
-      
-      operator = nil
-      if key =~ /^(.*?)(#{operators.keys.join "|"})$/
-        key = $1
-        operator = operators[$2]
-      end
-      
-      if !magic_fields.include? key.to_sym
-        # transform 'value' to the correct type for this key if needed
-        if [:nin, :in, :all].include?(operator)
-          value = value.split("|").map {|v| value_for v}
-        else
-          value = value_for value
-        end
-        
-        if operator
-          if conditions[key].nil? or conditions[key].is_a?(Hash)
-            conditions[key] ||= {}
-            
-            if [:lt, :lte, :gt, :gte, :ne, :in, :nin, :all, :exists].include?(operator)
-              conditions[key]["$#{operator}"] = value
-            end
-          else
-            # let it fall, someone already assigned the filter directly
-            # this is for edge cases like x>=2&x=1, where x=1 should take precedence
-          end
-        else
-          # override anything that may already be there
-          conditions[key] = value
-        end
-        
+
+    # special logic for citation (TODO: kill)
+    if citation_ids = filters.delete('citation_ids')
+      citation_ids = citation_ids.split "|"
+      if citation_ids.size == 1
+        conditions['citation_ids'] = citation_ids.first
+      else
+        conditions['citation_ids'] = {"$all" => citation_ids}
       end
     end
-    
-    if params[:citation].present? and model.cite_key
-      citation_ids = params[:citation].split "|"
-      if citation_ids.size == 1
-        criteria = citation_ids.first
-      else
-        criteria = {"$all" => citation_ids}
-      end
-        
-      conditions['citation_ids'] = criteria
+
+    filters.each do |field, filter|
+      value, operator = filter
+      operator = "ne" if operator == "not"
+      conditions[field] = operator ? {"$#{operator}" => value} : value
     end
 
     conditions

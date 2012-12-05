@@ -1,10 +1,33 @@
 module Api
   
-  # used in controllers, and in queryable/searchable modules
   module Helpers
 
     def format_for(params)
       params[:format] || "json"
+    end
+
+    def filters_for(params)
+      fields = {}
+      params.keys.each do |key|
+        if !magic_fields.include?(key.to_sym) and params[key].present?
+          fields[key] = params[key]
+        end
+      end
+
+      operators = [:gt, :lt, :gte, :lte, :not, :exists]
+
+      filters = {}
+      fields.each do |field, value|
+        field, operator = field.split "__"
+        value = value_for value
+        filters[field] = [value, operator]
+      end
+
+      if params[:citing]
+        filters['citation_ids'] = [params[:citing], nil]
+      end
+
+      filters
     end
 
     def fields_for(models, params)
@@ -25,6 +48,19 @@ module Api
       fields.uniq
     end
 
+    # auto-detect type of argument - allow quotes to force string interpretation
+    def value_for(value)
+      if ["true", "false"].include? value # boolean
+        value == "true"
+      elsif value =~ /^\d+$/
+        value.to_i
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ/)
+        Time.zone.parse(value).utc rescue nil
+      else # use quotes to force a value to be a string
+        value.tr "\"", ""
+      end
+    end
+
     def pagination_for(params)
       default_per_page = 20
       max_per_page = 50
@@ -43,19 +79,6 @@ module Api
       per_page = 1 if params[:fields] == "all"
       
       {per_page: per_page, page: page}
-    end
-
-    # auto-detect type of argument - allow quotes to force string interpretation
-    def value_for(value)
-      if ["true", "false"].include? value # boolean
-        value == "true"
-      elsif value =~ /^\d+$/
-        value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/)
-        Time.zone.parse(value).utc rescue nil
-      else # string
-        value.tr "\"", ""
-      end
     end
 
     # special fields used by the system, cannot be used on a model (on the top level)

@@ -1,5 +1,4 @@
 module Searchable
-  extend Api::Helpers
 
   def self.query_string_for(params)
     params[:query].present? ? params[:query].strip.downcase : nil
@@ -18,38 +17,18 @@ module Searchable
     }
   end
   
-  def self.filter_for(models, params)
-    fields = {}
+  def self.filter_for(filters)
+    return nil unless filters.any?
 
-    params.keys.each do |key|
-      if !magic_fields.include?(key.to_sym) and params[key].present?
-        fields[key] = params[key]
-      end
-    end
-
-    # citation parameter dynamically inserts filter on citation field
-    if params[:citation]
-      fields['citation_ids'] = params[:citation]
-    end
-    
-    return nil unless fields.any?
-    subfilters = fields.map do |field, value| 
-      valid_operators = [nil, "gt", "gte", "lt", "lte"]
-
-      # field may have an operator on the end, pluck it out
-      field, operator = field.split "__"
-      next unless valid_operators.include?(operator)
-
-      value = value_for value
+    subfilters = filters.map do |field, filter| 
+      value, operator = filter
 
       if field == 'citation_ids'
         citation_filter_for field, value
       else
         subfilter_for field, value, operator
       end
-    end.compact
-
-    return nil unless subfilters.any?
+    end
 
     if subfilters.size == 1
       subfilters.first
@@ -81,8 +60,23 @@ module Searchable
   end
   
   def self.subfilter_for(field, value, operator = nil)
-    if value.is_a?(String)
-      if operator.nil?
+    # special case: exists
+    if operator == "exists"
+      base = {exists: {"field" => field.to_s}}
+      if value == false
+        return {"not" => base}
+      else
+        return base
+      end
+    end
+
+    subfilter = if value.is_a?(String)
+      # strings can be filtered on ranges
+      # especially effective on date fields forced to be strings
+      if ["lt", "lte", "gt", "gte"].include?(operator)
+        options = {operator => value.to_s}
+        {range: {field.to_s => options}}
+      else
         {
           query: {
             text: {
@@ -93,16 +87,10 @@ module Searchable
             }
           }
         }
-
-      # strings can be filtered on ranges
-      # especially effective on date fields forced to be strings
-      else
-        options = {operator => value.to_s}
-        {range: {field.to_s => options}}
       end
 
     elsif value.is_a?(Boolean)
-      # operators don't mean anything here
+      # nothing less nor greater than the truth
       {
         term: {
           field.to_s => value.to_s
@@ -110,27 +98,39 @@ module Searchable
       }
 
     elsif value.is_a?(Fixnum)
-      if operator.nil?
-        {term: {field.to_s => value.to_s}}
-      else
+      if ["lt", "lte", "gt", "gte"].include?(operator)
         options = {operator => value.to_s}
         {range: {field.to_s => options}}
+      else
+        {term: {field.to_s => value.to_s}}
       end
 
     elsif value.is_a?(Time)
-      if operator.nil?
-        from = value
-        to = from + 1.day
-        options = {
-          from: from.iso8601,
-          to: to.iso8601,
-          include_upper: false
-        }
-      else
+      # ES doesn't have time-specific functions, we just
+      # convert the Time back to its normal RFC 3339 (UTC)
+      # format and treat it like a string
+      if ["lt", "lte", "gt", "gte"].include?(operator)
         options = {operator => value.iso8601}
+        {range: {field.to_s => options}}
+      else
+        {
+          query: {
+            text: {
+              field.to_s => {
+                query: value.iso8601,
+                type: "phrase"
+              }
+            }
+          }
+        }
       end
+    end
 
-      {range: {field.to_s => options}}
+    # reverse the subfilter if there was a 'not'
+    if operator == "not"
+      {"not" => subfilter}
+    else
+      subfilter
     end
   end
   

@@ -14,8 +14,9 @@ get queryable_route do
   format = format_for params
   fields = fields_for model, params
   pagination = pagination_for params
+  filters = filters_for params
 
-  conditions = Queryable.conditions_for model, params
+  conditions = Queryable.conditions_for filters
   order = Queryable.order_for model, params
 
   if params[:explain] == 'true'
@@ -44,6 +45,7 @@ get searchable_route do
   format = format_for params
   fields = fields_for models, params
   pagination = pagination_for params
+  filters = filters_for params
 
   search_fields = Searchable.search_fields_for models
 
@@ -51,7 +53,7 @@ get searchable_route do
   query_string = Searchable.query_string_for params
   query = Searchable.query_for query_string, params, search_fields
 
-  filter = Searchable.filter_for models, params
+  filter = Searchable.filter_for filters
   order = Searchable.order_for params
   other = Searchable.other_options_for params, search_fields
   
