@@ -47,3 +47,4 @@ def deploy():
   execute(checkout)
   execute(links)
   execute(make_current)
+  execute(restart)
