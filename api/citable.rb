@@ -3,14 +3,14 @@ module Citable
     models = [models] unless models.is_a?(Array)
 
     # must explicitly ask for extra information and performance hit
-    return documents unless params[:citation_details].present?
+    return documents unless params["citing.details"].present?
 
     # only citation-enabled models
-    return documents unless params[:citation].present? and models.select {|model| model.cite_key.nil?}.empty?
+    return documents unless params[:citing].present? and models.select {|model| model.cite_key.nil?}.empty?
 
     criteria = {}
 
-    citation_ids = params[:citation].split "|"
+    citation_ids = params[:citing].split "|"
     if citation_ids.size > 1
       criteria.merge! citation_id: {"$in" => citation_ids}
     else

@@ -3,19 +3,18 @@ module Queryable
   def self.conditions_for(filters)
     conditions = {}
 
-    # special logic for citation (TODO: kill)
-    if citation_ids = filters.delete('citation_ids')
-      citation_ids = citation_ids.split "|"
-      if citation_ids.size == 1
-        conditions['citation_ids'] = citation_ids.first
-      else
-        conditions['citation_ids'] = {"$all" => citation_ids}
-      end
-    end
-
     filters.each do |field, filter|
       value, operator = filter
+      
       operator = "ne" if operator == "not"
+      if operator == "all"
+        if value["|"]
+          value = value.split "|"
+        else
+          operator = nil
+        end
+      end
+
       conditions[field] = operator ? {"$#{operator}" => value} : value
     end
 

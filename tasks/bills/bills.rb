@@ -140,7 +140,7 @@ class Bills
   def self.history_for(history)
     new_history = history.dup
     history.each do |key, value|
-      if (key =~ /_at$/) and (value =~ /:/)
+      if (key =~ /_at$/) and (value[":"])
         new_history[key] = Utils.utc_parse(value)
       end
     end

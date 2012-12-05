@@ -9,22 +9,23 @@ module Api
     def filters_for(params)
       fields = {}
       params.keys.each do |key|
-        if !magic_fields.include?(key.to_sym) and params[key].present?
+        if !magic_fields.include?(key) and params[key].present?
           fields[key] = params[key]
         end
       end
 
-      operators = [:gt, :lt, :gte, :lte, :not, :exists]
+      operators = %w{gt lt gte lte not exists all}
 
       filters = {}
       fields.each do |field, value|
         field, operator = field.split "__"
+        operator = nil unless operators.include?(operator)
         value = value_for value
         filters[field] = [value, operator]
       end
 
       if params[:citing]
-        filters['citation_ids'] = [params[:citing], nil]
+        filters['citation_ids'] = [params[:citing], "all"]
       end
 
       filters
@@ -83,23 +84,21 @@ module Api
 
     # special fields used by the system, cannot be used on a model (on the top level)
     def magic_fields
-      [
-        :fields, :order, 
-        :sort, #tokill
-        :page, :per_page,
+      %w{
+        fields order sort
+        page per_page
         
-        :query, :search,
-        :highlight, :highlight_tags, :highlight_size, # tokill
+        query
+        highlight highlight.tags highlight.size
 
-        :citing, # citing.details
-        :citation, :citation_details, # tokill
+        citing citing.details
 
-        :explain, :format,
+        explain format
 
-        :apikey, 
-        :callback, :_, # jsonp support (_ is to allow cache-busting)
-        :captures, :splat # Sinatra routing keywords
-      ]
+        apikey
+        callback _    
+        captures splat
+      }
     end
   end
 

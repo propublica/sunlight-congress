@@ -22,45 +22,22 @@ module Searchable
 
     subfilters = filters.map do |field, filter| 
       value, operator = filter
-
-      if field == 'citation_ids'
-        citation_filter_for field, value
-      else
-        subfilter_for field, value, operator
-      end
+      subfilter_for field, value, operator
     end
 
     if subfilters.size == 1
       subfilters.first
     else
-      # join subfilters together as an AND filter
-      # use the alternate form of the AND filter that allows caching
       {
         :and => {
-          :filters => subfilters,
-          :_cache => true
+          filters: subfilters,
+          _cache: true
         }
       }
     end
   end
-
-  # the citation subfilter is itself an 'and' filter on a set of term subfilters
-  def self.citation_filter_for(field, value)
-    citation_ids = value.split "|"
-    
-    subfilters = citation_ids.map do |citation_id|
-      subfilter_for field, citation_id
-    end
-
-    if subfilters.size == 1
-      subfilters.first
-    else
-      {:and => subfilters}
-    end
-  end
   
-  def self.subfilter_for(field, value, operator = nil)
-    # special case: exists
+  def self.subfilter_for(field, value, operator)
     if operator == "exists"
       base = {exists: {"field" => field.to_s}}
       if value == false
@@ -76,6 +53,9 @@ module Searchable
       if ["lt", "lte", "gt", "gte"].include?(operator)
         options = {operator => value.to_s}
         {range: {field.to_s => options}}
+      elsif (operator == "all") and value["|"]
+        values = value.split "|"
+        {:and => values.map {|v| subfilter_for field, v, nil}}
       else
         {
           query: {
@@ -238,14 +218,14 @@ module Searchable
       
       search_fields.each {|field| highlight[:fields][field] = {}}
       
-      if params[:highlight_tags].present?
-        pre, post = params[:highlight_tags].split ','
+      if params["highlight.tags"].present?
+        pre, post = params["highlight.tags"].split ','
         highlight[:pre_tags] = [pre || '']
         highlight[:post_tags] = [post || '']
       end
       
-      if params[:highlight_size].present?
-        highlight[:fragment_size] = params[:highlight_size].to_i
+      if params["highlight.size"].present?
+        highlight[:fragment_size] = params["highlight.size"].to_i
       end
       
       options[:highlight] = highlight
