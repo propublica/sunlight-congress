@@ -135,10 +135,13 @@ helpers do
       os_version: request.env['HTTP_X_OS_VERSION'],
       app_channel: request.env['HTTP_X_APP_CHANNEL'],
 
-      created_at: now.utc
+      created_at: now.utc,
+      elapsed: (now - request.env['timer'])
     )
 
     HitReport.log! now.strftime("%Y-%m-%d"), key, method
   end
 
 end
+
+before {request.env['timer'] = Time.now}
