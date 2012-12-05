@@ -15,7 +15,8 @@ gem 'pony', '1.0.1'
 gem 'rake', '0.9.2.2'
 
 group :development do
-  gem 'wirble'
+  gem 'wirb'
+  gem 'paint'
   gem 'unicorn'
 end
 
