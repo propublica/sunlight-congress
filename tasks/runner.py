@@ -31,13 +31,13 @@ class Database():
       'read': False, 
       'message': str(message), 
       'source': self.task_name, 
-      'created_at': datetime.datetime.now()
+      'created_at': datetime.datetime.now(),
+      'attached': {}
     }
     
     if isinstance(message, Exception):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         backtrace = traceback.format_list(traceback.extract_tb(exc_traceback))
-        document['attached'] = {}
         document['attached']['exception'] = {
           'backtrace': backtrace,
           'type': str(exc_type),
