@@ -5,16 +5,7 @@ module Queryable
 
     filters.each do |field, filter|
       value, operator = filter
-      
       operator = "ne" if operator == "not"
-      if operator == "all"
-        if value["|"]
-          value = value.split "|"
-        else
-          operator = nil
-        end
-      end
-
       conditions[field] = operator ? {"$#{operator}" => value} : value
     end
 
@@ -37,8 +28,8 @@ module Queryable
     attributes = document.attributes
 
     exclude_fields = ['_id', 'created_at', 'updated_at']
-
     exclude_fields.each {|key| attributes.delete(key) unless (fields || []).include?(key.to_s)}
+    
     attributes
   end
   

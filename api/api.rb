@@ -18,13 +18,22 @@ module Api
         end
       end
 
-      operators = %w{gt lt gte lte not exists all}
+      operators = %w{gt lt gte lte not exists all in}
 
       filters = {}
       fields.each do |field, value|
         field, operator = field.split "__"
         operator = nil unless operators.include?(operator)
         value = value_for value
+
+        if ["all", "in"].include?(operator)
+          if value["|"]
+            value = value.split "|"
+          else
+            operator = nil
+          end
+        end
+
         filters[field] = [value, operator]
       end
 
@@ -65,9 +74,6 @@ module Api
         field = default_order
         direction = "desc"
       end
-
-      p field
-      p direction
       
       [field, direction]
     end

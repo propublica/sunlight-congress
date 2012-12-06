@@ -43,15 +43,18 @@ module Searchable
       end
     end
 
+    if ["all", "in"].include?(operator)
+      return {
+        {"all" => "and", "in" => "or"}[operator] => value.map {|v| subfilter_for field, v, nil}
+      }
+    end
+
     subfilter = if value.is_a?(String)
       # strings can be filtered on ranges
       # especially effective on date fields forced to be strings
       if ["lt", "lte", "gt", "gte"].include?(operator)
         options = {operator => value.to_s}
         {range: {field.to_s => options}}
-      elsif (operator == "all") and value["|"]
-        values = value.split "|"
-        {:and => values.map {|v| subfilter_for field, v, nil}}
       else
         {
           query: {
