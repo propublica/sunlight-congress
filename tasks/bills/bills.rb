@@ -81,7 +81,7 @@ class Bills
         withdrawn_cosponsors: withdrawn,
         withdrawn_cosponsor_ids: withdrawn.map {|c| c['legislator']['bioguide_id']},
 
-        introduced_at: doc['introduced_at'],
+        introduced_on: doc['introduced_at'],
         history: history_for(doc['history']),
         enacted_as: doc['enacted_as'],
 

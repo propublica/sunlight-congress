@@ -5,7 +5,7 @@ class Bill
   basic_fields :bill_id, :bill_type, :number, :congress, :chamber, 
     :sponsor_id, :committee_ids, :related_bill_ids,
     :short_title, :official_title, :popular_title, :nicknames,
-    :introduced_at, :history, :enacted_as,
+    :introduced_on, :history, :enacted_as,
     :last_action_at, :last_vote_at, :last_version_on,
     :urls
 
@@ -38,7 +38,7 @@ class Bill
   index last_vote_at: 1
   index last_version_on: 1
     
-  index introduced_at: 1
+  index introduced_on: 1
   index "history.house_passage_result" => 1
   index "history.house_passage_result_at" => 1
   index "history.senate_passage_result" => 1
