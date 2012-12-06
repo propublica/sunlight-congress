@@ -15,6 +15,7 @@ class VotesHouse
   #   year: archive an entire year of data. 'current' for current year (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
+  #   skip_text: don't search index related text
 
   def self.run(options = {})
     year = if options[:year].nil? or (options[:year] == 'current')
@@ -145,8 +146,10 @@ class VotesHouse
       vote.save!
 
       # replicate it in ElasticSearch
-      puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
-      Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      unless options[:skip_text]
+        puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
+        Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      end
 
       count += 1
     end
