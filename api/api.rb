@@ -20,6 +20,11 @@ module Api
 
       operators = %w{gt lt gte lte not exists all in}
 
+      # translate citation requests
+      if params[:citing]
+        fields['citation_ids__all'] = params[:citing]
+      end
+
       filters = {}
       fields.each do |field, value|
         field, operator = field.split "__"
@@ -35,10 +40,6 @@ module Api
         end
 
         filters[field] = [value, operator]
-      end
-
-      if params[:citing]
-        filters['citation_ids'] = [params[:citing], "all"]
       end
 
       filters
