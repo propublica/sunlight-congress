@@ -75,6 +75,7 @@ class Committees
       puts "[#{committee_id}] Members..."
       committee = Committee.where(committee_id: committee_id).first
       committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
+      committee.save!
     end
 
     if bad_committees.any?
@@ -111,10 +112,6 @@ class Committees
 
     if (us_committee['type'] == 'house') and us_committee['address']
       attributes[:office] = us_committee['address'].split("; ").first
-    end
-
-    if us_committee['congresses']
-      attributes[:congresses] = us_committee['congresses']
     end
 
     if parent_committee
