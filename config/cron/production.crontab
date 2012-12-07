@@ -12,8 +12,7 @@
 
 
 # legislators and committees from unitedstates
-0 3 * * *    /projects/congress/congress/shared/cron/task.sh legislators 
-# && /projects/congress/congress/shared/cron/task.sh committees
+0 3 * * *    /projects/congress/congress/shared/cron/task.sh legislators && /projects/congress/congress/shared/cron/task.sh committees
 
 # bills from THOMAS
 0 4,16 * * * /projects/congress/congress/shared/cron/us-sync.sh && /projects/congress/congress/shared/cron/task.sh bills
