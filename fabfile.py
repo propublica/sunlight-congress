@@ -6,7 +6,7 @@ environment = "production"
 env.use_ssh_config = True
 env.hosts = ["congress@congress"]
 
-branch = "congress"
+branch = "master"
 repo = "git://github.com/sunlightlabs/congress.git"
 
 home = "/projects/congress"
