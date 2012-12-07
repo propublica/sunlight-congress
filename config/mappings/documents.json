@@ -17,11 +17,16 @@
         "index": "not_analyzed",
         "type": "string"
       },
+
       "gao_report": {
         "properties": {
           "gao_id": {
             "index": "not_analyzed",
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "term_vector": "with_positions_offsets"
           }
         }
       }

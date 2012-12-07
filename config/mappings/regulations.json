@@ -1,10 +1,15 @@
 {
   "regulations": {
     "properties": {
+      "abstract": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
       "text": {
         "type": "string",
         "term_vector": "with_positions_offsets"
       },
+
       "citation_ids": {
         "index": "not_analyzed",
         "type": "string"
