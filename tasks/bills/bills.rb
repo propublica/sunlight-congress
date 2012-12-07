@@ -53,6 +53,9 @@ class Bills
       missing_legislators << missing.map {|m| [bill_id, missing]} if missing.any?
 
       actions = actions_for doc['actions']
+
+      summary = summary_for doc['summary']
+      summary_short = short_summary_for summary
       
       committees, missing = committees_for doc['committees'], committee_cache
       missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
@@ -72,7 +75,8 @@ class Bills
         popular_title: doc['popular_title'],
 
         keywords: doc['subjects'],
-        summary: summary_for(doc['summary']),
+        summary: summary,
+        summary_short: summary_short,
         
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
@@ -266,6 +270,17 @@ class Bills
 
   def self.summary_for(summary)
     summary ? summary['text'] : nil
+  end
+
+  def self.short_summary_for(summary)
+    return nil unless summary
+
+    max = 1000
+    if summary.size <= max
+      summary
+    else
+      summary[0..max] + "..."
+    end
   end
 
   def self.urls_for(bill_id)
