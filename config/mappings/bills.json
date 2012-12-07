@@ -1,11 +1,16 @@
 {
   "bills": {
     "properties": {
+      "summary": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
       "text": {
         "type": "string",
         "term_vector": "with_positions_offsets"
       },
-      
+
+
       "bill_id": {
         "index": "not_analyzed",
         "type": "string"
