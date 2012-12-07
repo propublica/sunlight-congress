@@ -1,93 +1,86 @@
 require 'oj'
-require 'sinatra'
 require 'mongoid'
 require 'tzinfo'
 require 'rubberband'
+require 'pony'
 
+require 'sinatra'
+disable :protection
+disable :logging
 
-# insist on my API-wide timestamp format
-Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
+require './api/api'
+require './api/queryable'
+require './api/searchable'
+require './api/citable'
+require './tasks/utils'
+Dir.glob('models/*.rb').each {|f| load f}
 
+class Environment
+  def self.config
+    @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
+  end
 
-# workhorse API handlers
-require './queryable'
-require './searchable'
-
-
-# app-wide configuration
-
-def config
-  @config ||= YAML.load_file File.join(File.dirname(__FILE__), "config.yml")
+  def self.check_key?
+    !(config[:debug] and config[:debug][:ignore_apikey])
+  end
 end
 
-
 configure do
-  # configure mongodb client
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
-  
-  Searchable.config = config
-  Searchable.configure_clients!
-  
-  # This is for when people search by date (with no time), or a time that omits the time zone
-  # We will assume users mean Eastern time, which is where Congress is.
-  Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
 
-  # insist on using the time format I set as the Ruby default,
-  # even in dependent libraries that use MultiJSON (e.g. rubberband)
+  Searchable.configure_clients!
+
+  Time::DATE_FORMATS.merge!(:default => Proc.new {|t| t.xmlschema})
+  Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
   Oj.default_options = {mode: :compat, time_format: :ruby}
 end
 
-# special fields used by the system, cannot be used on a model (on the top level)
-def magic_fields
-  [
-    # common parameters
-    :sections, :fields,
-    :order, :sort, 
-    :page, :per_page,
-    :explain,
 
-    # citation fields
-    :citation, :citations, :citation_details,
+# utilities for sending email
+class Email
+  
+  def self.message(message)
+    send_email message, message, config[:recipients][:admin]
+  end
 
-    # can't use these as field names, even though they're not used as params
-    :basic,
+  def self.report(report)
+    subject = "[#{report.status}] #{report.source} | #{report.message}"
 
-    :apikey, # API key gating
-    :callback, :_, # jsonp support (_ is to allow cache-busting)
-    :captures, :splat # Sinatra keywords to do route parsing
-  ]
-end
+    body = "#{report.id}\n\n#{report.message}"
 
+    if report['attached']['exception']
+      body += "\n\n#{report.exception_message}"
+    end
+    
+    attrs = report.attributes.dup
+    
+    [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
 
-# load in REST helpers and models
-Queryable.add_magic_fields magic_fields
-Searchable.add_magic_fields magic_fields
+    attrs['attached'].delete 'exception'
+    attrs.delete('attached') if attrs['attached'].empty?
+    body += "\n\n#{JSON.pretty_generate attrs}" if attrs.any?
 
+    send_email subject, body, email_recipients_for(report)
+  end
 
-@all_models = []
-Dir.glob('models/*.rb').each do |filename|
-  load filename
-  model_name = File.basename filename, File.extname(filename)
-  @all_models << model_name.camelize.constantize
-end
+  # admin + any task-specific owners
+  def self.email_recipients_for(report)
+    task = report.source.underscore.to_sym
+    
+    recipients = Environment.config[:recipients][:admin].dup
+    recipients += task_owners if task_owners = Environment.config[:recipients][task]
+    recipients.uniq
+  end
 
-def all_models
-  @all_models
-end
+  def self.send_email(subject, body, to)
+    return unless Environment.config[:email][:from]
 
-
-def queryable_models
-  @queryable_models ||= all_models.select {|model| model.respond_to?(:queryable?) and model.queryable?}
-end
-
-def queryable_route
-  @queryable_route ||= /^\/(#{queryable_models.map {|m| m.to_s.underscore.pluralize}.join "|"})\.(json|xml)$/
-end
-
-def searchable_models
-  @search_models ||= all_models.select {|model| model.respond_to?(:searchable?) and model.searchable?}
-end
-
-def searchable_route
-  @search_route ||= /^\/search\/((?:(?:#{searchable_models.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\.(json|xml)$/
+    Pony.mail Environment.config[:email].merge(
+      subject: subject, 
+      body: body, 
+      to: to
+    )
+  rescue Errno::ECONNREFUSED
+    puts "Couldn't email report, connection refused! Check system settings."
+  end
 end

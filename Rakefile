@@ -1,42 +1,19 @@
-load './analytics/report.rake'
-
 task :environment do
   require 'rubygems'
   require 'bundler/setup'
   require './config/environment'
-  
-  require 'pony'
 end
 
-# does not hinge on the environment, test_helper loads it itself
-task :default => :test
-task :test do
-  responses = Dir.glob("test/**/*_test.rb").map do |file|
-    puts "\nRunning #{file}:\n"
-    system "ruby #{file}"
-  end
+desc "Load a fake api key into the db"
+task :api_key => :environment do
+  key = ENV['key'] || "development"
+  email = ENV['email'] || "#{key}@example.com"
   
-  if responses.any? {|code| code == false}
-    puts "\nFAILED\n"
-    exit -1
+  if ApiKey.where(key: key).first.nil?
+    ApiKey.create! status: "A", email: email, key: key
+    puts "Created '#{key}' API key under email #{email}"
   else
-    puts "\nSUCCESS\n"
-    exit 0
-  end
-end
-
-namespace :development do
-  desc "Load a fake 'development' api key into the db"
-  task :api_key => :environment do
-    key = ENV['key'] || "development"
-    email = ENV['email'] || "#{key}@example.com"
-    
-    if ApiKey.where(:key => key).first.nil?
-      ApiKey.create! :status => "A", :email => email, :key => key
-      puts "Created '#{key}' API key under email #{email}"
-    else
-      puts "'#{key}' API key already exists"
-    end
+    puts "'#{key}' API key already exists"
   end
 end
 
@@ -55,8 +32,8 @@ task :create_indexes => :environment do
         puts "Skipping #{model}, not a Mongoid model"
       end
     end
-  rescue Exception => ex
-    email "Exception creating indexes, message and backtrace attached", {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}
+  rescue Exception => exception
+    Email.report Report.exception("Indexes", "Exception creating indexes", exception)
     puts "Error creating indexes, emailed report."
   end
 end
@@ -74,7 +51,7 @@ task :set_crontab => :environment do
   if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
     puts "Successfully overwrote crontab."
   else
-    email "Crontab overwriting failed on deploy."
+    Email.message "Crontab overwriting failed on deploy."
     puts "Unsuccessful in overwriting crontab, emailed report."
   end
 end
@@ -84,7 +61,7 @@ task :disable_crontab => :environment do
   if system("echo | crontab")
     puts "Successfully disabled crontab."
   else
-    email "Somehow failed at disabling crontab."
+    Email.message "Somehow failed at disabling crontab."
     puts "Unsuccessful (somehow) at disabling crontab, emailed report."
   end
 end
@@ -94,7 +71,7 @@ end
 Dir.glob('tasks/*/').each do |file|
   name = File.basename file
   
-  desc "runs #{name} task"
+  desc "__________________________________"
   namespace :task do
     task name.to_sym => :environment do
       run_task name
@@ -103,11 +80,8 @@ Dir.glob('tasks/*/').each do |file|
 end
 
 
-def run_task(name)
-  require './tasks/utils'
-  
+def run_task(name)  
   task_name = name.camelize
-  
   start = Time.now
   
   begin
@@ -115,26 +89,23 @@ def run_task(name)
       run_ruby name
     elsif File.exist? "tasks/#{name}/#{name}.py"
       run_python name
-    else
-      raise Exception.new "Couldn't locate task file"
     end
     
   rescue Exception => ex
-    if ENV['raise'] == "true"
+    if ENV['raise']
       raise ex
     else
-      Report.failure task_name, "Exception running #{name}, message and backtrace attached", {:elapsed_time => Time.now - start, :exception => {'message' => ex.message, 'type' => ex.class.to_s, 'backtrace' => ex.backtrace}}
+      Report.exception task_name, "Exception running #{name}", ex, {elapsed: (Time.now - start)}
     end
     
   else
-    complete = Report.complete task_name, "Completed running #{name}", {elapsed_time: (Time.now - start)}
-    puts complete
+    Report.complete task_name, "Completed running #{name}", {elapsed: (Time.now - start)}
   end
   
-  # go through any reports filed from the task, and email about any failures or warnings
-  Report.unread.where(:source => task_name).all.each do |report|
+  Report.unread.where(source: task_name).all.each do |report|
     puts report
-    email report if report.failure? or report.warning? or report.note?
+    puts report.exception_message if report.exception?
+    Email.report report if report.failure? or report.warning? or report.note?
     report.mark_read!
   end
 
@@ -143,7 +114,7 @@ end
 def run_ruby(name)
   load "./tasks/#{name}/#{name}.rb"
   
-  options = {:config => config}
+  options = {config: Environment.config}
   ARGV[1..-1].each do |arg|
     key, value = arg.split '='
     if key.present? and value.present?
@@ -158,56 +129,84 @@ def run_python(name)
   system "python tasks/runner.py #{name} #{ARGV[1..-1].join ' '}"
 end
 
-def email(report, exception = nil)
-  if config[:email][:to] and config[:email][:to].any?
+namespace :analytics do
+
+  desc "Send analytics to the central API analytics department."
+  task :report => :environment do
     begin
-      if report.is_a?(Report)
-        Pony.mail config[:email].merge(:subject => email_subject(report), :body => email_body(report), :to => email_recipients_for(report))
+      
+      # default to yesterday
+      day = ENV['day'] || (Time.now.midnight - 1.day).strftime("%Y-%m-%d")
+      test = !ENV['test'].nil?
+      
+      start_time = Time.now
+      start = Time.parse day
+      finish = start + 1.day
+
+      # baked into HitReport
+      reports = HitReport.for_day day
+      
+      api_name = Environment.config[:services][:api_name]
+      shared_secret = Environment.config[:services][:shared_secret]
+      
+      if test
+        puts "\nWould report for #{day}:\n\n#{reports.inspect}\n\nTotal hits: #{reports.sum {|r| r['count']}}\n\n"
       else
-        Pony.mail config[:email].merge(:subject => report, :body => (exception ? exception_message(exception) : report))
+        reports.each do |report|
+          begin
+            SunlightServices.report(report['key'], report['method'], report['count'].to_i, day, api_name, shared_secret)
+          rescue Exception => exception
+            report = Report.exception 'Analytics', "Exception filing a report", exception
+            puts report
+            Email.report report
+          end
+        end
+        
+        report = Report.success 'Analytics', "Filed #{reports.size} report(s) for #{day}.", {elapsed: (Time.now - start_time)}
+        puts report
       end
-    rescue Errno::ECONNREFUSED
-      puts "Couldn't email report, connection refused! Check system settings."
+      
+      
+    # general exception catching for reporting
+    rescue Exception => exception
+      report = Report.exception 'Analytics', "Exception reporting analytics", exception
+      puts report
+      Email.report report
+
     end
   end
 end
 
-def email_recipients_for(report)
-  task = report.source.underscore.to_sym
-  
-  recipients = config[:email][:to].dup # always begin with master recipients
-  
-  if config[:task_owners] and config[:task_owners][task]
-    recipients += config[:task_owners][task]
+namespace :elasticsearch do
+  desc "Initialize ES mapping schemas"
+  task :init => :environment do
+    single = ENV['mapping'] || ENV['only'] || nil
+    force = ENV['force'] || ENV['delete'] || false
+
+    mappings = single ? [single] : Dir.glob('config/mappings/*.json').map {|dir| File.basename dir, File.extname(dir)}
+
+    host = Environment.config['elastic_search']['host']
+    port = Environment.config['elastic_search']['port']
+    index = Environment.config['elastic_search']['index']
+    index_url = "http://#{host}:#{port}/#{index}/"
+
+    system "curl -XPUT '#{index_url}'"
+    puts
+    puts "Ensured index exists" 
+    puts
+
+    mappings.each do |mapping|
+      if force
+        system "curl -XDELETE '#{index_url}/#{mapping}/_mapping'"
+        puts
+        puts "Deleted #{mapping}"
+        puts
+      end
+
+      system "curl -XPUT '#{index_url}/#{mapping}/_mapping' -d @config/mappings/#{mapping}.json"
+      puts
+      puts "Created #{mapping}"
+      puts
+    end
   end
-  
-  recipients.uniq
-end
-
-def email_subject(report)
-  "[#{report.status}] #{report.source} | #{report.message}"
-end
-
-def email_body(report)
-  msg = ""
-  msg += exception_message(report[:exception]) if report[:exception]
-  
-  attrs = report.attributes.dup
-  [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
-  
-  msg += JSON.pretty_generate attrs
-  msg
-end
-
-def exception_message(exception)
-  msg = ""
-  msg += "#{exception['type']}: #{exception['message']}" 
-  msg += "\n\n"
-  
-  if exception['backtrace'] and exception['backtrace'].respond_to?(:each)
-    exception['backtrace'].each {|line| msg += "#{line}\n"}
-    msg += "\n\n"
-  end
-  
-  msg
 end

@@ -1,32 +1,11 @@
-# this is the public OpenCRS API key, fill in yours from opencrs.com/api
-opencrs_api_key: "cc5a9d23-1b4c-4532-98be-6235ffb19f20"
-
-:services:
-  :shared_secret:
-  :api_name: realtimecongress
-
 elastic_search:
   host: localhost
   port: 9200
   index: rtc
 
-# information for the Citation extraction API (https://github.com/unitedstates/citation)
-citation:
-  hostname: localhost:3000
-
-s3: 
-    secret: 
-    key: 
-  
-debug: false
-
-log_file: /dev/null
-
 :email:
+  :from: 
   :via: :smtp
-  :to:
-    -
-  :from:
   :via_options:
     :address:
     :port:
@@ -36,7 +15,18 @@ log_file: /dev/null
     :domain:
     :enable_starttls_auto: false
 
-# to send emails to owners of specific tasks
-:task_owners:
-  # :bills_archive: 
+:recipients:
+  :admin:
+    - 
+  # to send emails to owners of specific tasks:
+  # :legislators: 
   #   - email@example.com
+
+# used to upload video caption files
+s3: 
+  secret: 
+  key: 
+
+# used to extract citations (https://github.com/unitedstates/citation)
+citation:
+  hostname: localhost:3000

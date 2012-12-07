@@ -4,11 +4,11 @@ class Committees
 
   # options:
   #   cache: don't redownload the YAML files
-  #   session: session of Congress, for purpose of caring about
+  #   congress: congress of Congress, for purpose of caring about
   #     whether we have membership data or not
   
   def self.run(options = {})
-    session = options[:session] ? options[:session].to_i : Utils.current_session
+    congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
 
     # wipe and re-clone the unitedstates legislators repo
     unless options[:cache]

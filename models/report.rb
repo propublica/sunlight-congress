@@ -5,20 +5,20 @@ class Report
   field :status
   field :source
   field :message
-  field :elapsed_time, type: Float
-  field :attached, type: Hash
-  
+  field :attached, type: Hash, default: {}
   field :read, type: Boolean, default: false
   
   index status: 1
   index source: 1
   index read: 1
   index created_at: 1
+  index elapsed: 1
   
-  scope :unread , where(read: false)
+  scope :unread, where(read: false)
+  scope :latest, lambda {|status| desc(:created_at).where(status: status.upcase)}
   
-  def self.file(status, source, message, rest = {})
-    Report.create!({source: source.to_s, status: status, message: message}.merge(rest))
+  def self.file(status, source, message, attached = {})
+    Report.create! source: source.to_s, status: status, message: message, attached: attached
   end
   
   def self.success(source, message, objects = {})
@@ -49,9 +49,9 @@ class Report
 
   def self.exception_to_hash(exception)
     {
-        'backtrace' => exception.backtrace, 
-        'message' => exception.message, 
-        'type' => exception.class.to_s
+      'backtrace' => exception.backtrace, 
+      'message' => exception.message, 
+      'type' => exception.class.to_s
     }
   end
   
@@ -74,33 +74,32 @@ class Report
   def note?
     status == 'NOTE'
   end
+
+  def exception?
+    failure? and attached['exception']
+  end
   
   def mark_read!
     update_attributes read: true
   end
 
   def to_s
-    msg = "[#{status}] #{source}#{elapsed_time ? " [#{to_minutes elapsed_time.to_i}]" : ""}\n\t#{message}"
-    if self[:exception]
-      msg += "\n\t#{self[:exception]['type']}: #{self[:exception]['message']}"
-      if self[:exception]['backtrace'] and self[:exception]['backtrace'].respond_to?(:each)
-        self[:exception]['backtrace'].each {|line| msg += "\n\t\t#{line}"}
-      end
+    "[#{status}] #{source}#{to_minutes(attached['elapsed'].to_i) if attached['elapsed']}\n\t#{message}"
+  end
+
+  def exception_message
+    msg = "#{attached['exception']['type']}: #{attached['exception']['message']}\n\n" 
+    
+    if attached['exception']['backtrace'].respond_to?(:each)
+      attached['exception']['backtrace'].each {|line| msg += "#{line}\n"}
     end
+    
     msg
   end
   
   def to_minutes(seconds)
     min = seconds / 60
     sec = seconds % 60
-    "#{min > 0 ? "#{min}m," : ""}#{sec}s"
-  end
-
-  def self.exception_to_hash(exception)
-    {
-        'backtrace' => exception.backtrace, 
-        'message' => exception.message, 
-        'type' => exception.class.to_s
-    }
+    " #{min > 0 ? "#{min}m," : ""}#{sec}s"
   end
 end

@@ -1,8 +1,12 @@
 class Clip
+  include Api::Model
+  publicly :searchable
 
-  include ::Searchable::Model
-  
-  result_fields :video_id, :id, :video_clip_id, :offset, :duration, :events, :srt_link, :legislator_names, :rolls, :bills, :bioguide_ids
-  searchable_fields :events, :captions, :legislator_names
+  basic_fields :video_id, :clip_id, :video_clip_id, 
+    :events, :published_at,
+    :offset, :duration, :srt_link,
+    :legislator_names, 
+    :roll_ids, :bill_ids, :legislator_ids
 
+  search_fields :events, :captions, :legislator_names
 end

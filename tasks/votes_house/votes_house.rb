@@ -15,6 +15,7 @@ class VotesHouse
   #   year: archive an entire year of data. 'current' for current year (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
+  #   skip_text: don't search index related text
 
   def self.run(options = {})
     year = if options[:year].nil? or (options[:year] == 'current')
@@ -86,10 +87,10 @@ class VotesHouse
         next
       end
       
-      session = doc.at(:congress).inner_text.to_i
+      congress = doc.at(:congress).inner_text.to_i
       
       bill_type, bill_number = bill_code_for doc
-      bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{session}" : nil
+      bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{congress}" : nil
       amendment_id = amendment_id_for doc, bill_id
       
       voter_ids, voters = votes_for doc, legislators, missing_bioguide_ids
@@ -98,63 +99,57 @@ class VotesHouse
 
       if vacated = vacated_for(doc)
         puts "[#{roll_id}] VACATED vote detected"
+        next
       end
       
       vote = Vote.find_or_initialize_by roll_id: roll_id
       vote.attributes = {
-        :vote_type => Utils.vote_type_for(roll_type, roll_type),
-        :how => "roll",
-        :chamber => "house",
-        :year => year,
-        :number => number,
+        vote_type: Utils.vote_type_for(roll_type, roll_type),
+        chamber: "house",
+        year: year,
+        number: number,
 
-        :vacated => vacated,
+        congress: congress,
         
-        :session => session,
+        roll_type: roll_type,
+        question: question,
+        result: doc.at("vote-result").inner_text,
+        required: required_for(doc),
         
-        :roll_type => roll_type,
-        :question => question,
-        :result => doc.at("vote-result").inner_text,
-        :required => required_for(doc),
-        
-        :voted_at => voted_at_for(doc),
-        :voter_ids => voter_ids,
-        :voters => voters,
-        :vote_breakdown => Utils.vote_breakdown_for(voters),
+        voted_at: voted_at_for(doc),
+        voter_ids: voter_ids,
+        voters: voters,
+
+        breakdown: Utils.vote_breakdown_for(voters)
       }
       
       if bill_id
+        vote[:bill_id] = bill_id
         if bill = Utils.bill_for(bill_id)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => bill
-          }
-        elsif bill = create_bill(bill_id, doc)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => Utils.bill_for(bill)
-          }
+          vote[:bill] = bill
         else
-          missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
+          missing_bill_ids << {roll_id: roll_id, bill_id: bill_id}
         end
       end
       
-      if amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-          vote.attributes = {
-            :amendment_id => amendment_id,
-            :amendment => Utils.amendment_for(amendment)
-          }
-        else
-          missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-        end
-      end
+      # if amendment_id
+      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
+      #     vote.attributes = {
+      #       :amendment_id => amendment_id,
+      #       :amendment => Utils.amendment_for(amendment)
+      #     }
+      #   else
+      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
+      #   end
+      # end
       
       vote.save!
 
       # replicate it in ElasticSearch
-      puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
-      Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      unless options[:skip_text]
+        puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
+        Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      end
 
       count += 1
     end
@@ -163,12 +158,12 @@ class VotesHouse
     Utils.es_flush! 'votes', batcher
 
     if download_failures.any?
-      Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", :download_failures => download_failures
+      Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", download_failures: download_failures
     end
 
     if missing_bioguide_ids.any?
       missing_bioguide_ids = missing_bioguide_ids.uniq
-      Report.warning self, "Found #{missing_bioguide_ids.size} missing Bioguide IDs, attached. Vote counts on roll calls may be inaccurate until these are fixed.", {missing_bioguide_ids: missing_bioguide_ids}
+      Report.warning self, "Found #{missing_bioguide_ids.size} missing Bioguide IDs. Vote counts on roll calls may be inaccurate until these are fixed.", {missing_bioguide_ids: missing_bioguide_ids}
     end
     
     if missing_bill_ids.any?
@@ -311,7 +306,6 @@ class VotesHouse
   
   def self.create_bill(bill_id, doc)
     bill = Utils.bill_from bill_id
-    bill.attributes = {:abbreviated => true}
     bill.save!
     bill
   end
@@ -324,10 +318,7 @@ class VotesHouse
       type = code.gsub /\d/, ''
       number = code.gsub type, ''
       
-      type.gsub! "hconres", "hcres" # house uses H CON RES
-      type.gsub! "sconres", "scres" # just in case
-      
-      if !["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
+      if !["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].include?(type)
         return nil, nil
       else
         return type, number
@@ -360,13 +351,8 @@ class VotesHouse
     timestamp = doc.at("action-time").inner_text
 
     date = Utils.utc_parse datestamp
-
-    if timestamp.present?
-      time = Utils.utc_parse timestamp
-      Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
-    else
-      Utils.noon_utc_for date
-    end
+    time = Utils.utc_parse timestamp
+    Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
   end
 
   def self.question_for(doc, roll_type, bill_type, bill_number)

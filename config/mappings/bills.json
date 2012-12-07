@@ -1,0 +1,65 @@
+{
+  "bills": {
+    "properties": {
+      "summary": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+      "text": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+
+
+      "bill_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "sponsor_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "citation_ids": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+
+      "history": {
+        "properties": {
+          "house_passage_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_cloture_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_passage_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "house_override_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "senate_override_result": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "awaiting_signature": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "vetoed": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "enacted": {
+            "index": "not_analyzed",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

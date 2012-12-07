@@ -1,0 +1,10 @@
+{
+  "clips": {
+    "properties": {
+      "captions": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      }
+    }
+  }
+}

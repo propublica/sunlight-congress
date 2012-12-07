@@ -1,0 +1,63 @@
+############# unitedstates ###########
+
+
+# sync THOMAS data with Github once a day
+# 0 13 * * *   /projects/congress/sync-github.sh
+
+
+############# congress API #########################
+
+## analytics reporting
+0 6 * * *  /projects/congress/congress/shared/cron/analytics.sh
+
+
+# legislators and committees from unitedstates
+0 3 * * *    /projects/congress/congress/shared/cron/task.sh legislators 
+# && /projects/congress/congress/shared/cron/task.sh committees
+
+# bills from THOMAS
+0 4,16 * * * /projects/congress/congress/shared/cron/us-sync.sh && /projects/congress/congress/shared/cron/task.sh bills
+
+# bill text from GPO
+*/30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
+0 5,11 * * * /projects/congress/congress/shared/cron/task.sh bills_text
+
+# popular bill names, check once an hour
+*/60 * * * * /projects/congress/congress/shared/cron/task.sh bills_nicknames
+
+# video
+0 9 * * *    /projects/congress/congress/shared/cron/task.sh videos captions=True
+0 7 * * *    /projects/congress/congress/shared/cron/task.sh videos captions=True senate=True
+
+# votes from house and senate, download last 10 votes every few minutes, stagger them
+*/5 * * * * /projects/congress/congress/shared/cron/task.sh votes_house latest=10
+*/9 * * * * /projects/congress/congress/shared/cron/task.sh votes_senate latest=10
+
+# re-download all votes for the year, once a day, to catch corrections
+0 4 * * *  /projects/congress/congress/shared/cron/task.sh votes_house year=current force=1
+30 4 * * *  /projects/congress/congress/shared/cron/task.sh votes_senate year=current force=1
+
+
+# floor updates
+*/1 * * * *  /projects/congress/congress/shared/cron/task.sh floor_senate
+*/2 * * * *  /projects/congress/congress/shared/cron/task.sh floor_house
+
+# committee hearings
+*/15 * * * * /projects/congress/congress/shared/cron/task.sh hearings_senate
+*/15 * * * * /projects/congress/congress/shared/cron/task.sh hearings_house
+
+# upcoming leadership information
+*/15 * * * * /projects/congress/congress/shared/cron/task.sh upcoming_senate
+*/15 * * * * /projects/congress/congress/shared/cron/task.sh upcoming_house
+
+# GAO reports (full text) - add 1s between requests
+*/20 * * * * /projects/congress/congress/shared/cron/task.sh gao_reports rate_limit=1
+
+# Regulations
+# formally published proposed and final regs, last 2 days - takes <2m even without cache
+*/10 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 days=2
+# pre-release regs (public inspection docs)
+*/60 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
+
+
+# leave the newline here

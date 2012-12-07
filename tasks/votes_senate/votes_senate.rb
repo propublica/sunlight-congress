@@ -15,6 +15,7 @@ class VotesSenate
   #   year: archive an entire year of data (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year. 
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
+  #   skip_text: don't search index related text
   
   def self.run(options = {})
     year = if options[:year].nil? or (options[:year] == 'current')
@@ -57,7 +58,7 @@ class VotesSenate
     es_failures = []
     missing_legislators = []
     missing_bill_ids = []
-    missing_amendment_ids = []
+    # missing_amendment_ids = []
 
     batcher = [] # ES batch indexer
 
@@ -68,7 +69,7 @@ class VotesSenate
       url = url_for year, number
       
       roll_id = "s#{number}-#{year}"
-      session = Utils.session_for_year year
+      congress = Utils.congress_for_year year
 
       puts "[#{roll_id}] Syncing to disc..." if options[:debug]
       unless download_roll year, number, download_failures, options
@@ -80,34 +81,32 @@ class VotesSenate
       puts "[#{roll_id}] Saving vote information..." if options[:debug]
       
 
-      bill_id = bill_id_for doc, session
-      amendment_id = amendment_id_for doc, session
+      bill_id = bill_id_for doc, congress
+      amendment_id = amendment_id_for doc, congress
       voter_ids, voters = votes_for doc, legislators, missing_legislators
 
       roll_type = doc.at("question").text
       question = doc.at("vote_question_text").text
       result = doc.at("vote_result").text
-      
 
       vote = Vote.find_or_initialize_by roll_id: roll_id
       vote.attributes = {
-        :vote_type => Utils.vote_type_for(roll_type, question),
-        :how => "roll",
-        :chamber => "senate",
-        :year => year,
-        :number => number,
+        vote_type: Utils.vote_type_for(roll_type, question),
+        chamber: "senate",
+        year: year,
+        number: number,
         
-        :session => session,
+        congress: congress,
         
-        :roll_type => roll_type,
-        :question => question,
-        :result => result,
-        :required => required_for(doc),
+        roll_type: roll_type,
+        question: question,
+        result: result,
+        required: required_for(doc),
         
-        :voted_at => voted_at_for(doc),
-        :voter_ids => voter_ids,
-        :voters => voters,
-        :vote_breakdown => Utils.vote_breakdown_for(voters),
+        voted_at: voted_at_for(doc),
+        voter_ids: voter_ids,
+        voters: voters,
+        breakdown: Utils.vote_breakdown_for(voters),
       }
       
       if bill_id
@@ -116,33 +115,30 @@ class VotesSenate
             :bill_id => bill_id,
             :bill => bill
           }
-        elsif bill = create_bill(bill_id, doc)
-          vote.attributes = {
-            :bill_id => bill_id,
-            :bill => Utils.bill_for(bill)
-          }
         else
           missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
         end
       end
       
       # for now, only bother with amendments on bills
-      if bill_id and amendment_id
-        if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-          vote.attributes = {
-            :amendment_id => amendment_id,
-            :amendment => Utils.amendment_for(amendment)
-          }
-        else
-          missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-        end
-      end
+      # if bill_id and amendment_id
+      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
+      #     vote.attributes = {
+      #       :amendment_id => amendment_id,
+      #       :amendment => Utils.amendment_for(amendment)
+      #     }
+      #   else
+      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
+      #   end
+      # end
       
       vote.save!
 
       # replicate it in ElasticSearch
-      puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
-      Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      unless options[:skip_text]
+        puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
+        Utils.search_index_vote! roll_id, vote.attributes, batcher, options
+      end
 
       count += 1
     end
@@ -162,9 +158,9 @@ class VotesSenate
       Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", missing_bill_ids: missing_bill_ids
     end
     
-    if missing_amendment_ids.any?
-      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
-    end
+    # if missing_amendment_ids.any?
+    #   Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
+    # end
 
     Report.success self, "Successfully synced #{count} Senate roll call votes for #{year}"
   end
@@ -180,9 +176,9 @@ class VotesSenate
   
   # find the latest roll call number listed on the Senate roll call vote page for a given year
   def self.latest_roll_for(year, options = {})
-    subsession = {0 => 2, 1 => 1}[year % 2]
-    session = Utils.session_for_year year
-    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{session}_#{subsession}.htm"
+    session = {0 => 2, 1 => 1}[year % 2]
+    congress = Utils.congress_for_year year
+    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.htm"
     
     puts "[#{year}] Fetching index page for #{year} (#{url}) from Senate website..." if options[:debug]
     return nil unless doc = Utils.html_for(url)
@@ -194,9 +190,9 @@ class VotesSenate
   end
   
   def self.url_for(year, number)
-    subsession = {0 => 2, 1 => 1}[year % 2]
-    session = Utils.session_for_year year
-    "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{session}#{subsession}/vote_#{session}_#{subsession}_#{zero_prefix number}.xml"
+    session = {0 => 2, 1 => 1}[year % 2]
+    congress = Utils.congress_for_year year
+    "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{congress}#{session}/vote_#{congress}_#{session}_#{zero_prefix number}.xml"
   end
   
   def self.zero_prefix(number)
@@ -231,9 +227,9 @@ class VotesSenate
         voter = legislators[lis_id]
         bioguide_id = voter['bioguide_id']
         voter_ids[bioguide_id] = vote
-        voters[bioguide_id] = {:vote => vote, :voter => voter}
+        voters[bioguide_id] = {vote: vote, voter: voter}
       else
-        missing_legislators << {:lis_id => lis_id, :member_full => elem.at("member_full").text, :number => doc.at("vote_number").text.to_i}
+        missing_legislators << {lis_id: lis_id, member_full: elem.at("member_full").text, number: doc.at("vote_number").text.to_i}
       end
     end
     
@@ -245,7 +241,7 @@ class VotesSenate
     legislator ? Utils.legislator_for(legislator) : nil
   end
   
-  def self.bill_id_for(doc, session)
+  def self.bill_id_for(doc, congress)
     elem = doc.at 'document_name'
     if !(elem and elem.text.present?)
       elem = doc.at 'amendment_to_document_number'
@@ -256,10 +252,8 @@ class VotesSenate
       type = code.gsub /\d/, ''
       number = code.gsub type, ''
       
-      type.gsub! "hconres", "hcres" # house uses H CON RES
-      
-      if ["hr", "hres", "hjres", "hcres", "s", "sres", "sjres", "scres"].include?(type)
-        "#{type}#{number}-#{session}"
+      if ["hr", "hres", "hjres", "hconres", "s", "sres", "sjres", "sconres"].include?(type)
+        "#{type}#{number}-#{congress}"
       else
         nil
       end
@@ -268,35 +262,11 @@ class VotesSenate
     end
   end
   
-  def self.create_bill(bill_id, doc)
-    bill = Utils.bill_from bill_id
-    bill.attributes = {:abbreviated => true}
-    
-    elem = doc.at 'amendment_to_document_short_title'
-    if elem and elem.text.present?
-      bill.attributes = {:short_title => elem.text.strip}
-    else
-      elem 
-      if (elem = doc.at 'document_short_title') and elem.text.present?
-        bill.attributes = {:short_title => elem.text.strip}
-      end
-      
-      if (elem = doc.at 'document_title') and elem.text.present?
-        bill.attributes = {:official_title => elem.text.strip}
-      end
-      
-    end
-    
-    bill.save!
-    
-    bill
-  end
-  
-  def self.amendment_id_for(doc, session)
+  def self.amendment_id_for(doc, congress)
     elem = doc.at 'amendment_number'
     if elem and elem.text.present?
       number = elem.text.gsub(/[^\d]/, '').to_i
-      "s#{number}-#{session}"
+      "s#{number}-#{congress}"
     else
       nil
     end
@@ -305,7 +275,6 @@ class VotesSenate
   def self.voted_at_for(doc)
     Utils.utc_parse doc.at("vote_date").text
   end
-
 
   def self.download_roll(year, number, failures, options = {})
     url = url_for year, number
@@ -357,17 +326,15 @@ class VotesSenate
   
 end
 
-
-require 'net/http'
-
 # Shorten timeout in Net::HTTP
+require 'net/http'
 module Net
   class HTTP
     alias old_initialize initialize
 
     def initialize(*args)
-        old_initialize(*args)
-        @read_timeout = 8 # 8 seconds
+      old_initialize(*args)
+      @read_timeout = 8 # 8 seconds
     end
   end
 end

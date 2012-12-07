@@ -1,6 +1,5 @@
 require 'nokogiri'
 require 'curb'
-require 'httparty'
 require 'yajl'
 
 module Utils
@@ -12,8 +11,8 @@ module Utils
   # 
   # if given a bulk_size, will use it to determine when to batch and empty the container
   def self.es_batch!(collection, id, document, batcher, options = {})
-    # default to batching 100
-    options[:batch_size] ||= 100
+    # disable batching by default
+    options[:batch_size] ||= 1 
 
     # batch the document
     batcher << [id, document]
@@ -51,13 +50,15 @@ module Utils
       body = File.read destination
       hash = MultiJson.load body
     else
-      url = "http://#{config['citation']['hostname']}/citation/find.json"
+      url = "http://#{Environment.config['citation']['hostname']}/citation/find.json"
       puts "\tExtracting citations..." if options[:debug]
+
       curl = Curl.post url, 
         text: CGI.escape(text), 
         "options[excerpt]" => (options[:cite_excerpt] || 250),
         "options[types]" => "usc,law",
         "options[parents]" => "true"
+        
       body = curl.body_str
       hash = MultiJson.load body
       Utils.write destination, JSON.pretty_generate(hash)
@@ -207,62 +208,18 @@ module Utils
     body ? Nokogiri::XML(body) : nil
   end
   
-  # If it's a full timestamp with hours and minutes and everything, store that
-  # Otherwise, if it's just a day, store the day with a date of noon UTC
-  # So that it's the same date everywhere
-  def self.ensure_utc(timestamp)
-    if timestamp =~ /:/
-      Time.xmlschema timestamp
-    else
-      noon_utc_for timestamp
-    end
-  end
-  
-  # given a timestamp of the form "2011-02-18", return noon UTC on that day
-  def self.noon_utc_for(timestamp)
-    time = timestamp.is_a?(String) ? Time.parse(timestamp) : timestamp
-    time.getutc + (12-time.getutc.hour).hours
-  end
-
   def self.utc_parse(timestamp)
     time = Time.zone.parse(timestamp)
     time ? time.utc : nil
   end
   
-  # e.g. 2009 & 2010 -> 111th session, 2011 & 2012 -> 112th session
-  def self.current_session
-    session_for_year Time.now.year
+  # e.g. 2009 & 2010 -> 111th congress, 2011 & 2012 -> 112th congress
+  def self.current_congress
+    congress_for_year Time.now.year
   end
   
-  def self.session_for_year(year)
-    ((year + 1) / 2) - 894
-  end
-  
-  # map govtrack type to RTC type
-  def self.bill_type_for(govtrack_type)
-    {
-      :h => 'hr',
-      :hr => 'hres',
-      :hj => 'hjres',
-      :hc => 'hcres',
-      :s => 's',
-      :sr => 'sres',
-      :sj => 'sjres',
-      :sc => 'scres'
-    }[govtrack_type.to_sym]
-  end
-  
-  def self.gpo_type_for(bill_type)
-    {
-      'hr' => 'hr',
-      'hres' => 'hres',
-      'hjres' => 'hjres',
-      'hcres' => 'hconres',
-      's' => 's',
-      'sres' => 'sres',
-      'sjres' => 'sjres',
-      'scres' => 'sconres'
-    }[bill_type.to_s]
+  def self.congress_for_year(year)
+    ((year.to_i + 1) / 2) - 894
   end
   
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
@@ -340,9 +297,9 @@ module Utils
   end
   
   def self.vote_breakdown_for(voters)
-    breakdown = {:total => {}, :party => {}}
+    breakdown = {total: {}, party: {}}
     
-    voters.each do|bioguide_id, voter|      
+    voters.each do |bioguide_id, voter|
       party = voter[:voter]['party']
       vote = voter[:vote]
       
@@ -362,8 +319,22 @@ module Utils
         breakdown[:party][party][vote] ||= 0
       end
     end
+
+    # transform from hash to array of hashes with no dynamic keys
+    new_breakdown = {total: [], party: []}
+    breakdown[:total].each do |vote, number|
+      new_breakdown[:total] << {vote: vote, number: number}
+    end
+
+    breakdown[:party].each do |party, totals|
+      party_breakdown = {party: party, breakdown: []}
+      totals.each do |vote, number|
+        party_breakdown[:breakdown] << {vote: vote, number: number}
+      end
+      new_breakdown[:party] << party_breakdown
+    end
     
-    breakdown
+    new_breakdown
   end
   
   
@@ -421,57 +392,26 @@ module Utils
     end
   end
   
-  def self.bill_from(bill_id)
-    type, number, session, code, chamber = bill_fields_from bill_id
-    
-    bill = Bill.new :bill_id => bill_id
-    bill.attributes = {
-      bill_type: type,
-      number: number,
-      session: session,
-      code: code,
-      chamber: chamber
-    }
-    
-    bill
-  end
-  
   def self.bill_fields_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
-    session = bill_id.match(/-(\d+)$/)[1].to_i
+    congress = bill_id.match(/-(\d+)$/)[1].to_i
     
-    code = "#{type}#{number}"
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
     
-    [type, number, session, code, chamber]
-  end
-  
-  def self.amendment_from(amendment_id)
-    chamber = {'h' => 'house', 's' => 'senate'}[amendment_id.gsub(/[^a-z]/, '')]
-    number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
-    session = amendment_id.match(/-(\d+)$/)[1].to_i
-    
-    amendment = Amendment.new :amendment_id => amendment_id
-    amendment.attributes = {
-      :chamber => chamber,
-      :number => number,
-      :session => session
-    }
-    
-    amendment
+    [type, number, congress, chamber]
   end
   
   def self.format_bill_code(bill_type, number)
     {
       "hres" => "H. Res.",
       "hjres" => "H. Joint Res.",
-      "hcres" => "H. Con. Res.",
+      "hconres" => "H. Con. Res.",
       "hr" => "H.R.",
       "s" => "S.",
       "sres" => "S. Res.",
       "sjres" => "S. Joint Res.",
-      "scres" => "S. Con. Res."
+      "sconres" => "S. Con. Res."
     }[bill_type] + " #{number}"
   end
   
@@ -505,7 +445,7 @@ module Utils
     if bill_id.is_a?(Bill)
       document_for bill_id, Bill.basic_fields
     else
-      if bill = Bill.where(:bill_id => bill_id).only(Bill.basic_fields).first
+      if bill = Bill.where(bill_id: bill_id).only(Bill.basic_fields).first
         document_for bill, Bill.basic_fields
       else
         nil
@@ -513,33 +453,32 @@ module Utils
     end
   end
   
-  def self.bill_ids_for(text, session)
-    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.uniq.compact
-    matches = matches.map {|code| bill_code_to_id code, session}
+  def self.bill_ids_for(text, congress)
+    matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.compact
+    matches = matches.map {|code| bill_code_to_id code, congress}
     matches.uniq
   end
     
-  def self.bill_code_to_id(code, session)
-    "#{code.gsub(/con/i, "c").tr(" ", "").tr('.', '').downcase}-#{session}"
+  def self.bill_code_to_id(code, congress)
+    "#{code.tr(" ", "").tr('.', '').downcase}-#{congress}"
   end
 
   # takes an upcoming_bill object and a bill_id, and updates the latest_upcoming list
   # Removes all elements from the list that match the source_type of the given upcoming item, adds this one.
   def self.update_bill_upcoming!(bill_id, upcoming_bill)
-    if bill = Bill.where(:bill_id => bill_id).first
-      old_latest_upcoming = (bill['latest_upcoming'] || []).dup
+    if bill = Bill.where(bill_id: bill_id).first
+      old_latest_upcoming = (bill['upcoming'] || []).dup
       new_latest_upcoming = old_latest_upcoming.select do |upcoming|
         upcoming['source_type'] != upcoming_bill[:source_type]
       end
 
-      # remove bill and bill_id sections from upcoming bill object
-      attrs = upcoming_bill.attributes.dup
-      ['bill', 'bill_id', '_id', 'created_at', 'updated_at'].each do |attr|
-        attrs.delete attr
+      attrs = {}
+      UpcomingBill.basic_fields.each do |field|
+        attrs[field] = upcoming_bill[field] unless field == :bill_id
       end
 
       new_latest_upcoming << attrs
-      bill[:latest_upcoming] = new_latest_upcoming
+      bill[:upcoming] = new_latest_upcoming
       bill.save!
     end
   end
@@ -548,29 +487,28 @@ module Utils
   # will look up an associated bill by ID and will grab its searchable fields as appropriate
   def self.search_index_vote!(vote_id, attributes, batcher, options = {})
     attributes.delete '_id'
-
     attributes.delete 'voters'
     attributes.delete 'voter_ids'
 
     if bill_id = attributes['bill_id']
-      if bill = Bill.where(:bill_id => bill_id).first
+      if bill = Bill.where(bill_id: bill_id).first
         attributes['bill'] = Utils.bill_for(bill).merge(
-          :summary => bill['summary'],
-          :keywords => bill['keywords']
+          summary: bill['summary'],
+          keywords: bill['keywords']
         )
         if bill['last_version']
-          if bill_version = BillVersion.where(:bill_version_id => bill['last_version']['bill_version_id']).only(:full_text).first
-            attributes['bill']['last_version_text'] = bill_version['full_text']
+          if bill_version = BillVersion.where(bill_version_id: bill['last_version']['bill_version_id']).only(:text).first
+            attributes['bill']['text'] = bill_version['text']
           end
         end
       end
     end
 
-    if amendment_id = attributes['amendment_id']
-      if amendment = Amendment.where(:amendment_id => amendment_id).first
-        attributes['amendment'] = Utils.amendment_for(amendment)
-      end
-    end
+    # if amendment_id = attributes['amendment_id']
+    #   if amendment = Amendment.where(:amendment_id => amendment_id).first
+    #     attributes['amendment'] = Utils.amendment_for(amendment)
+    #   end
+    # end
 
     es_batch! 'votes', vote_id, attributes, batcher, options
   end
@@ -586,43 +524,5 @@ module Utils
     new_ids
   end
 
-  # should work for both daily and weekly house notices
-  # http://majorityleader.gov/floor/daily.html
-  # http://majorityleader.gov/floor/weekly.html
-  #
-  # If the PDF link is valid, and has a date in it, then use that date, and use it as the permalink
-  # If not, extract the date from the header, and use the original url as the permalink
-  def self.permalink_and_date_from_house_gop_whip_notice(url, doc)
-    date = nil
-    permalink = url # default to the HTML page, unless we can get a valid PDF out of this
-
-    # first preference is to get the date from the PDF URL
-    links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
-    a = links.first
-
-    date_results = nil
-
-    if a
-      pdf_url = a['href']
-      date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
-    end
-    
-    if date_results and date_results.any? and date_results.first.any?
-      date_str = date_results.first.first
-      month, day, year = date_str.split "-"
-      date = noon_utc_for Time.local(year, month, day)
-      permalink = pdf_url
-
-    # but if the PDF URL is messed up, try to get it from the header
-    else
-      begin
-        date = Date.parse doc.css("#news_text").first.css("b").first.text
-        date = noon_utc_for date.to_time
-      rescue ArgumentError
-        date = nil
-      end
-    end
-
-    [permalink, date]
-  end
+  
 end

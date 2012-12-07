@@ -1,10 +1,10 @@
-require 'sunlight'
-
 class Legislators
 
   # options:
   #   cache: don't re-download unitedstates data
   #   current: limit to current legislators only
+  #   limit: stop after N legislators
+  #   clear: wipe the db of legislators first
 
   def self.run(options = {})
     
@@ -35,7 +35,13 @@ class Legislators
       us_legislators += historical_legislators.map {|l| [l, false]}
     end
 
-    # store every single legislator
+    # wipe db if requested
+    Legislator.delete_all if options[:clear]
+
+    # limit if requested
+    us_legislators = us_legislators.to_a
+    us_legislators = us_legislators.first(options[:limit].to_i) if options[:limit]
+
     us_legislators.each do |us_legislator, current|
       bioguide_id = us_legislator['id']['bioguide']
       puts "[#{bioguide_id}] Processing #{current ? "active" : "inactive"} legislator from unitedstates..." if options[:debug]
@@ -56,7 +62,7 @@ class Legislators
     end
 
     if bad_legislators.any?
-      Report.warning self, "Failed to save #{bad_legislators.size} united_states legislators, attached", bad_legislators: bad_legislators
+      Report.warning self, "Failed to save #{bad_legislators.size} united_states legislators.", bad_legislators: bad_legislators
     end
     
     Report.success self, "Processed #{count} legislators from unitedstates"
@@ -66,14 +72,14 @@ class Legislators
   def self.attributes_from_united_states(us_legislator, current)
     last_term = us_legislator['terms'].last
 
-    {
+    attributes = {
       in_office: current,
 
       thomas_id: us_legislator['id']['thomas'].to_i.to_s,
       govtrack_id: us_legislator['id']['govtrack'].to_s,
       votesmart_id: us_legislator['id']['votesmart'].to_s,
-      lis_id: us_legislator['id']['lis'].to_s,
       crp_id: us_legislator['id']['opensecrets'],
+
       first_name: us_legislator['name']['first'],
       nickname: us_legislator['name']['nickname'],
       last_name: us_legislator['name']['last'],
@@ -81,22 +87,37 @@ class Legislators
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
 
-      other_names: us_legislator['other_names'],
-
+      term_start: last_term['start'],
+      term_end: last_term['end'],
       state: last_term['state'],
       district: last_term['district'],
       party: party_for(last_term['party']),
       title: last_term['type'].capitalize,
-      phone: last_term['phone'],
-      website: last_term['url'],
-      congress_office: last_term['office'],
       chamber: {
         'rep' => 'house',
         'sen' => 'senate',
         'del' => 'house',
         'com' => 'house'
-      }[last_term['type']]
+      }[last_term['type']],
+
+      phone: last_term['phone'],
+      website: last_term['url'],
+      office: last_term['office'],
+      contact_form: last_term['contact_form'],
+
+      terms: terms_for(us_legislator)
     }
+
+    if us_legislator['other_names']
+      attributes[:other_names] = us_legislator['other_names']
+    end
+
+    if attributes[:chamber] == "senate"
+      attributes[:senate_class] = last_term['class']
+      attributes[:lis_id] = us_legislator['id']['lis'].to_s
+    end
+
+    attributes
   end
 
   def self.party_for(us_party)
@@ -106,16 +127,33 @@ class Legislators
       'Independent' => 'I'
     }[us_party] || us_party
   end
-
-  def self.youtube_url_for(username)
-    "http://www.youtube.com/#{username}"
-  end
     
   def self.social_media_from(details)
     {
       twitter_id: details['social']['twitter'],
-      youtube_url: youtube_url_for(details['social']['youtube'])
+      youtube_id: details['social']['youtube'],
+      facebook_id: details['social']['facebook_graph']
     }
+  end
+
+  def self.terms_for(us_legislator)
+    us_legislator['terms'].map do |term|
+      # these go on the top level and are only correct for the current term
+      ['phone', 'fax', 'url', 'address', 'office', 'contact_form'].each {|field| term.delete field}
+
+      type = term.delete 'type'
+
+      term['party'] = party_for term['party']
+      term['title'] = type.capitalize
+      term['chamber'] = {
+        'rep' => 'house',
+        'sen' => 'senate',
+        'del' => 'house',
+        'com' => 'house'
+      }[type]
+
+      term
+    end
   end
   
 end

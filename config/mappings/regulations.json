@@ -1,0 +1,35 @@
+{
+  "regulations": {
+    "properties": {
+      "abstract": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+      "text": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+
+      "citation_ids": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "document_number": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "document_type": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "stage": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "agency_ids": {
+        "index": "not_analyzed",
+        "type": "string"
+      }
+    }
+  }
+}

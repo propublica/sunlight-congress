@@ -1,0 +1,35 @@
+{
+  "documents": {
+    "properties": {
+      "text": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+      "citation_ids": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "document_type": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "document_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+
+      "gao_report": {
+        "properties": {
+          "gao_id": {
+            "index": "not_analyzed",
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "term_vector": "with_positions_offsets"
+          }
+        }
+      }
+    }
+  }
+}

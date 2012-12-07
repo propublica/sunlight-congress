@@ -1,0 +1,14 @@
+cluster.name: Congress
+
+node.master: true
+node.data: true
+
+index.number_of_shards: 1
+index.number_of_replicas: 0
+
+path.data: /projects/congress/elasticsearch
+path.work: /mnt
+
+bootstrap.mlockall: true
+
+http.port: 3145

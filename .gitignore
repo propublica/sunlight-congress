@@ -6,17 +6,7 @@
 /config/mongoid.yml
 
 /data
-/vendor/gems
-/.bundle
 
-/tmp
-/REVISION
-/log
-
-/virt
-
-*.swp
 *.pyc
 
-/snippets.txt
-/bench.rb
+/*.txt
