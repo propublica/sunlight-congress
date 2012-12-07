@@ -21,83 +21,62 @@ class Committees
       puts
     end
 
+    # fresh start
+    Committee.delete_all
     
     puts "Loading in YAML files..." if options[:debug]
+
+    # committees that have ever had a bill referred to them, past and present
+    bill_committees = YAML.load open("data/unitedstates/congress-legislators/committees-historical.yaml")
+
+    # all current committees, as built from membership rolls
     current_committees = YAML.load open("data/unitedstates/congress-legislators/committees-current.yaml")
+
+    # all current committee memberships
     memberships = YAML.load open("data/unitedstates/congress-legislators/committee-membership-current.yaml")
-    
-    # committees who do not spell out what congress they are in
+  
+    legislator_cache = {}    
     bad_committees = []
+    
     # *current* committees for which we lack members
     missing_members = []
 
-    legislator_cache = {}
-
-    count = 0
-    sub_count = 0
-
-    
-    # we only store current committees
-    Committee.delete_all
-
     # store committees and subcommittees as peers, *and* nest subcommittees inside their committee
-    current_committees.each do |us_committee|
+    (bill_committees + current_committees).each do |us_committee|
       committee_id = us_committee['thomas_id']
-      
-      current = false
-      if memberships[committee_id]
-        current = true
-      elsif us_committee['congresses'] and us_committee['congresses'].include?(session)
-        current = true
-      end
-
-      # we need to know whether it's current or historical
-      unless current
-        puts "Non-current committee #{committee_id} appearing in current file, not okay"
-        bad_committees << committee_id
-        next
-      end
+      puts "[#{committee_id}] Processing..."
 
       committee = Committee.find_or_initialize_by committee_id: committee_id
       
       committee.attributes = attributes_for us_committee
-      committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
       
       subcommittees = []
       (us_committee['subcommittees'] || []).each do |us_subcommittee|
         subcommittee_id = us_subcommittee['thomas_id']
         full_id = [committee_id, subcommittee_id].join ""
-
-        current = false
-        if memberships[full_id]
-          current = true
-        elsif us_subcommittee['congresses'] and us_subcommittee['congresses'].include?(session)
-          current = true
-        end
+        puts "[#{committee_id}][#{subcommittee_id}] Processing..."
         
-        unless current
-          # puts "Skipping old subcommittee" if options[:debug]
-          # probably just an old subcommittee, this is fine
-          next
-        end
-
         subcommittee = Committee.find_or_initialize_by committee_id: full_id
 
         # basic attributes
         attributes = attributes_for us_subcommittee, committee
         subcommittees << attributes
         subcommittee.attributes = attributes
-        subcommittee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
 
         subcommittee[:parent_committee_id] = committee_id
         subcommittee.save!
-        sub_count += 1
       end
 
       committee.attributes = {subcommittees: subcommittees}
       
       committee.save!
-      count += 1
+    end
+
+    # should work for both parent and subcommittees.
+    memberships.each do |committee_id, members|
+      puts "[#{committee_id}] Members..."
+      committee = Committee.where(committee_id: committee_id).first
+      committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
     end
 
     if bad_committees.any?
@@ -108,6 +87,8 @@ class Committees
       Report.warning self, "Missing members for #{missing_members.size} current committees", missing_members: missing_members
     end
     
+    count = Committee.where(subcommittee: false).count
+    sub_count = Committee.where(subcommittee: true).count
     Report.success self, "Processed #{count} committees and #{sub_count} subcommittees"
   end
   
@@ -116,12 +97,19 @@ class Committees
       name: us_committee['name']
     }
 
-    # optional fields
-    ['address', 'senate_committee_id', 'house_committee_id', 'url', 'phone'].each do |field|
+    # optional fields, present for historical and current
+    ['senate_committee_id', 'house_committee_id'].each do |field|
       if us_committee.has_key?(field)
         attributes[field.to_sym] = us_committee[field]
       end
     end
+
+    # present only for current committees
+    ['address', 'url', 'phone'].each do |field|
+      if us_committee.has_key?(field)
+        attributes[field.to_sym] = us_committee[field]
+      end
+    end    
 
     if (us_committee['type'] == 'house') and us_committee['address']
       attributes[:office] = us_committee['address'].split("; ").first
