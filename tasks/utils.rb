@@ -11,7 +11,8 @@ module Utils
   # 
   # if given a bulk_size, will use it to determine when to batch and empty the container
   def self.es_batch!(collection, id, document, batcher, options = {})
-    options[:batch_size] ||= 10
+    # disable batching by default
+    options[:batch_size] ||= 1 
 
     # batch the document
     batcher << [id, document]
