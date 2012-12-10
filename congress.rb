@@ -6,60 +6,6 @@ require './api/sunlight'
 include Api::Routes
 helpers Api::Helpers
 
-get(/(legislators|districts)\/locate\/?/) do
-  check_key!
-
-  error 500, "Provide a 'zip', or a 'lat' and 'lng'." unless params[:zip] or (params[:lat] and params[:lng])
-
-  begin
-    if params[:zip]
-      districts = Location.zip_to_districts params[:zip]
-      
-      details = {}
-    elsif params[:lat] and params[:lng]
-      url = Location.url_for params[:lat], params[:lng]
-
-      start = Time.now
-      response = Location.response_for url
-      elapsed = Time.now - start
-
-      districts = Location.response_to_districts response
-
-      details = {response: response, elapsed: elapsed, districts: districts}
-    end
-  rescue Location::LocationException => ex
-    error 500, ex.message
-  end
-
-  if params[:captures][0] == "legislators"
-    model = Legislator
-    fields = fields_for model, params
-    pagination = pagination_for params
-    order = order_for params, "_id"
-
-    conditions = Location.district_to_legislators districts
-    
-    if params[:explain] == 'true'
-      explain = Queryable.explain_for model, conditions, fields, order, pagination
-      results = {query: explain, location: details}
-    else
-      criteria = Queryable.criteria_for model, conditions, fields, order, pagination
-      documents = Queryable.documents_for model, criteria, fields
-      results = Queryable.results_for criteria, documents, pagination
-    end
-
-  else # districts
-    results = {
-      results: districts,
-      count: districts.size
-    }
-  end
-
-  hit! "locate", "json"
-
-  json results
-end
-
 get queryable_route do
   check_key!
 
@@ -131,6 +77,65 @@ get searchable_route do
   elsif format == 'xml'
     xml results
   end
+end
+
+
+# special endpoints for doing lat/lng and zip-based lookups on legislators and districts
+# uses mix of methods to return information, using helper methods in Location module
+
+get(/(legislators|districts)\/locate\/?/) do
+  check_key!
+
+  error 500, "Provide a 'zip', or a 'lat' and 'lng'." unless params[:zip] or (params[:lat] and params[:lng])
+
+  begin
+    if params[:zip]
+      districts = Location.zip_to_districts params[:zip]
+      
+      details = {}
+    elsif params[:lat] and params[:lng]
+      url = Location.url_for params[:lat], params[:lng]
+
+      start = Time.now
+      response = Location.response_for url
+      elapsed = Time.now - start
+
+      districts = Location.response_to_districts response
+
+      location = {response: response, elapsed: elapsed, districts: districts}
+    end
+  rescue Location::LocationException => ex
+    error 500, ex.message
+  end
+
+  if params[:captures][0] == "legislators"
+    model = Legislator
+    fields = fields_for model, params
+    pagination = pagination_for params
+    order = order_for params, "_id"
+
+    conditions = Location.district_to_legislators districts
+    
+    if params[:explain] == 'true'
+      explain = Queryable.explain_for model, conditions, fields, order, pagination
+      results = {query: explain, location: location}
+    else
+      criteria = Queryable.criteria_for model, conditions, fields, order, pagination
+      documents = Queryable.documents_for model, criteria, fields
+      results = Queryable.results_for criteria, documents, pagination
+    end
+
+  else # districts
+    if params[:explain]
+      results = {districts: districts, location: location}
+    else
+      results = {results: districts, count: districts.size}
+    end
+  end
+
+  hit! "locate", "json"
+
+  json results
 end
 
 
