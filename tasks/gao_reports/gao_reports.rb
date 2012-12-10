@@ -32,6 +32,11 @@ class GaoReports
       end
     end
 
+    if gao_ids.nil?
+      Report.warning self, "GAO seems down, couldn't list recent reports."
+      return
+    end
+
     count = 0
     failures = []
     warnings = []
