@@ -11,10 +11,14 @@ get(/(legislators|districts)\/locate\/?/) do
 
   error 500, "Provide a 'zip', or a 'lat' and 'lng'." unless params[:zip] or (params[:lat] and params[:lng])
 
-  if params[:zip]
-    districts = Location.zip_to_districts params[:zip]
-  elsif params[:lat] and params[:lng]
-    districts = Location.location_to_districts params[:lat], params[:lng]
+  begin
+    if params[:zip]
+      districts = Location.zip_to_districts params[:zip]
+    elsif params[:lat] and params[:lng]
+      districts = Location.location_to_districts params[:lat], params[:lng]
+    end
+  rescue Location::LocationException => ex
+    error 500, ex.message
   end
 
   if params[:captures][0] == "legislators"

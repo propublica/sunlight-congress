@@ -3,11 +3,10 @@ require 'oj'
 
 module Location
 
-  # PA-5
-  # http://ec2-184-73-61-66.compute-1.amazonaws.com/boundaries/cd/?contains=41,-78
-  # WY-At Large
-  # http://ec2-184-73-61-66.compute-1.amazonaws.com/boundaries/cd/?contains=42.96,-108.09
-  
+  # Useful examples:
+  # PA-5 - lat: 41,    lng: -78
+  # WY-0 - lat: 42.96, lng: -108.09
+  # 30165 - spans two states 
 
   # given an array of district hashes [{state, district}, ...]
   # turn this into a conditions hash that will match on representatives 
@@ -62,7 +61,8 @@ module Location
   rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
     Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
     Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
-    throw LocationException.new("Error looking up location at #{url}")
+
+    raise LocationException.new("Error looking up location.")
   end
 
   class LocationException < Exception; end
