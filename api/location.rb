@@ -4,8 +4,8 @@ require 'multi_json'
 module Location
 
   # Useful examples:
-  # PA-5 - lat: 41,    lng: -78
-  # WY-0 - lat: 42.96, lng: -108.09
+  # PA-5 - latitude: 41,    longitude: -78
+  # WY-0 - latitude: 42.96, longitude: -108.09
   # 30165 - spans two states 
 
   # given an array of district hashes [{state, district}, ...]
@@ -30,7 +30,7 @@ module Location
       raise LocationException.new("Invalid response from location server.")
     end
 
-    # lat/lng should return just one, but just in case
+    # latitude/longitude should return just one, but just in case
     response['objects'].map do |object|
       pieces = object['name'].split " "
       if object['name'] =~ /at Large/i
@@ -45,12 +45,12 @@ module Location
     [{district: 5, state: "NY"}]
   end
 
-  def self.url_for(lat, lng)
+  def self.url_for(latitude, longitude)
     # sanitize
-    lat = lat.to_s.to_f 
-    lng = lng.to_s.to_f
+    latitude = latitude.to_s.to_f 
+    longitude = longitude.to_s.to_f
   
-    "http://#{Environment.config['location']['host']}/boundaries/cd/?contains=#{lat},#{lng}"
+    "http://#{Environment.config['location']['host']}/boundaries/cd/?contains=#{latitude},#{longitude}"
   end
 
   def self.response_for(url)

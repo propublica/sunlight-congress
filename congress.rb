@@ -86,15 +86,15 @@ end
 get(/(legislators|districts)\/locate\/?/) do
   check_key!
 
-  error 500, "Provide a 'zip', or a 'lat' and 'lng'." unless params[:zip] or (params[:lat] and params[:lng])
+  error 500, "Provide a 'zip', or a 'latitude' and 'longitude'." unless params[:zip] or (params[:latitude] and params[:longitude])
 
   begin
     if params[:zip]
       districts = Location.zip_to_districts params[:zip]
       
       details = {zip: params[:zip]}
-    elsif params[:lat] and params[:lng]
-      url = Location.url_for params[:lat], params[:lng]
+    elsif params[:latitude] and params[:longitude]
+      url = Location.url_for params[:latitude], params[:longitude]
 
       start = Time.now
       response = Location.response_for url
@@ -102,7 +102,7 @@ get(/(legislators|districts)\/locate\/?/) do
 
       districts = Location.response_to_districts response
 
-      location = {lat: params[:lat], lng: params[:lng], response: response, elapsed: elapsed, districts: districts}
+      location = {latitude: params[:latitude], longitude: params[:longitude], response: response, elapsed: elapsed, districts: districts}
     end
   rescue Location::LocationException => ex
     error 500, ex.message
@@ -178,18 +178,26 @@ helpers do
   end
 
   def hit!(method_type, format)
+    return if params[:explain]
+    
     method = params[:captures][0]
     key = api_key || "debug"
     now = Time.zone.now
 
+    extras = {}
+
     if method_type == "locate"
       if params[:zip]
         method += ".zip"
-      elsif params[:lat] and params[:lng]
-        method += ".location"
+        extras[:zip] = params[:zip]
+      elsif params[:latitude] and params[:longitude]
+        method += ".latlng"
+        extras[:latitude] = params[:latitude]
+        extras[:longitude] = params[:longitude]
       end
     elsif method_type == "search"
       method += ".search"
+      extras[:query] = params[:query]
     end
 
     hit = Hit.create!(
@@ -198,6 +206,8 @@ helpers do
       method: method,
       method_type: method_type,
       format: format,
+
+      extras: extras,
       
       user_agent: request.env['HTTP_USER_AGENT'],
       app_version: request.env['HTTP_X_APP_VERSION'],
