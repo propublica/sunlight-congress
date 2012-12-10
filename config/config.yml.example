@@ -3,6 +3,10 @@ elastic_search:
   port: 9200
   index: rtc
 
+# location of a boundary server instance to lookup districts by lat/lng or zip
+location:
+  host: 
+
 :email:
   :from: 
   :via: :smtp
