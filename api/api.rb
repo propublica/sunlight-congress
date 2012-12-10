@@ -152,12 +152,12 @@ module Api
   module Routes
     def queryable_route
       queryable = Model.models.select {|model| model.respond_to?(:publicly) and model.publicly and model.publicly.include?(:queryable)}
-      @queryable_route ||= /^\/(#{queryable.map {|m| m.to_s.underscore.pluralize}.join "|"})$/
+      @queryable_route ||= /^\/(#{queryable.map {|m| m.to_s.underscore.pluralize}.join "|"})\/?$/
     end
 
     def searchable_route
       searchable = Model.models.select {|model| model.respond_to?(:publicly) and model.publicly and model.publicly.include?(:searchable)}
-      @search_route ||= /^\/search\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)$/
+      @search_route ||= /^\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\/search\/?$/
     end
   end
   

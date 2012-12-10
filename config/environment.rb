@@ -12,6 +12,7 @@ require './api/api'
 require './api/queryable'
 require './api/searchable'
 require './api/citable'
+require './api/location'
 require './tasks/utils'
 Dir.glob('models/*.rb').each {|f| load f}
 

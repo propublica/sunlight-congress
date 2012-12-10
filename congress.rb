@@ -6,6 +6,44 @@ require './api/sunlight'
 include Api::Routes
 helpers Api::Helpers
 
+get(/(legislators|districts)\/locate\/?/) do
+  check_key!
+
+  error 500, "Provide a 'zip', or a 'lat' and 'lng'." unless params[:zip] or (params[:lat] and params[:lng])
+
+  if params[:zip]
+    districts = Location.zip_to_districts params[:zip]
+  elsif params[:lat] and params[:lng]
+    districts = Location.location_to_districts params[:lat], params[:lng]
+  end
+
+  if params[:captures][0] == "legislators"
+    model = Legislator
+    fields = fields_for model, params
+    pagination = pagination_for params
+    order = order_for params, "_id"
+
+    conditions = Location.district_to_legislators districts
+    
+    if params[:explain] == 'true'
+      results = Queryable.explain_for model, conditions, fields, order, pagination
+    else
+      criteria = Queryable.criteria_for model, conditions, fields, order, pagination
+      documents = Queryable.documents_for model, criteria, fields
+      results = Queryable.results_for criteria, documents, pagination
+    end
+
+  else # districts
+    results = {
+      results: districts,
+      count: districts.size
+    }
+  end
+
+  hit! "locate", "json"
+
+  json results
+end
 
 get queryable_route do
   check_key!
@@ -111,7 +149,7 @@ helpers do
 
   def check_key!
     if Environment.check_key? and !ApiKey.allowed?(api_key)
-      halt 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+      error 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
     end
   end
 
@@ -123,6 +161,16 @@ helpers do
     method = params[:captures][0]
     key = api_key || "debug"
     now = Time.zone.now
+
+    if method_type == "locate"
+      if params[:zip]
+        method += ".zip"
+      elsif params[:lat] and params[:lng]
+        method += ".location"
+      end
+    elsif method_type == "search"
+      method += ".search"
+    end
 
     hit = Hit.create!(
       key: key,

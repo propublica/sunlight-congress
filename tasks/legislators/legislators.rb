@@ -29,7 +29,7 @@ class Legislators
     bad_legislators = []
     count = 0
 
-    us_legislators = current_legislators.map {|l| [l,true]} 
+    us_legislators = current_legislators.map {|l| [l, true]} 
     unless options[:current]
       historical_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-historical.yaml")
       us_legislators += historical_legislators.map {|l| [l, false]}
