@@ -14,8 +14,18 @@ get(/(legislators|districts)\/locate\/?/) do
   begin
     if params[:zip]
       districts = Location.zip_to_districts params[:zip]
+      
+      details = {}
     elsif params[:lat] and params[:lng]
-      districts = Location.location_to_districts params[:lat], params[:lng]
+      url = Location.url_for params[:lat], params[:lng]
+
+      start = Time.now
+      response = Location.response_for url
+      elapsed = Time.now - start
+
+      districts = Location.response_to_districts response
+
+      details = {response: response, elapsed: elapsed, districts: districts}
     end
   rescue Location::LocationException => ex
     error 500, ex.message
@@ -30,7 +40,8 @@ get(/(legislators|districts)\/locate\/?/) do
     conditions = Location.district_to_legislators districts
     
     if params[:explain] == 'true'
-      results = Queryable.explain_for model, conditions, fields, order, pagination
+      explain = Queryable.explain_for model, conditions, fields, order, pagination
+      results = {query: explain, location: details}
     else
       criteria = Queryable.criteria_for model, conditions, fields, order, pagination
       documents = Queryable.documents_for model, criteria, fields

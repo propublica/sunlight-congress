@@ -1,5 +1,5 @@
 require 'curl'
-require 'oj'
+require 'multi_json'
 
 module Location
 
@@ -25,10 +25,10 @@ module Location
   end
 
 
-  def self.location_to_districts(lat, lng)
-    url = url_for lat, lng
-    body = fetch url
-    response = Oj.load body
+  def self.response_to_districts(response)
+    unless response.present? and response.is_a?(Hash) and response['objects']
+      raise LocationException.new("Invalid response from location server.")
+    end
 
     # lat/lng should return just one, but just in case
     response['objects'].map do |object|
@@ -53,11 +53,20 @@ module Location
     "http://#{Environment.config['location']['host']}/boundaries/cd/?contains=#{lat},#{lng}"
   end
 
+  def self.response_for(url)
+    body = fetch url
+    MultiJson.load body
+
+  rescue MultiJson::DecodeError => ex
+    raise LocationException.new("Error parsing JSON from location server.")
+  end
+
   def self.fetch(url)
     curl = Curl::Easy.new url
     curl.follow_location = true # follow redirects
     curl.perform
     curl.body_str
+
   rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
     Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
     Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
