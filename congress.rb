@@ -92,7 +92,7 @@ get(/(legislators|districts)\/locate\/?/) do
     if params[:zip]
       districts = Location.zip_to_districts params[:zip]
       
-      details = {}
+      details = {zip: params[:zip]}
     elsif params[:lat] and params[:lng]
       url = Location.url_for params[:lat], params[:lng]
 
@@ -102,7 +102,7 @@ get(/(legislators|districts)\/locate\/?/) do
 
       districts = Location.response_to_districts response
 
-      location = {response: response, elapsed: elapsed, districts: districts}
+      location = {lat: params[:lat], lng: params[:lng], response: response, elapsed: elapsed, districts: districts}
     end
   rescue Location::LocationException => ex
     error 500, ex.message
@@ -118,7 +118,7 @@ get(/(legislators|districts)\/locate\/?/) do
     
     if params[:explain] == 'true'
       explain = Queryable.explain_for model, conditions, fields, order, pagination
-      results = {query: explain, location: location}
+      results = {location: location, query: explain}
     else
       criteria = Queryable.criteria_for model, conditions, fields, order, pagination
       documents = Queryable.documents_for model, criteria, fields
@@ -127,7 +127,7 @@ get(/(legislators|districts)\/locate\/?/) do
 
   else # districts
     if params[:explain]
-      results = {districts: districts, location: location}
+      results = {location: location, districts: districts}
     else
       results = {results: districts, count: districts.size}
     end
