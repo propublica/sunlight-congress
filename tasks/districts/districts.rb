@@ -17,7 +17,7 @@ class Districts
     maximum = 100000
 
     page = 1
-    per_page = 100
+    per_page = options[:per_page] ? options[:per_page].to_i : 100
 
     zip_count = 0
 
@@ -98,7 +98,11 @@ class Districts
     host = Environment.config['location']['host']
     url = "http://#{host}/boundaries/?intersects=zcta/#{zip}&sets=cd&limit=1000"
 
-    response = Utils.download url, {json: true, destination: destination_for(zip)}.merge(options)
+    begin
+      response = Utils.download url, {json: true, destination: destination_for(zip)}.merge(options)
+    rescue Yajl::ParseError
+      return nil
+    end
     return nil unless response
 
     response['objects'].map do |object|
