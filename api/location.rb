@@ -29,10 +29,6 @@ module Location
 
 
   def self.response_to_districts(response)
-    unless response.present? and response.is_a?(Hash) and response['objects']
-      raise LocationException.new("Invalid response from location server.")
-    end
-
     # latitude/longitude should return just one, but just in case
     response['objects'].map do |object|
       pieces = object['name'].split " "
@@ -42,10 +38,6 @@ module Location
         {state: pieces[0], district: pieces[1].to_i}
       end
     end
-  end
-
-  def self.zip_to_districts(zip)
-    [{district: 5, state: "NY"}]
   end
 
   def self.url_for(latitude, longitude)
@@ -58,7 +50,13 @@ module Location
 
   def self.response_for(url)
     body = fetch url
-    MultiJson.load body
+    response = MultiJson.load body
+
+    unless response.present? and response.is_a?(Hash) and response['objects']
+      raise LocationException.new("Invalid response from location server.")
+    end
+
+    response
 
   rescue MultiJson::DecodeError => ex
     raise LocationException.new("Error parsing JSON from location server.")
