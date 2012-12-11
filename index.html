@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Congress API</title>
     
-    <link rel="stylesheet" type="text/css" href="http://documentup.com/stylesheets/screen.css">
+    <link rel="stylesheet" type="text/css" href="documentup.css">
 
-    <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
-    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-
-    
+<script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
   <body><div id="container">
   <div id="nav">
@@ -47,6 +45,11 @@
           
         </li>
       
+        <li>
+          <a href="#other-apis">Other APIs</a>
+          
+        </li>
+      
     </ul>
     
     
@@ -62,13 +65,13 @@
 
 </p>
 <h2 id='features'>Features</h2 id='features'>
-<p>The Sunlight Congress API has lots of features around members of Congress:
+<p>Lots of features and data for members of Congress:
 
 </p>
 <ul>
-<li>Look up legislators by location (lat/lng) or by zip code.</li>
-<li>Crosswalk for IDs of legislatrs across various official and 3rd party services.</li>
-<li>Official Twitter, YouTube, and Facebook accounts for legislators.</li>
+<li>Look up legislators by location or by zip code.</li>
+<li>Crosswalk for IDs of legislators across various official and 3rd party services.</li>
+<li>Official Twitter, YouTube, and Facebook accounts.</li>
 <li>Committees and subcommittees in Congress, including memberships and rankings.</li>
 </ul>
 <p>We also provide Congress&#39; daily work:
@@ -107,17 +110,6 @@
 
 </p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>Locate methods:
-
-</p>
-<table>
-<tr>
-<td>/legislators/locate</td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
-</tr><tr>
-<td>/districts/locate</td><td>Find Congressional Districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
-</tr>
-</table>
-
 <p>Filter methods:
 
 </p>
@@ -148,6 +140,17 @@
 </tr>
 </table>
 
+<p>Locate methods:
+
+</p>
+<table>
+<tr>
+<td>/legislators/locate</td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+</tr><tr>
+<td>/districts/locate</td><td>Find Congressional Districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+</tr>
+</table>
+
 <h2 id='bulk-data'>Bulk Data</h2 id='bulk-data'>
 <p>Core data for legislators, committees, and bills come from public domain <a href="https://github.com/unitedstates/congress">scrapers</a> and <a href="https://github.com/unitedstates/congress-legislators">bulk data</a> at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
 
@@ -163,6 +166,23 @@
 <li>Full text search over these documents.</li>
 </ul>
 </li>
+</ul>
+<h2 id='other-apis'>Other APIs</h2 id='other-apis'>
+<p>If the Sunlight Congress API doesn&#39;t have what you&#39;re looking for, check out other Congress APIs:
+
+</p>
+<ul>
+<li><a href="http://www.govtrack.us/developers/api">GovTrack Data API</a></li>
+<li><a href="http://developer.nytimes.com/docs/congress_api">New York Times Congress API</a></li>
+</ul>
+<p>Or if you&#39;re looking for other government data:
+
+</p>
+<ul>
+<li><a href="https://www.federalregister.gov/learn/developers">FederalRegister.gov API</a> - Official (government-run) API for the activity of the executive branch of the US government. Includes proposed and final regulations, notices, executive orders, and much more.</li>
+<li><a href="http://openstates.org/api/">Open States API</a> - US legislative data for all 50 states.</li>
+<li><a href="http://capitolwords.org/api/">Capitol Words API</a> - Search speeches of members of Congress (the Congressional Record), and get all sorts of language analysis on frequently used words and phrases.</li>
+<li><a href="http://data.influenceexplorer.com/api">Influence Explorer API</a> - Data around federal lobbying, grants, contracts, and state and federal campaign contributions.</li>
 </ul>
 
   </div>

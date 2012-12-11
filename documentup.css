@@ -348,7 +348,7 @@ a {
   margin-left: 1.625em;
 }
 #content a {
-  text-decoration: none;
+  text-decoration: underline;
 }
 #content a:hover {
   text-decoration: underline;
