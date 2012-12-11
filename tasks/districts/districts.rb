@@ -17,7 +17,7 @@ class Districts
     maximum = 100000
 
     page = 1
-    per_page = 1000
+    per_page = 100
 
     zip_count = 0
 
@@ -30,7 +30,6 @@ class Districts
     Zip.delete_all
 
     errors = []
-    retries = 0
 
     CSV.open(dest, "w") do |csv|
       while page < (maximum / per_page)
@@ -42,19 +41,10 @@ class Districts
           zips = zips_for page, per_page, options
 
           if zips.nil?
-            if retries < 5
-              retries += 1
-              puts "Failure fetching zips for page, retrying in 5...4...3...2...1..."
-              sleep 5
-              next
-            else
-              Report.failure self, "Failure paging through zips on page #{page}, aborting"
-              return
-            end
+            Report.failure self, "Failure paging through zips on page #{page}, aborting"
+            return
           end
         end
-
-        retries = 0 # reset
 
         zips.each do |zip|
           puts "[#{zip}] Finding districts..."
