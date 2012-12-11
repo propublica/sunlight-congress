@@ -27,6 +27,8 @@ class Districts
       FileUtils.rm dest
     end
 
+    Zip.delete_all
+
     CSV.open(dest, "w") do |csv|
       while page < (maximum / per_page)
         puts "Fetching page #{page}..."
@@ -39,10 +41,15 @@ class Districts
 
         zips.each do |zip|
           puts "[#{zip}] Finding districts..."
+          
           districts = districts_for zip, options
           districts.each do |district|
             csv << [zip, district[:state], district[:district]]
           end
+
+          # cache in DB for quick lookup in exactly the format we want
+          Zip.create! zip: zip, districts: districts
+
           puts "[#{zip}] Wrote #{districts.size} districts."
           zip_count += 1
         end

@@ -90,7 +90,12 @@ get(/(legislators|districts)\/locate\/?/) do
 
   begin
     if params[:zip]
-      districts = Location.zip_to_districts params[:zip]
+      if zip = Zip.where(zip: params[:zip]).first
+        districts = zip['districts']
+        location = {zip: params[:zip], districts: zip['districts']}
+      else
+        districts = []
+      end
       
       details = {zip: params[:zip]}
     elsif params[:latitude] and params[:longitude]
@@ -109,20 +114,27 @@ get(/(legislators|districts)\/locate\/?/) do
   end
 
   if params[:captures][0] == "legislators"
-    model = Legislator
-    fields = fields_for model, params
-    pagination = pagination_for params
-    order = order_for params, "_id"
-
-    conditions = Location.district_to_legislators districts
-    
-    if params[:explain] == 'true'
-      explain = Queryable.explain_for model, conditions, fields, order, pagination
-      results = {location: location, query: explain}
+    if districts.any?
+      model = Legislator
+      fields = fields_for model, params
+      pagination = pagination_for params
+      order = order_for params, "_id"
+      conditions = Location.district_to_legislators districts
+      
+      if params[:explain] == 'true'
+        explain = Queryable.explain_for model, conditions, fields, order, pagination
+        results = {location: location, query: explain}
+      else
+        criteria = Queryable.criteria_for model, conditions, fields, order, pagination
+        documents = Queryable.documents_for model, criteria, fields
+        results = Queryable.results_for criteria, documents, pagination
+      end
     else
-      criteria = Queryable.criteria_for model, conditions, fields, order, pagination
-      documents = Queryable.documents_for model, criteria, fields
-      results = Queryable.results_for criteria, documents, pagination
+      if params[:explain]
+        results = {location: location}
+      else
+        results = {results: [], count: 0}
+      end
     end
 
   else # districts
@@ -179,7 +191,7 @@ helpers do
 
   def hit!(method_type, format)
     return if params[:explain]
-    
+
     method = params[:captures][0]
     key = api_key || "debug"
     now = Time.zone.now

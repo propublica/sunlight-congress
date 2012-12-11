@@ -12,12 +12,15 @@ module Location
   # turn this into a conditions hash that will match on representatives 
   # and senators for this area
   def self.district_to_legislators(districts)
+    return nil unless districts and districts.any?
+    
     and_senators = []
     states = []
     districts.each do |district|
-      if !states.include?(district[:state])
-        states << district[:state]
-        and_senators << {state: district[:state], chamber: "senate"}
+      state = district[:state] || district['state']
+      if !states.include?(state)
+        states << state
+        and_senators << {state: state, chamber: "senate"}
       end
     end
 
