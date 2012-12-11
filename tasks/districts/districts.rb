@@ -29,6 +29,9 @@ class Districts
 
     Zip.delete_all
 
+    errors = []
+    retries = 0
+
     CSV.open(dest, "w") do |csv|
       while page < (maximum / per_page)
         puts "Fetching page #{page}..."
@@ -37,12 +40,31 @@ class Districts
           zips = [options[:zip]]
         else
           zips = zips_for page, per_page, options
+
+          if zips.nil?
+            if retries < 5
+              retries += 1
+              puts "Failure fetching zips for page, retrying in 5...4...3...2...1..."
+              sleep 5
+              next
+            else
+              Report.failure self, "Failure paging through zips on page #{page}, aborting"
+              return
+            end
+          end
         end
+
+        retries = 0 # reset
 
         zips.each do |zip|
           puts "[#{zip}] Finding districts..."
           
           districts = districts_for zip, options
+          if districts.nil?
+            errors << {zip: zip, message: "Couldn't load districts intersecting this zip"}
+            next
+          end
+
           districts.each do |district|
             csv << [zip, district[:state], district[:district]]
           end
@@ -62,6 +84,10 @@ class Districts
       end
     end
 
+    if errors.any?
+      Report.warning self, "Found #{errors.size} district lookup errors for zips", errors: errors
+    end
+
     Report.success self, "Wrote #{zip_count} zips to #{dest}."
   end
 
@@ -73,6 +99,8 @@ class Districts
     url = "http://#{host}/boundaries/?sets=zcta&limit=#{limit}&offset=#{offset}"
 
     response = Utils.download url, {json: true}.merge(options)
+    return nil unless response
+
     response['objects'].map {|object| object['name']}
   end
 
@@ -81,6 +109,8 @@ class Districts
     url = "http://#{host}/boundaries/?intersects=zcta/#{zip}&sets=cd&limit=1000"
 
     response = Utils.download url, {json: true, destination: destination_for(zip)}.merge(options)
+    return nil unless response
+
     response['objects'].map do |object|
       pieces = object['name'].split " "
       if object['name'] =~ /at Large/i
