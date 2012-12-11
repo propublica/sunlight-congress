@@ -42,16 +42,6 @@ All methods are plural, and return arrays of documents. To fetch a single docume
 
 ## Methods
 
-Locate methods:
-
-<table>
-<tr>
-<td>/legislators/locate</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
-</tr><tr>
-<td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
-</tr>
-</table>
-
 Filter methods:
 
 <table>
@@ -80,6 +70,16 @@ Search methods:
 </tr>
 </table>
 
+Locate methods:
+
+<table>
+<tr>
+<td>/legislators/locate</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+</tr><tr>
+<td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
+</tr>
+</table>
+
 ## Bulk Data
 
 Core data for legislators, committees, and bills come from public domain [scrapers](https://github.com/unitedstates/congress) and [bulk data](https://github.com/unitedstates/congress-legislators) at [github.com/unitedstates](https://github.com/unitedstates/). 
@@ -92,3 +92,17 @@ The Congress API is not designed for bulk data downloads. Requests are limited t
 * Various relevant documents: 
     * GAO reports, CBO reports, CRS reports, statements of Administration Policy.
     * Full text search over these documents.
+
+## Other APIs
+
+If the Sunlight Congress API doesn't have what you're looking for, check out other Congress APIs:
+
+* [GovTrack Data API](http://www.govtrack.us/developers/api)
+* [New York Times Congress API](http://developer.nytimes.com/docs/congress_api)
+
+Or if you're looking for other government data:
+
+* [FederalRegister.gov API](https://www.federalregister.gov/learn/developers) - Official (government-run) API for the activity of the executive branch of the US government. Includes proposed and final regulations, notices, executive orders, and much more.
+* [Open States API](http://openstates.org/api/) - US legislative data for all 50 states.
+* [Capitol Words API](http://capitolwords.org/api/) - Search speeches of members of Congress (the Congressional Record), and get all sorts of language analysis on frequently used words and phrases.
+* [Influence Explorer API](http://data.influenceexplorer.com/api) - Data around federal lobbying, grants, contracts, and state and federal campaign contributions.

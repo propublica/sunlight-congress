@@ -10,3 +10,5 @@
 *.pyc
 
 /*.txt
+
+/docs/output
