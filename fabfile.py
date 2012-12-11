@@ -66,5 +66,5 @@ def deploy():
   execute(dependencies)
   execute(create_indexes)
   execute(make_current)
-  # execute(set_crontab)
+  execute(set_crontab)
   execute(restart)
