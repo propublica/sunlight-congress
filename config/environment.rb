@@ -69,7 +69,9 @@ class Email
     task = report.source.underscore.to_sym
     
     recipients = Environment.config[:recipients][:admin].dup
-    recipients += task_owners if task_owners = Environment.config[:recipients][task]
+    if task_owners = Environment.config[:recipients][task]
+      recipients += task_owners 
+    end
     recipients.uniq
   end
 
