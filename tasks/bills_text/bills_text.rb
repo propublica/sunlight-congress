@@ -162,6 +162,7 @@ class BillsText
       bill_fields = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
         summary: bill['summary'],
+        summary_short: bill['summary_short'],
         keywords: bill['keywords']
       )
 
