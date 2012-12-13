@@ -22,7 +22,7 @@
 0 5,11 * * * /projects/congress/congress/shared/cron/task.sh bills_text
 
 # popular bill names, check once an hour
-*/60 * * * * /projects/congress/congress/shared/cron/task.sh bills_nicknames
+0 * * * * /projects/congress/congress/shared/cron/task.sh bills_nicknames
 
 # video
 0 9 * * *    /projects/congress/congress/shared/cron/task.sh videos captions=True
