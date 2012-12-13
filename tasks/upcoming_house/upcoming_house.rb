@@ -94,6 +94,10 @@ class UpcomingHouse
       date_text = date_results.first.first
       url = pdf_url
 
+      month, day, year = date_text.split "-"
+      year = ("20" + year) if year.size == 2
+      date_text = [year, month, day].join "-"
+
     # but if the PDF URL is messed up, try to get it from the header
     else
       begin
