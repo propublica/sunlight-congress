@@ -527,6 +527,7 @@ span.note {
   padding: 1px 3px;
   font-size: 80%;
   margin-left: 3px;
+  font-family: sans-serif;
 }
 span.note.type {}
 span.note.example {}
