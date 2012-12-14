@@ -31,7 +31,7 @@ http://congress.api.sunlightfoundation.com
 
 ### Filtering
 
-Most methods filter through paginated lists of documents, that can be sorted and filtered by various fields and operators. Under the hood, these methods use [MongoDB](http://www.mongodb.org/).
+Most methods filter through paginated lists of documents, that can be sorted, filtered, and paginated by various fields and operators. Under the hood, these methods use [MongoDB](http://www.mongodb.org/).
 
 <table>
 <tr>
@@ -61,6 +61,18 @@ Most methods filter through paginated lists of documents, that can be sorted and
 </tr>
 </table>
 
+### Text Searching
+
+Execute a full-text search query, using a Lucene-based query string syntax. Documents can also be sorted, filtered, and paginated by various fields and operators. Under the hood, these methods use [ElasticSearch](http://www.elasticsearch.org/).
+
+<table>
+<tr>
+<td>/bills/search</td><td>Search the text of bills' most recent versions, back to 2009. Updated daily.</td>
+</tr><tr>
+<td>/clips/search</td><td>Captions of words from House and Senate video, back to 2009. Updated daily.</td>
+</tr>
+</table>
+
 ### Geolocation
 
 Look up information by `latitude` and `longitude`, or by a `zip` code. No sorting, pagination, or other filters. Under the hood, these methods use a [modified version](https://github.com/sunlightlabs/pentagon) of the Chicago Tribune's [Boundary Service](https://github.com/newsapps/django-boundaryservice).
@@ -72,20 +84,6 @@ Look up information by `latitude` and `longitude`, or by a `zip` code. No sortin
 <td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
 </tr>
 </table>
-
-
-### Text Searching
-
-Execute a full-text search query, using a Lucene-based query string syntax. Under the hood, these methods use [ElasticSearch](http://www.elasticsearch.org/).
-
-<table>
-<tr>
-<td>/bills/search</td><td>Search the text of bills' most recent versions, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>/clips/search</td><td>Captions of words from House and Senate video, back to 2009. Updated daily.</td>
-</tr>
-</table>
-
 
 
 ## Operators
