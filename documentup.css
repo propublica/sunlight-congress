@@ -514,11 +514,11 @@ dt {
 
   font-size: 90%;
   display: inline-block;
-  margin-top: 5px;
+  margin-top: 20px;
   margin-right: 5px;
 }
 dd {
-  margin-bottom: 15px;
+  margin-top: 3px;
   font-size: 90%;
 }
 span.note {
@@ -529,6 +529,8 @@ span.note {
   margin-left: 3px;
   font-family: sans-serif;
 }
-span.note.type {}
-span.note.example {}
-span.note.filter {}
+span.values {
+  display: block;
+  color: #888;
+  font-size: 90%;
+}

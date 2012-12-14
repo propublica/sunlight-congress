@@ -32,50 +32,51 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>party</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "R"</span>
 <dd>
   First letter of the party this member belongs to.
 </dd>
+<span class="values">possible values: R, D, I</span>
 
 <dt>gender</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "M"</span>
 <dd>
   First letter of this member's gender.
 </dd>
+<span class="values">possible values: M, F</span>
 
 <dt>state</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "KY"</span>
 <dd>
   Two-letter code of the state this member represents.
 </dd>
+<span class="values">examples: KY, CT</span>
+
 
 <dt>title</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "Sen"</span>
 <dd>
-  Title of this member. In the Senate, this is always "Sen". In the House, it is usually "Rep", but can be "Del" or "Com".
+  Title of this member.
 </dd>
+<span class="values">possible values: Sen, Rep, Del, Com</span>
 
 <dt>chamber</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "senate"</span>
 <dd>
-  Chamber the member is in. "senate" or "house".
+  Chamber the member is in.
 </dd>
+<span class="values">possible values: senate, house</span>
 
 <dt>senate_class</dt>
 <span class="note type">number</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: 1</span>
 <dd>
   Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 </dd>
+<span class="values">possible values: 1, 2, 3</span>
 
 ### Identifiers
 
