@@ -136,6 +136,54 @@
   Whether a legislator is currently holding elected office in Congress.
 </dd>
 
+<dt>party</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;R&quot;</span>
+<dd>
+  First letter of the party this member belongs to. <code>D</code>, <code>R</code>, or <code>I</code>.
+</dd>
+
+<dt>gender</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;M&quot;</span>
+<dd>
+  First letter of this member&#39;s gender.
+</dd>
+
+<dt>state</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;KY&quot;</span>
+<dd>
+  Two-letter code of the state this member represents.
+</dd>
+
+<dt>title</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;Sen&quot;</span>
+<dd>
+  Title of this member. In the Senate, this is always <code>Sen</code>. In the House, it is usually <code>Rep</code>, but can be <code>Del</code> or <code>Com</code>.
+</dd>
+
+<dt>chamber</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;senate&quot;</span>
+<dd>
+  Chamber the member is in. <code>senate</code> or <code>house</code>.
+</dd>
+
+<dt>senate_class</dt>
+<span class="note type">number</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: 1</span>
+<dd>
+  Which senate &quot;class&quot; the member belongs to. Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
+</dd>
+
 <h3 id='fields/identifiers'>Identifiers</h3 id='fields/identifiers'>
 <dt>bioguide_id</dt>
 <span class="note type">string</span>

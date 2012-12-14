@@ -29,6 +29,54 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
   Whether a legislator is currently holding elected office in Congress.
 </dd>
 
+<dt>party</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: "R"</span>
+<dd>
+  First letter of the party this member belongs to. `D`, `R`, or `I`.
+</dd>
+
+<dt>gender</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: "M"</span>
+<dd>
+  First letter of this member's gender.
+</dd>
+
+<dt>state</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: "KY"</span>
+<dd>
+  Two-letter code of the state this member represents.
+</dd>
+
+<dt>title</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: "Sen"</span>
+<dd>
+  Title of this member. In the Senate, this is always `Sen`. In the House, it is usually `Rep`, but can be `Del` or `Com`.
+</dd>
+
+<dt>chamber</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: "senate"</span>
+<dd>
+  Chamber the member is in. `senate` or `house`.
+</dd>
+
+<dt>senate_class</dt>
+<span class="note type">number</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: 1</span>
+<dd>
+  Which senate "class" the member belongs to. Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
+</dd>
+
 ### Identifiers
 
 <dt>bioguide_id</dt>
