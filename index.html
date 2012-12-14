@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Congress API</title>
     
-    <link rel="stylesheet" type="text/css" href="documentup.css">
-
-<script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
-<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  </head>
+    
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
   <body><div id="container">
   <div id="nav">
     
@@ -26,12 +26,23 @@
         </li>
       
         <li>
-          <a href="#getting-started">Getting Started</a>
-          
-        </li>
-      
-        <li>
           <a href="#methods">Methods</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#methods/filtering">Filtering</a>
+                </li>
+              
+                <li>
+                  <a href="#methods/geolocation">Geolocation</a>
+                </li>
+              
+                <li>
+                  <a href="#methods/text-searching">Text Searching</a>
+                </li>
+              
+            </ul>
           
         </li>
       
@@ -85,62 +96,49 @@
 <p>All data is served in JSON, and requires a Sunlight API key. An API key is <a href="http://services.sunlightlabs.com/accounts/register/">free to register</a> and has no usage limits.
 
 </p>
-<p>We have an <a href="https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss">API mailing list</a>, and can be found on Twitter at <a href="http://twitter.com/sunlightlabs">@sunlightlabs</a>.
-
-</p>
-<h2 id='getting-started'>Getting Started</h2 id='getting-started'>
-<p>The Sunlight Congress API lives at:
-
-</p>
-<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
-<p>There are three types of methods in the Congress API:
-
-</p>
-<p><strong>Filter</strong> methods return paginated lists of documents, that can be sorted and filtered by various fields and operators. These methods support partial responses, meaning you can ask just for specific fields. Some large fields must be specifically asked for. Under the hood, these methods use <a href="http://www.mongodb.org/">MongoDB</a>.
-
-</p>
-<p><strong>Search</strong> methods can execute a full-text search query, using a Lucene-based query string syntax. Search methods can also do everything that filter methods do - sorting, pagination, filtering, operators, and partial responses. Under the hood, these methods use <a href="http://www.elasticsearch.org/">ElasticSearch</a>.
-
-</p>
-<p><strong>Locate</strong> methods look up data by <code>latitude</code> and <code>longitude</code>, or by a <code>zip</code> code. No sorting, pagination, or other filters. Under the hood, these methods use a <a href="https://github.com/sunlightlabs/pentagon">modified version</a> of the Chicago Tribune&#39;s <a href="https://github.com/newsapps/django-boundaryservice">Boundary Service</a>.
-
-</p>
-<p>All methods are plural, and return arrays of documents. To fetch a single document, filter by that document&#39;s unique ID, and look at the first (only) document in the result set.
+<p>We have an <a href="https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss">API mailing list</a>, and can be found on Twitter at <a href="http://twitter.com/sunlightlabs">@sunlightlabs</a>. Bugs and feature requests can be made on <a href="https://github.com/sunlightlabs/congress/issues">Github Issues</a>.
 
 
 </p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>Filter methods:
+<p>The Sunlight Congress API lives at:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<h3 id='methods/filtering'>Filtering</h3 id='methods/filtering'>
+<p>Most methods filter through paginated lists of documents, that can be sorted and filtered by various fields and operators. Under the hood, these methods use <a href="http://www.mongodb.org/">MongoDB</a>.
 
 </p>
 <table>
 <tr>
-<td>/legislators</td><td>Current legislators&#39; names, IDs, biography, and social media.</td>
+<td><a href="legislators.html">/legislators</a></td>
+<td>Current legislators&#39; names, IDs, biography, and social media.</td>
 </tr><tr>
-<td>/committees</td><td>Current Congressional committees, subcommittees, and their membership.</td>
+<td>/committees</td>
+<td>Current Congressional committees, subcommittees, and their membership.</td>
 </tr><tr>
-<td>/bills</td><td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
+<td>/bills</td>
+<td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>/votes</td><td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
+<td>/votes</td>
+<td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
-<td>/floor_updates</td><td>To-the-minute updates from the floor of the House and Senate.</td>
+<td>/floor_updates</td>
+<td>To-the-minute updates from the floor of the House and Senate.</td>
 </tr><tr>
-<td>/hearings</td><td>Committee hearings in Congress. Updated as hearings are announced.</td>
+<td>/hearings</td>
+<td>Committee hearings in Congress. Updated as hearings are announced.</td>
 </tr><tr>
-<td>/upcoming_bills</td><td>Bills scheduled for debate in the future, as announced by party leadership.</td>
+<td>/upcoming_bills</td>
+<td>Bills scheduled for debate in the future, as announced by party leadership.</td>
+</tr><tr>
+<td>/videos</td>
+<td>Video of the House and Senate floor.</td>
 </tr>
 </table>
 
-<p>Search methods:
-
-</p>
-<table>
-<tr>
-<td>/bills/search</td><td>Full-text search of bills&#39; most recent versions, back to 2009. Updated daily.</td>
-</tr>
-</table>
-
-<p>Locate methods:
+<h3 id='methods/geolocation'>Geolocation</h3 id='methods/geolocation'>
+<p>Look up information by <code>latitude</code> and <code>longitude</code>, or by a <code>zip</code> code. No sorting, pagination, or other filters. Under the hood, these methods use a <a href="https://github.com/sunlightlabs/pentagon">modified version</a> of the Chicago Tribune&#39;s <a href="https://github.com/newsapps/django-boundaryservice">Boundary Service</a>.
 
 </p>
 <table>
@@ -148,6 +146,19 @@
 <td>/legislators/locate</td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
 </tr><tr>
 <td>/districts/locate</td><td>Find Congressional Districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+</tr>
+</table>
+
+
+<h3 id='methods/text-searching'>Text Searching</h3 id='methods/text-searching'>
+<p>Execute a full-text search query, using a Lucene-based query string syntax. Under the hood, these methods use <a href="http://www.elasticsearch.org/">ElasticSearch</a>.
+
+</p>
+<table>
+<tr>
+<td>/bills/search</td><td>Search the text of bills&#39; most recent versions, back to 2009. Updated daily.</td>
+</tr><tr>
+<td>/clips/search</td><td>Captions of words spoken on House and Senate video, back to 2009. Updated daily.</td>
 </tr>
 </table>
 
@@ -161,11 +172,8 @@
 <h2 id='planned-features'>Planned Features</h2 id='planned-features'>
 <ul>
 <li>All amendments to bills introduced in the House and Senate.</li>
-<li>Various relevant documents: <ul>
-<li>GAO reports, CBO reports, CRS reports, statements of Administration Policy.</li>
-<li>Full text search over these documents.</li>
-</ul>
-</li>
+<li>Draft legislation in the House, as posted to <a href="http://docs.house.gov">docs.house.gov</a>.</li>
+<li>Reports by GAO, CBO, and Congressional committees.</li>
 </ul>
 <h2 id='other-apis'>Other APIs</h2 id='other-apis'>
 <p>If the Sunlight Congress API doesn&#39;t have what you&#39;re looking for, check out other Congress APIs:
