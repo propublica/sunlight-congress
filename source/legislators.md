@@ -33,17 +33,15 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
 <dd>
-  First letter of the party this member belongs to.
+  First letter of the party this member belongs to. "R", "D", or "I".
 </dd>
-<span class="values">possible values: R, D, I</span>
 
 <dt>gender</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
 <dd>
-  First letter of this member's gender.
+  First letter of this member's gender. "M" or "F".
 </dd>
-<span class="values">possible values: M, F</span>
 
 <dt>state</dt>
 <span class="note type">string</span>
@@ -51,24 +49,20 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dd>
   Two-letter code of the state this member represents.
 </dd>
-<span class="values">examples: KY, CT</span>
-
 
 <dt>title</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
 <dd>
-  Title of this member.
+  Title of this member. "Sen", "Rep", "Del", or "Com".
 </dd>
-<span class="values">possible values: Sen, Rep, Del, Com</span>
 
 <dt>chamber</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
 <dd>
-  Chamber the member is in.
+  Chamber the member is in. "senate" or "house".
 </dd>
-<span class="values">possible values: senate, house</span>
 
 <dt>senate_class</dt>
 <span class="note type">number</span>
@@ -76,14 +70,12 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dd>
   Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 </dd>
-<span class="values">possible values: 1, 2, 3</span>
 
 ### Identifiers
 
 <dt>bioguide_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "B000944"</span>
 <dd>
   Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
 </dd>
@@ -91,7 +83,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>thomas_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "136"</span>
 <dd>
   Identifier for this member as it appears on THOMAS.gov and Congress.gov.
 </dd>
@@ -99,7 +90,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>lis_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "S307"</span>
 <dd>
   Identifier for this member as it appears on some of Congress' data systems (namely [Senate votes](http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml)).
 </dd>
@@ -107,7 +97,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>govtrack_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "400050"</span>
 <dd>
   Identifier for this member as it appears on [GovTrack.us](http://govtrack.us).
 </dd>
@@ -115,7 +104,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>votesmart_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "L000551"</span>
 <dd>
   Identifier for this member as it appears on [Project Vote Smart](http://votesmart.org/).
 </dd>
@@ -123,7 +111,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>opensecrets_id</dt>
 <span class="note type">string</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: "N00003535"</span>
 <dd>
   Identifier for this member as it appears on [OpenSecrets](http://www.opensecrets.org).
 </dd>
@@ -131,7 +118,6 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 <dt>fec_ids</dt>
 <span class="note type">string array</span>
 <span class="note filter">filterable</span>
-<span class="note example">example: ["S0HI00084"]</span>
 <dd>
   A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
 </dd>
