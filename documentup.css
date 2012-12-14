@@ -494,3 +494,39 @@ a {
     width: 100px;
   }
 }
+
+
+
+/* user-added stuff */
+#content code.json {
+  overflow: auto; 
+  height: 500px; 
+  border: 1px solid #ccc;
+}
+
+#nav {position: fixed;}
+#content {float: right;}
+
+dt {
+  xfont-weight: bold;
+  xfont-style: italic;
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+
+  display: inline-block;
+  margin-right: 5px;
+  margin-top: 10px;  
+}
+dd {
+  padding-left: 10px;
+  margin-bottom: 10px;
+  font-size: 90%;
+}
+span.note {
+  border: 1px solid #ccc;
+  background-color: #eee;
+  padding: 1px 3px;
+  font-size: 80%;
+}
+span.note.type {}
+span.note.example {}
+span.note.filter {}

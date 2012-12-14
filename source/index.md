@@ -7,7 +7,6 @@ A live JSON API for the people and work of Congress.
 Lots of features and data for members of Congress:
 
 * Look up legislators by location or by zip code.
-* Crosswalk for IDs of legislators across various official and 3rd party services.
 * Official Twitter, YouTube, and Facebook accounts.
 * Committees and subcommittees in Congress, including memberships and rankings.
 
@@ -36,7 +35,7 @@ Most methods filter through paginated lists of documents, that can be sorted and
 
 <table>
 <tr>
-<td>[/legislators](legislators.html)</td>
+<td>[/legislators](#data/legislators)</td>
 <td>Current legislators' names, IDs, biography, and social media.</td>
 </tr><tr>
 <td>/committees</td>
@@ -87,19 +86,51 @@ Execute a full-text search query, using a Lucene-based query string syntax. Unde
 </tr>
 </table>
 
-## Bulk Data
+
+
+## Operators
+
+### Filtering on fields
+
+### Operators
+
+### Pagination
+
+### Ordering
+
+### Partial responses
+
+## Full Text Search
+
+### Query string
+
+### Highlighting
+
+### Scores
+
+## Geolocating
+
+### By latitude and longitude
+
+### By zip code
+
+
+
+## Other
+
+### Bulk Data
 
 Core data for legislators, committees, and bills come from public domain [scrapers](https://github.com/unitedstates/congress) and [bulk data](https://github.com/unitedstates/congress-legislators) at [github.com/unitedstates](https://github.com/unitedstates/). 
 
 The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data.
 
-## Planned Features
+### Planned Features
 
 * All amendments to bills introduced in the House and Senate.
 * Draft legislation in the House, as posted to [docs.house.gov](http://docs.house.gov).
 * Reports by GAO, CBO, and Congressional committees.
 
-## Other APIs
+### Other APIs
 
 If the Sunlight Congress API doesn't have what you're looking for, check out other Congress APIs:
 

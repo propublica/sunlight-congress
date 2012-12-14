@@ -47,17 +47,90 @@
         </li>
       
         <li>
-          <a href="#bulk-data">Bulk Data</a>
+          <a href="#operators">Operators</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#operators/filtering-on-fields">Filtering on fields</a>
+                </li>
+              
+                <li>
+                  <a href="#operators/operators">Operators</a>
+                </li>
+              
+                <li>
+                  <a href="#operators/pagination">Pagination</a>
+                </li>
+              
+                <li>
+                  <a href="#operators/ordering">Ordering</a>
+                </li>
+              
+                <li>
+                  <a href="#operators/partial-responses">Partial responses</a>
+                </li>
+              
+            </ul>
           
         </li>
       
         <li>
-          <a href="#planned-features">Planned Features</a>
+          <a href="#full-text-search">Full Text Search</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#full-text-search/query-string">Query string</a>
+                </li>
+              
+                <li>
+                  <a href="#full-text-search/highlighting">Highlighting</a>
+                </li>
+              
+                <li>
+                  <a href="#full-text-search/scores">Scores</a>
+                </li>
+              
+            </ul>
           
         </li>
       
         <li>
-          <a href="#other-apis">Other APIs</a>
+          <a href="#geolocating">Geolocating</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#geolocating/by-latitude-and-longitude">By latitude and longitude</a>
+                </li>
+              
+                <li>
+                  <a href="#geolocating/by-zip-code">By zip code</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#other">Other</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#other/bulk-data">Bulk Data</a>
+                </li>
+              
+                <li>
+                  <a href="#other/planned-features">Planned Features</a>
+                </li>
+              
+                <li>
+                  <a href="#other/other-apis">Other APIs</a>
+                </li>
+              
+            </ul>
           
         </li>
       
@@ -81,7 +154,6 @@
 </p>
 <ul>
 <li>Look up legislators by location or by zip code.</li>
-<li>Crosswalk for IDs of legislators across various official and 3rd party services.</li>
 <li>Official Twitter, YouTube, and Facebook accounts.</li>
 <li>Committees and subcommittees in Congress, including memberships and rankings.</li>
 </ul>
@@ -111,7 +183,7 @@
 </p>
 <table>
 <tr>
-<td><a href="legislators.html">/legislators</a></td>
+<td><a href="#data/legislators">/legislators</a></td>
 <td>Current legislators&#39; names, IDs, biography, and social media.</td>
 </tr><tr>
 <td>/committees</td>
@@ -158,24 +230,40 @@
 <tr>
 <td>/bills/search</td><td>Search the text of bills&#39; most recent versions, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>/clips/search</td><td>Captions of words spoken on House and Senate video, back to 2009. Updated daily.</td>
+<td>/clips/search</td><td>Captions of words from House and Senate video, back to 2009. Updated daily.</td>
 </tr>
 </table>
 
-<h2 id='bulk-data'>Bulk Data</h2 id='bulk-data'>
+
+
+<h2 id='operators'>Operators</h2 id='operators'>
+<h3 id='operators/filtering-on-fields'>Filtering on fields</h3 id='operators/filtering-on-fields'>
+<h3 id='operators/operators'>Operators</h3 id='operators/operators'>
+<h3 id='operators/pagination'>Pagination</h3 id='operators/pagination'>
+<h3 id='operators/ordering'>Ordering</h3 id='operators/ordering'>
+<h3 id='operators/partial-responses'>Partial responses</h3 id='operators/partial-responses'>
+<h2 id='full-text-search'>Full Text Search</h2 id='full-text-search'>
+<h3 id='full-text-search/query-string'>Query string</h3 id='full-text-search/query-string'>
+<h3 id='full-text-search/highlighting'>Highlighting</h3 id='full-text-search/highlighting'>
+<h3 id='full-text-search/scores'>Scores</h3 id='full-text-search/scores'>
+<h2 id='geolocating'>Geolocating</h2 id='geolocating'>
+<h3 id='geolocating/by-latitude-and-longitude'>By latitude and longitude</h3 id='geolocating/by-latitude-and-longitude'>
+<h3 id='geolocating/by-zip-code'>By zip code</h3 id='geolocating/by-zip-code'>
+<h2 id='other'>Other</h2 id='other'>
+<h3 id='other/bulk-data'>Bulk Data</h3 id='other/bulk-data'>
 <p>Core data for legislators, committees, and bills come from public domain <a href="https://github.com/unitedstates/congress">scrapers</a> and <a href="https://github.com/unitedstates/congress-legislators">bulk data</a> at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
 
 </p>
 <p>The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data.
 
 </p>
-<h2 id='planned-features'>Planned Features</h2 id='planned-features'>
+<h3 id='other/planned-features'>Planned Features</h3 id='other/planned-features'>
 <ul>
 <li>All amendments to bills introduced in the House and Senate.</li>
 <li>Draft legislation in the House, as posted to <a href="http://docs.house.gov">docs.house.gov</a>.</li>
 <li>Reports by GAO, CBO, and Congressional committees.</li>
 </ul>
-<h2 id='other-apis'>Other APIs</h2 id='other-apis'>
+<h3 id='other/other-apis'>Other APIs</h3 id='other/other-apis'>
 <p>If the Sunlight Congress API doesn&#39;t have what you&#39;re looking for, check out other Congress APIs:
 
 </p>

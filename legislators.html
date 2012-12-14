@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congress API</title>
+    
+    
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+</head>
+  <body><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <a href="#" id="logo">Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#endpoints">Endpoints</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#endpoints/legislators">/legislators</a>
+                </li>
+              
+                <li>
+                  <a href="#endpoints/legislators-locate">/legislators/locate</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#fields">Fields</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#fields/general">General</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/identifiers">Identifiers</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/names">Names</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/contact-info">Contact info</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/social-media">Social Media</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/terms">Terms</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#examples">Examples</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#examples/legislators-at-latitude-longitude">Legislators at latitude/longitude</a>
+                </li>
+              
+                <li>
+                  <a href="#examples/legislators-by-zip-code">Legislators by zip code</a>
+                </li>
+              
+                <li>
+                  <a href="#examples/legislators-by-party-and-chamber">Legislators by party and chamber</a>
+                </li>
+              
+                <li>
+                  <a href="#examples/legislators-with-last-name">Legislators with last name</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe>
+      </div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Legislators</h1>
+<p>Data on members of Congress, dating back to 1789. All member information is sourced from <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>, which gathers data from official sources through a combination of mostly automated scripts, with some manual review.
+
+</p>
+<p>If you&#39;re looking for <strong>bulk data</strong> on members of Congress, use the bulk data (YAML) files at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>.
+
+</p>
+<h2 id='endpoints'>Endpoints</h2 id='endpoints'>
+<h3 id='endpoints/legislators'>/legislators</h3 id='endpoints/legislators'>
+<h3 id='endpoints/legislators-locate'>/legislators/locate</h3 id='endpoints/legislators-locate'>
+<p>Find members of Congress by location. <a href="index.html#location">Location methods</a> require a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no pagination, ordering, partial response, or operator support.
+
+</p>
+<p>This will return both <strong>representatives</strong> and <strong>senators</strong> that represent the given point or zip. For a given <code>latitude</code> and <code>longitude</code>, this should return up to 1 representative and 2 senators. 
+
+</p>
+<p>A <code>zip</code> code may intersect multiple Congressional districts, so locating by <code>zip</code> may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
+
+</p>
+<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies. Check <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">our blog post</a> for more details.
+
+</p>
+<h2 id='fields'>Fields</h2 id='fields'>
+<h3 id='fields/general'>General</h3 id='fields/general'>
+<dt>in_office</dt>
+<span class="note type">boolean</span>
+<span class="note filter">filterable</span>
+<dd>
+  Whether a legislator is currently holding elected office in Congress.
+</dd>
+
+<h3 id='fields/identifiers'>Identifiers</h3 id='fields/identifiers'>
+<dt>bioguide_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;B000944&quot;</span>
+<dd>
+  Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
+</dd>
+
+<dt>thomas_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;136&quot;</span>
+<dd>
+  Identifier for this member as it appears on THOMAS.gov and Congress.gov.
+</dd>
+
+<dt>lis_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;S307&quot;</span>
+<dd>
+  Identifier for this member as it appears on some of Congress&#39; data systems (namely <a href="http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml">Senate votes</a>).
+</dd>
+
+<dt>govtrack_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;400050&quot;</span>
+<dd>
+  Identifier for this member as it appears on <a href="http://govtrack.us">GovTrack.us</a>.
+</dd>
+
+<dt>votesmart_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;L000551&quot;</span>
+<dd>
+  Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
+</dd>
+
+<dt>opensecrets_id</dt>
+<span class="note type">string</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: &quot;N00003535&quot;</span>
+<dd>
+  Identifier for this member as it appears on <a href="http://www.opensecrets.org">OpenSecrets</a>.
+</dd>
+
+<dt>fec_ids</dt>
+<span class="note type">string array</span>
+<span class="note filter">filterable</span>
+<span class="note example">example: [&quot;S0HI00084&quot;]</span>
+<dd>
+  A list of identifiers for this member as they appear in filings at the <a href="http://fec.gov/">Federal Election Commission</a>.
+</dd>
+
+<h3 id='fields/names'>Names</h3 id='fields/names'>
+<h3 id='fields/contact-info'>Contact info</h3 id='fields/contact-info'>
+<h3 id='fields/social-media'>Social Media</h3 id='fields/social-media'>
+<h3 id='fields/terms'>Terms</h3 id='fields/terms'>
+<h2 id='examples'>Examples</h2 id='examples'>
+<h3 id='examples/legislators-at-latitude-longitude'>Legislators at latitude/longitude</h3 id='examples/legislators-at-latitude-longitude'>
+<h3 id='examples/legislators-by-zip-code'>Legislators by zip code</h3 id='examples/legislators-by-zip-code'>
+<h3 id='examples/legislators-by-party-and-chamber'>Legislators by party and chamber</h3 id='examples/legislators-by-party-and-chamber'>
+<h3 id='examples/legislators-with-last-name'>Legislators with last name</h3 id='examples/legislators-with-last-name'>
+<pre><code class="json">{
+  "<span class="attribute">results</span>":<span class="value">[
+    {
+      "<span class="attribute">in_office</span>":<span class="value"><span class="literal">true</span></span>,
+
+      "<span class="attribute">bioguide_id</span>":<span class="value"><span class="string">"B000944"</span></span>,
+      "<span class="attribute">thomas_id</span>":<span class="value"><span class="string">"136"</span></span>,
+      "<span class="attribute">govtrack_id</span>":<span class="value"><span class="string">"400050"</span></span>,
+      "<span class="attribute">votesmart_id</span>":<span class="value"><span class="string">"27018"</span></span>,
+      "<span class="attribute">crp_id</span>":<span class="value"><span class="string">"N00003535"</span></span>,
+      "<span class="attribute">lis_id</span>":<span class="value"><span class="string">"S307"</span></span>,
+
+      "<span class="attribute">first_name</span>":<span class="value"><span class="string">"Sherrod"</span></span>,
+      "<span class="attribute">nickname</span>":<span class="value"><span class="literal">null</span></span>,
+      "<span class="attribute">last_name</span>":<span class="value"><span class="string">"Brown"</span></span>,
+      "<span class="attribute">middle_name</span>":<span class="value"><span class="literal">null</span></span>,
+      "<span class="attribute">name_suffix</span>":<span class="value"><span class="literal">null</span></span>,
+
+      "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
+      "<span class="attribute">district</span>":<span class="value"><span class="literal">null</span></span>,
+      "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
+      "<span class="attribute">gender</span>":<span class="value"><span class="string">"M"</span></span>,
+      "<span class="attribute">title</span>":<span class="value"><span class="string">"Sen"</span></span>,
+      "<span class="attribute">chamber</span>":<span class="value"><span class="string">"senate"</span></span>,
+      "<span class="attribute">senate_class</span>":<span class="value"><span class="number">1</span></span>,
+
+      "<span class="attribute">phone</span>":<span class="value"><span class="string">"202-224-2315"</span></span>,
+      "<span class="attribute">website</span>":<span class="value"><span class="string">"http://brown.senate.gov/"</span></span>,
+      "<span class="attribute">office</span>":<span class="value"><span class="string">"713 Hart Senate Office Building"</span></span>,
+      "<span class="attribute">contact_form</span>":<span class="value"><span class="string">"http://www.brown.senate.gov/contact/"</span></span>,
+
+      "<span class="attribute">twitter_id</span>":<span class="value"><span class="string">"SenSherrodBrown"</span></span>,
+      "<span class="attribute">youtube_id</span>":<span class="value"><span class="string">"SherrodBrownOhio"</span></span>,
+      "<span class="attribute">facebook_id</span>":<span class="value"><span class="string">"109453899081640"</span></span>,
+
+      "<span class="attribute">term_start</span>":<span class="value"><span class="string">"2007-01-04"</span></span>,
+      "<span class="attribute">term_end</span>":<span class="value"><span class="string">"2012-12-31"</span></span>,
+
+      "<span class="attribute">terms</span>":<span class="value">[
+        {
+          "<span class="attribute">start</span>":<span class="value"><span class="string">"2005-01-04"</span></span>,
+          "<span class="attribute">end</span>":<span class="value"><span class="string">"2006-12-09"</span></span>,
+          "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
+          "<span class="attribute">district</span>":<span class="value"><span class="number">13</span></span>,
+          "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
+          "<span class="attribute">title</span>":<span class="value"><span class="string">"Rep"</span></span>,
+          "<span class="attribute">chamber</span>":<span class="value"><span class="string">"house"</span>
+        </span>},
+        {
+          "<span class="attribute">start</span>":<span class="value"><span class="string">"2007-01-04"</span></span>,
+          "<span class="attribute">end</span>":<span class="value"><span class="string">"2012-12-31"</span></span>,
+          "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
+          "<span class="attribute">class</span>":<span class="value"><span class="number">1</span></span>,
+          "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
+          "<span class="attribute">title</span>":<span class="value"><span class="string">"Sen"</span></span>,
+          "<span class="attribute">chamber</span>":<span class="value"><span class="string">"senate"</span>
+        </span>}
+      ]
+    </span>}
+  ]</span>,
+  "<span class="attribute">count</span>":<span class="value"><span class="number">538</span></span>,
+  "<span class="attribute">page</span>":<span class="value">{
+    "<span class="attribute">count</span>":<span class="value"><span class="number">1</span></span>,
+    "<span class="attribute">per_page</span>":<span class="value"><span class="number">1</span></span>,
+    "<span class="attribute">page</span>":<span class="value"><span class="number">3</span>
+  </span>}
+</span>}</code></pre>
+
+  </div>
+</div></body>
+</html>

@@ -8,7 +8,12 @@ header = '
 name = "Congress API"
 twitter = "sunlightlabs"
 
-files = %w{index}
+
+if ARGV[0]
+  files = [ARGV[0]]
+else
+  files = %w{index legislators}
+end
 
 output_dir = ".."
 
@@ -21,7 +26,14 @@ files.each do |filename|
     \"http://documentup.com/compiled\" > #{output_file}"
 
   content = File.read output_file
-  content = content.sub /<link.*?<\/head>/im, "#{header}\n</head>"
+  
+  # add in our own header
+  content.sub! /<link.*?<\/head>/im, "#{header}\n</head>"
+
+  # clean up what markdown does to our dt/dd blocks
+  content.gsub! /<\/p>\n<dd>/m, "<dd>"
+  content.gsub! "<p><dt>", "<dt>"
+
   f = File.open(output_file, "w")
   f.write content
   f.close
