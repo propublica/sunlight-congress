@@ -24,7 +24,21 @@ class Legislator
   index votesmart_id: 1
   index crp_id: 1
   index lis_id: 1
+  index fec_ids: 1
 
   index chamber: 1
+  index title: 1
   index state: 1
+  index district: 1
+  index party: 1
+  index gender: 1
+
+  index first_name: 1
+  index last_name: 1
+  index nickname: 1
+  index middle_name: 1
+  index name_suffix: 1
+
+  index term_start: 1
+  index term_end: 1
 end

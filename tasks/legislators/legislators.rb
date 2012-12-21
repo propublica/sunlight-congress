@@ -78,7 +78,8 @@ class Legislators
       thomas_id: us_legislator['id']['thomas'].to_i.to_s,
       govtrack_id: us_legislator['id']['govtrack'].to_s,
       votesmart_id: us_legislator['id']['votesmart'].to_s,
-      crp_id: us_legislator['id']['opensecrets'],
+      crp_id: us_legislator['id']['opensecrets'].to_s,
+      fec_ids: us_legislator['id']['fec'],
 
       first_name: us_legislator['name']['first'],
       nickname: us_legislator['name']['nickname'],
@@ -129,10 +130,12 @@ class Legislators
   end
     
   def self.social_media_from(details)
+    facebook = details['social']['facebook_graph']
+    facebook = facebook.to_s if facebook
     {
       twitter_id: details['social']['twitter'],
       youtube_id: details['social']['youtube'],
-      facebook_id: details['social']['facebook_graph']
+      facebook_id: facebook
     }
   end
 
