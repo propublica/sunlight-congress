@@ -67,10 +67,9 @@ module Api
     end
 
     def order_for(params, default_order)
-      key = ["order.asc", "order.desc", "order"].find {|k| params[k]}
-      if key
-        field = params[key]
-        direction = key.split(".")[1] || "desc"
+      if params[:order]
+        field, direction = params[:order].split "__"
+        direction ||= "desc"
       else
         field = default_order
         direction = "desc"
