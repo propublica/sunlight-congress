@@ -1,4 +1,4 @@
-require 'nokogiri'
+ 'nokogiri'
 
 class VotesSenate
 
@@ -65,11 +65,10 @@ class VotesSenate
     # will be referenced by LIS ID as a cache built up as we parse through votes
     legislators = {}
 
+    congress = options[:congress] || Utils.congress_for_year(year)
+
     to_get.each do |number|
-      url = url_for year, number
-      
       roll_id = "s#{number}-#{year}"
-      congress = Utils.congress_for_year year
 
       puts "[#{roll_id}] Syncing to disc..." if options[:debug]
       unless download_roll year, number, download_failures, options
@@ -112,11 +111,11 @@ class VotesSenate
       if bill_id
         if bill = Utils.bill_for(bill_id)
           vote.attributes = {
-            :bill_id => bill_id,
-            :bill => bill
+            bill_id: bill_id,
+            bill: bill
           }
         else
-          missing_bill_ids << {:roll_id => roll_id, :bill_id => bill_id}
+          missing_bill_ids << {roll_id: roll_id, bill_id: bill_id}
         end
       end
       
@@ -176,8 +175,8 @@ class VotesSenate
   
   # find the latest roll call number listed on the Senate roll call vote page for a given year
   def self.latest_roll_for(year, options = {})
-    session = {0 => 2, 1 => 1}[year % 2]
-    congress = Utils.congress_for_year year
+    session = options[:session] || {0 => 2, 1 => 1}[year % 2]
+    congress = options[:congress] || Utils.congress_for_year(year)
     url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.htm"
     
     puts "[#{year}] Fetching index page for #{year} (#{url}) from Senate website..." if options[:debug]
@@ -189,9 +188,9 @@ class VotesSenate
     number > 0 ? number : nil
   end
   
-  def self.url_for(year, number)
-    session = {0 => 2, 1 => 1}[year % 2]
-    congress = Utils.congress_for_year year
+  def self.url_for(year, number, options = {})
+    session = options[:session] || {0 => 2, 1 => 1}[year % 2]
+    congress = options[:congress] || Utils.congress_for_year(year)
     "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{congress}#{session}/vote_#{congress}_#{session}_#{zero_prefix number}.xml"
   end
   
@@ -277,7 +276,7 @@ class VotesSenate
   end
 
   def self.download_roll(year, number, failures, options = {})
-    url = url_for year, number
+    url = url_for year, number, options
     destination = destination_for year, number
 
     # cache aggressively, redownload only if force option is passed
