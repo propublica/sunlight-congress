@@ -242,11 +242,13 @@ module Searchable
       # uh oh?
     end
     
-    field, direction = order
+    sort = order.map do |field, direction|
+      {field => direction}
+    end
     
     [
       {
-        sort: [{field => direction}],
+        sort: sort,
         fields: fields
       }.merge(query_filter).merge(other), 
      

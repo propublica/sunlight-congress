@@ -68,14 +68,17 @@ module Api
 
     def order_for(params, default_order)
       if params[:order]
-        field, direction = params[:order].split "__"
-        direction ||= "desc"
+        params[:order].split(",").map do |key|
+          field, direction = key.split "__"
+          direction ||= "desc"
+          [field, direction]
+        end
       else
         field = default_order
         direction = "desc"
+
+        [[field, direction]]
       end
-      
-      [field, direction]
     end
 
     # auto-detect type of argument - allow quotes to force string interpretation

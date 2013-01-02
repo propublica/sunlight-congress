@@ -85,7 +85,7 @@ module Queryable
   end
   
   def self.criteria_for(model, conditions, fields, order, pagination)
-    criteria = model.where(conditions).only(fields).order_by([order])
+    criteria = model.where(conditions).only(fields).order_by(order)
 
     if pagination[:per_page] and pagination[:page]
       skip = pagination[:per_page] * (pagination[:page]-1)
