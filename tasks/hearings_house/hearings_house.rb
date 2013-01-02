@@ -4,6 +4,10 @@ require 'nokogiri'
 
 class HearingsHouse
 
+  # options:
+  #   month: specific month to get hearings for (form: YYYY-MM)
+  #   date: specific date to get hearings for (form: YYYY-MM-DD)
+
   def self.run(options = {})
     count = 0
     bad_committee_lookups = []
@@ -66,7 +70,6 @@ class HearingsHouse
 
     count = 0
 
-    congress = Utils.congress_for_year year.to_i
     chamber = "house"
 
     doc = Nokogiri::HTML body
@@ -123,6 +126,10 @@ class HearingsHouse
       else
         subcommittee_id = nil
       end
+
+      # use occurs_at to determine proper session
+      legislative_year = Utils.current_legislative_year occurs_at
+      congress = Utils.congress_for_year legislative_year
 
       bill_ids = Utils.bill_ids_for title, congress
 
