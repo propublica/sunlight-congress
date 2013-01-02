@@ -36,6 +36,7 @@ def run(db, es, options = {}):
           # Don't warn if it's a bill-specific conference committee
           if not committee and committee_id != "JCC":
             db.warning("Couldn't locate committee by committee_id %s" % committee_id, {'committee_id': committee_id})
+            continue
           
           committee_url = meeting.committee['url']
 
