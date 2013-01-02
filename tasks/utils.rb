@@ -238,6 +238,19 @@ module Utils
       year
     end
   end
+
+  # legislative (sub)session - 1 or 2, depending on current legislative year
+  def self.legislative_session_for_year(year)
+    session = year % 2
+    session = 2 if session == 0
+    session.to_s
+  end
+
+  # e.g. 111 -> [2009, 2010], 112 -> [2011, 2012]
+  def self.years_for_congress(congress)
+    first = ((congress + 894) * 2) - 1
+    [first, first + 1]
+  end
   
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
   def self.bill_version_name_for(version_code)
