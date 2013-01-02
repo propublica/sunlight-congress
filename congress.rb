@@ -12,12 +12,18 @@ get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize rescue nil
   format = format_for params
   fields = fields_for model, params
-  pagination = pagination_for params
   filters = filters_for params
   order = order_for params, "_id"
 
+  # allow a pagination exception for legislators and committees, by request
+  if [Legislator, Committee].include?(model) and (params[:per_page] == "all")
+    pagination = {page: nil, per_page: nil}
+  else
+    pagination = pagination_for params
+  end
+
   query_string = query_string_for params
-  conditions = Queryable.conditions_for model, query_string, filters
+  conditions = Queryable.conditions_for model, query_string, filters, params
 
   if params[:explain] == 'true'
     results = Queryable.explain_for model, conditions, fields, order, pagination
@@ -129,7 +135,7 @@ get(/(legislators|districts)\/locate\/?/) do
         documents = Queryable.documents_for model, criteria, fields
         results = Queryable.results_for criteria, documents, pagination
       end
-    else
+    else # districts
       if params[:explain]
         results = {location: location}
       else

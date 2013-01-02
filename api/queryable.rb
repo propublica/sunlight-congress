@@ -1,12 +1,12 @@
 module Queryable
 
-  def self.conditions_for(model, query, filters)
+  def self.conditions_for(model, query, filters, params)
     conditions = {}
 
     # special case: default to in_office legislators
     # allow it to be overridden
     if model == Legislator
-      conditions[:in_office] = true
+      conditions['in_office'] = true
     end
 
     filters.each do |field, filter|
@@ -19,6 +19,11 @@ module Queryable
       conditions["$or"] = model.search_fields.map do |key|
         {key => regex_for(query)}
       end
+    end
+
+    # don't allow it to be overridden if we've allowed pagination to be turned off though
+    if (model == Legislator) and (params[:per_page] == "all")
+      conditions['in_office'] = true
     end
 
     conditions
@@ -80,9 +85,14 @@ module Queryable
   end
   
   def self.criteria_for(model, conditions, fields, order, pagination)
-    skip = pagination[:per_page] * (pagination[:page]-1)
-    limit = pagination[:per_page]
-    
-    model.where(conditions).only(fields).order_by([order]).skip(skip).limit(limit)
+    criteria = model.where(conditions).only(fields).order_by([order])
+
+    if pagination[:per_page] and pagination[:page]
+      skip = pagination[:per_page] * (pagination[:page]-1)
+      limit = pagination[:per_page]
+      criteria.skip(skip).limit(limit)
+    else
+      criteria
+    end
   end
 end
