@@ -215,11 +215,28 @@ module Utils
   
   # e.g. 2009 & 2010 -> 111th congress, 2011 & 2012 -> 112th congress
   def self.current_congress
-    congress_for_year Time.now.year
+    congress_for_year current_legislative_year
   end
   
   def self.congress_for_year(year)
     ((year.to_i + 1) / 2) - 894
+  end
+
+  # legislative year - consider Jan 1, Jan 2, and first half of Jan 3 to be last year
+  def self.current_legislative_year(now = nil)
+    now ||= Time.now
+    year = now.year
+    if now.month == 1
+      if [1, 2].include?(now.day)
+        year - 1
+      elsif (now.day == 3) and (now.hour < 12)
+        year - 1
+      else
+        year
+      end
+    else
+      year
+    end
   end
   
   # adapted from http://www.gpoaccess.gov/bills/glossary.html

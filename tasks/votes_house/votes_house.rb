@@ -19,7 +19,7 @@ class VotesHouse
 
   def self.run(options = {})
     year = if options[:year].nil? or (options[:year] == 'current')
-      Time.now.year
+      Utils.current_legislative_year
     else
       options[:year].to_i
     end
