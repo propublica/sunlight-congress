@@ -32,26 +32,38 @@ class BillsBulk
 
       # initialize the disk for whatever congress this bill version is
       initialize_disk congress
-
+      years = [year]
     else
       # initialize disk, with buffer in case the sitemap references a past congress (it happens)
+      # should be safe against bill text that hangs over from 
+      # the previous session into Jan 1/2/3 of the next year
       current_congress = Utils.congress_for_year year
       (current_congress - 2).upto(current_congress) do |congress|
         initialize_disk congress
       end
 
-      unless sitemap_doc = sitemap_doc_for(year, options)
-        Report.warning self, "Couldn't load sitemap for #{year}"
-        return
+      now = Time.now
+      # for good measure, if it's in the first few days of the year, look back at last year's list also
+      if (now.month == 1) and (now.day < 4)
+        years = [year - 1, year]
+      else
+        years = [year]
       end
 
-      (sitemap_doc / :url).map do |update|
-        url = update.at("loc").text
-        modified = Time.parse update.at("lastmod").text
+      years.each do |year|
+        unless sitemap_doc = sitemap_doc_for(year, options)
+          Report.warning self, "Couldn't load sitemap for #{year}"
+          return
+        end
 
-        if !archive_only_since or (modified > archive_only_since)
-          match = url.match /BILLS-(\d+)(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)([^\/]+)\//
-          bill_versions << [match[2], match[3], match[1], match[4]]
+        (sitemap_doc / :url).map do |update|
+          url = update.at("loc").text
+          modified = Time.parse update.at("lastmod").text
+
+          if !archive_only_since or (modified > archive_only_since)
+            match = url.match /BILLS-(\d+)(hr|hres|hjres|hconres|s|sres|sjres|sconres)(\d+)([^\/]+)\//
+            bill_versions << [match[2], match[3], match[1], match[4]]
+          end
         end
       end
     end
@@ -95,13 +107,13 @@ class BillsBulk
 
     # only alert if there are more than a handful of failures, their service has occasional hiccups
     if failures.any? and failures.size > 10
-      Report.warning self, "Failed to download #{failures.size} files while syncing against GPOs BILLS collection for #{year}", :failures => failures
+      Report.warning self, "Failed to download #{failures.size} files while syncing against GPOs BILLS collection for #{years.join ", "}", :failures => failures
     end
 
     if options[:bill_version_id]
       Report.success self, "Synced bill version #{options[:bill_version_id]}"
     else
-      Report.success self, "Synced files for #{count} bill versions for sitemap #{year}"
+      Report.success self, "Synced files for #{count} bill versions for sitemap #{years.join ", "}"
     end
   end
 
@@ -113,7 +125,7 @@ class BillsBulk
 
   def self.sitemap_doc_for(year, options = {})
     url = "http://www.gpo.gov/smap/fdsys/sitemap_#{year}/#{year}_BILLS_sitemap.xml"
-    puts "[#{year}] Fetching sitemap from GPO..." if options[:debug]
+    puts "[#{year}] Fetching sitemap from GPO at #{url}..." if options[:debug]
     cache_url = "data/gpo/BILLS/sitemap-#{year}.xml"
 
     if body = Utils.download(url)
