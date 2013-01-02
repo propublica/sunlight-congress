@@ -1,6 +1,6 @@
 class Legislator
   include Api::Model
-  publicly :queryable, :searchable
+  publicly :queryable
 
   basic_fields  :bioguide_id, :thomas_id, :lis_id, :fec_ids,
       :votesmart_id, :crp_id, :govtrack_id,
