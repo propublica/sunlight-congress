@@ -23,6 +23,7 @@ get queryable_route do
   end
 
   query_string = query_string_for params
+
   conditions = Queryable.conditions_for model, query_string, filters, params
 
   if params[:explain] == 'true'

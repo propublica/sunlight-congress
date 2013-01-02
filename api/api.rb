@@ -118,10 +118,10 @@ module Api
     def magic_fields
       [
         "fields", 
-        "order", "order.desc", "order.asc",
+        "order",
         "page", "per_page",
 
-        "query",
+        "query", 
 
         "highlight", "highlight.tags", "highlight.size",
 
@@ -140,6 +140,8 @@ module Api
   module Model
     module ClassMethods
       def publicly(*types); types.any? ? @publicly = types : @publicly; end
+      def queryable?; (@publicly || []).include?(:queryable); end
+      def searchable?; (@publicly || []).include?(:searchable); end
       def basic_fields(*fields); fields.any? ? @basic_fields = fields : @basic_fields; end
       def search_fields(*fields); fields.any? ? @search_fields = fields : @search_fields; end
       def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
@@ -153,12 +155,12 @@ module Api
 
   module Routes
     def queryable_route
-      queryable = Model.models.select {|model| model.respond_to?(:publicly) and model.publicly and model.publicly.include?(:queryable)}
+      queryable = Model.models.select &:queryable?
       @queryable_route ||= /^\/(#{queryable.map {|m| m.to_s.underscore.pluralize}.join "|"})\/?$/
     end
 
     def searchable_route
-      searchable = Model.models.select {|model| model.respond_to?(:publicly) and model.publicly and model.publicly.include?(:searchable)}
+      searchable = Model.models.select &:searchable?
       @search_route ||= /^\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\/search\/?$/
     end
   end
