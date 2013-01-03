@@ -87,6 +87,7 @@ class Legislators
       middle_name: us_legislator['name']['middle'],
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
+      birthday: us_legislator['bio'] ? us_legislator['bio']['birthday'] : nil,
 
       term_start: last_term['start'],
       term_end: last_term['end'],
@@ -102,6 +103,7 @@ class Legislators
       }[last_term['type']],
 
       phone: last_term['phone'],
+      fax: last_term['fax'],
       website: last_term['url'],
       office: last_term['office'],
       contact_form: last_term['contact_form'],
