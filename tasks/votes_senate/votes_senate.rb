@@ -48,7 +48,7 @@ class VotesSenate
       
       sessions.reverse.each do |session|
         unless rolls = rolls_for(congress, session, options)
-          Report.failure self, "Failed to find the latest new roll on the Senate's site, can't go on."
+          Report.note self, "Failed to find the latest new roll on the Senate's site, can't go on."
           return
         end
 
