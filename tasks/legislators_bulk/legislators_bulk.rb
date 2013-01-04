@@ -42,16 +42,24 @@ class LegislatorsBulk
       eligible.each do |legislator|
         puts "[#{legislator.bioguide_id}] Processing..." if options[:debug]
 
+        old_legislator = old_legislators[legislator.bioguide_id]
+
         row = [
           legislator['title'],
           legislator['first_name'],
           legislator['middle_name'],
           legislator['last_name'],
           legislator['name_suffix'],
-          legislator['nickname'],
+
+          # let old nicknames temporarily override new ones
+          ((old_legislator and old_legislator[5].present?) ? old_legislator[5] : legislator['nickname']),
+
           legislator['party'],
           legislator['state'],
-          legislator['district'],
+          
+          # for senators, copies old designations, adds Jr to new ones
+          district_for(legislator, old_legislator),
+
           (legislator['in_office'] ? "1" : "0"),
           legislator['gender'],
           legislator['phone'],
@@ -68,14 +76,14 @@ class LegislatorsBulk
           legislator['twitter_id'],
   
           # congresspedia url from old spreadsheet          
-          old_legislators[legislator.bioguide_id] ? old_legislators[legislator.bioguide_id][22] : nil,
+          old_legislators[legislator.bioguide_id] ? old_legislator[22] : nil,
           
           youtube_for(legislator),
           legislator['facebook_id'],
           
           nil, # rss is gone
 
-          legislator['senate_class'],
+          (legislator['senate_class'] ? ("I" * legislator['senate_class']) : nil),
           legislator['birthday']
         ]
 
@@ -93,6 +101,21 @@ class LegislatorsBulk
       "http://youtube.com/#{legislator['youtube_id']}"
     else
       nil
+    end
+  end
+
+  def self.district_for(legislator, old_legislator)
+    # Brian Schatz exception
+    return "Senior Seat" if legislator['bioguide_id'] == "S001194"
+
+    if legislator['chamber'] == 'senate'
+      if old_legislator and old_legislator[8]
+        old_legislator[8]
+      else
+        "Junior Seat"
+      end
+    else
+      legislator['district']
     end
   end
 
