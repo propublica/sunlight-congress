@@ -167,7 +167,7 @@ class VotesHouse
     end
     
     if missing_bill_ids.any?
-      Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {missing_bill_ids: missing_bill_ids}
+      Report.note self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {missing_bill_ids: missing_bill_ids}
     end
     
     if missing_amendment_ids.any?
