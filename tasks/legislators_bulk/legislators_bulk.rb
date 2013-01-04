@@ -112,7 +112,7 @@ class LegislatorsBulk
     return "Senior Seat" if legislator['bioguide_id'] == "S001194"
 
     if legislator['chamber'] == 'senate'
-      if old_legislator and old_legislator[8]
+      if old_legislator and old_legislator[0] == "Sen" and old_legislator[8]
         old_legislator[8]
       else
         "Junior Seat"
