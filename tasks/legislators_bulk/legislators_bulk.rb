@@ -47,7 +47,10 @@ class LegislatorsBulk
         row = [
           legislator['title'],
           legislator['first_name'],
-          legislator['middle_name'],
+
+          # let old middle names temporarily override new ones
+          ((old_legislator and old_legislator[2].present?) ? old_legislator[2] : legislator['middle_name']),
+
           legislator['last_name'],
           legislator['name_suffix'],
 
