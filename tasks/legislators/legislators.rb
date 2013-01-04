@@ -92,6 +92,7 @@ class Legislators
       term_start: last_term['start'],
       term_end: last_term['end'],
       state: last_term['state'],
+      state_name: state_map[last_term['state']],
       district: last_term['district'],
       party: party_for(last_term['party']),
       title: last_term['type'].capitalize,
@@ -159,6 +160,63 @@ class Legislators
 
       term
     end
+  end
+
+  def self.state_map
+    @state_map ||= {
+      "AL" => "Alabama",
+      "AK" => "Alaska",
+      "AZ" => "Arizona",
+      "AR" => "Arkansas",
+      "CA" => "California",
+      "CO" => "Colorado",
+      "CT" => "Connecticut",
+      "DE" => "Delaware",
+      "DC" => "District of Columbia",
+      "FL" => "Florida",
+      "GA" => "Georgia",
+      "HI" => "Hawaii",
+      "ID" => "Idaho",
+      "IL" => "Illinois",
+      "IN" => "Indiana",
+      "IA" => "Iowa",
+      "KS" => "Kansas",
+      "KY" => "Kentucky",
+      "LA" => "Louisiana",
+      "ME" => "Maine",
+      "MD" => "Maryland",
+      "MA" => "Massachusetts",
+      "MI" => "Michigan",
+      "MN" => "Minnesota",
+      "MS" => "Mississippi",
+      "MO" => "Missouri",
+      "MT" => "Montana",
+      "NE" => "Nebraska",
+      "NV" => "Nevada",
+      "NH" => "New Hampshire",
+      "NJ" => "New Jersey",
+      "NM" => "New Mexico",
+      "NY" => "New York",
+      "NC" => "North Carolina",
+      "ND" => "North Dakota",
+      "OH" => "Ohio",
+      "OK" => "Oklahoma",
+      "OR" => "Oregon",
+      "PA" => "Pennsylvania",
+      "PR" => "Puerto Rico",
+      "RI" => "Rhode Island",
+      "SC" => "South Carolina",
+      "SD" => "South Dakota",
+      "TN" => "Tennessee",
+      "TX" => "Texas",
+      "UT" => "Utah",
+      "VT" => "Vermont",
+      "VA" => "Virginia",
+      "WA" => "Washington",
+      "WV" => "West Virginia",
+      "WI" => "Wisconsin",
+      "WY" => "Wyoming"
+    }
   end
   
 end

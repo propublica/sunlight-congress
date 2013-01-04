@@ -6,7 +6,7 @@ class Legislator
       :votesmart_id, :crp_id, :govtrack_id,
       :title, :first_name, :nickname, :middle_name, :last_name, :name_suffix, 
       :other_names, :gender, :in_office,
-      :state, :party, :chamber, :district,
+      :state, :state_name, :party, :chamber, :district,
       :phone, :office, :website, :contact_form,
       :twitter_id, :facebook_id, :youtube_id
 
@@ -29,6 +29,7 @@ class Legislator
   index chamber: 1
   index title: 1
   index state: 1
+  index state_name: 1
   index district: 1
   index party: 1
   index gender: 1
