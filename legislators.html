@@ -21,16 +21,16 @@
     <ul id="sections">
       
         <li>
-          <a href="#endpoints">Endpoints</a>
+          <a href="#methods">Methods</a>
           
             <ul>
               
                 <li>
-                  <a href="#endpoints/legislators">/legislators</a>
+                  <a href="#methods/legislators">/legislators</a>
                 </li>
               
                 <li>
-                  <a href="#endpoints/legislators-locate">/legislators/locate</a>
+                  <a href="#methods/legislators-locate">/legislators/locate</a>
                 </li>
               
             </ul>
@@ -41,10 +41,6 @@
           <a href="#fields">Fields</a>
           
             <ul>
-              
-                <li>
-                  <a href="#fields/general">General</a>
-                </li>
               
                 <li>
                   <a href="#fields/identifiers">Identifiers</a>
@@ -109,12 +105,26 @@
 <p>Data on members of Congress, dating back to 1789. All member information is sourced from <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>, which gathers data from official sources through a combination of mostly automated scripts, with some manual review.
 
 </p>
-<p>If you&#39;re looking for <strong>bulk data</strong> on members of Congress, use the bulk data (YAML) files at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>.
+<p>If you&#39;re looking for <strong>bulk data</strong> on members of Congress, use this <a href="https://github.com/unitedstates/congress-legislators">original source</a>.
 
 </p>
-<h2 id='endpoints'>Endpoints</h2 id='endpoints'>
-<h3 id='endpoints/legislators'>/legislators</h3 id='endpoints/legislators'>
-<h3 id='endpoints/legislators-locate'>/legislators/locate</h3 id='endpoints/legislators-locate'>
+<h2 id='methods'>Methods</h2 id='methods'>
+<h3 id='methods/legislators'>/legislators</h3 id='methods/legislators'>
+<p>Search and filter for members of Congress. 
+
+</p>
+<hr>
+<p>By default, a filter of <code>in_office=true</code> will be applied, but you can override this by supplying <code>in_office=false</code>.
+
+</p>
+<p><strong>Disabling pagination</strong>
+
+</p>
+<p>You can turn off pagination for requests to <code>/legislators</code>, but doing so will force a filter of <code>in_office=true</code> (that cannot be overridden).
+
+</p>
+<pre><code class="bash">/legislators?per_page=all</code></pre>
+<h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
 <p>Find members of Congress by location. <a href="index.html#location">Location methods</a> require a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no pagination, ordering, partial response, or operator support.
 
 </p>
@@ -124,114 +134,181 @@
 <p>A <code>zip</code> code may intersect multiple Congressional districts, so locating by <code>zip</code> may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
 
 </p>
-<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies. Check <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">our blog post</a> for more details.
+<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
 
 </p>
 <h2 id='fields'>Fields</h2 id='fields'>
-<h3 id='fields/general'>General</h3 id='fields/general'>
-<dt>in_office</dt>
-<span class="note type">boolean</span>
-<span class="note filter">filterable</span>
-<dd>
-  Whether a legislator is currently holding elected office in Congress.
-</dd>
+<p><strong>in_office</strong> (boolean)<br/>
+Whether a legislator is currently holding elected office in Congress.
 
-<dt>party</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  First letter of the party this member belongs to. &quot;R&quot;, &quot;D&quot;, or &quot;I&quot;.
-</dd>
+</p>
+<p><strong>party</strong> (string)</br>
+First letter of the party this member belongs to. &quot;R&quot;, &quot;D&quot;, or &quot;I&quot;.
 
-<dt>gender</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  First letter of this member&#39;s gender. &quot;M&quot; or &quot;F&quot;.
-</dd>
+</p>
+<p><strong>gender</strong> (string)<br/>
+First letter of this member&#39;s gender. &quot;M&quot; or &quot;F&quot;.
 
-<dt>state</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Two-letter code of the state this member represents.
-</dd>
+</p>
+<p><strong>state</strong> (string)<br/>
+Two-letter code of the state this member represents.
 
-<dt>title</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quot;Com&quot;.
-</dd>
+</p>
+<p><strong>state_name</strong> (string)<br/>
+The full state name of the state this member represents.
 
-<dt>chamber</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Chamber the member is in. &quot;senate&quot; or &quot;house&quot;.
-</dd>
+</p>
+<p><strong>title</strong> (string)<br/>
+Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quot;Com&quot;.
 
-<dt>senate_class</dt>
-<span class="note type">number</span>
-<span class="note filter">filterable</span>
-<dd>
-  Which senate &quot;class&quot; the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
-</dd>
+</p>
+<p><strong>chamber</strong> (string)<br/>
+Chamber the member is in. &quot;senate&quot; or &quot;house&quot;.
 
+</p>
+<p><strong>senate_class</strong> (number)</br>
+Which senate &quot;class&quot; the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
+
+</p>
+<p><strong>birthday</strong> (date)</br>
+The date of this legislator&#39;s birthday.
+
+</p>
+<p><strong>term_start</strong> (date)<br/>
+The date a member&#39;s current term started.
+
+</p>
+<p><strong>term_end</strong> (date)<br/>
+The date a member&#39;s current term will end.
+
+</p>
 <h3 id='fields/identifiers'>Identifiers</h3 id='fields/identifiers'>
-<dt>bioguide_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
-</dd>
+<p><strong>bioguide_id</strong> (string)<br/>
+Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
 
-<dt>thomas_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on THOMAS.gov and Congress.gov.
-</dd>
+</p>
+<p><strong>thomas_id</strong> (string)<br/>
+Identifier for this member as it appears on THOMAS.gov and Congress.gov.
 
-<dt>lis_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on some of Congress&#39; data systems (namely <a href="http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml">Senate votes</a>).
-</dd>
+</p>
+<p><strong>lis_id</strong> (string)<br/>
+Identifier for this member as it appears on some of Congress&#39; data systems (namely <a href="http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml">Senate votes</a>).
 
-<dt>govtrack_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on <a href="http://govtrack.us">GovTrack.us</a>.
-</dd>
+</p>
+<p><strong>govtrack_id</strong> (string)<br/>
+Identifier for this member as it appears on <a href="http://govtrack.us">GovTrack.us</a>.
 
-<dt>votesmart_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
-</dd>
+</p>
+<p><strong>votesmart_id</strong> (string)<br/>
+Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
 
-<dt>opensecrets_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on <a href="http://www.opensecrets.org">OpenSecrets</a>.
-</dd>
+</p>
+<p><strong>opensecrets_id</strong> (string)<br/>
+Identifier for this member as it appears on <a href="http://www.opensecrets.org">OpenSecrets</a>.
 
-<dt>fec_ids</dt>
-<span class="note type">string array</span>
-<span class="note filter">filterable</span>
-<dd>
-  A list of identifiers for this member as they appear in filings at the <a href="http://fec.gov/">Federal Election Commission</a>.
-</dd>
+</p>
+<p><strong>fec_ids</strong> (string)<br/>
+A list of identifiers for this member as they appear in filings at the <a href="http://fec.gov/">Federal Election Commission</a>.
 
+</p>
 <h3 id='fields/names'>Names</h3 id='fields/names'>
+<p><strong>first_name</strong> (string)<br/>
+The member&#39;s first name. This may or may not be the name they are usually called.
+
+</p>
+<p><strong>nickname</strong> (string)<br/>
+The member&#39;s nickname. If present, usually safe to assume this is the name they go by.
+
+</p>
+<p><strong>last_name</strong> (string)<br/>
+The member&#39;s last name.
+
+</p>
+<p><strong>middle_name</strong> (string)<br/>
+The member&#39;s middle name, if they have one.
+
+</p>
+<p><strong>name_suffix</strong> (string)<br/>
+A name suffix, if the member uses one. For example, &quot;Jr.&quot; or &quot;III&quot;.
+
+</p>
 <h3 id='fields/contact-info'>Contact info</h3 id='fields/contact-info'>
+<p><strong>phone</strong> (string)<br/>
+Phone number of the members&#39;s DC office.
+
+</p>
+<p><strong>fax</strong> (string)<br/>
+Fax number of the members&#39;s DC office.
+
+</p>
+<p><strong>office</strong> (string)<br/>
+Office number for the member&#39;s DC office.
+
+</p>
+<p><strong>website</strong> (string)<br/>
+Official legislative website.
+
+</p>
+<p><strong>contact_form</strong> (string)<br/>
+URL to their official contact form.
+
+</p>
 <h3 id='fields/social-media'>Social Media</h3 id='fields/social-media'>
+<p><strong>twitter_id</strong> (string)<br/>
+The Twitter <strong>username</strong> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
+
+</p>
+<p><strong>youtube_id</strong> (string)<br/>
+The YouTube <strong>username</strong> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
+
+</p>
+<p><strong>facebook_id</strong> (string)<br/>
+The Facebook <strong>username or ID</strong> for a member&#39;s official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook&#39;s URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+
+</p>
 <h3 id='fields/terms'>Terms</h3 id='fields/terms'>
+<p>An array of information for each term the member has served, from oldest to newest. Example:
+
+</p>
+<pre><code class="json">{
+  terms: [{
+    start: &quot;2013-01-03&quot;,
+    end: &quot;2019-01-03&quot;,
+    state: &quot;NJ&quot;,
+    party: &quot;D&quot;,
+    class: 1,
+    title: &quot;Sen&quot;,
+    chamber: &quot;senate&quot;
+  }]
+}</code></pre>
+<p><strong>terms.start</strong> (date)<br/>
+The date this term began.
+
+</p>
+<p><strong>terms.end</strong> (date)<br/>
+The date this term ended, or will end.
+
+</p>
+<p><strong>terms.state</strong> (string)<br/>
+The two-letter state code this member was serving during this term.
+
+</p>
+<p><strong>terms.party</strong> (string)<br/>
+The party this member belonged to during this term.
+
+</p>
+<p><strong>terms.title</strong> (string)<br/>
+The title this member had during this term. &quot;Rep&quot;, &quot;Sen&quot;, &quot;Del&quot;, or &quot;Com&quot;.
+
+</p>
+<p><strong>terms.chamber</strong> (string)<br/>
+The chamber this member served in during this term. &quot;house&quot; or &quot;senate&quot;.
+
+</p>
+<p><strong>terms.class</strong> (number)<br/>
+The Senate class this member belonged to during this term, if they served in the Senate.
+
+</p>
 <h2 id='examples'>Examples</h2 id='examples'>
 <h3 id='examples/legislators-at-latitude-longitude'>Legislators at latitude/longitude</h3 id='examples/legislators-at-latitude-longitude'>
 <h3 id='examples/legislators-by-zip-code'>Legislators by zip code</h3 id='examples/legislators-by-zip-code'>

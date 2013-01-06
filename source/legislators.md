@@ -2,11 +2,25 @@
 
 Data on members of Congress, dating back to 1789. All member information is sourced from [github.com/unitedstates](https://github.com/unitedstates/congress-legislators), which gathers data from official sources through a combination of mostly automated scripts, with some manual review.
 
-If you're looking for **bulk data** on members of Congress, use the bulk data (YAML) files at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
+If you're looking for **bulk data** on members of Congress, use this [original source](https://github.com/unitedstates/congress-legislators).
 
-## Endpoints
+## Methods
 
 ### /legislators
+
+Search and filter for members of Congress. 
+
+_____________
+
+By default, a filter of `in_office=true` will be applied, but you can override this by supplying `in_office=false`.
+
+**Disabling pagination**
+
+You can turn off pagination for requests to `/legislators`, but doing so will force a filter of `in_office=true` (that cannot be overridden).
+
+```bash
+/legislators?per_page=all
+```
 
 ### /legislators/locate
 
@@ -16,120 +30,149 @@ This will return both **representatives** and **senators** that represent the gi
 
 A `zip` code may intersect multiple Congressional districts, so locating by `zip` may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
 
-In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) to look up members of Congress. For one, it's imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes **are not shapes**. They are lines (delivery routes), and treating them as shapes leads to inaccuracies. Check [our blog post](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) for more details.
+In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) to look up members of Congress. For one, it's imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes **are not shapes**. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
 
 ## Fields
 
-### General
+**in_office** (boolean)<br/>
+Whether a legislator is currently holding elected office in Congress.
 
-<dt>in_office</dt>
-<span class="note type">boolean</span>
-<span class="note filter">filterable</span>
-<dd>
-  Whether a legislator is currently holding elected office in Congress.
-</dd>
+**party** (string)</br>
+First letter of the party this member belongs to. "R", "D", or "I".
 
-<dt>party</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  First letter of the party this member belongs to. "R", "D", or "I".
-</dd>
+**gender** (string)<br/>
+First letter of this member's gender. "M" or "F".
 
-<dt>gender</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  First letter of this member's gender. "M" or "F".
-</dd>
+**state** (string)<br/>
+Two-letter code of the state this member represents.
 
-<dt>state</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Two-letter code of the state this member represents.
-</dd>
+**state_name** (string)<br/>
+The full state name of the state this member represents.
 
-<dt>title</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Title of this member. "Sen", "Rep", "Del", or "Com".
-</dd>
+**title** (string)<br/>
+Title of this member. "Sen", "Rep", "Del", or "Com".
 
-<dt>chamber</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Chamber the member is in. "senate" or "house".
-</dd>
+**chamber** (string)<br/>
+Chamber the member is in. "senate" or "house".
 
-<dt>senate_class</dt>
-<span class="note type">number</span>
-<span class="note filter">filterable</span>
-<dd>
-  Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
-</dd>
+**senate_class** (number)</br>
+Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
+
+**birthday** (date)</br>
+The date of this legislator's birthday.
+
+**term_start** (date)<br/>
+The date a member's current term started.
+
+**term_end** (date)<br/>
+The date a member's current term will end.
 
 ### Identifiers
 
-<dt>bioguide_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
-</dd>
+**bioguide_id** (string)<br/>
+Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
 
-<dt>thomas_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on THOMAS.gov and Congress.gov.
-</dd>
+**thomas_id** (string)<br/>
+Identifier for this member as it appears on THOMAS.gov and Congress.gov.
 
-<dt>lis_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on some of Congress' data systems (namely [Senate votes](http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml)).
-</dd>
+**lis_id** (string)<br/>
+Identifier for this member as it appears on some of Congress' data systems (namely [Senate votes](http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml)).
 
-<dt>govtrack_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on [GovTrack.us](http://govtrack.us).
-</dd>
+**govtrack_id** (string)<br/>
+Identifier for this member as it appears on [GovTrack.us](http://govtrack.us).
 
-<dt>votesmart_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on [Project Vote Smart](http://votesmart.org/).
-</dd>
+**votesmart_id** (string)<br/>
+Identifier for this member as it appears on [Project Vote Smart](http://votesmart.org/).
 
-<dt>opensecrets_id</dt>
-<span class="note type">string</span>
-<span class="note filter">filterable</span>
-<dd>
-  Identifier for this member as it appears on [OpenSecrets](http://www.opensecrets.org).
-</dd>
+**opensecrets_id** (string)<br/>
+Identifier for this member as it appears on [OpenSecrets](http://www.opensecrets.org).
 
-<dt>fec_ids</dt>
-<span class="note type">string array</span>
-<span class="note filter">filterable</span>
-<dd>
-  A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
-</dd>
+**fec_ids** (string)<br/>
+A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
 
 ### Names
 
+**first_name** (string)<br/>
+The member's first name. This may or may not be the name they are usually called.
+
+**nickname** (string)<br/>
+The member's nickname. If present, usually safe to assume this is the name they go by.
+
+**last_name** (string)<br/>
+The member's last name.
+
+**middle_name** (string)<br/>
+The member's middle name, if they have one.
+
+**name_suffix** (string)<br/>
+A name suffix, if the member uses one. For example, "Jr." or "III".
+
 ### Contact info
+
+**phone** (string)<br/>
+Phone number of the members's DC office.
+
+**fax** (string)<br/>
+Fax number of the members's DC office.
+
+**office** (string)<br/>
+Office number for the member's DC office.
+
+**website** (string)<br/>
+Official legislative website.
+
+**contact_form** (string)<br/>
+URL to their official contact form.
 
 ### Social Media
 
+**twitter_id** (string)<br/>
+The Twitter **username** for a member's official legislative account. This field does not contain the handles of campaign accounts.
+
+**youtube_id** (string)<br/>
+The YouTube **username** for a member's official legislative account. This field does not contain the handles of campaign accounts.
+
+**facebook_id** (string)<br/>
+The Facebook **username or ID** for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+
 ### Terms
 
+An array of information for each term the member has served, from oldest to newest. Example:
+
+```json
+{
+  terms: [{
+    start: "2013-01-03",
+    end: "2019-01-03",
+    state: "NJ",
+    party: "D",
+    class: 1,
+    title: "Sen",
+    chamber: "senate"
+  }]
+}
+```
+
+**terms.start** (date)<br/>
+The date this term began.
+
+**terms.end** (date)<br/>
+The date this term ended, or will end.
+
+**terms.state** (string)<br/>
+The two-letter state code this member was serving during this term.
+
+**terms.party** (string)<br/>
+The party this member belonged to during this term.
+
+**terms.title** (string)<br/>
+The title this member had during this term. "Rep", "Sen", "Del", or "Com".
+
+**terms.chamber** (string)<br/>
+The chamber this member served in during this term. "house" or "senate".
+
+**terms.class** (number)<br/>
+The Senate class this member belonged to during this term, if they served in the Senate.
 
 ## Examples
 

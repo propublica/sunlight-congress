@@ -29,20 +29,24 @@ The Sunlight Congress API lives at:
 http://congress.api.sunlightfoundation.com
 ```
 
-### Filtering
-
-Most methods filter through paginated lists of documents, that can be sorted, filtered, and paginated by various fields and operators. Under the hood, these methods use [MongoDB](http://www.mongodb.org/).
+### Methods
 
 <table>
 <tr>
-<td>[/legislators](#data/legislators)</td>
+<td>[/legislators](/legislators#data)</td>
 <td>Current legislators' names, IDs, biography, and social media.</td>
+</tr><tr>
+<td>/legislators/locate</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+</tr><tr>
+<td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
 <td>/committees</td>
 <td>Current Congressional committees, subcommittees, and their membership.</td>
 </tr><tr>
 <td>/bills</td>
 <td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
+</tr><tr>
+<td>/bills/search</td><td>Same as `/bills`, but allow full text search.</td>
 </tr><tr>
 <td>/votes</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
@@ -57,34 +61,11 @@ Most methods filter through paginated lists of documents, that can be sorted, fi
 <td>Bills scheduled for debate in the future, as announced by party leadership.</td>
 </tr><tr>
 <td>/videos</td>
-<td>Video of the House and Senate floor.</td>
-</tr>
-</table>
-
-### Text Searching
-
-Execute a full-text search query, using a Lucene-based query string syntax. Documents can also be sorted, filtered, and paginated by various fields and operators. Under the hood, these methods use [ElasticSearch](http://www.elasticsearch.org/).
-
-<table>
-<tr>
-<td>/bills/search</td><td>Search the text of bills' most recent versions, back to 2009. Updated daily.</td>
+<td>Video of the House and Senate floor, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>/clips/search</td><td>Captions of words from House and Senate video, back to 2009. Updated daily.</td>
+<td>/clips/search</td><td>Captions of words from House and Senate video.</td>
 </tr>
 </table>
-
-### Geolocation
-
-Look up information by `latitude` and `longitude`, or by a `zip` code. No sorting, pagination, or other filters. Under the hood, these methods use a [modified version](https://github.com/sunlightlabs/pentagon) of the Chicago Tribune's [Boundary Service](https://github.com/newsapps/django-boundaryservice).
-
-<table>
-<tr>
-<td>/legislators/locate</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
-</tr><tr>
-<td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
-</tr>
-</table>
-
 
 ## Operators
 
