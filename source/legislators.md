@@ -141,14 +141,14 @@ An array of information for each term the member has served, from oldest to newe
 
 ```json
 {
-  terms: [{
-    start: "2013-01-03",
-    end: "2019-01-03",
-    state: "NJ",
-    party: "D",
-    class: 1,
-    title: "Sen",
-    chamber: "senate"
+  "terms": [{
+    "start": "2013-01-03",
+    "end": "2019-01-03",
+    "state": "NJ",
+    "party": "D",
+    "class": 1,
+    "title": "Sen",
+    "chamber": "senate"
   }]
 }
 ```
