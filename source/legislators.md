@@ -4,6 +4,8 @@ Data on members of Congress, dating back to 1789. All member information is sour
 
 ## Methods
 
+All requests require a valid [API key](index.html#apikey).
+
 ### /legislators/locate
 
 Find members of Congress by a `latitude` and `longitude`, or a `zip` code. There is no support for operators, ordering, or partial responses.
@@ -97,10 +99,10 @@ The date a member's current term will end.
 ### Identifiers
 
 \* **bioguide_id** (string)<br/>
-Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
+Identifier for this member in various Congressional sources. Originally taken from the [Congressional Biographical Directory](http://bioguide.congress.gov), but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
 
 \* **thomas_id** (string)<br/>
-Identifier for this member as it appears on THOMAS.gov and Congress.gov.
+Identifier for this member as it appears on [THOMAS.gov](http://thomas.loc.gov) and [Congress.gov](http://congress.gov).
 
 \* **lis_id** (string)<br/>
 Identifier for this member as it appears on some of Congress' data systems (namely [Senate votes](http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml)).

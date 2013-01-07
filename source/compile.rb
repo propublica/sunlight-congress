@@ -7,7 +7,8 @@ google_analytics = YAML.load(open("config.yml"))['google_analytics']
 header = '
   <link rel="stylesheet" type="text/css" href="documentup.css">
   <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>'
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+'
 
 footer = "
 <script type=\"text/javascript\">
