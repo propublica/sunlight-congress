@@ -26,6 +26,7 @@ class BillsText
 
     warnings = []
     notes = []
+    gpo_missing = []
 
     # used to keep batches of indexes
     batcher = []
@@ -36,7 +37,7 @@ class BillsText
       # find all the versions of text for that bill
       version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{number}-#{congress}-[a-z]*.htm")
       if version_files.empty?
-        warnings << {message: "Skipping bill, GPO has no version information for it (yet)", bill_id: bill_id}
+        gpo_missing << bill_id
         next
       end
       
@@ -189,6 +190,10 @@ class BillsText
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
+    end
+
+    if gpo_missing.any?
+      Report.warning self, "GPO missing text for #{gpo_missing.size} bills", gpo_missing: gpo_missing
     end
 
     if notes.any?
