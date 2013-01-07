@@ -103,14 +103,11 @@
 <p>A <code>zip</code> code may intersect multiple Congressional districts, so locating by <code>zip</code> may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
 
 </p>
-<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
+<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <em>are not shapes</em>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
 
 </p>
 <h3 id='methods/legislators'>/legislators</h3 id='methods/legislators'>
 <p>Search and filter for members of Congress. 
-
-</p>
-<p>By default, all requests will return <strong>currently serving members</strong>, but you can override this by supplying <code>in_office=false</code>.
 
 </p>
 <p><strong>Filtering on fields</strong>
@@ -120,12 +117,14 @@
 <p>Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#operators">standard operators</a> apply.
 
 </p>
+<p>By default, all requests will return <em>currently serving members</em>, but you can override this by supplying <code>in_office=false</code>.
+
+</p>
 <p><strong>Searching by a string</strong>
 
 </p>
 <pre><code class="text">/legislators?query=mcconnell</code></pre>
 <p>This will match against name fields: <code>first_name</code>, <code>last_name</code>, <code>middle_name</code>, <code>nickname</code>, <code>other_names.last</code>
-
 
 </p>
 <p><strong>Disabling pagination</strong>
@@ -136,31 +135,34 @@
 </p>
 <pre><code class="text">/legislators?per_page=all</code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
-<p><strong>in_office</strong> (boolean)<br/>
+<p>* = can be used as a filter
+
+</p>
+<p>* <strong>in_office</strong> (boolean)<br/>
 Whether a legislator is currently holding elected office in Congress.
 
 </p>
-<p><strong>party</strong> (string)</br>
+<p>* <strong>party</strong> (string)</br>
 First letter of the party this member belongs to. &quot;R&quot;, &quot;D&quot;, or &quot;I&quot;.
 
 </p>
-<p><strong>gender</strong> (string)<br/>
+<p>* <strong>gender</strong> (string)<br/>
 First letter of this member&#39;s gender. &quot;M&quot; or &quot;F&quot;.
 
 </p>
-<p><strong>state</strong> (string)<br/>
+<p>* <strong>state</strong> (string)<br/>
 Two-letter code of the state this member represents.
 
 </p>
-<p><strong>state_name</strong> (string)<br/>
+<p>* <strong>state_name</strong> (string)<br/>
 The full state name of the state this member represents.
 
 </p>
-<p><strong>title</strong> (string)<br/>
+<p>* <strong>title</strong> (string)<br/>
 Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quot;Com&quot;.
 
 </p>
-<p><strong>chamber</strong> (string)<br/>
+<p>* <strong>chamber</strong> (string)<br/>
 Chamber the member is in. &quot;senate&quot; or &quot;house&quot;.
 
 </p>
@@ -172,61 +174,61 @@ Which senate &quot;class&quot; the member belongs to (1, 2, or 3). Every 2 years
 The date of this legislator&#39;s birthday.
 
 </p>
-<p><strong>term_start</strong> (date)<br/>
+<p>* <strong>term_start</strong> (date)<br/>
 The date a member&#39;s current term started.
 
 </p>
-<p><strong>term_end</strong> (date)<br/>
+<p>* <strong>term_end</strong> (date)<br/>
 The date a member&#39;s current term will end.
 
 </p>
 <h3 id='fields/identifiers'>Identifiers</h3 id='fields/identifiers'>
-<p><strong>bioguide_id</strong> (string)<br/>
+<p>* <strong>bioguide_id</strong> (string)<br/>
 Identifier for this member in various Congressional sources. Originally taken from the Congressional Biographical Directory, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
 
 </p>
-<p><strong>thomas_id</strong> (string)<br/>
+<p>* <strong>thomas_id</strong> (string)<br/>
 Identifier for this member as it appears on THOMAS.gov and Congress.gov.
 
 </p>
-<p><strong>lis_id</strong> (string)<br/>
+<p>* <strong>lis_id</strong> (string)<br/>
 Identifier for this member as it appears on some of Congress&#39; data systems (namely <a href="http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml">Senate votes</a>).
 
 </p>
-<p><strong>govtrack_id</strong> (string)<br/>
+<p>* <strong>govtrack_id</strong> (string)<br/>
 Identifier for this member as it appears on <a href="http://govtrack.us">GovTrack.us</a>.
 
 </p>
-<p><strong>votesmart_id</strong> (string)<br/>
+<p>* <strong>votesmart_id</strong> (string)<br/>
 Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
 
 </p>
-<p><strong>opensecrets_id</strong> (string)<br/>
+<p>* <strong>opensecrets_id</strong> (string)<br/>
 Identifier for this member as it appears on <a href="http://www.opensecrets.org">OpenSecrets</a>.
 
 </p>
-<p><strong>fec_ids</strong> (string)<br/>
+<p>* <strong>fec_ids</strong> (string)<br/>
 A list of identifiers for this member as they appear in filings at the <a href="http://fec.gov/">Federal Election Commission</a>.
 
 </p>
 <h3 id='fields/names'>Names</h3 id='fields/names'>
-<p><strong>first_name</strong> (string)<br/>
+<p>* <strong>first_name</strong> (string)<br/>
 The member&#39;s first name. This may or may not be the name they are usually called.
 
 </p>
-<p><strong>nickname</strong> (string)<br/>
+<p>* <strong>nickname</strong> (string)<br/>
 The member&#39;s nickname. If present, usually safe to assume this is the name they go by.
 
 </p>
-<p><strong>last_name</strong> (string)<br/>
+<p>* <strong>last_name</strong> (string)<br/>
 The member&#39;s last name.
 
 </p>
-<p><strong>middle_name</strong> (string)<br/>
+<p>* <strong>middle_name</strong> (string)<br/>
 The member&#39;s middle name, if they have one.
 
 </p>
-<p><strong>name_suffix</strong> (string)<br/>
+<p>* <strong>name_suffix</strong> (string)<br/>
 A name suffix, if the member uses one. For example, &quot;Jr.&quot; or &quot;III&quot;.
 
 </p>
