@@ -1,36 +1,62 @@
 # Legislators
 
-Data on members of Congress, dating back to 1789. All member information is sourced from [github.com/unitedstates](https://github.com/unitedstates/congress-legislators), which gathers data from official sources through a combination of mostly automated scripts, with some manual review.
-
-If you're looking for **bulk data** on members of Congress, use this [original source](https://github.com/unitedstates/congress-legislators).
+Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
 
 ## Methods
+
+### /legislators/locate
+
+Find members of Congress by a `latitude` and `longitude`, or a `zip` code. There is no support for operators, ordering, or partial responses.
+
+**By latitude/longitude**
+
+```text
+/legislators/locate?latitude=42.96&longitude=-108.09
+```
+
+This will return both representatives and senators that represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
+
+**By zip code**
+
+```text
+/legislators/locate?zip=11216
+```
+
+A `zip` code may intersect multiple Congressional districts, so locating by `zip` may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
+
+In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) to look up members of Congress. For one, it's imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes **are not shapes**. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
 
 ### /legislators
 
 Search and filter for members of Congress. 
 
-_____________
+By default, all requests will return **currently serving members**, but you can override this by supplying `in_office=false`.
 
-By default, a filter of `in_office=true` will be applied, but you can override this by supplying `in_office=false`.
+**Filtering on fields**
+
+```text
+/legislators?party=D&chamber=senate
+```
+
+Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#operators) apply.
+
+**Searching by a string**
+
+```text
+/legislators?query=mcconnell
+```
+
+This will match against name fields: `first_name`, `last_name`, `middle_name`, `nickname`, `other_names.last`
+
 
 **Disabling pagination**
 
 You can turn off pagination for requests to `/legislators`, but doing so will force a filter of `in_office=true` (that cannot be overridden).
 
-```bash
+```text
 /legislators?per_page=all
 ```
 
-### /legislators/locate
-
-Find members of Congress by location. [Location methods](index.html#location) require a `latitude` and `longitude`, or a `zip` code. There is no pagination, ordering, partial response, or operator support.
-
-This will return both **representatives** and **senators** that represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
-
-A `zip` code may intersect multiple Congressional districts, so locating by `zip` may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
-
-In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) to look up members of Congress. For one, it's imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes **are not shapes**. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
 
 ## Fields
 
@@ -127,13 +153,13 @@ URL to their official contact form.
 ### Social Media
 
 **twitter_id** (string)<br/>
-The Twitter **username** for a member's official legislative account. This field does not contain the handles of campaign accounts.
+The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
 **youtube_id** (string)<br/>
-The YouTube **username** for a member's official legislative account. This field does not contain the handles of campaign accounts.
+The YouTube *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
 **facebook_id** (string)<br/>
-The Facebook **username or ID** for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+The Facebook *username or ID* for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
 
 ### Terms
 
@@ -172,17 +198,10 @@ The title this member had during this term. "Rep", "Sen", "Del", or "Com".
 The chamber this member served in during this term. "house" or "senate".
 
 **terms.class** (number)<br/>
-The Senate class this member belonged to during this term, if they served in the Senate.
+The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.
 
-## Examples
 
-### Legislators at latitude/longitude
-
-### Legislators by zip code
-
-### Legislators by party and chamber
-
-### Legislators with last name
+### Example legislator
 
 ```json
 {
@@ -244,12 +263,6 @@ The Senate class this member belonged to during this term, if they served in the
         }
       ]
     }
-  ],
-  "count":538,
-  "page":{
-    "count":1,
-    "per_page":1,
-    "page":3
-  }
+  ]
 }
 ```

@@ -26,11 +26,11 @@
             <ul>
               
                 <li>
-                  <a href="#methods/legislators">/legislators</a>
+                  <a href="#methods/legislators-locate">/legislators/locate</a>
                 </li>
               
                 <li>
-                  <a href="#methods/legislators-locate">/legislators/locate</a>
+                  <a href="#methods/legislators">/legislators</a>
                 </li>
               
             </ul>
@@ -62,29 +62,8 @@
                   <a href="#fields/terms">Terms</a>
                 </li>
               
-            </ul>
-          
-        </li>
-      
-        <li>
-          <a href="#examples">Examples</a>
-          
-            <ul>
-              
                 <li>
-                  <a href="#examples/legislators-at-latitude-longitude">Legislators at latitude/longitude</a>
-                </li>
-              
-                <li>
-                  <a href="#examples/legislators-by-zip-code">Legislators by zip code</a>
-                </li>
-              
-                <li>
-                  <a href="#examples/legislators-by-party-and-chamber">Legislators by party and chamber</a>
-                </li>
-              
-                <li>
-                  <a href="#examples/legislators-with-last-name">Legislators with last name</a>
+                  <a href="#fields/example-legislator">Example legislator</a>
                 </li>
               
             </ul>
@@ -102,19 +81,51 @@
   <div id="content">
     
     <h1>Legislators</h1>
-<p>Data on members of Congress, dating back to 1789. All member information is sourced from <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>, which gathers data from official sources through a combination of mostly automated scripts, with some manual review.
-
-</p>
-<p>If you&#39;re looking for <strong>bulk data</strong> on members of Congress, use this <a href="https://github.com/unitedstates/congress-legislators">original source</a>.
+<p>Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>.
 
 </p>
 <h2 id='methods'>Methods</h2 id='methods'>
+<h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
+<p>Find members of Congress by a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no support for operators, ordering, or partial responses.
+
+</p>
+<p><strong>By latitude/longitude</strong>
+
+</p>
+<pre><code class="text">/legislators/locate?latitude=42.96&amp;longitude=-108.09</code></pre>
+<p>This will return both representatives and senators that represent the given point or zip. For a given <code>latitude</code> and <code>longitude</code>, this should return up to 1 representative and 2 senators. 
+
+</p>
+<p><strong>By zip code</strong>
+
+</p>
+<pre><code class="text">/legislators/locate?zip=11216</code></pre>
+<p>A <code>zip</code> code may intersect multiple Congressional districts, so locating by <code>zip</code> may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
+
+</p>
+<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
+
+</p>
 <h3 id='methods/legislators'>/legislators</h3 id='methods/legislators'>
 <p>Search and filter for members of Congress. 
 
 </p>
-<hr>
-<p>By default, a filter of <code>in_office=true</code> will be applied, but you can override this by supplying <code>in_office=false</code>.
+<p>By default, all requests will return <strong>currently serving members</strong>, but you can override this by supplying <code>in_office=false</code>.
+
+</p>
+<p><strong>Filtering on fields</strong>
+
+</p>
+<pre><code class="text">/legislators?party=D&amp;chamber=senate</code></pre>
+<p>Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#operators">standard operators</a> apply.
+
+</p>
+<p><strong>Searching by a string</strong>
+
+</p>
+<pre><code class="text">/legislators?query=mcconnell</code></pre>
+<p>This will match against name fields: <code>first_name</code>, <code>last_name</code>, <code>middle_name</code>, <code>nickname</code>, <code>other_names.last</code>
+
 
 </p>
 <p><strong>Disabling pagination</strong>
@@ -123,20 +134,7 @@
 <p>You can turn off pagination for requests to <code>/legislators</code>, but doing so will force a filter of <code>in_office=true</code> (that cannot be overridden).
 
 </p>
-<pre><code class="bash">/legislators?per_page=all</code></pre>
-<h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
-<p>Find members of Congress by location. <a href="index.html#location">Location methods</a> require a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no pagination, ordering, partial response, or operator support.
-
-</p>
-<p>This will return both <strong>representatives</strong> and <strong>senators</strong> that represent the given point or zip. For a given <code>latitude</code> and <code>longitude</code>, this should return up to 1 representative and 2 senators. 
-
-</p>
-<p>A <code>zip</code> code may intersect multiple Congressional districts, so locating by <code>zip</code> may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
-
-</p>
-<p>In general, we <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">recommend against using zip codes</a> to look up members of Congress. For one, it&#39;s imprecise: a zip code can intersect multiple congressional districts. More importantly, zip codes <strong>are not shapes</strong>. They are lines (delivery routes), and treating them as shapes leads to inaccuracies.
-
-</p>
+<pre><code class="text">/legislators?per_page=all</code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
 <p><strong>in_office</strong> (boolean)<br/>
 Whether a legislator is currently holding elected office in Congress.
@@ -255,15 +253,15 @@ URL to their official contact form.
 </p>
 <h3 id='fields/social-media'>Social Media</h3 id='fields/social-media'>
 <p><strong>twitter_id</strong> (string)<br/>
-The Twitter <strong>username</strong> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
+The Twitter <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
 
 </p>
 <p><strong>youtube_id</strong> (string)<br/>
-The YouTube <strong>username</strong> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
+The YouTube <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
 
 </p>
 <p><strong>facebook_id</strong> (string)<br/>
-The Facebook <strong>username or ID</strong> for a member&#39;s official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook&#39;s URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+The Facebook <em>username or ID</em> for a member&#39;s official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook&#39;s URLs and APIs. The referenced account may be either a Facebook Page or a user account.
 
 </p>
 <h3 id='fields/terms'>Terms</h3 id='fields/terms'>
@@ -306,14 +304,11 @@ The chamber this member served in during this term. &quot;house&quot; or &quot;s
 
 </p>
 <p><strong>terms.class</strong> (number)<br/>
-The Senate class this member belonged to during this term, if they served in the Senate.
+The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.
+
 
 </p>
-<h2 id='examples'>Examples</h2 id='examples'>
-<h3 id='examples/legislators-at-latitude-longitude'>Legislators at latitude/longitude</h3 id='examples/legislators-at-latitude-longitude'>
-<h3 id='examples/legislators-by-zip-code'>Legislators by zip code</h3 id='examples/legislators-by-zip-code'>
-<h3 id='examples/legislators-by-party-and-chamber'>Legislators by party and chamber</h3 id='examples/legislators-by-party-and-chamber'>
-<h3 id='examples/legislators-with-last-name'>Legislators with last name</h3 id='examples/legislators-with-last-name'>
+<h3 id='fields/example-legislator'>Example legislator</h3 id='fields/example-legislator'>
 <pre><code class="json">{
   "<span class="attribute">results</span>":<span class="value">[
     {
@@ -373,13 +368,7 @@ The Senate class this member belonged to during this term, if they served in the
         </span>}
       ]
     </span>}
-  ]</span>,
-  "<span class="attribute">count</span>":<span class="value"><span class="number">538</span></span>,
-  "<span class="attribute">page</span>":<span class="value">{
-    "<span class="attribute">count</span>":<span class="value"><span class="number">1</span></span>,
-    "<span class="attribute">per_page</span>":<span class="value"><span class="number">1</span></span>,
-    "<span class="attribute">page</span>":<span class="value"><span class="number">3</span>
-  </span>}
+  ]
 </span>}</code></pre>
 
   </div>
