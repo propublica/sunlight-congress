@@ -1,3 +1,5 @@
+[Home](index.html) | [Legislators](legislators.html) | Districts | Committees | Bills | Votes | Floor | Hearings | Upcoming | Videos
+
 # Bills
 
 Data on bills in Congress goes back to 2009, and comes from a mix of sources:
