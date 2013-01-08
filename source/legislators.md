@@ -4,7 +4,11 @@ Data on members of Congress, dating back to 1789. All member information is sour
 
 ## Methods
 
-All requests require a valid [API key](index.html#apikey).
+All requests require a valid [API key](index.html#apikey), and use the domain:
+
+```text
+http://congress.api.sunlightfoundation.com
+```
 
 ### /legislators/locate
 
@@ -63,6 +67,23 @@ You can turn off pagination for requests to `/legislators`, but doing so will fo
 
 \* = can be used as a filter
 
+```json
+{
+  "in_office": true,
+  "party": "D",
+  "gender": "M",
+  "state": "OH",
+  "state_name": "Ohio",
+  "district": null,
+  "title": "Sen",
+  "chamber": "senate",
+  "senate_class": 1,
+  "birthday": "1946-12-24",
+  "term_start": "2007-01-04",
+  "term_end": "2012-12-31"
+}
+```
+
 \* **in_office** (boolean)<br/>
 Whether a legislator is currently holding elected office in Congress.
 
@@ -78,16 +99,19 @@ Two-letter code of the state this member represents.
 \* **state_name** (string)<br/>
 The full state name of the state this member represents.
 
+\* **district** (string)<br/>
+The number of the district that a House member represents. Null for Senators.
+
 \* **title** (string)<br/>
 Title of this member. "Sen", "Rep", "Del", or "Com".
 
 \* **chamber** (string)<br/>
 Chamber the member is in. "senate" or "house".
 
-**senate_class** (number)</br>
+\* **senate_class** (number)</br>
 Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 
-**birthday** (date)</br>
+\* **birthday** (date)</br>
 The date of this legislator's birthday.
 
 \* **term_start** (date)<br/>
@@ -97,6 +121,20 @@ The date a member's current term started.
 The date a member's current term will end.
 
 ### Identifiers
+
+```json
+{
+  "bioguide_id": "B000944",
+  "thomas_id": "136",
+  "govtrack_id": "400050",
+  "votesmart_id": "27018",
+  "crp_id": "N00003535",
+  "lis_id": "S307",
+  "fec_ids": [
+    "H2OH13033"
+  ]
+}
+```
 
 \* **bioguide_id** (string)<br/>
 Identifier for this member in various Congressional sources. Originally taken from the [Congressional Biographical Directory](http://bioguide.congress.gov), but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
@@ -113,13 +151,23 @@ Identifier for this member as it appears on [GovTrack.us](http://govtrack.us).
 \* **votesmart_id** (string)<br/>
 Identifier for this member as it appears on [Project Vote Smart](http://votesmart.org/).
 
-\* **opensecrets_id** (string)<br/>
-Identifier for this member as it appears on [OpenSecrets](http://www.opensecrets.org).
+\* **crp_id** (string)<br/>
+Identifier for this member as it appears on CRP's [OpenSecrets](http://www.opensecrets.org).
 
 \* **fec_ids** (string)<br/>
 A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
 
 ### Names
+
+```json
+{
+  "first_name": "Jefferson",
+  "nickname": "Jeff",
+  "last_name": "Brown",
+  "middle_name": "B.",
+  "name_suffix": null
+}
+```
 
 \* **first_name** (string)<br/>
 The member's first name. This may or may not be the name they are usually called.
@@ -138,6 +186,16 @@ A name suffix, if the member uses one. For example, "Jr." or "III".
 
 ### Contact info
 
+```json
+{
+  "phone": "202-224-2315",
+  "website": "http://brown.senate.gov/",
+  "office": "713 Hart Senate Office Building",
+  "contact_form": "http://www.brown.senate.gov/contact/",
+  "fax": "202-228-6321"
+}
+```
+
 **phone** (string)<br/>
 Phone number of the members's DC office.
 
@@ -154,6 +212,14 @@ Official legislative website.
 URL to their official contact form.
 
 ### Social Media
+
+```json
+{
+  "twitter_id": "SenSherrodBrown",
+  "youtube_id": "SherrodBrownOhio",
+  "facebook_id": "109453899081640"
+}
+```
 
 **twitter_id** (string)<br/>
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
@@ -202,70 +268,3 @@ The chamber this member served in during this term. "house" or "senate".
 
 **terms.class** (number)<br/>
 The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.
-
-
-### Example legislator
-
-```json
-{
-  "results":[
-    {
-      "in_office":true,
-
-      "bioguide_id":"B000944",
-      "thomas_id":"136",
-      "govtrack_id":"400050",
-      "votesmart_id":"27018",
-      "crp_id":"N00003535",
-      "lis_id":"S307",
-      
-      "first_name":"Sherrod",
-      "nickname":null,
-      "last_name":"Brown",
-      "middle_name":null,
-      "name_suffix":null,
-
-      "state":"OH",
-      "district":null,
-      "party":"D",
-      "gender":"M",
-      "title":"Sen",
-      "chamber":"senate",
-      "senate_class":1,
-      
-      "phone":"202-224-2315",
-      "website":"http://brown.senate.gov/",
-      "office":"713 Hart Senate Office Building",
-      "contact_form":"http://www.brown.senate.gov/contact/",
-
-      "twitter_id":"SenSherrodBrown",
-      "youtube_id":"SherrodBrownOhio",
-      "facebook_id":"109453899081640",
-
-      "term_start":"2007-01-04",
-      "term_end":"2012-12-31",
-
-      "terms":[
-        {
-          "start":"2005-01-04",
-          "end":"2006-12-09",
-          "state":"OH",
-          "district":13,
-          "party":"D",
-          "title":"Rep",
-          "chamber":"house"
-        },
-        {
-          "start":"2007-01-04",
-          "end":"2012-12-31",
-          "state":"OH",
-          "class":1,
-          "party":"D",
-          "title":"Sen",
-          "chamber":"senate"
-        }
-      ]
-    }
-  ]
-}
-```
