@@ -1,5 +1,3 @@
-[Home](index.html) | Legislators | Districts | Committees | [Bills](bills.html) | Votes | Floor | Hearings | Upcoming | Videos
-
 # Legislators
 
 Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
