@@ -501,7 +501,7 @@ a {
 
 #content code.json {
   overflow: auto; 
-  max-height: 500px; 
+  xmax-height: 500px; 
   border: 1px solid #ccc;
 }
 
