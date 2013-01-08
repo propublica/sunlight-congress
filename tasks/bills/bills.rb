@@ -87,7 +87,7 @@ class Bills
 
         introduced_on: doc['introduced_at'],
         history: history_for(doc['history']),
-        enacted_as: doc['enacted_as'],
+        enacted_as: enacted_as_for(doc),
 
         actions: actions,
         last_action_at: actions.any? ? actions.last['acted_at'] : nil,
@@ -169,9 +169,9 @@ class Bills
       end
 
       if person
-        cosponsorship = {'sponsored_at' => cosponsor['sponsored_at']}
-        if cosponsor['withdrawn_at']
-          cosponsorship['withdrawn_at'] = cosponsor['withdrawn_at']
+        cosponsorship = {'sponsored_on' => cosponsor['sponsored_at']}
+        if cosponsor['withdrawn_on']
+          cosponsorship['withdrawn_on'] = cosponsor['withdrawn_at']
           withdrawn_cosponsors << cosponsorship.merge('legislator' => person)
         else
           new_cosponsors << cosponsorship.merge('legislator' => person)
@@ -288,8 +288,7 @@ class Bills
     {
       congress: congress_gov_url(congress, type, number),
       govtrack: govtrack_url(congress, type, number),
-      opencongress: opencongress_url(congress, type, number),
-      thomas: thomas_url(congress, type, number)
+      opencongress: opencongress_url(congress, type, number)
     }
   end
 
@@ -300,11 +299,6 @@ class Bills
   
   def self.govtrack_url(congress, type, number)
     "http://www.govtrack.us/congress/bills/#{congress}/#{type}#{number}"
-  end
-  
-  def self.thomas_url(congress, type, number)
-    id = "#{congress}#{type}#{number}"
-    "http://hdl.loc.gov/loc.uscongress/legislation.#{id}"
   end
   
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
@@ -336,5 +330,14 @@ class Bills
       "sconres" => "senate-concurrent-resolution",
       "sjres" => "senate-joint-resolution"
     }[bill_type]
+  end
+
+  def self.enacted_as_for(doc)
+    return nil unless doc['enacted_as']
+    
+    enacted_as = doc['enacted_as'].dup
+    enacted_as['congress'] = enacted_as['congress'].to_i
+    enacted_as['number'] = enacted_as['number'].to_i
+    enacted_as
   end
 end
