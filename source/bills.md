@@ -8,7 +8,11 @@ Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 
 ## Methods
 
-All requests require a valid [API key](index.html#apikey).
+All requests require a valid [API key](index.html#apikey), and use the domain:
+
+```text
+http://congress.api.sunlightfoundation.com
+```
 
 ### /bills
 
@@ -67,7 +71,7 @@ This searches the bill's full text, `short_title`, `official_title`, `popular_ti
 
 ## Fields
 
-All examples below are from H.R. 3590 of the 111th Congress, the Patient Protection and Affordable Care Act (Obamacare).
+All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protection and Affordable Care Act](http://www.govtrack.us/congress/bills/111/hr3590) (Obamacare).
 
 \* = can be used as a filter
 

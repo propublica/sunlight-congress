@@ -119,9 +119,10 @@
 <li>The House&#39; <a href="http://majorityleader.gov/">MajorityLeader.gov</a> and Senate Democrat&#39;s <a href="http://democrats.senate.gov/">official site</a> for notices of upcoming debate.</li>
 </ul>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#apikey">API key</a>.
+<p>All requests require a valid <a href="index.html#apikey">API key</a>, and use the domain:
 
 </p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <h3 id='methods/bills'>/bills</h3 id='methods/bills'>
 <p>Filter through bills in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#operators">standard operators</a> apply.
 
@@ -165,7 +166,7 @@
 </p>
 <pre><code class="text">/bills/search?query=&quot;transparency accountability&quot;~5&amp;highlight=true</code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
-<p>All examples below are from H.R. 3590 of the 111th Congress, the Patient Protection and Affordable Care Act (Obamacare).
+<p>All examples below are from H.R. 3590 of the 111th Congress, the <a href="http://www.govtrack.us/congress/bills/111/hr3590">Patient Protection and Affordable Care Act</a> (Obamacare).
 
 </p>
 <p>* = can be used as a filter
