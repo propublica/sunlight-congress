@@ -33,7 +33,7 @@ twitter = "sunlightlabs"
 if ARGV[0]
   files = [ARGV[0]]
 else
-  files = %w{index legislators}
+  files = %w{index legislators bills}
 end
 
 output_dir = ".."
