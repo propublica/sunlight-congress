@@ -40,6 +40,7 @@ class UpcomingSenate
       # Just ignore them
       next unless entry.title =~ /Schedule/i
       next unless legislative_date = Utils.utc_parse(entry.title)
+      next if legislative_date > 6.months.from_now # sanity check
       
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       congress = Utils.congress_for_year legislative_date.year
@@ -103,9 +104,6 @@ class UpcomingSenate
           end
         end
       end
-      
-      # we only want the latest one, so if we reached this point, we're done
-      break
     end
     
     # create any accumulated upcoming bills
