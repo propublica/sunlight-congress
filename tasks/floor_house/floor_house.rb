@@ -83,7 +83,7 @@ class FloorHouse
       
       doc = Nokogiri::HTML html
       
-      elem = doc.css("a.downloadLink").first
+      elem = doc.css("a[title='Download Floor Proceedings in XML Format']").first
       unless elem
         Report.warning self, "Couldn't find download link, can't go on"
         return nil
