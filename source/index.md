@@ -29,8 +29,6 @@ The Sunlight Congress API lives at:
 http://congress.api.sunlightfoundation.com
 ```
 
-### Methods
-
 <table>
 <tr>
 <td>[/legislators](/legislators#data)</td>

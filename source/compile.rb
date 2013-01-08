@@ -26,6 +26,26 @@ footer = "
 </script>
 "
 
+menu_addition = "
+<ul class=\"contents\" id=\"sections\">
+  <li>
+    <a href=\"#\">Table of Contents</a>
+    <ul>
+      <li>
+        <a href=\"index.html\">Home</a>
+      </li>
+
+      <li>
+        <a href=\"legislators.html\">Legislators</a>
+      </li>
+
+      <li>
+        <a href=\"bills.html\">Bills</a>
+      </li>
+    </ul>
+  </li>
+</ul>"
+
 name = "Congress API"
 twitter = "sunlightlabs"
 
@@ -58,6 +78,14 @@ files.each do |filename|
 
   # add in our own footer
   content.gsub! "</body>", "#{footer}\n</body>"
+
+  # get rid of braces around unindented (partial) JSON blocks
+  content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
+
+  # add links to other models
+  if filename != "index"
+    # content.gsub!(/(<\/ul>[\r\n\s]+<div class="extra twitter">)/) {"#{menu_addition}#{$1}"}
+  end
 
   f = File.open(output_file, "w")
   f.write content

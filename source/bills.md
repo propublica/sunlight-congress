@@ -77,15 +77,15 @@ All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protec
 
 ```json
 {
-  "bill_id": "hr3590-111", 
-  "bill_type": "hr", 
-  "number": 3590, 
-  "congress": 111, 
-  "chamber": "house",
-  "introduced_on": "2009-09-17",
-  "last_action_at": "2010-03-23",
-  "last_vote_at": "2010-03-22T03:48:00Z",
-  "last_version_on": "2012-08-25"
+"bill_id": "hr3590-111", 
+"bill_type": "hr", 
+"number": 3590, 
+"congress": 111, 
+"chamber": "house",
+"introduced_on": "2009-09-17",
+"last_action_at": "2010-03-23",
+"last_vote_at": "2010-03-22T03:48:00Z",
+"last_version_on": "2012-08-25"
 }
 ```
 
@@ -120,27 +120,27 @@ The date the last version of this bill was published.
 
 ```json
 {
-  "official_title": "An act entitled The Patient Protection and Affordable Care Act.", 
-  "popular_title": "Health care reform bill", 
-  "short_title": "Patient Protection and Affordable Care Act",
+"official_title": "An act entitled The Patient Protection and Affordable Care Act.", 
+"popular_title": "Health care reform bill", 
+"short_title": "Patient Protection and Affordable Care Act",
 
-  "titles": [
-    {
-      "as": null, 
-      "title": "Health care reform bill", 
-      "type": "popular"
-    }, 
-    {
-      "as": "enacted", 
-      "title": "Patient Protection and Affordable Care Act", 
-      "type": "short"
-    }, 
-    {
-      "as": "amended by senate", 
-      "title": "An act entitled The Patient Protection and Affordable Care Act.", 
-      "type": "official"
-    }
-  ]
+"titles": [
+  {
+    "as": null, 
+    "title": "Health care reform bill", 
+    "type": "popular"
+  }, 
+  {
+    "as": "enacted", 
+    "title": "Patient Protection and Affordable Care Act", 
+    "type": "short"
+  }, 
+  {
+    "as": "amended by senate", 
+    "title": "An act entitled The Patient Protection and Affordable Care Act.", 
+    "type": "official"
+  }
+]
 }
 ```
 
@@ -169,10 +169,10 @@ The type of title this is. "official", "short", or "popular".
 
 ```json
 {
-  "nicknames": [
-    "obamacare",
-    "ppaca"
-  ]
+"nicknames": [
+  "obamacare",
+  "ppaca"
+]
 }
 ```
 
@@ -183,16 +183,16 @@ An array of common nicknames for a bill that don't appear in official data. Thes
 
 ```json
 {
-  "subjects": [
-    "Abortion", 
-    "Administrative law and regulatory procedures", 
-    "Adoption and foster care",
-    ...
-  ], 
+"subjects": [
+  "Abortion", 
+  "Administrative law and regulatory procedures", 
+  "Adoption and foster care",
+  ...
+], 
 
-  "summary": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans...",
+"summary": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans...",
 
-  "summary_short": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans..."
+"summary_short": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans..."
 }
 ```
 
@@ -209,11 +209,11 @@ The official summary, but capped to 1,000 characters (and an ellipse). Useful wh
 
 ```json
 {
-  "urls": {
-    "congress" :"http://beta.congress.gov/bill/111th/house-bill/3590",
-    "govtrack" :"http://www.govtrack.us/congress/bills/111/hr3590",
-    "opencongress" :"http://www.opencongress.org/bill/111-h3590/show"
-  }
+"urls": {
+  "congress" :"http://beta.congress.gov/bill/111th/house-bill/3590",
+  "govtrack" :"http://www.govtrack.us/congress/bills/111/hr3590",
+  "opencongress" :"http://www.opencongress.org/bill/111-h3590/show"
+}
 }
 ```
 
@@ -224,18 +224,18 @@ An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, a
 
 ```json
 {
-  "history": {
-    "house_passage_result": "pass", 
-    "house_passage_result_at": "2010-03-21T22:48:00-05:00", 
-    "senate_cloture_result": "pass",
-    "senate_cloture_result_at": "2009-12-23",
-    "senate_passage_result": "pass", 
-    "senate_passage_result_at": "2009-12-24", 
-    "vetoed": false,
-    "awaiting_signature": false, 
-    "enacted": true, 
-    "enacted_at": "2010-03-23"
-  }
+"history": {
+  "house_passage_result": "pass", 
+  "house_passage_result_at": "2010-03-21T22:48:00-05:00", 
+  "senate_cloture_result": "pass",
+  "senate_cloture_result_at": "2009-12-23",
+  "senate_passage_result": "pass", 
+  "senate_passage_result_at": "2009-12-24", 
+  "vetoed": false,
+  "awaiting_signature": false, 
+  "enacted": true, 
+  "enacted_at": "2010-03-23"
+}
 }
 ```
 
@@ -296,36 +296,36 @@ The date or time the bill was enacted into law. Only present if this happened.
 
 ```json
 {
-  "actions": [
-    {
-      "type": "vote", 
-      "acted_at": "2010-03-21T22:48:00-05:00", 
-      "chamber": "house",
-      "how": "roll", 
-      "vote_type": "pingpong", 
-      "result": "pass", 
-      "roll_id": "165", 
-      "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
-      "references": [
-        {
-          "reference": "CR H1920-2152", 
-          "type": "text as House agreed to Senate amendments"
-        }
-      ]
-    }, 
-    {
-      "type": "signed",
-      "acted_at": "2010-03-23", 
-      "text": "Signed by President.",
-      "references": []
-    }, 
-    {
-      "type": "enacted",
-      "acted_at": "2010-03-23", 
-      "text": "Became Public Law No: 111-148."
-      "references": []
-    }
-  ]
+"actions": [
+  {
+    "type": "vote", 
+    "acted_at": "2010-03-21T22:48:00-05:00", 
+    "chamber": "house",
+    "how": "roll", 
+    "vote_type": "pingpong", 
+    "result": "pass", 
+    "roll_id": "165", 
+    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
+    "references": [
+      {
+        "reference": "CR H1920-2152", 
+        "type": "text as House agreed to Senate amendments"
+      }
+    ]
+  }, 
+  {
+    "type": "signed",
+    "acted_at": "2010-03-23", 
+    "text": "Signed by President.",
+    "references": []
+  }, 
+  {
+    "type": "enacted",
+    "acted_at": "2010-03-23", 
+    "text": "Became Public Law No: 111-148."
+    "references": []
+  }
+]
 }
 ```
 
@@ -362,24 +362,24 @@ If the action is a roll call vote, the ID of the roll call.
 
 ```json
 {
-  "votes": [
-    {
-      "type": "vote", 
-      "acted_at": "2010-03-21T22:48:00-05:00", 
-      "chamber": "house",
-      "how": "roll", 
-      "vote_type": "pingpong", 
-      "result": "pass", 
-      "roll_id": "165", 
-      "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
-      "references": [
-        {
-          "reference": "CR H1920-2152", 
-          "type": "text as House agreed to Senate amendments"
-        }
-      ]
-    }
-  ]
+"votes": [
+  {
+    "type": "vote", 
+    "acted_at": "2010-03-21T22:48:00-05:00", 
+    "chamber": "house",
+    "how": "roll", 
+    "vote_type": "pingpong", 
+    "result": "pass", 
+    "roll_id": "165", 
+    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
+    "references": [
+      {
+        "reference": "CR H1920-2152", 
+        "type": "text as House agreed to Senate amendments"
+      }
+    ]
+  }
+]
 }
 ```
 
@@ -390,43 +390,43 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 
 ```json
 {
-  "sponsor_id": "R000053",
-  "sponsor": {
-    "bioguide_id": "R000053",
-    "in_office": true,
-    "last_name": "Rangel"
-    ...
+"sponsor_id": "R000053",
+"sponsor": {
+  "bioguide_id": "R000053",
+  "in_office": true,
+  "last_name": "Rangel"
+  ...
+},
+
+"cosponsor_ids": [
+  "B000287",
+  "B001231"
+  ...
+],
+"cosponsors": [
+  {
+    "sponsored_at": "2009-09-17",
+    "legislator": {
+      "bioguide_id": "B000287",
+      "in_office": true,
+      "last_name": "Becerra"
+      ...
+    }
+  }, 
+  {
+    "sponsored_at": "2009-09-17",
+    "legislator": {
+      "bioguide_id":"B001231",
+      "in_office":true,
+      "last_name":"Berkley"
+      ...
+    }
   },
+  ...
+],
 
-  "cosponsor_ids": [
-    "B000287",
-    "B001231"
-    ...
-  ],
-  "cosponsors": [
-    {
-      "sponsored_at": "2009-09-17",
-      "legislator": {
-        "bioguide_id": "B000287",
-        "in_office": true,
-        "last_name": "Becerra"
-        ...
-      }
-    }, 
-    {
-      "sponsored_at": "2009-09-17",
-      "legislator": {
-        "bioguide_id":"B001231",
-        "in_office":true,
-        "last_name":"Berkley"
-        ...
-      }
-    },
-    ...
-  ],
-
-  "withdrawn_cosponsor_ids": [],
-  "withdrawn_cosponsors": []
+"withdrawn_cosponsor_ids": [],
+"withdrawn_cosponsors": []
 }
 ```
 
@@ -461,26 +461,26 @@ An object with most simple [legislator fields](legislators.html#fields) for that
 
 ```json
 {
-  "committee_ids": [
-    "HSWM"
-  ],
-  "committees": [
-    {
-      "activity": [
-        "referral"
-      ],
-      "committee": {
-        "address": "1102 LHOB; Washington, DC 20515-6348",
-        "chamber": "house",
-        "committee_id": "HSWM",
-        "house_committee_id": "WM",
-        "name": "House Committee on Ways and Means",
-        "office": "1102 LHOB",
-        "phone": "(202) 225-3625",
-        "subcommittee": false
-      }
+"committee_ids": [
+  "HSWM"
+],
+"committees": [
+  {
+    "activity": [
+      "referral"
+    ],
+    "committee": {
+      "address": "1102 LHOB; Washington, DC 20515-6348",
+      "chamber": "house",
+      "committee_id": "HSWM",
+      "house_committee_id": "WM",
+      "name": "House Committee on Ways and Means",
+      "office": "1102 LHOB",
+      "phone": "(202) 225-3625",
+      "subcommittee": false
     }
-  ]
+  }
+]
 }
 ```
 
@@ -494,14 +494,14 @@ A list of relationships that the committee has to the bill, as they appear on [T
 
 ```json
 {
-  "related_bill_ids": [
-    "hconres254-111",
-    "hres1203-111",
-    "hr3780-111",
-    "hr4872-111",
-    "s1728-111",
-    "s1790-111"
-  ]
+"related_bill_ids": [
+  "hconres254-111",
+  "hres1203-111",
+  "hr3780-111",
+  "hr4872-111",
+  "s1728-111",
+  "s1790-111"
+]
 }
 ```
 
@@ -512,29 +512,18 @@ A list of IDs of bills that the Library of Congress has declared "related". Rela
 
 ```json
 {
-  "versions": [
-    {
-      "version_code": "eas",
-      "issued_on": "2009-12-24",
-      "version_name": "Engrossed Amendment Senate",
-      "bill_version_id": "hr3590-111-eas",
-      "urls": {
-        "html": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/html/BILLS-111hr3590eas.htm",
-        "pdf": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/pdf/BILLS-111hr3590eas.pdf"
-      }
-    },
-    {
-      "version_code": "enr",
-      "issued_on": "2010-08-25",
-      "version_name": "Enrolled Bill",
-      "bill_version_id": "hr3590-111-enr",
-      "urls": {
-        "html": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/html/BILLS-111hr3590enr.htm",
-        "pdf": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/pdf/BILLS-111hr3590enr.pdf"
-      }
+"versions": [
+  {
+    "version_code": "eas",
+    "issued_on": "2009-12-24",
+    "version_name": "Engrossed Amendment Senate",
+    "bill_version_id": "hr3590-111-eas",
+    "urls": {
+      "html": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/html/BILLS-111hr3590eas.htm",
+      "pdf": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/pdf/BILLS-111hr3590eas.pdf"
     }
-  ],
-  "last_version": {
+  },
+  {
     "version_code": "enr",
     "issued_on": "2010-08-25",
     "version_name": "Enrolled Bill",
@@ -544,6 +533,17 @@ A list of IDs of bills that the Library of Congress has declared "related". Rela
       "pdf": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/pdf/BILLS-111hr3590enr.pdf"
     }
   }
+],
+"last_version": {
+  "version_code": "enr",
+  "issued_on": "2010-08-25",
+  "version_name": "Enrolled Bill",
+  "bill_version_id": "hr3590-111-enr",
+  "urls": {
+    "html": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/html/BILLS-111hr3590enr.htm",
+    "pdf": "http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/pdf/BILLS-111hr3590enr.pdf"
+  }
+}
 }
 ```
 
@@ -568,16 +568,16 @@ Information for only the most recent version of a bill. Useful to limit the size
 
 ```json
 {
-  "upcoming": [
-    {
-      "source_type": "senate_daily",
-      "url": "http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/",
-      "chamber": "senate",
-      "congress" :113,
-      "legislative_day": "2013-01-21",
-      "context": "The Senate stands in recess under the provisions of S.Con.Res.3.  The Senate will meet at 11:30am on Monday, January 21, 2013 for the Joint Session for the Inaugural Ceremonies."
-    }
-  ]
+"upcoming": [
+  {
+    "source_type": "senate_daily",
+    "url": "http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/",
+    "chamber": "senate",
+    "congress" :113,
+    "legislative_day": "2013-01-21",
+    "context": "The Senate stands in recess under the provisions of S.Con.Res.3.  The Senate will meet at 11:30am on Monday, January 21, 2013 for the Joint Session for the Inaugural Ceremonies."
+  }
+]
 }
 ```
 
@@ -607,11 +607,11 @@ Some surrounding context of why the bill is scheduled. This is only present for 
 
 ```json
 { 
-  "enacted_as": {
-    "congress": 111,
-    "law_type": "public",
-    "number": "148"
-  }
+"enacted_as": {
+  "congress": 111,
+  "law_type": "public",
+  "number": "148"
+}
 }
 ```
 

@@ -69,18 +69,18 @@ You can turn off pagination for requests to `/legislators`, but doing so will fo
 
 ```json
 {
-  "in_office": true,
-  "party": "D",
-  "gender": "M",
-  "state": "OH",
-  "state_name": "Ohio",
-  "district": null,
-  "title": "Sen",
-  "chamber": "senate",
-  "senate_class": 1,
-  "birthday": "1946-12-24",
-  "term_start": "2007-01-04",
-  "term_end": "2012-12-31"
+"in_office": true,
+"party": "D",
+"gender": "M",
+"state": "OH",
+"state_name": "Ohio",
+"district": null,
+"title": "Sen",
+"chamber": "senate",
+"senate_class": 1,
+"birthday": "1946-12-24",
+"term_start": "2007-01-04",
+"term_end": "2012-12-31"
 }
 ```
 
@@ -124,15 +124,15 @@ The date a member's current term will end.
 
 ```json
 {
-  "bioguide_id": "B000944",
-  "thomas_id": "136",
-  "govtrack_id": "400050",
-  "votesmart_id": "27018",
-  "crp_id": "N00003535",
-  "lis_id": "S307",
-  "fec_ids": [
-    "H2OH13033"
-  ]
+"bioguide_id": "B000944",
+"thomas_id": "136",
+"govtrack_id": "400050",
+"votesmart_id": "27018",
+"crp_id": "N00003535",
+"lis_id": "S307",
+"fec_ids": [
+  "H2OH13033"
+]
 }
 ```
 
@@ -161,11 +161,11 @@ A list of identifiers for this member as they appear in filings at the [Federal 
 
 ```json
 {
-  "first_name": "Jefferson",
-  "nickname": "Jeff",
-  "last_name": "Brown",
-  "middle_name": "B.",
-  "name_suffix": null
+"first_name": "Jefferson",
+"nickname": "Jeff",
+"last_name": "Brown",
+"middle_name": "B.",
+"name_suffix": null
 }
 ```
 
@@ -188,11 +188,11 @@ A name suffix, if the member uses one. For example, "Jr." or "III".
 
 ```json
 {
-  "phone": "202-224-2315",
-  "website": "http://brown.senate.gov/",
-  "office": "713 Hart Senate Office Building",
-  "contact_form": "http://www.brown.senate.gov/contact/",
-  "fax": "202-228-6321"
+"phone": "202-224-2315",
+"website": "http://brown.senate.gov/",
+"office": "713 Hart Senate Office Building",
+"contact_form": "http://www.brown.senate.gov/contact/",
+"fax": "202-228-6321"
 }
 ```
 
@@ -215,9 +215,9 @@ URL to their official contact form.
 
 ```json
 {
-  "twitter_id": "SenSherrodBrown",
-  "youtube_id": "SherrodBrownOhio",
-  "facebook_id": "109453899081640"
+"twitter_id": "SenSherrodBrown",
+"youtube_id": "SherrodBrownOhio",
+"facebook_id": "109453899081640"
 }
 ```
 
@@ -236,15 +236,15 @@ An array of information for each term the member has served, from oldest to newe
 
 ```json
 {
-  "terms": [{
-    "start": "2013-01-03",
-    "end": "2019-01-03",
-    "state": "NJ",
-    "party": "D",
-    "class": 1,
-    "title": "Sen",
-    "chamber": "senate"
-  }]
+"terms": [{
+  "start": "2013-01-03",
+  "end": "2019-01-03",
+  "state": "NJ",
+  "party": "D",
+  "class": 1,
+  "title": "Sen",
+  "chamber": "senate"
+}]
 }
 ```
 
