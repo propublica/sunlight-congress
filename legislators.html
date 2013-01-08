@@ -10,6 +10,7 @@
   <link rel="stylesheet" type="text/css" href="documentup.css">
   <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
 </head>
   <body><div id="container">
   <div id="nav">
@@ -62,10 +63,6 @@
                   <a href="#fields/terms">Terms</a>
                 </li>
               
-                <li>
-                  <a href="#fields/example-legislator">Example legislator</a>
-                </li>
-              
             </ul>
           
         </li>
@@ -85,9 +82,10 @@
 
 </p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#apikey">API key</a>.
+<p>All requests require a valid <a href="index.html#apikey">API key</a>, and use the domain:
 
 </p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
 <p>Find members of Congress by a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no support for operators, ordering, or partial responses.
 
@@ -141,6 +139,20 @@
 <p>* = can be used as a filter
 
 </p>
+<pre><code class="json">{
+  "<span class="attribute">in_office</span>": <span class="value"><span class="literal">true</span></span>,
+  "<span class="attribute">party</span>": <span class="value"><span class="string">"D"</span></span>,
+  "<span class="attribute">gender</span>": <span class="value"><span class="string">"M"</span></span>,
+  "<span class="attribute">state</span>": <span class="value"><span class="string">"OH"</span></span>,
+  "<span class="attribute">state_name</span>": <span class="value"><span class="string">"Ohio"</span></span>,
+  "<span class="attribute">district</span>": <span class="value"><span class="literal">null</span></span>,
+  "<span class="attribute">title</span>": <span class="value"><span class="string">"Sen"</span></span>,
+  "<span class="attribute">chamber</span>": <span class="value"><span class="string">"senate"</span></span>,
+  "<span class="attribute">senate_class</span>": <span class="value"><span class="number">1</span></span>,
+  "<span class="attribute">birthday</span>": <span class="value"><span class="string">"1946-12-24"</span></span>,
+  "<span class="attribute">term_start</span>": <span class="value"><span class="string">"2007-01-04"</span></span>,
+  "<span class="attribute">term_end</span>": <span class="value"><span class="string">"2012-12-31"</span>
+</span>}</code></pre>
 <p>* <strong>in_office</strong> (boolean)<br/>
 Whether a legislator is currently holding elected office in Congress.
 
@@ -161,6 +173,10 @@ Two-letter code of the state this member represents.
 The full state name of the state this member represents.
 
 </p>
+<p>* <strong>district</strong> (string)<br/>
+The number of the district that a House member represents. Null for Senators.
+
+</p>
 <p>* <strong>title</strong> (string)<br/>
 Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quot;Com&quot;.
 
@@ -169,11 +185,11 @@ Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quo
 Chamber the member is in. &quot;senate&quot; or &quot;house&quot;.
 
 </p>
-<p><strong>senate_class</strong> (number)</br>
+<p>* <strong>senate_class</strong> (number)</br>
 Which senate &quot;class&quot; the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 
 </p>
-<p><strong>birthday</strong> (date)</br>
+<p>* <strong>birthday</strong> (date)</br>
 The date of this legislator&#39;s birthday.
 
 </p>
@@ -186,6 +202,17 @@ The date a member&#39;s current term will end.
 
 </p>
 <h3 id='fields/identifiers'>Identifiers</h3 id='fields/identifiers'>
+<pre><code class="json">{
+  "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"B000944"</span></span>,
+  "<span class="attribute">thomas_id</span>": <span class="value"><span class="string">"136"</span></span>,
+  "<span class="attribute">govtrack_id</span>": <span class="value"><span class="string">"400050"</span></span>,
+  "<span class="attribute">votesmart_id</span>": <span class="value"><span class="string">"27018"</span></span>,
+  "<span class="attribute">crp_id</span>": <span class="value"><span class="string">"N00003535"</span></span>,
+  "<span class="attribute">lis_id</span>": <span class="value"><span class="string">"S307"</span></span>,
+  "<span class="attribute">fec_ids</span>": <span class="value">[
+    <span class="string">"H2OH13033"</span>
+  ]
+</span>}</code></pre>
 <p>* <strong>bioguide_id</strong> (string)<br/>
 Identifier for this member in various Congressional sources. Originally taken from the <a href="http://bioguide.congress.gov">Congressional Biographical Directory</a>, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
 
@@ -206,8 +233,8 @@ Identifier for this member as it appears on <a href="http://govtrack.us">GovTrac
 Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
 
 </p>
-<p>* <strong>opensecrets_id</strong> (string)<br/>
-Identifier for this member as it appears on <a href="http://www.opensecrets.org">OpenSecrets</a>.
+<p>* <strong>crp_id</strong> (string)<br/>
+Identifier for this member as it appears on CRP&#39;s <a href="http://www.opensecrets.org">OpenSecrets</a>.
 
 </p>
 <p>* <strong>fec_ids</strong> (string)<br/>
@@ -215,6 +242,13 @@ A list of identifiers for this member as they appear in filings at the <a href="
 
 </p>
 <h3 id='fields/names'>Names</h3 id='fields/names'>
+<pre><code class="json">{
+  "<span class="attribute">first_name</span>": <span class="value"><span class="string">"Jefferson"</span></span>,
+  "<span class="attribute">nickname</span>": <span class="value"><span class="string">"Jeff"</span></span>,
+  "<span class="attribute">last_name</span>": <span class="value"><span class="string">"Brown"</span></span>,
+  "<span class="attribute">middle_name</span>": <span class="value"><span class="string">"B."</span></span>,
+  "<span class="attribute">name_suffix</span>": <span class="value"><span class="literal">null</span>
+</span>}</code></pre>
 <p>* <strong>first_name</strong> (string)<br/>
 The member&#39;s first name. This may or may not be the name they are usually called.
 
@@ -236,6 +270,13 @@ A name suffix, if the member uses one. For example, &quot;Jr.&quot; or &quot;III
 
 </p>
 <h3 id='fields/contact-info'>Contact info</h3 id='fields/contact-info'>
+<pre><code class="json">{
+  "<span class="attribute">phone</span>": <span class="value"><span class="string">"202-224-2315"</span></span>,
+  "<span class="attribute">website</span>": <span class="value"><span class="string">"http://brown.senate.gov/"</span></span>,
+  "<span class="attribute">office</span>": <span class="value"><span class="string">"713 Hart Senate Office Building"</span></span>,
+  "<span class="attribute">contact_form</span>": <span class="value"><span class="string">"http://www.brown.senate.gov/contact/"</span></span>,
+  "<span class="attribute">fax</span>": <span class="value"><span class="string">"202-228-6321"</span>
+</span>}</code></pre>
 <p><strong>phone</strong> (string)<br/>
 Phone number of the members&#39;s DC office.
 
@@ -257,6 +298,11 @@ URL to their official contact form.
 
 </p>
 <h3 id='fields/social-media'>Social Media</h3 id='fields/social-media'>
+<pre><code class="json">{
+  "<span class="attribute">twitter_id</span>": <span class="value"><span class="string">"SenSherrodBrown"</span></span>,
+  "<span class="attribute">youtube_id</span>": <span class="value"><span class="string">"SherrodBrownOhio"</span></span>,
+  "<span class="attribute">facebook_id</span>": <span class="value"><span class="string">"109453899081640"</span>
+</span>}</code></pre>
 <p><strong>twitter_id</strong> (string)<br/>
 The Twitter <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
 
@@ -309,73 +355,23 @@ The chamber this member served in during this term. &quot;house&quot; or &quot;s
 
 </p>
 <p><strong>terms.class</strong> (number)<br/>
-The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.
-
-
-</p>
-<h3 id='fields/example-legislator'>Example legislator</h3 id='fields/example-legislator'>
-<pre><code class="json">{
-  "<span class="attribute">results</span>":<span class="value">[
-    {
-      "<span class="attribute">in_office</span>":<span class="value"><span class="literal">true</span></span>,
-
-      "<span class="attribute">bioguide_id</span>":<span class="value"><span class="string">"B000944"</span></span>,
-      "<span class="attribute">thomas_id</span>":<span class="value"><span class="string">"136"</span></span>,
-      "<span class="attribute">govtrack_id</span>":<span class="value"><span class="string">"400050"</span></span>,
-      "<span class="attribute">votesmart_id</span>":<span class="value"><span class="string">"27018"</span></span>,
-      "<span class="attribute">crp_id</span>":<span class="value"><span class="string">"N00003535"</span></span>,
-      "<span class="attribute">lis_id</span>":<span class="value"><span class="string">"S307"</span></span>,
-
-      "<span class="attribute">first_name</span>":<span class="value"><span class="string">"Sherrod"</span></span>,
-      "<span class="attribute">nickname</span>":<span class="value"><span class="literal">null</span></span>,
-      "<span class="attribute">last_name</span>":<span class="value"><span class="string">"Brown"</span></span>,
-      "<span class="attribute">middle_name</span>":<span class="value"><span class="literal">null</span></span>,
-      "<span class="attribute">name_suffix</span>":<span class="value"><span class="literal">null</span></span>,
-
-      "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
-      "<span class="attribute">district</span>":<span class="value"><span class="literal">null</span></span>,
-      "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
-      "<span class="attribute">gender</span>":<span class="value"><span class="string">"M"</span></span>,
-      "<span class="attribute">title</span>":<span class="value"><span class="string">"Sen"</span></span>,
-      "<span class="attribute">chamber</span>":<span class="value"><span class="string">"senate"</span></span>,
-      "<span class="attribute">senate_class</span>":<span class="value"><span class="number">1</span></span>,
-
-      "<span class="attribute">phone</span>":<span class="value"><span class="string">"202-224-2315"</span></span>,
-      "<span class="attribute">website</span>":<span class="value"><span class="string">"http://brown.senate.gov/"</span></span>,
-      "<span class="attribute">office</span>":<span class="value"><span class="string">"713 Hart Senate Office Building"</span></span>,
-      "<span class="attribute">contact_form</span>":<span class="value"><span class="string">"http://www.brown.senate.gov/contact/"</span></span>,
-
-      "<span class="attribute">twitter_id</span>":<span class="value"><span class="string">"SenSherrodBrown"</span></span>,
-      "<span class="attribute">youtube_id</span>":<span class="value"><span class="string">"SherrodBrownOhio"</span></span>,
-      "<span class="attribute">facebook_id</span>":<span class="value"><span class="string">"109453899081640"</span></span>,
-
-      "<span class="attribute">term_start</span>":<span class="value"><span class="string">"2007-01-04"</span></span>,
-      "<span class="attribute">term_end</span>":<span class="value"><span class="string">"2012-12-31"</span></span>,
-
-      "<span class="attribute">terms</span>":<span class="value">[
-        {
-          "<span class="attribute">start</span>":<span class="value"><span class="string">"2005-01-04"</span></span>,
-          "<span class="attribute">end</span>":<span class="value"><span class="string">"2006-12-09"</span></span>,
-          "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
-          "<span class="attribute">district</span>":<span class="value"><span class="number">13</span></span>,
-          "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
-          "<span class="attribute">title</span>":<span class="value"><span class="string">"Rep"</span></span>,
-          "<span class="attribute">chamber</span>":<span class="value"><span class="string">"house"</span>
-        </span>},
-        {
-          "<span class="attribute">start</span>":<span class="value"><span class="string">"2007-01-04"</span></span>,
-          "<span class="attribute">end</span>":<span class="value"><span class="string">"2012-12-31"</span></span>,
-          "<span class="attribute">state</span>":<span class="value"><span class="string">"OH"</span></span>,
-          "<span class="attribute">class</span>":<span class="value"><span class="number">1</span></span>,
-          "<span class="attribute">party</span>":<span class="value"><span class="string">"D"</span></span>,
-          "<span class="attribute">title</span>":<span class="value"><span class="string">"Sen"</span></span>,
-          "<span class="attribute">chamber</span>":<span class="value"><span class="string">"senate"</span>
-        </span>}
-      ]
-    </span>}
-  ]
-</span>}</code></pre>
+The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.</p>
 
   </div>
-</div></body>
+</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
 </html>
