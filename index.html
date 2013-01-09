@@ -32,28 +32,28 @@
         </li>
       
         <li>
-          <a href="#operators">Operators</a>
+          <a href="#parameters">Parameters</a>
           
             <ul>
               
                 <li>
-                  <a href="#operators/filtering-on-fields">Filtering on fields</a>
+                  <a href="#parameters/filtering">Filtering</a>
                 </li>
               
                 <li>
-                  <a href="#operators/operators">Operators</a>
+                  <a href="#parameters/operators">Operators</a>
                 </li>
               
                 <li>
-                  <a href="#operators/pagination">Pagination</a>
+                  <a href="#parameters/pagination">Pagination</a>
                 </li>
               
                 <li>
-                  <a href="#operators/ordering">Ordering</a>
+                  <a href="#parameters/ordering">Ordering</a>
                 </li>
               
                 <li>
-                  <a href="#operators/partial-responses">Partial responses</a>
+                  <a href="#parameters/partial-responses">Partial responses</a>
                 </li>
               
             </ul>
@@ -61,7 +61,7 @@
         </li>
       
         <li>
-          <a href="#full-text-search">Full Text Search</a>
+          <a href="#full-text-search">Full text search</a>
           
             <ul>
               
@@ -71,27 +71,6 @@
               
                 <li>
                   <a href="#full-text-search/highlighting">Highlighting</a>
-                </li>
-              
-                <li>
-                  <a href="#full-text-search/scores">Scores</a>
-                </li>
-              
-            </ul>
-          
-        </li>
-      
-        <li>
-          <a href="#geolocating">Geolocating</a>
-          
-            <ul>
-              
-                <li>
-                  <a href="#geolocating/by-latitude-and-longitude">By latitude and longitude</a>
-                </li>
-              
-                <li>
-                  <a href="#geolocating/by-zip-code">By zip code</a>
                 </li>
               
             </ul>
@@ -104,6 +83,10 @@
             <ul>
               
                 <li>
+                  <a href="#other/explain-mode">Explain mode</a>
+                </li>
+              
+                <li>
                   <a href="#other/bulk-data">Bulk Data</a>
                 </li>
               
@@ -112,7 +95,7 @@
                 </li>
               
                 <li>
-                  <a href="#other/other-apis">Other APIs</a>
+                  <a href="#other/more-apis">More APIs</a>
                 </li>
               
             </ul>
@@ -198,20 +181,100 @@
 </tr>
 </table>
 
-<h2 id='operators'>Operators</h2 id='operators'>
-<h3 id='operators/filtering-on-fields'>Filtering on fields</h3 id='operators/filtering-on-fields'>
-<h3 id='operators/operators'>Operators</h3 id='operators/operators'>
-<h3 id='operators/pagination'>Pagination</h3 id='operators/pagination'>
-<h3 id='operators/ordering'>Ordering</h3 id='operators/ordering'>
-<h3 id='operators/partial-responses'>Partial responses</h3 id='operators/partial-responses'>
-<h2 id='full-text-search'>Full Text Search</h2 id='full-text-search'>
+<h2 id='parameters'>Parameters</h2 id='parameters'>
+<h3 id='parameters/filtering'>Filtering</h3 id='parameters/filtering'>
+<p>You can filter on many fields with a simple key/value pair:
+
+</p>
+<pre><code class="text">/legislators?last_name=Smith</code></pre>
+<pre><code class="text">/bills?bill_type=hr&amp;congress=112</code></pre>
+<p>The API will automatically treat numbers as numbers, and &quot;true&quot; and &quot;false&quot; as booleans. Dates and times are compared as strings.
+
+</p>
+<p>To force the API to treat a value as a string, use quotes:
+
+</p>
+<pre><code class="text">/legislators?thomas_id=&quot;136&quot;</code></pre>
+<p>See the documentation for a specific data type to see what fields can be filtered on.
+
+</p>
+<h3 id='parameters/operators'>Operators</h3 id='parameters/operators'>
+<p>The API supports 8 operators that can be combined with filters:
+
+</p>
+<p><strong>gt</strong> - the field is greater than this value<br/>
+<strong>gte</strong> - the fiels is greater than or equal to this value<br/>
+<strong>lt</strong> - the field is less than this value<br/>
+<strong>lte</strong> - the field is less than or equal to this value<br/>
+<strong>not</strong> - the field is not this value<br/>
+<strong>exists</strong> - whether the field exists<br/>
+<strong>all</strong> - the field is an array that contains all of these values (separated by &quot;|&quot;)<br/>
+<strong>in</strong> - the field is a string that is one of these values (separated by &quot;|&quot;)<br/>
+
+</p>
+<p>All operators are applied by adding two underscores (&quot;__&quot;) after the field name. They cannot be combined.
+
+</p>
+<p><strong>Senate votes that got more than 70 ayes</strong>
+
+</p>
+<pre><code class="text">/votes?breakdown.total.ayes__gte=70&amp;chamber=senate</code></pre>
+<p><strong>Bills that got an up or down vote in the House</strong>
+
+</p>
+<pre><code class="text">/bills?history.house_passage_result__exists=true&amp;chamber=house</code></pre>
+<p><strong>Bills cosponsored by both John McCain and Joe Lieberman</strong>
+
+</p>
+<pre><code class="text">/bills?cosponsor_ids__all=M000303|L000304</code></pre>
+<p><strong>Bills sponsored by either John McCain and Joe Lieberman</strong>
+
+</p>
+<pre><code class="text">/bills?sponsor_id__in=M000303|L000304</code></pre>
+<h3 id='parameters/pagination'>Pagination</h3 id='parameters/pagination'>
+<p>All results in the Congress API are paginated. Set <code>per_page</code> and <code>page</code> to control the page size and offset. The maximum <code>per_page</code> is 50.
+
+</p>
+<pre><code class="text">/floor_updates?chamber=house&amp;per_page=50&amp;page=3</code></pre>
+<p>At the top-level of every response are <strong>count</strong> and <strong>page</strong> fields, with pagination information.
+
+</p>
+<pre><code class="json">count: 163,
+page: {
+  per_page: 50,
+  page: 3,
+  count: 50
+}
+</code></pre>
+<p><strong>count</strong><br/>
+The total number of documents that match the query.
+
+</p>
+<p><strong>page.per_page</strong><br/>
+The <code>per_page</code> value used to find the response. Defaults to 20.
+
+</p>
+<p><strong>page.page</strong><br/>
+The <code>page</code> value used to find the response. Defaults to 1.
+
+</p>
+<p><strong>page.count</strong><br/>
+The number of actual documents in the response. Can be less than the given <code>per_page</code> if there are too few documents.
+
+</p>
+<h3 id='parameters/ordering'>Ordering</h3 id='parameters/ordering'>
+<h3 id='parameters/partial-responses'>Partial responses</h3 id='parameters/partial-responses'>
+<h2 id='full-text-search'>Full text search</h2 id='full-text-search'>
 <h3 id='full-text-search/query-string'>Query string</h3 id='full-text-search/query-string'>
 <h3 id='full-text-search/highlighting'>Highlighting</h3 id='full-text-search/highlighting'>
-<h3 id='full-text-search/scores'>Scores</h3 id='full-text-search/scores'>
-<h2 id='geolocating'>Geolocating</h2 id='geolocating'>
-<h3 id='geolocating/by-latitude-and-longitude'>By latitude and longitude</h3 id='geolocating/by-latitude-and-longitude'>
-<h3 id='geolocating/by-zip-code'>By zip code</h3 id='geolocating/by-zip-code'>
 <h2 id='other'>Other</h2 id='other'>
+<h3 id='other/explain-mode'>Explain mode</h3 id='other/explain-mode'>
+<p>Add an <code>explain=true</code> parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
+
+</p>
+<p>This is a convenience for debugging, not a &quot;supported&quot; API feature. Don&#39;t make automatic requests with explain mode turned on.
+
+</p>
 <h3 id='other/bulk-data'>Bulk Data</h3 id='other/bulk-data'>
 <p>Core data for legislators, committees, and bills come from public domain <a href="https://github.com/unitedstates/congress">scrapers</a> and <a href="https://github.com/unitedstates/congress-legislators">bulk data</a> at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
 
@@ -225,7 +288,7 @@
 <li>Draft legislation in the House, as posted to <a href="http://docs.house.gov">docs.house.gov</a>.</li>
 <li>Reports by GAO, CBO, and Congressional committees.</li>
 </ul>
-<h3 id='other/other-apis'>Other APIs</h3 id='other/other-apis'>
+<h3 id='other/more-apis'>More APIs</h3 id='other/more-apis'>
 <p>If the Sunlight Congress API doesn&#39;t have what you&#39;re looking for, check out other Congress APIs:
 
 </p>

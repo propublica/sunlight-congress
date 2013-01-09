@@ -31,10 +31,10 @@ http://congress.api.sunlightfoundation.com
 
 <table>
 <tr>
-<td>[/legislators](/legislators#data)</td>
+<td>[/legislators](/legislators)</td>
 <td>Current legislators' names, IDs, biography, and social media.</td>
 </tr><tr>
-<td>/legislators/locate</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+<td>[/legislators/locate](/legislators#locate)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
 <td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
@@ -65,35 +65,119 @@ http://congress.api.sunlightfoundation.com
 </tr>
 </table>
 
-## Operators
+## Parameters
 
-### Filtering on fields
+### Filtering
+
+You can filter on many fields with a simple key/value pair:
+
+```text
+/legislators?last_name=Smith
+```
+
+```text
+/bills?bill_type=hr&congress=112
+```
+
+The API will automatically treat numbers as numbers, and "true" and "false" as booleans. Dates and times are compared as strings.
+
+To force the API to treat a value as a string, use quotes:
+
+```text
+/legislators?thomas_id="136"
+```
+
+See the documentation for a specific data type to see what fields can be filtered on.
 
 ### Operators
 
+The API supports 8 operators that can be combined with filters:
+
+**gt** - the field is greater than this value<br/>
+**gte** - the fiels is greater than or equal to this value<br/>
+**lt** - the field is less than this value<br/>
+**lte** - the field is less than or equal to this value<br/>
+**not** - the field is not this value<br/>
+**exists** - whether the field exists<br/>
+**all** - the field is an array that contains all of these values (separated by "|")<br/>
+**in** - the field is a string that is one of these values (separated by "|")<br/>
+
+All operators are applied by adding two underscores ("__") after the field name. They cannot be combined.
+
+**Senate votes that got more than 70 ayes**
+
+```text
+/votes?breakdown.total.ayes__gte=70&chamber=senate
+```
+
+**Bills that got an up or down vote in the House**
+
+```text
+/bills?history.house_passage_result__exists=true&chamber=house
+```
+
+**Bills cosponsored by both John McCain and Joe Lieberman**
+
+```text
+/bills?cosponsor_ids__all=M000303|L000304
+```
+
+**Bills sponsored by either John McCain and Joe Lieberman**
+
+```text
+/bills?sponsor_id__in=M000303|L000304
+```
+
 ### Pagination
+
+All results in the Congress API are paginated. Set `per_page` and `page` to control the page size and offset. The maximum `per_page` is 50.
+
+```text
+/floor_updates?chamber=house&per_page=50&page=3
+```
+
+At the top-level of every response are **count** and **page** fields, with pagination information.
+
+```json
+{
+count: 163,
+page: {
+  per_page: 50,
+  page: 3,
+  count: 50
+}
+}
+```
+
+**count**<br/>
+The total number of documents that match the query.
+
+**page.per_page**<br/>
+The `per_page` value used to find the response. Defaults to 20.
+
+**page.page**<br/>
+The `page` value used to find the response. Defaults to 1.
+
+**page.count**<br/>
+The number of actual documents in the response. Can be less than the given `per_page` if there are too few documents.
 
 ### Ordering
 
 ### Partial responses
 
-## Full Text Search
+## Full text search
 
 ### Query string
 
 ### Highlighting
 
-### Scores
-
-## Geolocating
-
-### By latitude and longitude
-
-### By zip code
-
-
-
 ## Other
+
+### Explain mode
+
+Add an `explain=true` parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
+
+This is a convenience for debugging, not a "supported" API feature. Don't make automatic requests with explain mode turned on.
 
 ### Bulk Data
 
@@ -107,7 +191,7 @@ The Congress API is not designed for bulk data downloads. Requests are limited t
 * Draft legislation in the House, as posted to [docs.house.gov](http://docs.house.gov).
 * Reports by GAO, CBO, and Congressional committees.
 
-### Other APIs
+### More APIs
 
 If the Sunlight Congress API doesn't have what you're looking for, check out other Congress APIs:
 

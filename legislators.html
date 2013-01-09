@@ -152,51 +152,51 @@
 "<span class="attribute">term_start</span>": <span class="value"><span class="string">"2007-01-04"</span></span>,
 "<span class="attribute">term_end</span>": <span class="value"><span class="string">"2012-12-31"</span>
 </span></code></pre>
-<p>* <strong>in_office</strong> (boolean)<br/>
+<p>* <strong>in_office</strong><br/>
 Whether a legislator is currently holding elected office in Congress.
 
 </p>
-<p>* <strong>party</strong> (string)</br>
+<p>* <strong>party</strong></br>
 First letter of the party this member belongs to. &quot;R&quot;, &quot;D&quot;, or &quot;I&quot;.
 
 </p>
-<p>* <strong>gender</strong> (string)<br/>
+<p>* <strong>gender</strong><br/>
 First letter of this member&#39;s gender. &quot;M&quot; or &quot;F&quot;.
 
 </p>
-<p>* <strong>state</strong> (string)<br/>
+<p>* <strong>state</strong><br/>
 Two-letter code of the state this member represents.
 
 </p>
-<p>* <strong>state_name</strong> (string)<br/>
+<p>* <strong>state_name</strong><br/>
 The full state name of the state this member represents.
 
 </p>
-<p>* <strong>district</strong> (string)<br/>
-The number of the district that a House member represents. Null for Senators.
+<p>* <strong>district</strong><br/>
+The number of the district that a House member represents. null for Senators.
 
 </p>
-<p>* <strong>title</strong> (string)<br/>
+<p>* <strong>title</strong><br/>
 Title of this member. &quot;Sen&quot;, &quot;Rep&quot;, &quot;Del&quot;, or &quot;Com&quot;.
 
 </p>
-<p>* <strong>chamber</strong> (string)<br/>
+<p>* <strong>chamber</strong><br/>
 Chamber the member is in. &quot;senate&quot; or &quot;house&quot;.
 
 </p>
-<p>* <strong>senate_class</strong> (number)</br>
+<p>* <strong>senate_class</strong></br>
 Which senate &quot;class&quot; the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 
 </p>
-<p>* <strong>birthday</strong> (date)</br>
+<p>* <strong>birthday</strong></br>
 The date of this legislator&#39;s birthday.
 
 </p>
-<p>* <strong>term_start</strong> (date)<br/>
+<p>* <strong>term_start</strong><br/>
 The date a member&#39;s current term started.
 
 </p>
-<p>* <strong>term_end</strong> (date)<br/>
+<p>* <strong>term_end</strong><br/>
 The date a member&#39;s current term will end.
 
 </p>
@@ -211,31 +211,31 @@ The date a member&#39;s current term will end.
   <span class="string">"H2OH13033"</span>
 ]
 </span></code></pre>
-<p>* <strong>bioguide_id</strong> (string)<br/>
+<p>* <strong>bioguide_id</strong><br/>
 Identifier for this member in various Congressional sources. Originally taken from the <a href="http://bioguide.congress.gov">Congressional Biographical Directory</a>, but used in many places. If you&#39;re going to pick one ID as a Congressperson&#39;s unique ID, use this.
 
 </p>
-<p>* <strong>thomas_id</strong> (string)<br/>
+<p>* <strong>thomas_id</strong><br/>
 Identifier for this member as it appears on <a href="http://thomas.loc.gov">THOMAS.gov</a> and <a href="http://congress.gov">Congress.gov</a>.
 
 </p>
-<p>* <strong>lis_id</strong> (string)<br/>
+<p>* <strong>lis_id</strong><br/>
 Identifier for this member as it appears on some of Congress&#39; data systems (namely <a href="http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml">Senate votes</a>).
 
 </p>
-<p>* <strong>govtrack_id</strong> (string)<br/>
+<p>* <strong>govtrack_id</strong><br/>
 Identifier for this member as it appears on <a href="http://govtrack.us">GovTrack.us</a>.
 
 </p>
-<p>* <strong>votesmart_id</strong> (string)<br/>
+<p>* <strong>votesmart_id</strong><br/>
 Identifier for this member as it appears on <a href="http://votesmart.org/">Project Vote Smart</a>.
 
 </p>
-<p>* <strong>crp_id</strong> (string)<br/>
+<p>* <strong>crp_id</strong><br/>
 Identifier for this member as it appears on CRP&#39;s <a href="http://www.opensecrets.org">OpenSecrets</a>.
 
 </p>
-<p>* <strong>fec_ids</strong> (string)<br/>
+<p>* <strong>fec_ids</strong><br/>
 A list of identifiers for this member as they appear in filings at the <a href="http://fec.gov/">Federal Election Commission</a>.
 
 </p>
@@ -246,23 +246,23 @@ A list of identifiers for this member as they appear in filings at the <a href="
 "<span class="attribute">middle_name</span>": <span class="value"><span class="string">"B."</span></span>,
 "<span class="attribute">name_suffix</span>": <span class="value"><span class="literal">null</span>
 </span></code></pre>
-<p>* <strong>first_name</strong> (string)<br/>
+<p>* <strong>first_name</strong><br/>
 The member&#39;s first name. This may or may not be the name they are usually called.
 
 </p>
-<p>* <strong>nickname</strong> (string)<br/>
+<p>* <strong>nickname</strong><br/>
 The member&#39;s nickname. If present, usually safe to assume this is the name they go by.
 
 </p>
-<p>* <strong>last_name</strong> (string)<br/>
+<p>* <strong>last_name</strong><br/>
 The member&#39;s last name.
 
 </p>
-<p>* <strong>middle_name</strong> (string)<br/>
+<p>* <strong>middle_name</strong><br/>
 The member&#39;s middle name, if they have one.
 
 </p>
-<p>* <strong>name_suffix</strong> (string)<br/>
+<p>* <strong>name_suffix</strong><br/>
 A name suffix, if the member uses one. For example, &quot;Jr.&quot; or &quot;III&quot;.
 
 </p>
@@ -273,23 +273,23 @@ A name suffix, if the member uses one. For example, &quot;Jr.&quot; or &quot;III
 "<span class="attribute">contact_form</span>": <span class="value"><span class="string">"http://www.brown.senate.gov/contact/"</span></span>,
 "<span class="attribute">fax</span>": <span class="value"><span class="string">"202-228-6321"</span>
 </span></code></pre>
-<p><strong>phone</strong> (string)<br/>
+<p><strong>phone</strong><br/>
 Phone number of the members&#39;s DC office.
 
 </p>
-<p><strong>fax</strong> (string)<br/>
+<p><strong>fax</strong><br/>
 Fax number of the members&#39;s DC office.
 
 </p>
-<p><strong>office</strong> (string)<br/>
+<p><strong>office</strong><br/>
 Office number for the member&#39;s DC office.
 
 </p>
-<p><strong>website</strong> (string)<br/>
+<p><strong>website</strong><br/>
 Official legislative website.
 
 </p>
-<p><strong>contact_form</strong> (string)<br/>
+<p><strong>contact_form</strong><br/>
 URL to their official contact form.
 
 </p>
@@ -298,15 +298,15 @@ URL to their official contact form.
 "<span class="attribute">youtube_id</span>": <span class="value"><span class="string">"SherrodBrownOhio"</span></span>,
 "<span class="attribute">facebook_id</span>": <span class="value"><span class="string">"109453899081640"</span>
 </span></code></pre>
-<p><strong>twitter_id</strong> (string)<br/>
+<p><strong>twitter_id</strong><br/>
 The Twitter <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
 
 </p>
-<p><strong>youtube_id</strong> (string)<br/>
+<p><strong>youtube_id</strong><br/>
 The YouTube <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
 
 </p>
-<p><strong>facebook_id</strong> (string)<br/>
+<p><strong>facebook_id</strong><br/>
 The Facebook <em>username or ID</em> for a member&#39;s official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook&#39;s URLs and APIs. The referenced account may be either a Facebook Page or a user account.
 
 </p>
@@ -324,31 +324,31 @@ The Facebook <em>username or ID</em> for a member&#39;s official legislative Fac
   "<span class="attribute">chamber</span>": <span class="value"><span class="string">"senate"</span>
 </span>}]
 </span></code></pre>
-<p><strong>terms.start</strong> (date)<br/>
+<p><strong>terms.start</strong><br/>
 The date this term began.
 
 </p>
-<p><strong>terms.end</strong> (date)<br/>
+<p><strong>terms.end</strong><br/>
 The date this term ended, or will end.
 
 </p>
-<p><strong>terms.state</strong> (string)<br/>
+<p><strong>terms.state</strong><br/>
 The two-letter state code this member was serving during this term.
 
 </p>
-<p><strong>terms.party</strong> (string)<br/>
+<p><strong>terms.party</strong><br/>
 The party this member belonged to during this term.
 
 </p>
-<p><strong>terms.title</strong> (string)<br/>
+<p><strong>terms.title</strong><br/>
 The title this member had during this term. &quot;Rep&quot;, &quot;Sen&quot;, &quot;Del&quot;, or &quot;Com&quot;.
 
 </p>
-<p><strong>terms.chamber</strong> (string)<br/>
+<p><strong>terms.chamber</strong><br/>
 The chamber this member served in during this term. &quot;house&quot; or &quot;senate&quot;.
 
 </p>
-<p><strong>terms.class</strong> (number)<br/>
+<p><strong>terms.class</strong><br/>
 The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.</p>
 
   </div>

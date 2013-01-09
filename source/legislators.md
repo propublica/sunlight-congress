@@ -84,40 +84,40 @@ You can turn off pagination for requests to `/legislators`, but doing so will fo
 }
 ```
 
-\* **in_office** (boolean)<br/>
+\* **in_office**<br/>
 Whether a legislator is currently holding elected office in Congress.
 
-\* **party** (string)</br>
+\* **party**</br>
 First letter of the party this member belongs to. "R", "D", or "I".
 
-\* **gender** (string)<br/>
+\* **gender**<br/>
 First letter of this member's gender. "M" or "F".
 
-\* **state** (string)<br/>
+\* **state**<br/>
 Two-letter code of the state this member represents.
 
-\* **state_name** (string)<br/>
+\* **state_name**<br/>
 The full state name of the state this member represents.
 
-\* **district** (string)<br/>
-The number of the district that a House member represents. Null for Senators.
+\* **district**<br/>
+The number of the district that a House member represents. null for Senators.
 
-\* **title** (string)<br/>
+\* **title**<br/>
 Title of this member. "Sen", "Rep", "Del", or "Com".
 
-\* **chamber** (string)<br/>
+\* **chamber**<br/>
 Chamber the member is in. "senate" or "house".
 
-\* **senate_class** (number)</br>
+\* **senate_class**</br>
 Which senate "class" the member belongs to (1, 2, or 3). Every 2 years, a separate one third of the Senate is elected to a 6-year term. Senators of the same class face election in the same year. Blank for members of the House.
 
-\* **birthday** (date)</br>
+\* **birthday**</br>
 The date of this legislator's birthday.
 
-\* **term_start** (date)<br/>
+\* **term_start**<br/>
 The date a member's current term started.
 
-\* **term_end** (date)<br/>
+\* **term_end**<br/>
 The date a member's current term will end.
 
 ### Identifiers
@@ -136,25 +136,25 @@ The date a member's current term will end.
 }
 ```
 
-\* **bioguide_id** (string)<br/>
+\* **bioguide_id**<br/>
 Identifier for this member in various Congressional sources. Originally taken from the [Congressional Biographical Directory](http://bioguide.congress.gov), but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
 
-\* **thomas_id** (string)<br/>
+\* **thomas_id**<br/>
 Identifier for this member as it appears on [THOMAS.gov](http://thomas.loc.gov) and [Congress.gov](http://congress.gov).
 
-\* **lis_id** (string)<br/>
+\* **lis_id**<br/>
 Identifier for this member as it appears on some of Congress' data systems (namely [Senate votes](http://www.senate.gov/legislative/LIS/roll_call_votes/vote1122/vote_112_2_00228.xml)).
 
-\* **govtrack_id** (string)<br/>
+\* **govtrack_id**<br/>
 Identifier for this member as it appears on [GovTrack.us](http://govtrack.us).
 
-\* **votesmart_id** (string)<br/>
+\* **votesmart_id**<br/>
 Identifier for this member as it appears on [Project Vote Smart](http://votesmart.org/).
 
-\* **crp_id** (string)<br/>
+\* **crp_id**<br/>
 Identifier for this member as it appears on CRP's [OpenSecrets](http://www.opensecrets.org).
 
-\* **fec_ids** (string)<br/>
+\* **fec_ids**<br/>
 A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
 
 ### Names
@@ -169,19 +169,19 @@ A list of identifiers for this member as they appear in filings at the [Federal 
 }
 ```
 
-\* **first_name** (string)<br/>
+\* **first_name**<br/>
 The member's first name. This may or may not be the name they are usually called.
 
-\* **nickname** (string)<br/>
+\* **nickname**<br/>
 The member's nickname. If present, usually safe to assume this is the name they go by.
 
-\* **last_name** (string)<br/>
+\* **last_name**<br/>
 The member's last name.
 
-\* **middle_name** (string)<br/>
+\* **middle_name**<br/>
 The member's middle name, if they have one.
 
-\* **name_suffix** (string)<br/>
+\* **name_suffix**<br/>
 A name suffix, if the member uses one. For example, "Jr." or "III".
 
 ### Contact info
@@ -196,19 +196,19 @@ A name suffix, if the member uses one. For example, "Jr." or "III".
 }
 ```
 
-**phone** (string)<br/>
+**phone**<br/>
 Phone number of the members's DC office.
 
-**fax** (string)<br/>
+**fax**<br/>
 Fax number of the members's DC office.
 
-**office** (string)<br/>
+**office**<br/>
 Office number for the member's DC office.
 
-**website** (string)<br/>
+**website**<br/>
 Official legislative website.
 
-**contact_form** (string)<br/>
+**contact_form**<br/>
 URL to their official contact form.
 
 ### Social Media
@@ -221,13 +221,13 @@ URL to their official contact form.
 }
 ```
 
-**twitter_id** (string)<br/>
+**twitter_id**<br/>
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
-**youtube_id** (string)<br/>
+**youtube_id**<br/>
 The YouTube *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
-**facebook_id** (string)<br/>
+**facebook_id**<br/>
 The Facebook *username or ID* for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
 
 ### Terms
@@ -248,23 +248,23 @@ An array of information for each term the member has served, from oldest to newe
 }
 ```
 
-**terms.start** (date)<br/>
+**terms.start**<br/>
 The date this term began.
 
-**terms.end** (date)<br/>
+**terms.end**<br/>
 The date this term ended, or will end.
 
-**terms.state** (string)<br/>
+**terms.state**<br/>
 The two-letter state code this member was serving during this term.
 
-**terms.party** (string)<br/>
+**terms.party**<br/>
 The party this member belonged to during this term.
 
-**terms.title** (string)<br/>
+**terms.title**<br/>
 The title this member had during this term. "Rep", "Sen", "Del", or "Com".
 
-**terms.chamber** (string)<br/>
+**terms.chamber**<br/>
 The chamber this member served in during this term. "house" or "senate".
 
-**terms.class** (number)<br/>
+**terms.class**<br/>
 The Senate class this member belonged to during this term, if they served in the Senate. Determines in which cycle they run for re-election. 1, 2, or 3.

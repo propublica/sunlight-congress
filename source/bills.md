@@ -610,7 +610,7 @@ Some surrounding context of why the bill is scheduled. This is only present for 
 "enacted_as": {
   "congress": 111,
   "law_type": "public",
-  "number": "148"
+  "number": 148
 }
 }
 ```
