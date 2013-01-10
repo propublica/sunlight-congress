@@ -5,7 +5,7 @@ class Legislator
   basic_fields  :bioguide_id, :thomas_id, :lis_id, :fec_ids,
       :votesmart_id, :crp_id, :govtrack_id,
       :title, :first_name, :nickname, :middle_name, :last_name, :name_suffix, 
-      :other_names, :gender, :in_office,
+      :other_names, :gender, :in_office, :senate_class,
       :state, :state_name, :party, :chamber, :district,
       :phone, :office, :website, :contact_form,
       :twitter_id, :facebook_id, :youtube_id
@@ -33,6 +33,8 @@ class Legislator
   index district: 1
   index party: 1
   index gender: 1
+  index senate_class: 1
+  index birthday: 1
 
   index first_name: 1
   index last_name: 1

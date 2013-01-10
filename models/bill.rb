@@ -53,7 +53,9 @@ class Bill
   index "history.vetoed_at" => 1
   index "history.enacted" => 1
   index "history.enacted_at" => 1
-  index enacted_as: 1
+  index "enacted_as.congress" => 1
+  index "enacted_as.law_type" => 1
+  index "enacted_as.number" => 1
 
   index citation_ids: 1
 end
