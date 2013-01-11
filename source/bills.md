@@ -16,7 +16,7 @@ http://congress.api.sunlightfoundation.com
 
 ### /bills
 
-Filter through bills in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#operators) apply.
+Filter through bills in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
 **Bills enacted into law in the 112th Congress**
 

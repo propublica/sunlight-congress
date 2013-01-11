@@ -42,7 +42,7 @@ Search and filter for members of Congress.
 /legislators?party=D&chamber=senate
 ```
 
-Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#operators) apply.
+Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
 By default, all requests will return *currently serving members*, but you can override this by supplying `in_office=false`.
 

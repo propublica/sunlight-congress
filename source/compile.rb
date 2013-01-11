@@ -53,7 +53,7 @@ twitter = "sunlightlabs"
 if ARGV[0]
   files = [ARGV[0]]
 else
-  files = %w{index legislators bills}
+  files = Dir.glob("*.md").map {|f| File.basename f, ".md"}
 end
 
 output_dir = ".."
