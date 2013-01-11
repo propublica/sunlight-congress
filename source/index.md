@@ -46,7 +46,7 @@ http://congress.api.sunlightfoundation.com
 </tr><tr>
 <td>[/bills/search](bills.html#methods/bills-search)</td><td>Full text search over legislation.</td>
 </tr><tr>
-<td>/votes</td>
+<td>[/votes](votes.html#methods/votes)</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
 <td>/floor_updates</td>

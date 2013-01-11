@@ -51,7 +51,7 @@ twitter = "sunlightlabs"
 
 
 if ARGV[0]
-  files = [ARGV[0]]
+  files = [File.basename(ARGV[0], ".md")]
 else
   files = Dir.glob("*.md").map {|f| File.basename f, ".md"}
 end
