@@ -113,7 +113,8 @@ class VotesSenate
         voted_at: voted_at_for(doc),
         voter_ids: voter_ids,
         voters: voters,
-        breakdown: Utils.vote_breakdown_for(voters),
+
+        breakdown: Utils.vote_breakdown_for(voters)
       }
       
       if bill_id
