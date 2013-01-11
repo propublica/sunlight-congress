@@ -49,11 +49,15 @@
                 </li>
               
                 <li>
-                  <a href="#parameters/ordering">Ordering</a>
+                  <a href="#parameters/sorting">Sorting</a>
                 </li>
               
                 <li>
                   <a href="#parameters/partial-responses">Partial responses</a>
+                </li>
+              
+                <li>
+                  <a href="#parameters/search">Search</a>
                 </li>
               
             </ul>
@@ -64,10 +68,6 @@
           <a href="#full-text-search">Full text search</a>
           
             <ul>
-              
-                <li>
-                  <a href="#full-text-search/query-string">Query string</a>
-                </li>
               
                 <li>
                   <a href="#full-text-search/highlighting">Highlighting</a>
@@ -147,20 +147,20 @@
 <pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <table>
 <tr>
-<td><a href="/legislators#data">/legislators</a></td>
+<td><a href="legislators.html#methods/legislators">/legislators</a></td>
 <td>Current legislators&#39; names, IDs, biography, and social media.</td>
 </tr><tr>
-<td>/legislators/locate</td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+<td><a href="legislators.html#methods/legislators-locate">/legislators/locate</a></td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
 </tr><tr>
-<td>/districts/locate</td><td>Find Congressional Districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+<td>/districts/locate</td><td>Find congressional districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
 </tr><tr>
 <td>/committees</td>
-<td>Current Congressional committees, subcommittees, and their membership.</td>
+<td>Current committees, subcommittees, and their membership.</td>
 </tr><tr>
-<td>/bills</td>
+<td><a href="bills.html#methods/bills">/bills</a></td>
 <td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>/bills/search</td><td>Same as <code>/bills</code>, but allow full text search.</td>
+<td><a href="bills.html#methods/bills-search">/bills/search</a></td><td>Full text search over legislation.</td>
 </tr><tr>
 <td>/votes</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
@@ -173,11 +173,6 @@
 </tr><tr>
 <td>/upcoming_bills</td>
 <td>Bills scheduled for debate in the future, as announced by party leadership.</td>
-</tr><tr>
-<td>/videos</td>
-<td>Video of the House and Senate floor, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>/clips/search</td><td>Captions of words from House and Senate video.</td>
 </tr>
 </table>
 
@@ -262,11 +257,115 @@ The <code>page</code> value used to find the response. Defaults to 1.
 The number of actual documents in the response. Can be less than the given <code>per_page</code> if there are too few documents.
 
 </p>
-<h3 id='parameters/ordering'>Ordering</h3 id='parameters/ordering'>
+<h3 id='parameters/sorting'>Sorting</h3 id='parameters/sorting'>
+<p>Sort results by one or more fields with the <code>order</code> parameter. <code>order</code> is optional, but if no <code>order</code> is provided, the order of results is not guaranteed to be predictable.
+
+</p>
+<p>Append <code>__asc</code> or <code>__desc</code> to the field names to control sort direction. The default direction is <strong>desc</strong>, because it is expected most queries will sort by a date.
+
+</p>
+<p>Any field which can be used for filtering may be used for sorting. On full-text search endpoints (URLs ending in <code>/search</code>), you may sort by <code>score</code> to order by relevancy.
+
+</p>
+<p><strong>Most recent bills</strong>
+
+</p>
+<pre><code class="text">/bills?order=introduced_on</code></pre>
+<p><strong>Legislators from each state, sorted by last name within state</strong>
+
+</p>
+<pre><code class="text">/legislators?order=state__asc,last_name__asc</code></pre>
+<p><strong>Most relevant bills matching &quot;health care&quot;</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;health care&quot;&amp;order=score</code></pre>
 <h3 id='parameters/partial-responses'>Partial responses</h3 id='parameters/partial-responses'>
+<p>You can request specific fields by supplying a comma-separated list of fields as the <code>fields</code> parameter.
+
+</p>
+<p><strong>Many fields are not returned unless requested.</strong> If you don&#39;t supply a <code>fields</code> parameter, you will get the most commonly used subset of fields only.
+
+</p>
+<p>To save on bandwidth, parsing time, and confusion, it&#39;s recommended to always specify which fields you will be using.
+
+</p>
+<p><strong>Latest vote numbers and their results</strong>
+
+</p>
+<pre><code class="text">/votes?fields=roll_id,result,breakdown.total</code></pre>
+<pre><code class="json">"<span class="attribute">results</span>": <span class="value">[
+  {
+    "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span></span>,
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h7-2013"</span>
+  </span>},
+  {
+    "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span></span>,
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h3-2013"</span>
+  </span>}
+  ...
+]
+</span></code></pre>
+<h3 id='parameters/search'>Search</h3 id='parameters/search'>
+<p>Provide a <code>query</code> parameter to return results the API thinks best match your query. Queries are interpreted as <strong>phrases</strong>.
+
+</p>
+<p><strong>Senate hearings matching &quot;environment&quot;</strong>
+
+</p>
+<pre><code class="text">/hearings?query=environment&amp;chamber=senate</code></pre>
+<p><strong>House floor updates matching &quot;committee of the whole&quot;</strong>
+
+</p>
+<pre><code class="text">/floor_updates?query=committee of the whole&amp;chamber=house</code></pre>
 <h2 id='full-text-search'>Full text search</h2 id='full-text-search'>
-<h3 id='full-text-search/query-string'>Query string</h3 id='full-text-search/query-string'>
+<p>Endpoints ending with <code>/search</code> that are given a <code>query</code> parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as <strong>keywords</strong> (use quotes to form phrases).
+
+</p>
+<p><strong>Laws matching &quot;health care&quot; and &quot;medicine&quot;</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;health care&quot; medicine&amp;history.enacted=true</code></pre>
+<p>Operators allowed:
+
+</p>
+<ul>
+<li>Wildcards: Use <code>*</code> as a wildcard within words (e.g. <code>nanotech*</code>). Cannot be used within phrases.</li>
+<li>Adjacency: Append <code>~</code> and a number to a phrase to allow the words to come within X words of each other. (e.g. <code>&quot;transparency accountability&quot;~5</code>)</li>
+</ul>
+<p><strong>Bills matching &quot;freedom of information&quot; and words starting with &quot;accountab&quot;</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;freedom of information&quot; accountab*</code></pre>
+<p><strong>Bills with &quot;transparency&quot; and &quot;accountability&quot; within 5 words of each other</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;transparency accountability&quot;~5</code></pre>
 <h3 id='full-text-search/highlighting'>Highlighting</h3 id='full-text-search/highlighting'>
+<p>When performing full text search, you can retrieve highlighted excerpts of where your search matched by using the parameter <code>highlight=true</code>. (This will make the request slower, so only use if needed.)
+
+</p>
+<p><strong>Recent bills matching &quot;gun control&quot;, with highlighting</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;gun control&quot;&amp;highlight=true&amp;order=introduced_on</code></pre>
+<p>By default, highlighting is performed with the <code>&lt;em&gt;</code> and <code>&lt;/em&gt;</code> tags. Control these tags by passing start and close tags to the <code>highlight.tags</code> parameter. (Disable highlighting altogether by passing only <code>,</code>.)
+
+</p>
+<p><strong>Bills matching &quot;immigration&quot;, highlighted with &lt;b&gt; tags</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=immigration&amp;highlight=true&amp;highlight.tags=&lt;b&gt;,&lt;/b&gt;</code></pre>
+<p><strong>Bills matching &quot;immigration&quot;, with no highlighting</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=immigration&amp;highlight=true&amp;highlight.tags=,</code></pre>
+<p>Control the size of highlighted excerpts with the <code>highlight.size</code> parameter. (Note: This doesn&#39;t always work; the database makes a best attempt.) The default <code>highlight.size</code> is 200.
+
+</p>
+<p><strong>Bills matching &quot;drugs&quot;, with larger excerpts</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=drugs&amp;highlight=true&amp;highlight.size=500</code></pre>
 <h2 id='other'>Other</h2 id='other'>
 <h3 id='other/explain-mode'>Explain mode</h3 id='other/explain-mode'>
 <p>Add an <code>explain=true</code> parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.

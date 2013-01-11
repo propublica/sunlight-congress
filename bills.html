@@ -84,7 +84,7 @@
                 </li>
               
                 <li>
-                  <a href="#fields/bill-versions">Bill Versions</a>
+                  <a href="#fields/versions">Versions</a>
                 </li>
               
                 <li>
@@ -147,20 +147,20 @@
 <p>Search the full text of legislation, and other fields.
 
 </p>
-<p>The <code>query</code> parameter allows wildcards, quoting for phrases, and nearby word operators (<a href="index.html#search">full reference</a>) You can also retrieve <a href="index.html#highlighting">highlighted excerpts</a>, and all <a href="index.html#operators">normal operators</a> and filters.
+<p>The <code>query</code> parameter allows wildcards, quoting for phrases, and nearby word operators (<a href="index.html#full-text-search">full reference</a>) You can also retrieve <a href="index.html#full-text-search/highlighting">highlighted excerpts</a>, and all <a href="index.html#parameters/operators">normal operators</a> and filters.
 
 </p>
 <p>This searches the bill&#39;s full text, <code>short_title</code>, <code>official_title</code>, <code>popular_title</code>, <code>nicknames</code>, <code>summary</code>, and <code>keywords</code> fields.
 
 </p>
-<p><strong>Bills matching &quot;health care&quot; that became law</strong>
+<p><strong>Laws matching &quot;health care&quot;</strong>
 
 </p>
 <pre><code class="text">/bills/search?query=&quot;health care&quot;&amp;history.enacted=true</code></pre>
-<p><strong>Recent bills matching &quot;freedom of information&quot; and words starting with &quot;accountab&quot;</strong>
+<p><strong>Bills matching &quot;freedom of information&quot; and words starting with &quot;accountab&quot;</strong>
 
 </p>
-<pre><code class="text">/bills/search?query=&quot;freedom of information&quot; accountab*&amp;order=introduced_on</code></pre>
+<pre><code class="text">/bills/search?query=&quot;freedom of information&quot; accountab*</code></pre>
 <p><strong>Bills with &quot;transparency&quot; and &quot;accountability&quot; within 5 words of each other, with excerpts</strong>
 
 </p>
@@ -613,7 +613,7 @@ A list of relationships that the committee has to the bill, as they appear on <a
 A list of IDs of bills that the Library of Congress has declared &quot;related&quot;. Relations can be pretty loose, use this field with caution.
 
 </p>
-<h3 id='fields/bill-versions'>Bill Versions</h3 id='fields/bill-versions'>
+<h3 id='fields/versions'>Versions</h3 id='fields/versions'>
 <pre><code class="json">"<span class="attribute">versions</span>": <span class="value">[
   {
     "<span class="attribute">version_code</span>": <span class="value"><span class="string">"eas"</span></span>,
@@ -716,7 +716,7 @@ Some surrounding context of why the bill is scheduled. This is only present for 
 <pre><code class="json">"<span class="attribute">enacted_as</span>": <span class="value">{
   "<span class="attribute">congress</span>": <span class="value"><span class="number">111</span></span>,
   "<span class="attribute">law_type</span>": <span class="value"><span class="string">"public"</span></span>,
-  "<span class="attribute">number</span>": <span class="value"><span class="string">"148"</span>
+  "<span class="attribute">number</span>": <span class="value"><span class="number">148</span>
 </span>}
 </span></code></pre>
 <p>If a bill has been enacted into law, the <strong>enacted_as</strong> field contains information about the law number it was assigned. The above information is for <a href="http://www.gpo.gov/fdsys/pkg/PLAW-111publ148/content-detail.html">Public Law 111-148</a>.

@@ -31,20 +31,20 @@ http://congress.api.sunlightfoundation.com
 
 <table>
 <tr>
-<td>[/legislators](/legislators)</td>
+<td>[/legislators](legislators.html#methods/legislators)</td>
 <td>Current legislators' names, IDs, biography, and social media.</td>
 </tr><tr>
-<td>[/legislators/locate](/legislators#locate)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+<td>[/legislators/locate](legislators.html#methods/legislators-locate)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
-<td>/districts/locate</td><td>Find Congressional Districts for a `latitude`/`longitude` or `zip`.</td>
+<td>/districts/locate</td><td>Find congressional districts for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
 <td>/committees</td>
-<td>Current Congressional committees, subcommittees, and their membership.</td>
+<td>Current committees, subcommittees, and their membership.</td>
 </tr><tr>
-<td>/bills</td>
+<td>[/bills](bills.html#methods/bills)</td>
 <td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>/bills/search</td><td>Same as `/bills`, but allow full text search.</td>
+<td>[/bills/search](bills.html#methods/bills-search)</td><td>Full text search over legislation.</td>
 </tr><tr>
 <td>/votes</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
@@ -57,11 +57,6 @@ http://congress.api.sunlightfoundation.com
 </tr><tr>
 <td>/upcoming_bills</td>
 <td>Bills scheduled for debate in the future, as announced by party leadership.</td>
-</tr><tr>
-<td>/videos</td>
-<td>Video of the House and Senate floor, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>/clips/search</td><td>Captions of words from House and Senate video.</td>
 </tr>
 </table>
 
@@ -161,15 +156,137 @@ The `page` value used to find the response. Defaults to 1.
 **page.count**<br/>
 The number of actual documents in the response. Can be less than the given `per_page` if there are too few documents.
 
-### Ordering
+### Sorting
+
+Sort results by one or more fields with the `order` parameter. `order` is optional, but if no `order` is provided, the order of results is not guaranteed to be predictable.
+
+Append `__asc` or `__desc` to the field names to control sort direction. The default direction is **desc**, because it is expected most queries will sort by a date.
+
+Any field which can be used for filtering may be used for sorting. On full-text search endpoints (URLs ending in `/search`), you may sort by `score` to order by relevancy.
+
+**Most recent bills**
+
+```text
+/bills?order=introduced_on
+```
+
+**Legislators from each state, sorted by last name within state**
+
+```text
+/legislators?order=state__asc,last_name__asc
+```
+
+**Most relevant bills matching "health care"**
+
+```text
+/bills/search?query="health care"&order=score
+```
 
 ### Partial responses
 
+You can request specific fields by supplying a comma-separated list of fields as the `fields` parameter.
+
+**Many fields are not returned unless requested.** If you don't supply a `fields` parameter, you will get the most commonly used subset of fields only.
+
+To save on bandwidth, parsing time, and confusion, it's recommended to always specify which fields you will be using.
+
+**Latest vote numbers and their results**
+
+```text
+/votes?fields=roll_id,result,breakdown.total
+```
+
+```json
+{
+"results": [
+  {
+    "result": "Passed",
+    "roll_id": "h7-2013"
+  },
+  {
+    "result": "Passed",
+    "roll_id": "h3-2013"
+  }
+  ...
+]
+}
+```
+
+### Search
+
+Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as **phrases**.
+
+**Senate hearings matching "environment"**
+
+```text
+/hearings?query=environment&chamber=senate
+```
+
+**House floor updates matching "committee of the whole"**
+
+```text
+/floor_updates?query=committee of the whole&chamber=house
+```
+
 ## Full text search
 
-### Query string
+Endpoints ending with `/search` that are given a `query` parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as **keywords** (use quotes to form phrases).
+
+**Laws matching "health care" and "medicine"**
+
+```text
+/bills/search?query="health care" medicine&history.enacted=true
+```
+
+Operators allowed:
+
+* Wildcards: Use `*` as a wildcard within words (e.g. `nanotech*`). Cannot be used within phrases.
+* Adjacency: Append `~` and a number to a phrase to allow the words to come within X words of each other. (e.g. `"transparency accountability"~5`)
+
+**Bills matching "freedom of information" and words starting with "accountab"**
+
+```text
+/bills/search?query="freedom of information" accountab*
+```
+
+**Bills with "transparency" and "accountability" within 5 words of each other**
+
+```text
+/bills/search?query="transparency accountability"~5
+```
+
 
 ### Highlighting
+
+When performing full text search, you can retrieve highlighted excerpts of where your search matched by using the parameter `highlight=true`. (This will make the request slower, so only use if needed.)
+
+**Recent bills matching "gun control", with highlighting**
+
+```text
+/bills/search?query="gun control"&highlight=true&order=introduced_on
+```
+
+By default, highlighting is performed with the `<em>` and `</em>` tags. Control these tags by passing start and close tags to the `highlight.tags` parameter. (Disable highlighting altogether by passing only `,`.)
+
+**Bills matching "immigration", highlighted with &lt;b&gt; tags**
+
+```text
+/bills/search?query=immigration&highlight=true&highlight.tags=<b>,</b>
+```
+
+**Bills matching "immigration", with no highlighting**
+
+```text
+/bills/search?query=immigration&highlight=true&highlight.tags=,
+```
+
+Control the size of highlighted excerpts with the `highlight.size` parameter. (Note: This doesn't always work; the database makes a best attempt.) The default `highlight.size` is 200.
+
+**Bills matching "drugs", with larger excerpts**
+
+```text
+/bills/search?query=drugs&highlight=true&highlight.size=500
+```
 
 ## Other
 

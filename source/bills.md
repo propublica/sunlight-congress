@@ -46,20 +46,20 @@ Filter through bills in Congress. Filter by any [fields below](#fields) that hav
 
 Search the full text of legislation, and other fields.
 
-The `query` parameter allows wildcards, quoting for phrases, and nearby word operators ([full reference](index.html#search)) You can also retrieve [highlighted excerpts](index.html#highlighting), and all [normal operators](index.html#operators) and filters.
+The `query` parameter allows wildcards, quoting for phrases, and nearby word operators ([full reference](index.html#full-text-search)) You can also retrieve [highlighted excerpts](index.html#full-text-search/highlighting), and all [normal operators](index.html#parameters/operators) and filters.
 
 This searches the bill's full text, `short_title`, `official_title`, `popular_title`, `nicknames`, `summary`, and `keywords` fields.
 
-**Bills matching "health care" that became law**
+**Laws matching "health care"**
 
 ```text
 /bills/search?query="health care"&history.enacted=true
 ```
 
-**Recent bills matching "freedom of information" and words starting with "accountab"**
+**Bills matching "freedom of information" and words starting with "accountab"**
 
 ```text
-/bills/search?query="freedom of information" accountab*&order=introduced_on
+/bills/search?query="freedom of information" accountab*
 ```
 
 **Bills with "transparency" and "accountability" within 5 words of each other, with excerpts**
@@ -508,7 +508,7 @@ A list of relationships that the committee has to the bill, as they appear on [T
 \* **related_bill_ids**<br/>
 A list of IDs of bills that the Library of Congress has declared "related". Relations can be pretty loose, use this field with caution.
 
-### Bill Versions
+### Versions
 
 ```json
 {
