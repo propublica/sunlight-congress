@@ -1,6 +1,8 @@
 # Votes
 
-Roll call votes taken by the House and Senate. This data is taken from original [House](http://clerk.house.gov/legislative/legvotes.aspx) and [Senate](http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm) sources, and goes back to 2009.
+Roll call votes taken by the House and Senate. This data is taken from original [House](http://clerk.house.gov/legislative/legvotes.aspx) and [Senate](http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm) sources, and goes back to 2009. 
+
+House and Senate votes normally appear within an hour after the vote is taken. House data usually appears more quickly, since the House uses an electronic voting system.
 
 Votes taken by voice or unanimous consent, where the votes of individual representatives and senators are not recorded, are not present here.
 
