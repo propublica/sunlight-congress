@@ -49,7 +49,7 @@ http://congress.api.sunlightfoundation.com
 <td>[/votes](votes.html)</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
-<td>/floor_updates</td>
+<td>[/floor_updates](floor_updates.html)</td>
 <td>To-the-minute updates from the floor of the House and Senate.</td>
 </tr><tr>
 <td>[/hearings](hearings.html)</td>
@@ -226,7 +226,7 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 
 ### Search
 
-Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as **phrases**.
+Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as *phrases*.
 
 **Senate hearings matching "environment"**
 
@@ -242,7 +242,7 @@ Provide a `query` parameter to return results the API thinks best match your que
 
 ## Full text search
 
-Endpoints ending with `/search` that are given a `query` parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as **keywords** (use quotes to form phrases).
+Endpoints ending with `/search` that are given a `query` parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as *keywords* (use quotes to form phrases).
 
 **Laws matching "health care" and "medicine"**
 
@@ -329,7 +329,7 @@ If the Sunlight Congress API doesn't have what you're looking for, check out oth
 
 Or if you're looking for other government data:
 
-* [FederalRegister.gov API](https://www.federalregister.gov/learn/developers) - Official (government-run) API for the activity of the executive branch of the US government. Includes proposed and final regulations, notices, executive orders, and much more.
+* [FederalRegister.gov API](https://www.federalregister.gov/learn/developers) - Official (government-run) JSON API for the activity of the US' executive branch. Includes all proposed and final regulations, executive orders, and all kinds of things.
 * [Open States API](http://openstates.org/api/) - US legislative data for all 50 states.
 * [Capitol Words API](http://capitolwords.org/api/) - Search speeches of members of Congress (the Congressional Record), and get all sorts of language analysis on frequently used words and phrases.
 * [Influence Explorer API](http://data.influenceexplorer.com/api) - Data around federal lobbying, grants, contracts, and state and federal campaign contributions.

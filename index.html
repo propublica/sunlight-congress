@@ -169,7 +169,7 @@
 <td><a href="votes.html">/votes</a></td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
-<td>/floor_updates</td>
+<td><a href="floor_updates.html">/floor_updates</a></td>
 <td>To-the-minute updates from the floor of the House and Senate.</td>
 </tr><tr>
 <td><a href="hearings.html">/hearings</a></td>
@@ -321,7 +321,7 @@ The number of actual documents in the response. Can be less than the given <code
 ]
 </span></code></pre>
 <h3 id='parameters/search'>Search</h3 id='parameters/search'>
-<p>Provide a <code>query</code> parameter to return results the API thinks best match your query. Queries are interpreted as <strong>phrases</strong>.
+<p>Provide a <code>query</code> parameter to return results the API thinks best match your query. Queries are interpreted as <em>phrases</em>.
 
 </p>
 <p><strong>Senate hearings matching &quot;environment&quot;</strong>
@@ -333,7 +333,7 @@ The number of actual documents in the response. Can be less than the given <code
 </p>
 <pre><code class="text">/floor_updates?query=committee of the whole&amp;chamber=house</code></pre>
 <h2 id='full-text-search'>Full text search</h2 id='full-text-search'>
-<p>Endpoints ending with <code>/search</code> that are given a <code>query</code> parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as <strong>keywords</strong> (use quotes to form phrases).
+<p>Endpoints ending with <code>/search</code> that are given a <code>query</code> parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as <em>keywords</em> (use quotes to form phrases).
 
 </p>
 <p><strong>Laws matching &quot;health care&quot; and &quot;medicine&quot;</strong>
@@ -414,7 +414,7 @@ The number of actual documents in the response. Can be less than the given <code
 
 </p>
 <ul>
-<li><a href="https://www.federalregister.gov/learn/developers">FederalRegister.gov API</a> - Official (government-run) API for the activity of the executive branch of the US government. Includes proposed and final regulations, notices, executive orders, and much more.</li>
+<li><a href="https://www.federalregister.gov/learn/developers">FederalRegister.gov API</a> - Official (government-run) JSON API for the activity of the US&#39; executive branch. Includes all proposed and final regulations, executive orders, and all kinds of things.</li>
 <li><a href="http://openstates.org/api/">Open States API</a> - US legislative data for all 50 states.</li>
 <li><a href="http://capitolwords.org/api/">Capitol Words API</a> - Search speeches of members of Congress (the Congressional Record), and get all sorts of language analysis on frequently used words and phrases.</li>
 <li><a href="http://data.influenceexplorer.com/api">Influence Explorer API</a> - Data around federal lobbying, grants, contracts, and state and federal campaign contributions.</li>
