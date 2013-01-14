@@ -2,7 +2,7 @@
 
 Committee hearings scheduled by the House and Senate. This data is taken from original [House](http://house.gov/legislative/) and [Senate](http://www.senate.gov/pagelayout/committees/b_three_sections_with_teasers/committee_hearings.htm) sources.
 
-This data is not limited only to upcoming hearings, but historical data on committee hearings is not guaranteed.
+This endpoint is future-looking. We don't automatically delete data on past hearings, but we also don't guarantee non-recent data will remain available.
 
 ## Methods
 

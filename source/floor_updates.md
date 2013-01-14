@@ -1,6 +1,8 @@
 # Floor Updates
 
+Recent real time, to-the-minute updates from the House and Senate floor. House floor updates are sourced from XML at the [House Clerk](http://clerk.house.gov/floorsummary/floor.aspx), and Senate updates from the [Senate Periodical Press Gallery](http://www.senate.gov/galleries/pdcl/index.htm).
 
+This endpoint focuses on the recent past. We don't automatically delete old floor updates, but we also don't guarantee non-recent data will remain available.
 
 ## Methods
 
@@ -63,7 +65,7 @@ The time this update took place. For Senate updates, this actually means the tim
 The number of the Congress this update took place during.
 
 \* **legislative_day**<br/>
-The "legislative day" this update took place in. These are formal constructs that are usually, but not always, the same as the calendar day. For example, if a day's session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
+The "legislative day" this update took place in. The "legislative day" is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day's session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
 
 **update**<br/>
 The text of the update.
