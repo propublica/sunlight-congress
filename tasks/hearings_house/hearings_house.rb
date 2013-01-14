@@ -70,8 +70,6 @@ class HearingsHouse
 
     count = 0
 
-    chamber = "house"
-
     doc = Nokogiri::HTML body
     headers = doc.css("#contentMain h3")
     bodies = doc.css("#contentMain p")
@@ -93,6 +91,8 @@ class HearingsHouse
         next
       end
       committee_id = committee.committee_id
+
+      chamber = committee['chamber']
 
       # split up the body text into pieces
       body_text = body.inner_text.strip
