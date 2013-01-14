@@ -82,6 +82,9 @@ files.each do |filename|
   # get rid of braces around unindented (partial) JSON blocks
   content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
 
+  # link the main header to the index page
+  content.gsub! "<a href=\"#\" id=\"logo\">", "<a href=\"index.html\" id=\"logo\">"
+
   # add links to other models
   if filename != "index"
     # content.gsub!(/(<\/ul>[\r\n\s]+<div class="extra twitter">)/) {"#{menu_addition}#{$1}"}
