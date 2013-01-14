@@ -117,6 +117,7 @@ module Utils
       curl.perform
     rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
       Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+      Curl::Err::GotNothingError,
       Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
       puts "Error curling #{url}"
       nil
@@ -165,6 +166,7 @@ module Utils
         curl.perform
       rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
         Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+        Curl::Err::GotNothingError,
         Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
         puts "Error curling #{url}"
         nil
