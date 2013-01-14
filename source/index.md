@@ -55,7 +55,7 @@ http://congress.api.sunlightfoundation.com
 <td>[/hearings](hearings.html)</td>
 <td>Committee hearings in Congress. Updated as hearings are announced.</td>
 </tr><tr>
-<td>/upcoming_bills</td>
+<td>[/upcoming_bills](upcoming_bills.html)</td>
 <td>Bills scheduled for debate in the future, as announced by party leadership.</td>
 </tr>
 </table>
