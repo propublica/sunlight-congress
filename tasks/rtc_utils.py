@@ -10,8 +10,24 @@ def in_est(dt):
 
 def current_congress(year=None):
   if not year:
-    year = datetime.datetime.now().year
+    year = current_legislative_year()
   return ((year + 1) / 2) - 894
+
+def current_legislative_year(date=None):
+  if not date:
+    date = datetime.datetime.now()
+
+  year = date.year
+
+  if date.month == 1:
+    if date.day == 1 or date.day == 2:
+      return date.year - 1
+    elif date.day == 3 and date.hour < 12:
+      return date.year - 1
+    else:
+      return date.year
+  else:
+    return date.year
 
 def parse_iso8601(timestamp):
   return iso8601.parse_date(timestamp).astimezone(tz.gettz('GMT'))
