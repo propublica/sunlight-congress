@@ -76,18 +76,25 @@
 
 </p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#apikey">API key</a>, and use the domain:
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
 
 </p>
 <pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <h3 id='methods/votes'>/votes</h3 id='methods/votes'>
-<p>Filter through votes in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
+<p>Search and filter through votes in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
 
 </p>
 <p><strong>Recent votes in the Senate</strong>
 
 </p>
 <pre><code class="text">/votes?chamber=senate&amp;order=voted_at</code></pre>
+<p><strong>Votes about &#39;guns&#39;</strong>
+
+</p>
+<pre><code class="text">/votes?query=guns</code></pre>
+<p>This will search votes&#39; <code>question</code> field.
+
+</p>
 <p><strong>= TBD =</strong>
 
 </p>
@@ -107,35 +114,35 @@
 "<span class="attribute">required</span>": <span class="value"><span class="string">"2/3"</span></span>,
 "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span>
 </span></code></pre>
-<p><strong>roll_id</strong><br/>
+<p>* <strong>roll_id</strong><br/>
 A unique identifier for a roll call vote. Made from the first letter of the <code>chamber</code>, the vote <code>number</code>, and the legislative <code>year</code>.
 
 </p>
-<p><strong>chamber</strong><br/>
+<p>* <strong>chamber</strong><br/>
 The chamber the vote was taken in. &quot;house&quot; or &quot;senate&quot;.
 
 </p>
-<p><strong>number</strong><br/>
+<p>* <strong>number</strong><br/>
 The number that vote was assigned. Numbers reset every legislative year.
 
 </p>
-<p><strong>year</strong><br/>
+<p>* <strong>year</strong><br/>
 The &quot;legislative year&quot; of the vote. This is <strong>not quite the same</strong> as the calendar year - the legislative year changes at noon EST on January 3rd. A vote taken on January 1, 2013 has a &quot;legislative year&quot; of 2012.
 
 </p>
-<p><strong>congress</strong><br/>
+<p>* <strong>congress</strong><br/>
 The Congress this vote was taken in.
 
 </p>
-<p><strong>voted_at</strong><br/>
+<p>* <strong>voted_at</strong><br/>
 The time the vote was taken.
 
 </p>
-<p><strong>vote_type</strong><br/>
+<p>* <strong>vote_type</strong><br/>
 The type of vote being taken. This classification is imperfect and unofficial, and may change as we improve our detection. Valid types are &quot;passage&quot;, &quot;cloture&quot;, &quot;nomination&quot;, &quot;impeachment&quot;, &quot;treaty&quot;, &quot;recommit&quot;, &quot;quorum&quot;, &quot;leadership&quot;, and &quot;other&quot;.
 
 </p>
-<p><strong>roll_type</strong><br/>
+<p>* <strong>roll_type</strong><br/>
 The official description of the type of vote being taken.
 
 </p>
@@ -143,11 +150,11 @@ The official description of the type of vote being taken.
 The official full question that the vote is addressing.
 
 </p>
-<p><strong>required</strong><br/>
+<p>* <strong>required</strong><br/>
 The required ratio of Aye votes necessary to pass the legislation. A value of &quot;1/2&quot; actually means more than 1/2. Ties are not possible in the Senate (the Vice President casts a tie-breaker vote), and in the House, a tie vote means the vote does not pass.
 
 </p>
-<p><strong>result</strong><br/>
+<p>* <strong>result</strong><br/>
 The official result of the vote. This is not completely standardized (both &quot;Passed&quot; and &quot;Bill Passed&quot; may appear). In the case of a vote for Speaker of the House, the <code>result</code> field contains the name of the victor.
 
 
@@ -161,7 +168,7 @@ The official result of the vote. This is not completely standardized (both &quot
   ...
 </span>}
 </span></code></pre>
-<p><strong>bill_id</strong><br/>
+<p>* <strong>bill_id</strong><br/>
 If a vote is related to a bill, the bill&#39;s ID.
 
 </p>

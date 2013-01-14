@@ -8,7 +8,7 @@ Votes taken by voice or unanimous consent, where the votes of individual represe
 
 ## Methods
 
-All requests require a valid [API key](index.html#apikey), and use the domain:
+All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 ```text
 http://congress.api.sunlightfoundation.com
@@ -16,13 +16,21 @@ http://congress.api.sunlightfoundation.com
 
 ### /votes
 
-Filter through votes in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
+Search and filter through votes in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
 **Recent votes in the Senate**
 
 ```text
 /votes?chamber=senate&order=voted_at
 ```
+
+**Votes about 'guns'**
+
+```text
+/votes?query=guns
+```
+
+This will search votes' `question` field.
 
 **= TBD =**
 
@@ -46,37 +54,37 @@ Filter through votes in Congress. Filter by any [fields below](#fields) that hav
 }
 ```
 
-**roll_id**<br/>
+\* **roll_id**<br/>
 A unique identifier for a roll call vote. Made from the first letter of the `chamber`, the vote `number`, and the legislative `year`.
 
-**chamber**<br/>
+\* **chamber**<br/>
 The chamber the vote was taken in. "house" or "senate".
 
-**number**<br/>
+\* **number**<br/>
 The number that vote was assigned. Numbers reset every legislative year.
 
-**year**<br/>
+\* **year**<br/>
 The "legislative year" of the vote. This is **not quite the same** as the calendar year - the legislative year changes at noon EST on January 3rd. A vote taken on January 1, 2013 has a "legislative year" of 2012.
 
-**congress**<br/>
+\* **congress**<br/>
 The Congress this vote was taken in.
 
-**voted_at**<br/>
+\* **voted_at**<br/>
 The time the vote was taken.
 
-**vote_type**<br/>
+\* **vote_type**<br/>
 The type of vote being taken. This classification is imperfect and unofficial, and may change as we improve our detection. Valid types are "passage", "cloture", "nomination", "impeachment", "treaty", "recommit", "quorum", "leadership", and "other".
 
-**roll_type**<br/>
+\* **roll_type**<br/>
 The official description of the type of vote being taken.
 
 **question**<br/>
 The official full question that the vote is addressing.
 
-**required**<br/>
+\* **required**<br/>
 The required ratio of Aye votes necessary to pass the legislation. A value of "1/2" actually means more than 1/2. Ties are not possible in the Senate (the Vice President casts a tie-breaker vote), and in the House, a tie vote means the vote does not pass.
 
-**result**<br/>
+\* **result**<br/>
 The official result of the vote. This is not completely standardized (both "Passed" and "Bill Passed" may appear). In the case of a vote for Speaker of the House, the `result` field contains the name of the victor.
 
 
@@ -94,7 +102,7 @@ The official result of the vote. This is not completely standardized (both "Pass
 }
 ```
 
-**bill_id**<br/>
+\* **bill_id**<br/>
 If a vote is related to a bill, the bill's ID.
 
 **bill**<br/>

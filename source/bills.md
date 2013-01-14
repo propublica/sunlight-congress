@@ -8,7 +8,7 @@ Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 
 ## Methods
 
-All requests require a valid [API key](index.html#apikey), and use the domain:
+All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 ```text
 http://congress.api.sunlightfoundation.com

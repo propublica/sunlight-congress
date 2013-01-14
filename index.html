@@ -37,6 +37,10 @@
             <ul>
               
                 <li>
+                  <a href="#parameters/api-key">API Key</a>
+                </li>
+              
+                <li>
                   <a href="#parameters/filtering">Filtering</a>
                 </li>
               
@@ -147,28 +151,28 @@
 <pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <table>
 <tr>
-<td><a href="legislators.html#methods/legislators">/legislators</a></td>
+<td><a href="legislators.html">/legislators</a></td>
 <td>Current legislators&#39; names, IDs, biography, and social media.</td>
 </tr><tr>
-<td><a href="legislators.html#methods/legislators-locate">/legislators/locate</a></td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
+<td><a href="legislators.html">/legislators/locate</a></td><td>Find representatives and senators for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
 </tr><tr>
 <td>/districts/locate</td><td>Find congressional districts for a <code>latitude</code>/<code>longitude</code> or <code>zip</code>.</td>
 </tr><tr>
 <td>/committees</td>
 <td>Current committees, subcommittees, and their membership.</td>
 </tr><tr>
-<td><a href="bills.html#methods/bills">/bills</a></td>
+<td><a href="bills.html">/bills</a></td>
 <td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
 </tr><tr>
-<td><a href="bills.html#methods/bills-search">/bills/search</a></td><td>Full text search over legislation.</td>
+<td><a href="bills.html">/bills/search</a></td><td>Full text search over legislation.</td>
 </tr><tr>
-<td><a href="votes.html#methods/votes">/votes</a></td>
+<td><a href="votes.html">/votes</a></td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
 <td>/floor_updates</td>
 <td>To-the-minute updates from the floor of the House and Senate.</td>
 </tr><tr>
-<td>/hearings</td>
+<td><a href="hearings.html">/hearings</a></td>
 <td>Committee hearings in Congress. Updated as hearings are announced.</td>
 </tr><tr>
 <td>/upcoming_bills</td>
@@ -177,6 +181,17 @@
 </table>
 
 <h2 id='parameters'>Parameters</h2 id='parameters'>
+<h3 id='parameters/api-key'>API Key</h3 id='parameters/api-key'>
+<p>All requests to the Congress API require a Sunlight API key. An API key is <a href="http://services.sunlightlabs.com/accounts/register/">free to register</a> and has no usage limits.
+
+</p>
+<p>API keys can be provided with a request through the query string:
+
+</p>
+<pre><code class="text">/bills?apikey=[your_api_key]</code></pre>
+<p>Or, by setting the key as the value of a <code>X-APIKEY</code> HTTP request header.
+
+</p>
 <h3 id='parameters/filtering'>Filtering</h3 id='parameters/filtering'>
 <p>You can filter on many fields with a simple key/value pair:
 

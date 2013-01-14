@@ -31,28 +31,28 @@ http://congress.api.sunlightfoundation.com
 
 <table>
 <tr>
-<td>[/legislators](legislators.html#methods/legislators)</td>
+<td>[/legislators](legislators.html)</td>
 <td>Current legislators' names, IDs, biography, and social media.</td>
 </tr><tr>
-<td>[/legislators/locate](legislators.html#methods/legislators-locate)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+<td>[/legislators/locate](legislators.html)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
 <td>/districts/locate</td><td>Find congressional districts for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
 <td>/committees</td>
 <td>Current committees, subcommittees, and their membership.</td>
 </tr><tr>
-<td>[/bills](bills.html#methods/bills)</td>
+<td>[/bills](bills.html)</td>
 <td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
 </tr><tr>
-<td>[/bills/search](bills.html#methods/bills-search)</td><td>Full text search over legislation.</td>
+<td>[/bills/search](bills.html)</td><td>Full text search over legislation.</td>
 </tr><tr>
-<td>[/votes](votes.html#methods/votes)</td>
+<td>[/votes](votes.html)</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
 <td>/floor_updates</td>
 <td>To-the-minute updates from the floor of the House and Senate.</td>
 </tr><tr>
-<td>/hearings</td>
+<td>[/hearings](hearings.html)</td>
 <td>Committee hearings in Congress. Updated as hearings are announced.</td>
 </tr><tr>
 <td>/upcoming_bills</td>
@@ -61,6 +61,18 @@ http://congress.api.sunlightfoundation.com
 </table>
 
 ## Parameters
+
+### API Key
+
+All requests to the Congress API require a Sunlight API key. An API key is [free to register](http://services.sunlightlabs.com/accounts/register/) and has no usage limits.
+
+API keys can be provided with a request through the query string:
+
+```text
+/bills?apikey=[your_api_key]
+```
+
+Or, by setting the key as the value of a `X-APIKEY` HTTP request header.
 
 ### Filtering
 

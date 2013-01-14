@@ -4,7 +4,7 @@ Data on members of Congress, dating back to 1789. All member information is sour
 
 ## Methods
 
-All requests require a valid [API key](index.html#apikey), and use the domain:
+All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 ```text
 http://congress.api.sunlightfoundation.com
@@ -52,7 +52,7 @@ By default, all requests will return *currently serving members*, but you can ov
 /legislators?query=mcconnell
 ```
 
-This will match against name fields: `first_name`, `last_name`, `middle_name`, `nickname`, `other_names.last`
+This will search legislators' name fields: `first_name`, `last_name`, `middle_name`, `nickname`, `other_names.last`
 
 **Disabling pagination**
 
