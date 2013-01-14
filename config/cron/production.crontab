@@ -18,7 +18,10 @@
 0 4,16 * * * /projects/congress/congress/shared/cron/us-sync.sh && /projects/congress/congress/shared/cron/task.sh bills && /projects/congress/congress/shared/cron/task.sh bills congress=112
 
 # bill text from GPO, every half hour for the 113th
-*/30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk && /projects/congress/congress/shared/cron/task.sh bills_text
+*/30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
+
+# re-index text overnight
+0 10 * * * /projects/congress/congress/shared/cron/task.sh bills_text
 
 # just once a day for leftover 112th bills
 0 5 * * * /projects/congress/congress/shared/cron/task.sh bills_text congress=112
