@@ -61,8 +61,14 @@ class Committees
         subcommittees << attributes
         subcommittee.attributes = attributes
 
-        subcommittee[:parent_committee_id] = committee_id
         subcommittee.save!
+      end
+
+      subcommittees = subcommittees.map do |subcommittee|
+        [:parent_committee, :parent_committee_id, :subcommittee].each do |field|
+          subcommittee.delete field
+        end
+        subcommittee
       end
 
       committee.attributes = {subcommittees: subcommittees}
@@ -117,6 +123,7 @@ class Committees
     if parent_committee
       attributes[:chamber] = parent_committee[:chamber]
       attributes[:subcommittee] = true
+      attributes[:parent_committee_id] = parent_committee[:committee_id]
       attributes[:parent_committee] = {}
       Committee.basic_fields.reject {|f| ["subcommittee", "parent_committee_id"].include?(f.to_s)}.each do |field|
         attributes[:parent_committee][field] = parent_committee[field]
