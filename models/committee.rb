@@ -4,7 +4,7 @@ class Committee
 
   basic_fields :committee_id, :name, :chamber, 
     :subcommittee, :parent_committee_id,
-    :website, :address, :office, :phone,
+    :website, :office, :phone,
     :house_committee_id
 
   search_fields :name

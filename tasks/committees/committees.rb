@@ -58,6 +58,7 @@ class Committees
 
         # basic attributes
         attributes = attributes_for us_subcommittee, committee
+        attributes[:committee_id] = full_id
         subcommittees << attributes
         subcommittee.attributes = attributes
 
@@ -102,15 +103,8 @@ class Committees
       name: us_committee['name']
     }
 
-    # optional fields, present for historical and current
-    ['senate_committee_id', 'house_committee_id'].each do |field|
-      if us_committee.has_key?(field)
-        attributes[field.to_sym] = us_committee[field]
-      end
-    end
-
     # present only for current committees
-    ['address', 'url', 'phone'].each do |field|
+    ['url', 'phone'].each do |field|
       if us_committee.has_key?(field)
         attributes[field.to_sym] = us_committee[field]
       end
