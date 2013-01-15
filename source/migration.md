@@ -99,7 +99,7 @@ The following fields are new:
 
 * `state_rank` - "Junior" or "Senior", for Senators
 * `state_name` - Full state name (e.g. "Pennsylvania")
-* `lis_id` - An official ID used by some official sources for Senators.
+* `lis_id` - An official ID used by some sources for Senators.
 * `thomas_id` - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.
 * `term_start` - The start date of the member's current term.
 * `term_end` - The end date of the member's current term.
