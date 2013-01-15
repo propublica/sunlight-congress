@@ -14,6 +14,8 @@ http://congress.api.sunlightfoundation.com
 
 Find members of Congress by a `latitude` and `longitude`, or a `zip` code. There is no support for operators, ordering, or partial responses.
 
+At-large districts, which encompass an entire state, are assigned a district number of `0`.
+
 **By latitude/longitude**
 
 ```text
