@@ -56,7 +56,7 @@ menu_addition = "
   </li>
 </ul>"
 
-name = "Sunlight Congress API"
+name = "Congress API"
 twitter = "sunlightlabs"
 
 
