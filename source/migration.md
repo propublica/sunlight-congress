@@ -54,7 +54,9 @@ The `count` and `page` fields are always present, explained in [Pagination](inde
 
 ### Requesting fields
 
-By default, not all fields are returned for most objects in the new Congress API. For example, a legislator's `terms` field, which contains extensive data on that member's past terms, does not appear for a plain request to `/legislators`.
+By default, not all fields are returned for most objects in the new Congress API. 
+
+For example, a legislator's `terms` field, which contains extensive data on that member's past terms, does not appear for a plain request to `/legislators`.
 
 Fields can be requested using the `fields` parameter:
 
