@@ -64,6 +64,8 @@ Fields can be requested using the `fields` parameter:
 
 This is documented further in [Partial Responses](index.html#parameters/partial-responses).
 
+## Legislators
+
 ### Field changes
 
 The following fields have been renamed:

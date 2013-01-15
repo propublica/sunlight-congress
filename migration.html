@@ -46,28 +46,37 @@
                   <a href="#general/requesting-fields">Requesting fields</a>
                 </li>
               
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#legislators">Legislators</a>
+          
+            <ul>
+              
                 <li>
-                  <a href="#general/field-changes">Field changes</a>
+                  <a href="#legislators/field-changes">Field changes</a>
                 </li>
               
                 <li>
-                  <a href="#general/legislators-getlist">legislators.getList</a>
+                  <a href="#legislators/legislators-getlist">legislators.getList</a>
                 </li>
               
                 <li>
-                  <a href="#general/legislators-get">legislators.get</a>
+                  <a href="#legislators/legislators-get">legislators.get</a>
                 </li>
               
                 <li>
-                  <a href="#general/legislators-allforlatlong">legislators.allForLatLong</a>
+                  <a href="#legislators/legislators-allforlatlong">legislators.allForLatLong</a>
                 </li>
               
                 <li>
-                  <a href="#general/legislators-allforzip">legislators.allForZip</a>
+                  <a href="#legislators/legislators-allforzip">legislators.allForZip</a>
                 </li>
               
                 <li>
-                  <a href="#general/legislators-search">legislators.search</a>
+                  <a href="#legislators/legislators-search">legislators.search</a>
                 </li>
               
             </ul>
@@ -186,7 +195,8 @@
 <p>This is documented further in <a href="index.html#parameters/partial-responses">Partial Responses</a>.
 
 </p>
-<h3 id='general/field-changes'>Field changes</h3 id='general/field-changes'>
+<h2 id='legislators'>Legislators</h2 id='legislators'>
+<h3 id='legislators/field-changes'>Field changes</h3 id='legislators/field-changes'>
 <p>The following fields have been renamed:
 
 </p>
@@ -234,7 +244,7 @@
 
 
 </p>
-<h3 id='general/legislators-getlist'>legislators.getList</h3 id='general/legislators-getlist'>
+<h3 id='legislators/legislators-getlist'>legislators.getList</h3 id='legislators/legislators-getlist'>
 <p>In general, finding legislators is very similar.
 
 </p>
@@ -263,7 +273,7 @@
 <p>The <a href="index.html#parameters/operators">Operators</a> documentation has more details on operators and filtering.
 
 </p>
-<h3 id='general/legislators-get'>legislators.get</h3 id='general/legislators-get'>
+<h3 id='legislators/legislators-get'>legislators.get</h3 id='legislators/legislators-get'>
 <p>Finding a single legislator is the same as finding many. Filter by criteria that uniquely identify a legislator, and use the first (and only) result.
 
 </p>
@@ -272,7 +282,7 @@
 
 # new API:
 /legislators?bioguide_id=L000551</code></pre>
-<h3 id='general/legislators-allforlatlong'>legislators.allForLatLong</h3 id='general/legislators-allforlatlong'>
+<h3 id='legislators/legislators-allforlatlong'>legislators.allForLatLong</h3 id='legislators/legislators-allforlatlong'>
 <p>Use the <code>/legislators/locate</code> endpoint.
 
 </p>
@@ -281,7 +291,7 @@
 
 # new API:
 /legislators/locate?latitude=47.603560&amp;longitude=-122.329439</code></pre>
-<h3 id='general/legislators-allforzip'>legislators.allForZip</h3 id='general/legislators-allforzip'>
+<h3 id='legislators/legislators-allforzip'>legislators.allForZip</h3 id='legislators/legislators-allforzip'>
 <p>Use the <code>/legislators/locate</code> endpoint. 
 
 </p>
@@ -290,7 +300,7 @@
 
 # new API:
 /legislators/locate?zip=11216</code></pre>
-<h3 id='general/legislators-search'>legislators.search</h3 id='general/legislators-search'>
+<h3 id='legislators/legislators-search'>legislators.search</h3 id='legislators/legislators-search'>
 <p>You can use the <code>query</code> parameter to match a text fragment against any of legislators&#39; name fields.
 
 </p>
