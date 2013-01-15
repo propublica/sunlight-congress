@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Congress API</title>
+    <title>Sunlight Congress API</title>
     
     
   <link rel="stylesheet" type="text/css" href="documentup.css">
@@ -16,7 +16,7 @@
   <div id="nav">
     
       <div id="header">
-        <a href="index.html" id="logo">Congress API</a>
+        <a href="index.html" id="logo">Sunlight Congress API</a>
       </div>
     
     <ul id="sections">
@@ -35,32 +35,39 @@
                 </li>
               
                 <li>
+                  <a href="#general/jsonp-parameter-change">JSONP parameter change</a>
+                </li>
+              
+                <li>
                   <a href="#general/response-structure">Response structure</a>
                 </li>
               
-            </ul>
-          
-        </li>
-      
-        <li>
-          <a href="#legislators">Legislators</a>
-          
-            <ul>
-              
                 <li>
-                  <a href="#legislators/field-changes">Field changes</a>
+                  <a href="#general/requesting-fields">Requesting fields</a>
                 </li>
               
                 <li>
-                  <a href="#legislators/legislators-getlist-and-legislators-get">legislators.getList and legislators.get</a>
+                  <a href="#general/field-changes">Field changes</a>
                 </li>
               
                 <li>
-                  <a href="#legislators/legislators-allforzip-and-legislators-allforlatlong">legislators.allForZip and legislators.allForLatLong</a>
+                  <a href="#general/legislators-getlist">legislators.getList</a>
                 </li>
               
                 <li>
-                  <a href="#legislators/legislators-search">legislators.search</a>
+                  <a href="#general/legislators-get">legislators.get</a>
+                </li>
+              
+                <li>
+                  <a href="#general/legislators-allforlatlong">legislators.allForLatLong</a>
+                </li>
+              
+                <li>
+                  <a href="#general/legislators-allforzip">legislators.allForZip</a>
+                </li>
+              
+                <li>
+                  <a href="#general/legislators-search">legislators.search</a>
                 </li>
               
             </ul>
@@ -73,7 +80,11 @@
             <ul>
               
                 <li>
-                  <a href="#districts/districts-allforzip-and-districts-allforlatlong">districts.allForZip and districts.allForLatLong</a>
+                  <a href="#districts/districts-allforlatlong">districts.allForLatLong</a>
+                </li>
+              
+                <li>
+                  <a href="#districts/districts-allforzip">districts.allForZip</a>
                 </li>
               
             </ul>
@@ -116,7 +127,10 @@
   <div id="content">
     
     <h1>Migrating</h1>
-<p>This Congress API deprecates our previous <a href="http://services.sunlightlabs.com/docs/Sunlight_Congress_API/">Congress API</a>. The new Congress API keeps nearly all the data and features the old one offered. 
+<p>This Congress API deprecates our previous <a href="http://services.sunlightlabs.com/docs/Sunlight_Congress_API/">Congress API</a>. The new Congress API keeps nearly all the data and features the old one offered.
+
+</p>
+<p>We will keep our previous Congress API running until the end of the 113th Congress. Users are advised to upgrade to our new Congress API as soon as possible.
 
 </p>
 <p>This guide shows how to move from each method in the old API to the new API.
@@ -136,6 +150,10 @@
 <p>We no longer support XML responses in our Congress API. All responses are in JSON.
 
 </p>
+<h3 id='general/jsonp-parameter-change'>JSONP parameter change</h3 id='general/jsonp-parameter-change'>
+<p>We still support <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a>, but the parameter has been changed from <code>jsonp</code> to <code>callback</code>. See the <a href="index.html#parameters/jsonp">JSONP documentation</a> for more details.
+
+</p>
 <h3 id='general/response-structure'>Response structure</h3 id='general/response-structure'>
 <p>All responses in the new Congress API are in the following form:
 
@@ -146,7 +164,7 @@
   ]</span>,
   "<span class="attribute">count</span>": <span class="value"><span class="number">123</span></span>,
   "<span class="attribute">page</span>": <span class="value">{
-    "<span class="attribute">count</span>": <span class="value"><span class="number">1</span></span>,
+    "<span class="attribute">count</span>": <span class="value"><span class="number">20</span></span>,
     "<span class="attribute">per_page</span>": <span class="value"><span class="number">20</span></span>,
     "<span class="attribute">page</span>": <span class="value"><span class="number">1</span>
   </span>}
@@ -154,30 +172,226 @@
 <p>All endpoints are plural, and return an array of objects. To look up a single object, use search criteria that guarantee a single result and look for the first (and only) result.
 
 </p>
-<p>The <code>count</code> and <code>page</code> fields are always present, explained in <a href="index.html#parameters/pagination">Pagination</a>. The only exceptions are requests to <code>/districts/locate</code>, which do not use pagination. 
+<p>The <code>count</code> and <code>page</code> fields are always present, explained in <a href="index.html#parameters/pagination">Pagination</a>. The only exceptions are requests to <code>/districts/locate</code>, which does not use pagination.
 
 </p>
-<h2 id='legislators'>Legislators</h2 id='legislators'>
-<h3 id='legislators/field-changes'>Field changes</h3 id='legislators/field-changes'>
+<h3 id='general/requesting-fields'>Requesting fields</h3 id='general/requesting-fields'>
+<p>By default, not all fields are returned for most objects in the new Congress API. For example, a legislator&#39;s <code>terms</code> field, which contains extensive data on that member&#39;s past terms, does not appear for a plain request to <code>/legislators</code>.
+
+</p>
+<p>Fields can be requested using the <code>fields</code> parameter:
+
+</p>
+<pre><code class="text">/legislators?fields=bioguide_id,last_name,state,terms</code></pre>
+<p>This is documented further in <a href="index.html#parameters/partial-responses">Partial Responses</a>.
+
+</p>
+<h3 id='general/field-changes'>Field changes</h3 id='general/field-changes'>
 <p>The following fields have been renamed:
 
 </p>
+<ul>
+<li><code>firstname</code> -&gt; <code>first_name</code></li>
+<li><code>middlename</code> -&gt; <code>middle_name</code></li>
+<li><code>lastname</code> -&gt; <code>last_name</code></li>
+<li><code>webform</code> -&gt; <code>contact_form</code></li>
+<li><code>congress_office</code> -&gt; <code>office</code></li>
+<li><code>birthdate</code> -&gt; <code>birthday</code></li>
+<li><code>youtube_url</code> -&gt; <code>youtube_id</code></li>
+</ul>
 <p>The following fields have been dropped altogether:
 
 </p>
 <ul>
-<li>opencongress_</li>
+<li><code>congresspedia_url</code></li>
+<li><code>official_rss</code></li>
+<li><code>email</code></li>
+<li><code>eventful_id</code></li>
 </ul>
-<h3 id='legislators/legislators-getlist-and-legislators-get'>legislators.getList and legislators.get</h3 id='legislators/legislators-getlist-and-legislators-get'>
-<h3 id='legislators/legislators-allforzip-and-legislators-allforlatlong'>legislators.allForZip and legislators.allForLatLong</h3 id='legislators/legislators-allforzip-and-legislators-allforlatlong'>
-<h3 id='legislators/legislators-search'>legislators.search</h3 id='legislators/legislators-search'>
+<p>The following fields have changed:
+
+</p>
+<ul>
+<li><code>in_office</code> is now a boolean, instead of an integer.</li>
+<li><code>fec_id</code> is now an array of strings, instead of a string.</li>
+<li><code>senate_class</code> is now numbers (1, 2, 3), instead of strings (&quot;I&quot;, &quot;II&quot;, &quot;III&quot;) .</li>
+<li><code>district</code> no longer contains &quot;Senior Seat&quot; or &quot;Junior Seat&quot; for Senators. Instead, the <code>state_rank</code> field will say &quot;Junior&quot; or &quot;Senior&quot;.</li>
+<li><code>youtube_id</code> is now just the member&#39;s username on YouTube, instead of the full URL.</li>
+</ul>
+<p>The following fields are new:
+
+</p>
+<ul>
+<li><code>state_rank</code> - &quot;Junior&quot; or &quot;Senior&quot;, for Senators</li>
+<li><code>state_name</code> - Full state name (e.g. &quot;Pennsylvania&quot;)</li>
+<li><code>lis_id</code> - An official ID used by some official sources for Senators.</li>
+<li><code>thomas_id</code> - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.</li>
+<li><code>term_start</code> - The start date of the member&#39;s current term.</li>
+<li><code>term_end</code> - The end date of the member&#39;s current term.</li>
+<li><code>terms</code> - An array of objects with data for each term. </li>
+</ul>
+<p>See the <a href="legislators.html">documentation for legislators</a> for more information.
+
+
+</p>
+<h3 id='general/legislators-getlist'>legislators.getList</h3 id='general/legislators-getlist'>
+<p>In general, finding legislators is very similar.
+
+</p>
+<p><strong>Filtering on fields</strong>
+
+</p>
+<p>When filtering on a chamber, use the <code>chamber</code> field instead of <code>title</code>.
+
+</p>
+<pre><code class="text"># old API:
+/legislators.getList.json?title=Sen&amp;state=MT&amp;lastname=Tester
+
+# new API:
+/legislators?chamber=senate&amp;state=MT&amp;last_name=Tester</code></pre>
+<p><strong>Multiple values for a parameter</strong>
+
+</p>
+<p>Instead of repeating a parameter, use the &quot;in&quot; operator with a pipe-separated list of values:
+
+</p>
+<pre><code class="text"># old API:
+/legislators.getList?lastname=Obama&amp;lastname=McCain
+
+# new API:
+/legislators?last_name__in=Obama|McCain</code></pre>
+<p>The <a href="index.html#parameters/operators">Operators</a> documentation has more details on operators and filtering.
+
+</p>
+<h3 id='general/legislators-get'>legislators.get</h3 id='general/legislators-get'>
+<p>Finding a single legislator is the same as finding many. Filter by criteria that uniquely identify a legislator, and use the first (and only) result.
+
+</p>
+<pre><code class="text"># old API:
+/legislators.get?bioguide_id=L000551
+
+# new API:
+/legislators?bioguide_id=L000551</code></pre>
+<h3 id='general/legislators-allforlatlong'>legislators.allForLatLong</h3 id='general/legislators-allforlatlong'>
+<p>Use the <code>/legislators/locate</code> endpoint.
+
+</p>
+<pre><code class="text"># old API:
+/legislators.allForLatLong.json?latitude=47.603560&amp;longitude=-122.329439
+
+# new API:
+/legislators/locate?latitude=47.603560&amp;longitude=-122.329439</code></pre>
+<h3 id='general/legislators-allforzip'>legislators.allForZip</h3 id='general/legislators-allforzip'>
+<p>Use the <code>/legislators/locate</code> endpoint. 
+
+</p>
+<pre><code class="text"># old API:
+/legislators.allForZip.json?zip=11216
+
+# new API:
+/legislators/locate?zip=11216</code></pre>
+<h3 id='general/legislators-search'>legislators.search</h3 id='general/legislators-search'>
+<p>You can use the <code>query</code> parameter to match a text fragment against any of legislators&#39; name fields.
+
+</p>
+<p>We <strong>no longer support</strong> &quot;fuzzy search&quot; of legislator names. The given <code>query</code> must match or be contained in one of the fields exactly.
+
+</p>
+<p><strong>Any legislators whose name somehow matches &quot;smi&quot;</strong>
+
+</p>
+<pre><code class="text"># old API:
+/legislators.search?name=smi
+
+# new API:
+/legislators?query=smi</code></pre>
 <h2 id='districts'>Districts</h2 id='districts'>
-<h3 id='districts/districts-allforzip-and-districts-allforlatlong'>districts.allForZip and districts.allForLatLong</h3 id='districts/districts-allforzip-and-districts-allforlatlong'>
+<p><a href="districts.html">Districts</a> can still only be found by location. The <code>/districts/locate</code> endpoint does not return pagination information. The fields remain the same: <code>state</code> and <code>district</code>, where an &quot;At-Large&quot; district is coded as <code>0</code>.
+
+</p>
+<h3 id='districts/districts-allforlatlong'>districts.allForLatLong</h3 id='districts/districts-allforlatlong'>
+<pre><code class="text"># old API:
+/districts.allForLatLong.json?latitude=47.603560&amp;longitude=-122.329439
+
+# new API:
+/districts/locate?latitude=47.603560&amp;longitude=-122.329439</code></pre>
+<h3 id='districts/districts-allforzip'>districts.allForZip</h3 id='districts/districts-allforzip'>
+<pre><code class="text"># old API:
+/districts.allForZip.json?zip=11216
+
+# new API:
+/districts/locate?zip=11216</code></pre>
 <h2 id='committees'>Committees</h2 id='committees'>
+<p><a href="committees.html">Committees</a> and subcommittees are now mixed together. Finding all committees a legislator is assigned to no longer requires its own endpoint.
+
+</p>
+<p>IDs have changed for a few committees, and for all subcommittees - they are now sourced entirely from official resources.
+
+</p>
+<p>We have added contact information for committees, and title information for membership (e.g. &quot;Chair&quot;, &quot;Ranking Member&quot;, etc.)
+
+</p>
 <h3 id='committees/field-changes'>Field changes</h3 id='committees/field-changes'>
+<p>The following fields have been renamed:
+
+</p>
+<ul>
+<li><code>id</code> -&gt; <code>committee_id</code></li>
+</ul>
+<p>The following fields have changed:
+
+</p>
+<ul>
+<li><code>chamber</code> - Now lowercase (&quot;senate&quot;, &quot;house&quot;, &quot;joint&quot;).</li>
+<li><code>name</code> - Subcommittees are no longer prefixed with &quot;Subcommittee on&quot;.</li>
+<li><code>members</code> - The structure has changed to include the <code>side</code>, <code>rank</code>, and <code>title</code> of committee members.</li>
+<li><code>subcommittees</code> - The structure has changed, and additional fields are included.</li>
+</ul>
+<p>The following fields are new:
+
+</p>
+<ul>
+<li><code>url</code> - The official website for this committee.</li>
+<li><code>office</code> - The building and room number of this committee.</li>
+<li><code>phone</code> - The official phone number for the committee.</li>
+<li><code>member_ids</code> - An array of bioguide IDs of members of the committee. Useful for filtering.</li>
+<li><code>subcommittee</code> - A boolean, whether or not the committee is a subcommittee.</li>
+<li><code>parent_committee_id</code> - If the committee is a subcommittee, the ID of its parent committee.</li>
+<li><code>parent_committee</code> - If the committee is a subcommittee, some fields about its parent committee.</li>
+</ul>
+<p>See the full <a href="committees.html">Committees</a> documentation for more information.
+
+</p>
 <h3 id='committees/committees-getlist'>committees.getList</h3 id='committees/committees-getlist'>
+<p>In general, finding legislators is very similar.
+
+</p>
+<p><strong>Filtering on fields</strong>
+
+</p>
+<pre><code class="text"># old API:
+/committees.getList?chamber=House
+
+# new API:
+/committees?chamber=house</code></pre>
 <h3 id='committees/committees-get'>committees.get</h3 id='committees/committees-get'>
+<p>Finding a single committee is the same as finding many. Filter by criteria that uniquely identify a committee, and use the first (and only) result.
+
+</p>
+<pre><code class="text"># old API:
+/committees.get?id=HSSM
+
+# new API:
+/committees?committee_id=HSSM</code></pre>
 <h3 id='committees/committees-allforlegislator'>committees.allForLegislator</h3 id='committees/committees-allforlegislator'>
+<p>Use the <code>/committees</code> endpoint with a filter on <code>member_ids</code> to limit the response to committees and subcommittees the legislator servers on.
+
+</p>
+<pre><code class="text"># old API:
+/committees.allForLegislator?bioguide_id=S000148
+
+# new API:
+/committees?member_ids=S000148</code></pre>
 
   </div>
 </div>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Congress API</title>
+    <title>Sunlight Congress API</title>
     
     
   <link rel="stylesheet" type="text/css" href="documentup.css">
@@ -16,7 +16,7 @@
   <div id="nav">
     
       <div id="header">
-        <a href="index.html" id="logo">Congress API</a>
+        <a href="index.html" id="logo">Sunlight Congress API</a>
       </div>
     
     <ul id="sections">
@@ -95,11 +95,15 @@
                 </li>
               
                 <li>
+                  <a href="#other/migrating-from-our-old-sunlight-congress-api">Migrating from our old Sunlight Congress API</a>
+                </li>
+              
+                <li>
                   <a href="#other/bulk-data">Bulk Data</a>
                 </li>
               
                 <li>
-                  <a href="#other/planned-features">Planned Features</a>
+                  <a href="#other/planned-additions">Planned Additions</a>
                 </li>
               
                 <li>
@@ -421,6 +425,13 @@ The number of actual documents in the response. Can be less than the given <code
 <p>This is a convenience for debugging, not a &quot;supported&quot; API feature. Don&#39;t make automatic requests with explain mode turned on.
 
 </p>
+<h3 id='other/migrating-from-our-old-sunlight-congress-api'>Migrating from our old Sunlight Congress API</h3 id='other/migrating-from-our-old-sunlight-congress-api'>
+<p>This Sunlight Congress API replaces and deprecates our <a href="http://services.sunlightlabs.com/docs/Sunlight_Congress_API/">old Sunlight Congress API</a>. We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Conrgess API to upgrade to this one as soon as possible.
+
+</p>
+<p>We have prepared a <a href="migration.html">migration guide</a> that shows how to move from each method in the old API to the new API.
+
+</p>
 <h3 id='other/bulk-data'>Bulk Data</h3 id='other/bulk-data'>
 <p>Core data for legislators, committees, and bills come from public domain <a href="https://github.com/unitedstates/congress">scrapers</a> and <a href="https://github.com/unitedstates/congress-legislators">bulk data</a> at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
 
@@ -428,12 +439,15 @@ The number of actual documents in the response. Can be less than the given <code
 <p>The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data in bulk.
 
 </p>
-<h3 id='other/planned-features'>Planned Features</h3 id='other/planned-features'>
+<h3 id='other/planned-additions'>Planned Additions</h3 id='other/planned-additions'>
 <ul>
 <li>All amendments to bills introduced in the House and Senate.</li>
 <li>Draft legislation in the House, as posted to <a href="http://docs.house.gov">docs.house.gov</a>.</li>
 <li>Reports by GAO, CBO, and Congressional committees.</li>
 </ul>
+<p>To suggest new data and features, open a ticket on <a href="https://github.com/sunlightlabs/congress/issues">Github Issues</a>.
+
+</p>
 <h3 id='other/more-apis'>More APIs</h3 id='other/more-apis'>
 <p>If the Sunlight Congress API doesn&#39;t have what you&#39;re looking for, check out other Congress APIs:
 

@@ -340,17 +340,25 @@ Add an `explain=true` parameter to any API request to return a JSON response wit
 
 This is a convenience for debugging, not a "supported" API feature. Don't make automatic requests with explain mode turned on.
 
+### Migrating from our old Sunlight Congress API
+
+This Sunlight Congress API replaces and deprecates our [old Sunlight Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Conrgess API to upgrade to this one as soon as possible.
+
+We have prepared a [migration guide](migration.html) that shows how to move from each method in the old API to the new API.
+
 ### Bulk Data
 
 Core data for legislators, committees, and bills come from public domain [scrapers](https://github.com/unitedstates/congress) and [bulk data](https://github.com/unitedstates/congress-legislators) at [github.com/unitedstates](https://github.com/unitedstates/). 
 
 The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data in bulk.
 
-### Planned Features
+### Planned Additions
 
 * All amendments to bills introduced in the House and Senate.
 * Draft legislation in the House, as posted to [docs.house.gov](http://docs.house.gov).
 * Reports by GAO, CBO, and Congressional committees.
+
+To suggest new data and features, open a ticket on [Github Issues](https://github.com/sunlightlabs/congress/issues).
 
 ### More APIs
 
