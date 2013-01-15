@@ -1,5 +1,15 @@
 #!/usr/bin/env ruby
 
+# Usage:
+# 
+# Compile all .md scripts in this directory:
+#   ./compile.rb 
+#
+# Compile a particular .md script in this directory:
+#   ./compile.rb index
+# or:
+#   ./compile.rb index.md
+
 require 'yaml'
 
 google_analytics = YAML.load(open("config.yml"))['google_analytics']
