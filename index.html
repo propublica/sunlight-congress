@@ -61,6 +61,10 @@
                 </li>
               
                 <li>
+                  <a href="#parameters/jsonp">JSONP</a>
+                </li>
+              
+                <li>
                   <a href="#parameters/search">Search</a>
                 </li>
               
@@ -320,6 +324,34 @@ The number of actual documents in the response. Can be less than the given <code
   ...
 ]
 </span></code></pre>
+<h3 id='parameters/jsonp'>JSONP</h3 id='parameters/jsonp'>
+<p>Provide a <code>callback</code> parameter to wrap the results in a JavaScript function, suitable for use with <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a>. This can be used to make cross-domain requests to the Congress API within the browser.
+
+</p>
+<p>For example:
+
+</p>
+<pre><code class="text">/legislators?last_name=Reid&amp;callback=myCallback</code></pre>
+<p>will return:
+
+</p>
+<pre><code class="javascript">myCallback({
+  <span class="string">"results"</span>: [
+    {
+      <span class="string">"bioguide_id"</span>: <span class="string">"R000146"</span>,
+      <span class="string">"chamber"</span>: <span class="string">"senate"</span>,
+      <span class="string">"last_name"</span>: <span class="string">"Reid"</span>
+      ...
+    }
+  ],
+  <span class="string">"count"</span>: <span class="number">1</span>,
+  <span class="string">"page"</span>: {
+    <span class="string">"count"</span>: <span class="number">1</span>,
+    <span class="string">"per_page"</span>: <span class="number">20</span>,
+    <span class="string">"page"</span>: <span class="number">1</span>
+  }
+}
+});</code></pre>
 <h3 id='parameters/search'>Search</h3 id='parameters/search'>
 <p>Provide a <code>query</code> parameter to return results the API thinks best match your query. Queries are interpreted as <em>phrases</em>.
 

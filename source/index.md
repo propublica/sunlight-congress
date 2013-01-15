@@ -224,6 +224,38 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 }
 ```
 
+### JSONP
+
+Provide a `callback` parameter to wrap the results in a JavaScript function, suitable for use with [JSONP](http://en.wikipedia.org/wiki/JSONP). This can be used to make cross-domain requests to the Congress API within the browser.
+
+For example:
+
+```text
+/legislators?last_name=Reid&callback=myCallback
+```
+
+will return:
+
+```javascript
+myCallback({
+  "results": [
+    {
+      "bioguide_id": "R000146",
+      "chamber": "senate",
+      "last_name": "Reid"
+      ...
+    }
+  ],
+  "count": 1,
+  "page": {
+    "count": 1,
+    "per_page": 20,
+    "page": 1
+  }
+}
+});
+```
+
 ### Search
 
 Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as *phrases*.
