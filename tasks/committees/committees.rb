@@ -117,6 +117,10 @@ class Committees
     if parent_committee
       attributes[:chamber] = parent_committee[:chamber]
       attributes[:subcommittee] = true
+      attributes[:parent_committee] = {}
+      Committee.basic_fields.reject {|f| ["subcommittee", "parent_committee_id"].include?(f.to_s)}.each do |field|
+        attributes[:parent_committee][field] = parent_committee[field]
+      end
     else
       attributes[:chamber] = us_committee['type']
       attributes[:subcommittee] = false
