@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congress API</title>
+    
+    
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+  <body><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <a href="index.html" id="logo">Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#general">General</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#general/new-url">New URL</a>
+                </li>
+              
+                <li>
+                  <a href="#general/json-only">JSON only</a>
+                </li>
+              
+                <li>
+                  <a href="#general/response-structure">Response structure</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#legislators">Legislators</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#legislators/field-changes">Field changes</a>
+                </li>
+              
+                <li>
+                  <a href="#legislators/legislators-getlist-and-legislators-get">legislators.getList and legislators.get</a>
+                </li>
+              
+                <li>
+                  <a href="#legislators/legislators-allforzip-and-legislators-allforlatlong">legislators.allForZip and legislators.allForLatLong</a>
+                </li>
+              
+                <li>
+                  <a href="#legislators/legislators-search">legislators.search</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#districts">Districts</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#districts/districts-allforzip-and-districts-allforlatlong">districts.allForZip and districts.allForLatLong</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#committees">Committees</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#committees/field-changes">Field changes</a>
+                </li>
+              
+                <li>
+                  <a href="#committees/committees-getlist">committees.getList</a>
+                </li>
+              
+                <li>
+                  <a href="#committees/committees-get">committees.get</a>
+                </li>
+              
+                <li>
+                  <a href="#committees/committees-allforlegislator">committees.allForLegislator</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe>
+      </div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Migrating</h1>
+<p>This Congress API deprecates our previous <a href="http://services.sunlightlabs.com/docs/Sunlight_Congress_API/">Congress API</a>. The new Congress API keeps nearly all the data and features the old one offered. 
+
+</p>
+<p>This guide shows how to move from each method in the old API to the new API.
+
+</p>
+<h2 id='general'>General</h2 id='general'>
+<h3 id='general/new-url'>New URL</h3 id='general/new-url'>
+<p>The previous API root was <code>http://services.sunlightlabs.com/api/</code>. The new API root is:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<p>Both the previous API and the new API require your <a href="http://services.sunlightlabs.com/accounts/register/">Sunlight API key</a>, so an API method documented as <code>/legislators/locate</code> would be used as:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com/legislators/locate?apikey=[your_api_key]</code></pre>
+<h3 id='general/json-only'>JSON only</h3 id='general/json-only'>
+<p>We no longer support XML responses in our Congress API. All responses are in JSON.
+
+</p>
+<h3 id='general/response-structure'>Response structure</h3 id='general/response-structure'>
+<p>All responses in the new Congress API are in the following form:
+
+</p>
+<pre><code class="json">{
+  "<span class="attribute">results</span>": <span class="value">[
+    ... result objects ...
+  ]</span>,
+  "<span class="attribute">count</span>": <span class="value"><span class="number">123</span></span>,
+  "<span class="attribute">page</span>": <span class="value">{
+    "<span class="attribute">count</span>": <span class="value"><span class="number">1</span></span>,
+    "<span class="attribute">per_page</span>": <span class="value"><span class="number">20</span></span>,
+    "<span class="attribute">page</span>": <span class="value"><span class="number">1</span>
+  </span>}
+</span>}</code></pre>
+<p>All endpoints are plural, and return an array of objects. To look up a single object, use search criteria that guarantee a single result and look for the first (and only) result.
+
+</p>
+<p>The <code>count</code> and <code>page</code> fields are always present, explained in <a href="index.html#parameters/pagination">Pagination</a>. The only exceptions are requests to <code>/districts/locate</code>, which do not use pagination. 
+
+</p>
+<h2 id='legislators'>Legislators</h2 id='legislators'>
+<h3 id='legislators/field-changes'>Field changes</h3 id='legislators/field-changes'>
+<p>The following fields have been renamed:
+
+</p>
+<p>The following fields have been dropped altogether:
+
+</p>
+<ul>
+<li>opencongress_</li>
+</ul>
+<h3 id='legislators/legislators-getlist-and-legislators-get'>legislators.getList and legislators.get</h3 id='legislators/legislators-getlist-and-legislators-get'>
+<h3 id='legislators/legislators-allforzip-and-legislators-allforlatlong'>legislators.allForZip and legislators.allForLatLong</h3 id='legislators/legislators-allforzip-and-legislators-allforlatlong'>
+<h3 id='legislators/legislators-search'>legislators.search</h3 id='legislators/legislators-search'>
+<h2 id='districts'>Districts</h2 id='districts'>
+<h3 id='districts/districts-allforzip-and-districts-allforlatlong'>districts.allForZip and districts.allForLatLong</h3 id='districts/districts-allforzip-and-districts-allforlatlong'>
+<h2 id='committees'>Committees</h2 id='committees'>
+<h3 id='committees/field-changes'>Field changes</h3 id='committees/field-changes'>
+<h3 id='committees/committees-getlist'>committees.getList</h3 id='committees/committees-getlist'>
+<h3 id='committees/committees-get'>committees.get</h3 id='committees/committees-get'>
+<h3 id='committees/committees-allforlegislator'>committees.allForLegislator</h3 id='committees/committees-allforlegislator'>
+
+  </div>
+</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
