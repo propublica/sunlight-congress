@@ -38,7 +38,7 @@ http://congress.api.sunlightfoundation.com
 </tr><tr>
 <td>[/districts/locate](districts.html)</td><td>Find congressional districts for a `latitude`/`longitude` or `zip`.</td>
 </tr><tr>
-<td>/committees</td>
+<td>[/committees](committees.html)</td>
 <td>Current committees, subcommittees, and their membership.</td>
 </tr><tr>
 <td>[/bills](bills.html)</td>
