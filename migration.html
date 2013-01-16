@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Congress API</title>
+    <title>API | Migration</title>
     
     
   <link rel="stylesheet" type="text/css" href="documentup.css">
@@ -185,7 +185,10 @@
 
 </p>
 <h3 id='general/requesting-fields'>Requesting fields</h3 id='general/requesting-fields'>
-<p>By default, not all fields are returned for most objects in the new Congress API. For example, a legislator&#39;s <code>terms</code> field, which contains extensive data on that member&#39;s past terms, does not appear for a plain request to <code>/legislators</code>.
+<p>By default, not all fields are returned for most objects in the new Congress API. 
+
+</p>
+<p>For example, a legislator&#39;s <code>terms</code> field, which contains extensive data on that member&#39;s past terms, does not appear for a plain request to <code>/legislators</code>.
 
 </p>
 <p>Fields can be requested using the <code>fields</code> parameter:
@@ -234,7 +237,7 @@
 <ul>
 <li><code>state_rank</code> - &quot;Junior&quot; or &quot;Senior&quot;, for Senators</li>
 <li><code>state_name</code> - Full state name (e.g. &quot;Pennsylvania&quot;)</li>
-<li><code>lis_id</code> - An official ID used by some official sources for Senators.</li>
+<li><code>lis_id</code> - An official ID used by some sources for Senators.</li>
 <li><code>thomas_id</code> - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.</li>
 <li><code>term_start</code> - The start date of the member&#39;s current term.</li>
 <li><code>term_end</code> - The end date of the member&#39;s current term.</li>

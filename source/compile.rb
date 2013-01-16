@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# Before use: copy config.yml.example to config.yml, and fill in the Google Analytics key.
+
 # Usage:
 # 
 # Compile all .md scripts in this directory:
@@ -11,6 +13,11 @@
 #   ./compile.rb index.md
 
 require 'yaml'
+
+unless File.exist?("config.yml")
+  puts "Copy config.yml.example to config.yml and fill it in before running."
+  exit
+end
 
 google_analytics = YAML.load(open("config.yml"))['google_analytics']
 
@@ -97,7 +104,8 @@ files.each do |filename|
 
   # add links to other models
   if filename != "index"
-    # content.gsub!(/(<\/ul>[\r\n\s]+<div class="extra twitter">)/) {"#{menu_addition}#{$1}"}
+    title = filename.split("_").map(&:capitalize).join " "
+    content.gsub! "<title>#{name}</title>", "<title>API | #{title}</title>"
   end
 
   f = File.open(output_file, "w")
