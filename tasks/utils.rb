@@ -504,7 +504,7 @@ module Utils
         attrs[field] = upcoming_bill[field] unless field == :bill_id
       end
 
-      bill['upcoming'] = bill['upcoming'].dup << attrs
+      bill['upcoming'] = (bill['upcoming'] || []).dup << attrs
       bill.save!
     end
   end
