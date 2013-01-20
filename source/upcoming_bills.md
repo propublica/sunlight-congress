@@ -45,6 +45,18 @@ Filter through upcoming bills in the House and Senate. Filter by any [fields bel
 }
 ```
 
+\* **legislative_day**<br/>
+The legislative day this bill is scheduled for. Combine with the `range` field to understand precision. May be null.
+
+\* **range**<br/>
+How precise this information is. "day", "week", or null. 
+
+* `range` is "day": bill has been scheduled specifically for the `legislative_day`.
+* `range` is "week": bill has been scheduled for the "Week of" the `legislative_day`. 
+* `range` is null: bill has been scheduled at an indefinite time in the future. (`legislative_day` is null.)
+
+The "legislative day" is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day's session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
+
 **bill_id**<br/>
 The ID of the [bill](bills.html) that is being scheduled.
 
@@ -56,18 +68,6 @@ The chamber which has scheduled this bill.
 
 \* **source_type**<br/>
 The source for this information. "house_daily" ([Majority Leader daily schedule](http://majorityleader.gov/floor/daily.html) or "senate_daily" ([Senate Democrats' Floor feed](http://democrats.senate.gov/floor/).
-
-\* **legislative_day**<br/>
-The legislative day this bill is scheduled for. `legislative_day` **may be null**, in which case this bill has been scheduled at an indefinite time in the future.
-
-The "legislative day" is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day's session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
-
-\* **range**<br/>
-How precise the legislative_day is. "day", "week", or null. 
-
-* If "day", the bill has been scheduled specifically for that `legislative_day`.
-* If "week", the bill has been scheduled for the "Week of" the `legislative_day`. 
-* If null, the bill has been scheduled at an indefinite time in the future. (`legislative_day` will also be null.)
 
 **context**<br/>
 (Senate only) Some context for what kind of activity will be occurring to the bill.
