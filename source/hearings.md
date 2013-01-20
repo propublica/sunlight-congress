@@ -90,7 +90,6 @@ The IDs of any bills mentioned by or associated with the hearing.
   "address": "2125 RHOB; Washington, DC 20515",
   "chamber": "house",
   "committee_id": "HSIF",
-  "house_committee_id": "IF",
   "name": "House Committee on Energy and Commerce",
   "office": "2125 RHOB",
   "phone": "(202) 225-2927",
