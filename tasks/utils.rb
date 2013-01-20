@@ -499,18 +499,22 @@ module Utils
   # Removes all elements from the list that match the source_type of the given upcoming item, adds this one.
   def self.update_bill_upcoming!(bill_id, upcoming_bill)
     if bill = Bill.where(bill_id: bill_id).first
-      old_latest_upcoming = (bill['upcoming'] || []).dup
-      new_latest_upcoming = old_latest_upcoming.select do |upcoming|
-        upcoming['source_type'] != upcoming_bill[:source_type]
-      end
-
       attrs = {}
       UpcomingBill.basic_fields.each do |field|
         attrs[field] = upcoming_bill[field] unless field == :bill_id
       end
 
-      new_latest_upcoming << attrs
-      bill[:upcoming] = new_latest_upcoming
+      bill['upcoming'] = bill['upcoming'].dup << attrs
+      bill.save!
+    end
+  end
+
+  def self.flush_bill_upcoming!(source_type)
+    UpcomingBill.where(source_type: source_type).delete_all
+    Bill.where("upcoming.source_type" => source_type).each do |bill|
+      bill['upcoming'] = (bill['upcoming'] || []).dup.select do |upcoming|
+        upcoming['source_type'] != source_type
+      end
       bill.save!
     end
   end

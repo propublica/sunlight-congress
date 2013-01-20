@@ -58,4 +58,7 @@ class Bill
   index "enacted_as.number" => 1
 
   index citation_ids: 1
+
+  # for internal use in keeping upcoming field up to date
+  index "upcoming.source" => 1
 end

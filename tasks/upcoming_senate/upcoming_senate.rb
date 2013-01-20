@@ -27,7 +27,7 @@ class UpcomingSenate
     end
 
     # clear out Senate's upcoming records, this will replace them
-    UpcomingBill.where(source_type: "senate_daily").delete_all
+    Utils.flush_bill_upcoming! "senate_daily"
 
     bad_entries = []
     upcoming_bills = {}
@@ -44,7 +44,7 @@ class UpcomingSenate
       
       legislative_day = legislative_date.strftime "%Y-%m-%d"
       congress = Utils.congress_for_year legislative_date.year
-      
+
       since = options[:since] ? Utils.utc_parse(options[:since]) : Time.now.midnight.utc
       
       # don't care unless it's today or in the future
@@ -94,6 +94,7 @@ class UpcomingSenate
               congress: congress,
               chamber: "senate",
               legislative_day: legislative_day,
+              range: "day",
               url: entry.url,
 
               context: text

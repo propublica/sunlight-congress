@@ -2,11 +2,19 @@ require 'open-uri'
 require 'nokogiri'
 
 class UpcomingHouse
+
+  # options:
+  #
+  #   range: "day" or "week" (default)
   
   def self.run(options = {})
     total_count = 0
+
+    range = options[:range] || "week"
     
-    url = "http://www.majorityleader.house.gov/floor/daily.html"
+    page = {day: "daily", week: "weekly"}[range.to_sym]
+    source_type = "house_#{page}"
+    url = "http://www.majorityleader.house.gov/floor/#{page}.html"
     
     begin
       html = open(url).read
@@ -23,7 +31,7 @@ class UpcomingHouse
       Report.warning self, "Couldn't find date in House Republican daily schedule page, in either PDF or header, can't go on", :url => url
       return
     end
-    
+
     year = legislative_day.split("-").first
     congress = Utils.congress_for_year year
     
@@ -35,28 +43,37 @@ class UpcomingHouse
     
     bill_ids = Utils.bill_ids_for element.text, congress
     
+
+    # flush existing records for this source type
+    Utils.flush_bill_upcoming! source_type
+
+    # old-ness check must come after flush
+    legislative_date = Utils.utc_parse legislative_day
+    if (range == "week") and (legislative_date < 7.days.ago)
+      puts "Weekly schedule's too old (#{legislative_day}), not storing anything"
+      return
+    elsif (range == "day") and (legislative_date < 1.day.ago)
+      puts "Daily schedule's too old (#{legislative_day}), not storing anything"
+      return
+    end
+
     
-    # clear out existing upcoming bills for the day
-    UpcomingBill.where(
-      source_type: "house_daily",
-      legislative_day: legislative_day
-    ).delete_all
-      
     upcoming_count = 0
     bill_ids.each do |bill_id|
-      bill = Utils.bill_for bill_id
-
+      
       upcoming = UpcomingBill.new(
+        source_type: source_type,
+        legislative_day: legislative_day,
+        range: range,
+
         bill_id: bill_id,
-        source_type: "house_daily",
 
         congress: congress,
         chamber: "house",
-        legislative_day: legislative_day,
         url: url
       )
 
-      if bill
+      if bill = Utils.bill_for(bill_id)
         upcoming['bill'] = bill
         Utils.update_bill_upcoming! bill_id, upcoming
       end
@@ -105,6 +122,11 @@ class UpcomingHouse
       rescue ArgumentError
         date = nil
       end
+    end
+
+    # sanity check, sometimes there are typos on the year
+    if (year.to_i != Time.zone.now.year) and (Utils.utc_parse(date_text) < 6.months.ago)
+      date_text.gsub! year, (year.to_i + 1).to_s
     end
 
     date = Utils.utc_parse(date_text).strftime "%Y-%m-%d"
