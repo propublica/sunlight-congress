@@ -21,7 +21,7 @@
 */30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
 
 # re-index text overnight
-0 5,10 * * * /projects/congress/congress/shared/cron/task.sh bills_text
+0 10 * * * /projects/congress/congress/shared/cron/task.sh bills_text
 
 # popular bill names, check once an hour
 0 * * * * /projects/congress/congress/shared/cron/task.sh bills_nicknames
