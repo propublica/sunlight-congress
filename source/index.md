@@ -72,7 +72,7 @@ API keys can be provided with a request through the query string:
 /bills?apikey=[your_api_key]
 ```
 
-Or, by setting the key as the value of a `X-APIKEY` HTTP request header.
+Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
 
 ### Filtering
 
