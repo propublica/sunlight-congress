@@ -502,3 +502,4 @@ a {
 /*#nav {position: fixed;}
 #content {float: right;}*/
 #logo {line-height: 30px;}
+#content ul, ol {color: #444;}
