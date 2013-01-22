@@ -328,10 +328,14 @@ module Utils
     ["Yea", "Nay", "Not Voting", "Present"]
   end
   
+  def self.constant_vote_keys
+    ["Yea", "Nay", "Not Voting", "Present"]
+  end
+  
   def self.vote_breakdown_for(voters)
     breakdown = {total: {}, party: {}}
     
-    voters.each do |bioguide_id, voter|
+    voters.each do|bioguide_id, voter|      
       party = voter[:voter]['party']
       vote = voter[:vote]
       
@@ -351,24 +355,9 @@ module Utils
         breakdown[:party][party][vote] ||= 0
       end
     end
-
-    # transform from hash to array of hashes with no dynamic keys
-    new_breakdown = {total: [], party: []}
-    breakdown[:total].each do |vote, number|
-      new_breakdown[:total] << {vote: vote, number: number}
-    end
-
-    breakdown[:party].each do |party, totals|
-      party_breakdown = {party: party, breakdown: []}
-      totals.each do |vote, number|
-        party_breakdown[:breakdown] << {vote: vote, number: number}
-      end
-      new_breakdown[:party] << party_breakdown
-    end
     
-    new_breakdown
+    breakdown
   end
-  
   
   # Used when processing roll call votes the first time.
   # "passage" will also reliably get set in the second half of votes_archive,
