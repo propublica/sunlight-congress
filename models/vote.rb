@@ -1,16 +1,13 @@
 class Vote
   include Api::Model
-  publicly :queryable, :searchable
+  publicly :queryable
   
-  search_fields :question, 
-    "bill.text", "bill.summary", "bill.keywords", 
-    "bill.official_title", "bill.popular_title", "bill.short_title"
+  search_fields :question
 
   basic_fields :roll_id, :number, :year, :chamber, :congress, 
     :question, :result, :voted_at, :required,
     :roll_type, :vote_type, 
     :bill_id, :amendment_id
-  
   
 
   # MongoDB behavior

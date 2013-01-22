@@ -55,12 +55,9 @@ class VotesHouse
     count = 0
 
     download_failures = []
-    es_failures = []
     missing_bioguide_ids = []
     missing_bill_ids = []
     missing_amendment_ids = []
-
-    batcher = [] # ES batch indexing
 
     legislators = {}
     Legislator.only(Legislator.basic_fields).all.each do |legislator|
@@ -145,17 +142,8 @@ class VotesHouse
       
       vote.save!
 
-      # replicate it in ElasticSearch
-      unless options[:skip_text]
-        puts "[#{roll_id}] Indexing vote into ElasticSearch..." if options[:debug]
-        Utils.search_index_vote! roll_id, vote.attributes, batcher, options
-      end
-
       count += 1
     end
-
-    # index any leftover docs
-    Utils.es_flush! 'votes', batcher
 
     if download_failures.any?
       Report.warning self, "Failed to download #{download_failures.size} files while syncing against the House Clerk votes collection for #{year}", download_failures: download_failures

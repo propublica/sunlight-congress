@@ -518,47 +518,5 @@ module Utils
       bill.save!
     end
   end
-
-  # takes an attribute hash that belongs to a vote, and indexes it in ElasticSearch by the given ID
-  # will look up an associated bill by ID and will grab its searchable fields as appropriate
-  def self.search_index_vote!(vote_id, attributes, batcher, options = {})
-    attributes.delete '_id'
-    attributes.delete 'voters'
-    attributes.delete 'voter_ids'
-
-    if bill_id = attributes['bill_id']
-      if bill = Bill.where(bill_id: bill_id).first
-        attributes['bill'] = Utils.bill_for(bill).merge(
-          summary: bill['summary'],
-          keywords: bill['keywords']
-        )
-        if bill['last_version']
-          if bill_version = BillVersion.where(bill_version_id: bill['last_version']['bill_version_id']).only(:text).first
-            attributes['bill']['text'] = bill_version['text']
-          end
-        end
-      end
-    end
-
-    # if amendment_id = attributes['amendment_id']
-    #   if amendment = Amendment.where(:amendment_id => amendment_id).first
-    #     attributes['amendment'] = Utils.amendment_for(amendment)
-    #   end
-    # end
-
-    es_batch! 'votes', vote_id, attributes, batcher, options
-  end
-
-  # transmutes hash of voter_ids as it appears in the mongo endpoint, 
-  # into something compact for search indexing - a performance sacrifice
-  def self.search_voter_ids(voter_ids)
-    new_ids = {}
-    voter_ids.each do |id, vote|
-      new_ids[vote] ||= []
-      new_ids[vote] << id
-    end
-    new_ids
-  end
-
   
 end
