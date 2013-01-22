@@ -31,10 +31,13 @@ class FloorSenate
     updates = {}
     current_date = nil
     
+    warnings = []
+
     (title_elem.parent / :p).each do |item|
       # ignore headers and footer
       next if ["senate floor proceedings", "today's senate floor log", "\302\240"].include?(item.text.strip.downcase)
-      
+      next if [/ShockwaveFlash/i, /for reference only/i].find {|r| item.text.strip =~ r}
+
       if item['align'] == 'center'
         if Time.zone.parse(item.text)
           current_date = Utils.utc_parse(item.text).strftime "%Y-%m-%d"
@@ -58,8 +61,16 @@ class FloorSenate
     # This is *not* an archival script, and the timestamps will also be inaccurate at first - we must accept this.
     
     congress = Utils.current_congress
+
+    today = Time.now.midnight
     
     updates.keys.sort.each do |legislative_day|
+      # skip unless it's within a day of today
+      this = Time.parse(legislative_day).midnight
+      if (this > (today + 1.day)) or (this < (today - 1.day))
+        next
+      end
+      
       todays = FloorUpdate.where(legislative_day: legislative_day).all.map {|u| u['update']}
       items = updates[legislative_day]
       
@@ -99,6 +110,10 @@ class FloorSenate
     
     if failures.any?
       Report.failure self, "Failed to save #{failures.size} floor updates.", failures: failures
+    end
+
+    if warnings.any?
+      Report.warning self, "Warnings while scanning floor", warnings: warnings
     end
     
     Report.success self, "Saved #{count} new floor updates"
