@@ -40,7 +40,7 @@
 
 
 # floor updates
-# */1 * * * *  /projects/congress/congress/shared/cron/task.sh floor_senate
+*/1 * * * *  /projects/congress/congress/shared/cron/task.sh floor_senate
 */2 * * * *  /projects/congress/congress/shared/cron/task.sh floor_house
 
 # committee hearings
