@@ -50,6 +50,12 @@ module Api
         end
       end
 
+      # special case: default to current committees
+      # no override
+      if model == Committee
+        filters['current'] = [true, nil]
+      end
+
       filters
     end
 
