@@ -75,7 +75,7 @@ class Legislators
     attributes = {
       in_office: current,
 
-      thomas_id: us_legislator['id']['thomas'].to_i.to_s,
+      thomas_id: us_legislator['id']['thomas'].to_s,
       govtrack_id: us_legislator['id']['govtrack'].to_s,
       votesmart_id: us_legislator['id']['votesmart'].to_s,
       crp_id: us_legislator['id']['opensecrets'].to_s,
