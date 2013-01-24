@@ -52,7 +52,7 @@ get searchable_route do
   format = format_for params
   fields = fields_for models, params
   pagination = pagination_for params
-  filters = filters_for model, params
+  filters = filters_for models, params
   order = order_for params, "_score"
 
   search_fields = Searchable.search_fields_for models
