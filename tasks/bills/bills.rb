@@ -56,6 +56,7 @@ class Bills
 
       summary = summary_for doc['summary']
       summary_short = short_summary_for summary
+      summary_date = summary_date_for doc['summary']
       
       committees, missing = committees_for doc['committees'], committee_cache
       missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
@@ -77,6 +78,7 @@ class Bills
         keywords: doc['subjects'],
         summary: summary,
         summary_short: summary_short,
+        summary_date: summary_date,
         
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
@@ -270,6 +272,10 @@ class Bills
 
   def self.summary_for(summary)
     summary ? summary['text'] : nil
+  end
+
+  def self.summary_date_for(summary)
+    summary ? summary['date'] : nil
   end
 
   def self.short_summary_for(summary)
