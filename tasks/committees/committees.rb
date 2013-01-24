@@ -44,9 +44,12 @@ class Committees
       committee_id = us_committee['thomas_id']
       puts "[#{committee_id}] Processing..."
 
+      current = current_committees.include?(us_committee)
+
       committee = Committee.find_or_initialize_by committee_id: committee_id
       
       committee.attributes = attributes_for us_committee
+      committee[:current] = current
       
       subcommittees = []
       (us_committee['subcommittees'] || []).each do |us_subcommittee|
@@ -61,6 +64,7 @@ class Committees
         attributes[:committee_id] = full_id
         subcommittees << attributes
         subcommittee.attributes = attributes
+        subcommittee[:current] = current
 
         subcommittee.save!
       end

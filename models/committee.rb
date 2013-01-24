@@ -4,8 +4,7 @@ class Committee
 
   basic_fields :committee_id, :name, :chamber, 
     :subcommittee, :parent_committee_id,
-    :website, :office, :phone,
-    :house_committee_id
+    :website, :office, :phone, :house_committee_id
 
   search_fields :name
 
@@ -19,4 +18,5 @@ class Committee
   index subcommittee: 1
   index parent_committee_id: 1
   index membership_ids: 1
+  index current: 1
 end
