@@ -10,7 +10,7 @@ module Api
       params[:format] || "json"
     end
 
-    def filters_for(params)
+    def filters_for(model, params)
       fields = {}
       params.keys.each do |key|
         if !magic_fields.include?(key) and params[key].present?
@@ -40,6 +40,14 @@ module Api
         end
 
         filters[field] = [value, operator]
+      end
+
+      # special case: default to in_office legislators
+      # allow it to be overridden
+      if model == Legislator
+        unless params['all_legislators'] == "true"
+          filters['in_office'] ||= [true, nil]
+        end
       end
 
       filters
@@ -117,20 +125,23 @@ module Api
     # special fields used by the system, cannot be used on a model (on the top level)
     def magic_fields
       [
+        # documented operators
         "fields", 
         "order",
         "page", "per_page",
-
         "query", 
-
         "highlight", "highlight.tags", "highlight.size",
-
-        "citing", "citing.details",
-
-        "explain", "format",
-
+        "explain", 
         "apikey",
-        "callback", "_",
+        "callback", "_", # (_ is what jQuery cache-busts JSONP with)
+
+        "all_legislators", # special override
+
+        # undocumented operators
+        "citing", "citing.details",
+        "format",
+
+        # Sinatra-specific
         "captures", "splat"
       ]
     end

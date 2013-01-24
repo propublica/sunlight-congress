@@ -12,7 +12,7 @@ get queryable_route do
   model = params[:captures][0].singularize.camelize.constantize rescue nil
   format = format_for params
   fields = fields_for model, params
-  filters = filters_for params
+  filters = filters_for model, params
   order = order_for params, "_id"
 
   # allow a pagination exception for legislators and committees, by request
@@ -52,7 +52,7 @@ get searchable_route do
   format = format_for params
   fields = fields_for models, params
   pagination = pagination_for params
-  filters = filters_for params
+  filters = filters_for model, params
   order = order_for params, "_score"
 
   search_fields = Searchable.search_fields_for models

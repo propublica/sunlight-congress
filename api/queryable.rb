@@ -3,12 +3,6 @@ module Queryable
   def self.conditions_for(model, query, filters, params)
     conditions = {}
 
-    # special case: default to in_office legislators
-    # allow it to be overridden
-    if model == Legislator
-      conditions['in_office'] = true
-    end
-
     filters.each do |field, filter|
       value, operator = filter
       operator = "ne" if operator == "not"
