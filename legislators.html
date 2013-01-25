@@ -151,6 +151,7 @@
 "<span class="attribute">title</span>": <span class="value"><span class="string">"Sen"</span></span>,
 "<span class="attribute">chamber</span>": <span class="value"><span class="string">"senate"</span></span>,
 "<span class="attribute">senate_class</span>": <span class="value"><span class="number">1</span></span>,
+"<span class="attribute">state_rank</span>": <span class="value"><span class="string">"senior"</span></span>,
 "<span class="attribute">birthday</span>": <span class="value"><span class="string">"1946-12-24"</span></span>,
 "<span class="attribute">term_start</span>": <span class="value"><span class="string">"2007-01-04"</span></span>,
 "<span class="attribute">term_end</span>": <span class="value"><span class="string">"2012-12-31"</span>
@@ -176,7 +177,11 @@ The full state name of the state this member represents.
 
 </p>
 <p>* <strong>district</strong><br/>
-The number of the district that a House member represents. null for Senators.
+(House only) The number of the district that a House member represents.
+
+</p>
+<p>* <strong>state_rank</strong><br/>
+(Senate only) The seniority of that Senator for that state. &quot;junior&quot; or &quot;senior&quot;.
 
 </p>
 <p>* <strong>title</strong><br/>

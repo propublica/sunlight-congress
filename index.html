@@ -197,7 +197,7 @@
 
 </p>
 <pre><code class="text">/bills?apikey=[your_api_key]</code></pre>
-<p>Or, by setting the key as the value of a <code>X-APIKEY</code> HTTP request header.
+<p>Or, by setting the key as the value of an <code>X-APIKEY</code> HTTP request header.
 
 </p>
 <h3 id='parameters/filtering'>Filtering</h3 id='parameters/filtering'>
@@ -225,7 +225,7 @@
 <strong>lt</strong> - the field is less than this value<br/>
 <strong>lte</strong> - the field is less than or equal to this value<br/>
 <strong>not</strong> - the field is not this value<br/>
-<strong>exists</strong> - whether the field exists<br/>
+<strong>present</strong> - the field is both present on the document, and is non-null (supply &quot;true&quot; or &quot;false&quot;)<br/>
 <strong>all</strong> - the field is an array that contains all of these values (separated by &quot;|&quot;)<br/>
 <strong>in</strong> - the field is a string that is one of these values (separated by &quot;|&quot;)<br/>
 
@@ -240,7 +240,7 @@
 <p><strong>Bills that got an up or down vote in the House</strong>
 
 </p>
-<pre><code class="text">/bills?history.house_passage_result__exists=true&amp;chamber=house</code></pre>
+<pre><code class="text">/bills?history.house_passage_result__present=true&amp;chamber=house</code></pre>
 <p><strong>Bills cosponsored by both John McCain and Joe Lieberman</strong>
 
 </p>
