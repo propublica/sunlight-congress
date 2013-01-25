@@ -403,6 +403,7 @@ The **votes** array is identical to the `actions` array, but limited to actions 
   "B001231"
   ...
 ],
+"cosponsors_count": 90,
 "cosponsors": [
   {
     "sponsored_at": "2009-09-17",
@@ -426,7 +427,8 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 ],
 
 "withdrawn_cosponsor_ids": [],
-"withdrawn_cosponsors": []
+"withdrawn_cosponsors": [],
+"withdrawn_cosponsors_count": 0
 }
 ```
 
@@ -439,6 +441,9 @@ An object with most simple [legislator fields](legislators.html#fields) for the 
 \* **cosponsor_ids**<br/>
 An array of bioguide IDs for each cosponsor of the bill. Bills do not always have cosponsors.
 
+\* **cosponsors_count**<br/>
+The number of active cosponsors of the bill.
+
 **cosponsors.sponsored_on**<br/>
 When a legislator signed on as a cosponsor of the legislation.
 
@@ -447,6 +452,9 @@ An object with most simple [legislator fields](legislators.html#fields) for that
 
 \* **withdrawn_cosponsor_ids**<br/>
 An array of bioguide IDs for each legislator who has withdrawn their cosponsorship of the bill.
+
+\* **withdrawn_cosponsors_count**<br/>
+The number of withdrawn cosponsors of the bill.
 
 **withdrawn_cosponsors.withdrawn_on**<br/>
 The date the legislator withdrew their cosponsorship of the bill.

@@ -508,6 +508,7 @@ If the action is a roll call vote, the ID of the roll call.
   <span class="string">"B001231"</span>
   ...
 ]</span>,
+"<span class="attribute">cosponsors_count</span>": <span class="value"><span class="number">90</span></span>,
 "<span class="attribute">cosponsors</span>": <span class="value">[
   {
     "<span class="attribute">sponsored_at</span>": <span class="value"><span class="string">"2009-09-17"</span></span>,
@@ -531,7 +532,8 @@ If the action is a roll call vote, the ID of the roll call.
 ]</span>,
 
 "<span class="attribute">withdrawn_cosponsor_ids</span>": <span class="value">[]</span>,
-"<span class="attribute">withdrawn_cosponsors</span>": <span class="value">[]
+"<span class="attribute">withdrawn_cosponsors</span>": <span class="value">[]</span>,
+"<span class="attribute">withdrawn_cosponsors_count</span>": <span class="value"><span class="number">0</span>
 </span></code></pre>
 <p>* <strong>sponsor_id</strong><br/>
 The bioguide ID of the bill&#39;s sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.
@@ -545,6 +547,10 @@ An object with most simple <a href="legislators.html#fields">legislator fields</
 An array of bioguide IDs for each cosponsor of the bill. Bills do not always have cosponsors.
 
 </p>
+<p>* <strong>cosponsors_count</strong><br/>
+The number of active cosponsors of the bill.
+
+</p>
 <p><strong>cosponsors.sponsored_on</strong><br/>
 When a legislator signed on as a cosponsor of the legislation.
 
@@ -555,6 +561,10 @@ An object with most simple <a href="legislators.html#fields">legislator fields</
 </p>
 <p>* <strong>withdrawn_cosponsor_ids</strong><br/>
 An array of bioguide IDs for each legislator who has withdrawn their cosponsorship of the bill.
+
+</p>
+<p>* <strong>withdrawn_cosponsors_count</strong><br/>
+The number of withdrawn cosponsors of the bill.
 
 </p>
 <p><strong>withdrawn_cosponsors.withdrawn_on</strong><br/>
