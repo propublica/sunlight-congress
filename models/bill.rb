@@ -7,7 +7,8 @@ class Bill
     :short_title, :official_title, :popular_title, :nicknames,
     :introduced_on, :history, :enacted_as,
     :last_action_at, :last_vote_at, :last_version_on, 
-    :last_version, :urls
+    :last_version, :urls, 
+    :cosponsors_count, :withdrawn_cosponsors_count
 
   search_fields :popular_title, :official_title, :short_title, 
     :nicknames, :summary, :keywords, :text
@@ -29,7 +30,9 @@ class Bill
   
   index sponsor_id: 1
   index cosponsor_ids: 1
+  index cosponsors_count: 1
   index withdrawn_cosponsor_ids: 1
+  index withdrawn_cosponsors_count: 1
   index committee_ids: 1
   index related_bill_ids: 1
   index amendment_ids: 1

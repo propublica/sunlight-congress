@@ -50,7 +50,7 @@ class Bills
       end
 
       cosponsors, withdrawn, missing = cosponsors_for doc['cosponsors'], legislators
-      missing_legislators << missing.map {|m| [bill_id, missing]} if missing.any?
+      missing_legislators += missing.map {|m| [bill_id, m]} if missing.any?
 
       actions = actions_for doc['actions']
 
@@ -59,7 +59,7 @@ class Bills
       summary_date = summary_date_for doc['summary']
       
       committees, missing = committees_for doc['committees'], committee_cache
-      missing_committees << missing.map {|m| [bill_id, missing]} if missing.any?
+      missing_committees += missing.map {|m| [bill_id, m]} if missing.any?
 
       related_bill_ids = doc['related_bills'].map {|details| details['bill_id']}
       
@@ -84,8 +84,10 @@ class Bills
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
         cosponsors: cosponsors,
         cosponsor_ids: cosponsors.map {|c| c['legislator']['bioguide_id']},
+        cosponsors_count: cosponsors.size,
         withdrawn_cosponsors: withdrawn,
         withdrawn_cosponsor_ids: withdrawn.map {|c| c['legislator']['bioguide_id']},
+        withdrawn_cosponsors_count: withdrawn.size,
 
         introduced_on: doc['introduced_at'],
         history: history_for(doc['history']),
