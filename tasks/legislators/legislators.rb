@@ -93,7 +93,6 @@ class Legislators
       term_end: last_term['end'],
       state: last_term['state'],
       state_name: state_map[last_term['state']],
-      district: last_term['district'],
       party: party_for(last_term['party']),
       title: last_term['type'].capitalize,
       chamber: {
@@ -119,6 +118,9 @@ class Legislators
     if attributes[:chamber] == "senate"
       attributes[:senate_class] = last_term['class']
       attributes[:lis_id] = us_legislator['id']['lis'].to_s
+      attributes[:state_rank] = last_term['state_rank']
+    elsif attributes[:chamber] == "house"
+      attributes[:district] = last_term['district']
     end
 
     attributes
