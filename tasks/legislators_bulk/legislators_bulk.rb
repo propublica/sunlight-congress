@@ -54,7 +54,9 @@ class LegislatorsBulk
           ((old_legislator and old_legislator[2].present?) ? old_legislator[2] : legislator['middle_name']),
 
           legislator['last_name'],
-          legislator['name_suffix'],
+
+          # let old name suffixes temporarily override new ones
+          ((old_legislator and old_legislator[4].present?) ? old_legislator[4] : legislator['name_suffix']),
 
           # let old nicknames temporarily override new ones
           ((old_legislator and old_legislator[5].present?) ? old_legislator[5] : legislator['nickname']),
@@ -98,8 +100,6 @@ class LegislatorsBulk
       end
     end
 
-    analyze
-
     Report.success self, "Saved legislators.csv with #{count} current legislators"
   end
 
@@ -112,52 +112,14 @@ class LegislatorsBulk
   end
 
   def self.district_for(legislator, old_legislator)
-    # people who were not Senior Seat in 112th, but are in 113th
-    exceptions = [
-      "S001194", # Brian Schatz
-      "W000805", # Mark Warner
-      "B001277", # Richard Blumenthal
-      "U000039", # Tom Udall
-      "C000542", # Daniel Coats
-      "H001061", # John Hoeven
-      "C001035", # Susan Collins
-      "J000291", # Mike Johanns
-      "C001056", # John Cornyn
-      "J000293", # Ron Johnson
-    ]
-
-    if exceptions.include?(legislator['bioguide_id'])
-      return "Senior Seat"
-    end
-
     if legislator['chamber'] == 'senate'
-      if old_legislator and old_legislator[0] == "Sen" and old_legislator[8]
+      if legislator['state_rank'].nil? and old_legislator and old_legislator[0] == "Sen" and old_legislator[8]
         old_legislator[8]
       else
-        "Junior Seat"
+        "#{legislator['state_rank'].capitalize} Seat"
       end
     else
       legislator['district']
-    end
-  end
-
-  def self.analyze(options = {})
-    states = {}
-    CSV.foreach("data/sunlight/legislators.csv") do |row|
-      next unless row[0] == "Sen" and row[9] == "1"
-
-      state = row[7]
-      district = row[8]
-      bioguide = row[16]
-
-      states[state] ||= []
-      states[state] << [district, bioguide]
-    end
-
-    states.each do |state, seats|
-      unless seats.find {|s| s[0] =~ /Senior/i}
-        puts "[#{state}] #{seats.map {|s| s[1]}.join ", "}"
-      end
     end
   end
 
