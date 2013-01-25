@@ -80,6 +80,7 @@ You can turn off pagination for requests to `/legislators`, but doing so will fo
 "title": "Sen",
 "chamber": "senate",
 "senate_class": 1,
+"state_rank": "senior",
 "birthday": "1946-12-24",
 "term_start": "2007-01-04",
 "term_end": "2012-12-31"
@@ -102,7 +103,10 @@ Two-letter code of the state this member represents.
 The full state name of the state this member represents.
 
 \* **district**<br/>
-The number of the district that a House member represents. null for Senators.
+(House only) The number of the district that a House member represents.
+
+\* **state_rank**<br/>
+(Senate only) The seniority of that Senator for that state. "junior" or "senior".
 
 \* **title**<br/>
 Title of this member. "Sen", "Rep", "Del", or "Com".
