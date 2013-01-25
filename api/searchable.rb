@@ -34,12 +34,11 @@ module Searchable
   end
   
   def self.subfilter_for(field, value, operator)
-    if operator == "exists"
-      base = {exists: {"field" => field.to_s}}
+    if operator == "present"
       if value == false
-        return {"not" => base}
+        return {missing: {field: field.to_s}}
       else
-        return base
+        return {exists: {field: field.to_s}}
       end
     end
 

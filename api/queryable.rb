@@ -5,8 +5,16 @@ module Queryable
 
     filters.each do |field, filter|
       value, operator = filter
+      
       operator = "ne" if operator == "not"
-      conditions[field] = operator ? {"$#{operator}" => value} : value
+
+      if operator == "present"
+        conditions[field] = value ? {"$ne" => nil} : nil
+      elsif operator
+        conditions[field] = {"$#{operator}" => value}
+      else
+        conditions[field] = value
+      end
     end
 
     if query.present? and model.search_fields
