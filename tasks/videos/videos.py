@@ -199,7 +199,7 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                 if  bill_name and bill_name.has_key('short_title') and bill_name['short_title'] and bill_name['short_title'] != '':
                     events += bill_name['short_title'] + '; '
                 elif bill_name:
-                    events += bill_name['code'].upper() + '; '
+                    events += ("%s%s" % (bill_name['bill_type'], bill_name['number'])).upper() + '; '
 
         if events == '':
             events = "No description for clip number %s" % clip_num
