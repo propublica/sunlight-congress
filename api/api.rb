@@ -18,7 +18,7 @@ module Api
         end
       end
 
-      operators = %w{gt lt gte lte not present all in}
+      operators = %w{gt lt gte lte not present exists all in}
 
       # translate citation requests
       if params[:citing]

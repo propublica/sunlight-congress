@@ -8,7 +8,7 @@ module Queryable
       
       operator = "ne" if operator == "not"
 
-      if operator == "present"
+      if (operator == "present") or (operator == "exists")
         conditions[field] = value ? {"$ne" => nil} : nil
       elsif operator
         conditions[field] = {"$#{operator}" => value}
