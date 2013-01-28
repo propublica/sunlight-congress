@@ -260,6 +260,11 @@ class Regulations
       return []
     end
 
+    unless response['count']
+      Report.exception self, "No count field?", response: response.to_s
+      return []
+    end
+
     if response['count'] >= 1000
       Report.warning self, "Likely more than 1000 public inspection docs today, that is crazy"
       # continue on
@@ -300,7 +305,12 @@ class Regulations
     end
 
     if response['errors']
-      Report.error self, "Errors, not sure what this looks like...", errors: response['errors']
+      Report.exception self, "Errors, not sure what this looks like...", errors: response['errors']
+      return []
+    end
+
+    unless response['count']
+      Report.exception self, "No count field?", response: response.to_s
       return []
     end
 
