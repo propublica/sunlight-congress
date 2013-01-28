@@ -18,7 +18,7 @@ module Api
         end
       end
 
-      operators = %w{gt lt gte lte not exists all in}
+      operators = %w{gt lt gte lte not exists all in nin}
 
       # translate citation requests
       if params[:citing]
@@ -31,12 +31,8 @@ module Api
         operator = nil unless operators.include?(operator)
         value = value_for value
 
-        if ["all", "in"].include?(operator)
-          if value["|"]
-            value = value.split "|"
-          else
-            operator = nil
-          end
+        if ["all", "in", "nin"].include?(operator)
+          value = value.split "|"
         end
 
         filters[field] = [value, operator]

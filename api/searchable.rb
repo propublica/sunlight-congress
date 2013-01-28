@@ -48,6 +48,22 @@ module Searchable
       }
     end
 
+    if operator == "all"
+      return {
+        "and" => value.map {|v| subfilter_for field, v, nil}
+      }
+    elsif operator == "in"
+      return {
+        "or" => value.map {|v| subfilter_for field, v, nil}
+      }
+    elsif operator == "nin"
+      return {
+        "not" => {
+          "or" => value.map {|v| subfilter_for field, v, nil}
+        }
+      }
+    end
+
     subfilter = if value.is_a?(String)
       # strings can be filtered on ranges
       # especially effective on date fields forced to be strings
