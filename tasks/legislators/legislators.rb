@@ -77,7 +77,6 @@ class Legislators
 
       thomas_id: us_legislator['id']['thomas'].to_s,
       govtrack_id: us_legislator['id']['govtrack'].to_s,
-      votesmart_id: us_legislator['id']['votesmart'].to_s,
       crp_id: us_legislator['id']['opensecrets'].to_s,
       fec_ids: us_legislator['id']['fec'],
 
@@ -113,6 +112,10 @@ class Legislators
 
     if us_legislator['other_names']
       attributes[:other_names] = us_legislator['other_names']
+    end
+
+    if us_legislator['id']['votesmart'].present?
+      attributes[:votesmart_id] = us_legislator['id']['votesmart']
     end
 
     if attributes[:chamber] == "senate"
