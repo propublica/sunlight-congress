@@ -21,7 +21,12 @@ class Bill
   include Mongoid::Timestamps
   
   index bill_id: 1
+  
   index({bill_type: 1, number: 1})
+
+  # support an orderly ordering of recent bills
+  index({introduced_on: 1, bill_type: 1, number: 1})
+
   index chamber: 1
   index congress: 1
 
