@@ -225,9 +225,10 @@
 <strong>lt</strong> - the field is less than this value<br/>
 <strong>lte</strong> - the field is less than or equal to this value<br/>
 <strong>not</strong> - the field is not this value<br/>
-<strong>present</strong> - the field is both present on the document, and is non-null (supply &quot;true&quot; or &quot;false&quot;)<br/>
 <strong>all</strong> - the field is an array that contains all of these values (separated by &quot;|&quot;)<br/>
 <strong>in</strong> - the field is a string that is one of these values (separated by &quot;|&quot;)<br/>
+<strong>nin</strong> - the field is a string that is <em>not</em> one of these values (separated by &quot;|&quot;)<br/>
+<strong>exists</strong> - the field is both present and non-null (supply &quot;true&quot; or &quot;false&quot;)<br/>
 
 </p>
 <p>All operators are applied by adding two underscores (&quot;__&quot;) after the field name. They cannot be combined.

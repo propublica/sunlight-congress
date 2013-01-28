@@ -105,9 +105,10 @@ The API supports 8 operators that can be combined with filters:
 **lt** - the field is less than this value<br/>
 **lte** - the field is less than or equal to this value<br/>
 **not** - the field is not this value<br/>
-**present** - the field is both present on the document, and is non-null (supply "true" or "false")<br/>
 **all** - the field is an array that contains all of these values (separated by "|")<br/>
 **in** - the field is a string that is one of these values (separated by "|")<br/>
+**nin** - the field is a string that is *not* one of these values (separated by "|")<br/>
+**exists** - the field is both present and non-null (supply "true" or "false")<br/>
 
 All operators are applied by adding two underscores ("__") after the field name. They cannot be combined.
 
@@ -120,7 +121,7 @@ All operators are applied by adding two underscores ("__") after the field name.
 **Bills that got an up or down vote in the House**
 
 ```text
-/bills?history.house_passage_result__present=true&chamber=house
+/bills?history.house_passage_result__exists=true&chamber=house
 ```
 
 **Bills cosponsored by both John McCain and Joe Lieberman**
