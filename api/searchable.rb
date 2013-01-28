@@ -34,7 +34,7 @@ module Searchable
   end
   
   def self.subfilter_for(field, value, operator)
-    if (operator == "present") or (operator == "exists")
+    if operator == "exists"
       if value == false
         return {missing: {field: field.to_s}}
       else
