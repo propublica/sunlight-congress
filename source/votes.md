@@ -192,6 +192,8 @@ The vote **breakdown** gives top-level numbers about what votes were cast.
 
 Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner"). There may be other exceptions.
 
+Values for "Present" and "Not Voting" will always be present, no matter what kind of vote it is.
+
 These fields are dynamic, but can all be filtered on.
 
 \* **breakdown.total.[vote]**<br/>
