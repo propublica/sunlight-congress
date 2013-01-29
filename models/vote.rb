@@ -29,4 +29,12 @@ class Vote
   index roll_type: 1
   index vote_type: 1
   index required: 1
+
+  # common breakdown filters
+  ["Yea", "Nay", "Not Voting", "Present", "Guilty", "Not Guilty"].each do |vote|
+    index "breakdown.total.#{vote}" => 1
+    index "breakdown.party.D.#{vote}" => 1
+    index "breakdown.party.R.#{vote}" => 1
+    index "breakdown.party.I.#{vote}" => 1
+  end
 end
