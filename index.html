@@ -68,6 +68,10 @@
                   <a href="#parameters/search">Search</a>
                 </li>
               
+                <li>
+                  <a href="#parameters/explain-mode">Explain mode</a>
+                </li>
+              
             </ul>
           
         </li>
@@ -86,20 +90,37 @@
         </li>
       
         <li>
+          <a href="#bulk-data">Bulk Data</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#bulk-data/legislator-spreadsheet">Legislator spreadsheet</a>
+                </li>
+              
+                <li>
+                  <a href="#bulk-data/zip-codes-to-congressional-districts">Zip Codes to Congressional Districts</a>
+                </li>
+              
+                <li>
+                  <a href="#bulk-data/legislator-photos">Legislator Photos</a>
+                </li>
+              
+                <li>
+                  <a href="#bulk-data/core-information">Core Information</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
           <a href="#other">Other</a>
           
             <ul>
               
                 <li>
-                  <a href="#other/explain-mode">Explain mode</a>
-                </li>
-              
-                <li>
                   <a href="#other/migrating-from-our-old-sunlight-congress-api">Migrating from our old Sunlight Congress API</a>
-                </li>
-              
-                <li>
-                  <a href="#other/bulk-data">Bulk Data</a>
                 </li>
               
                 <li>
@@ -241,7 +262,7 @@
 <p><strong>Bills that got an up or down vote in the House</strong>
 
 </p>
-<pre><code class="text">/bills?history.house_passage_result__present=true&amp;chamber=house</code></pre>
+<pre><code class="text">/bills?history.house_passage_result__exists=true&amp;chamber=house</code></pre>
 <p><strong>Bills cosponsored by both John McCain and Joe Lieberman</strong>
 
 </p>
@@ -369,6 +390,13 @@ The number of actual documents in the response. Can be less than the given <code
 
 </p>
 <pre><code class="text">/floor_updates?query=committee of the whole&amp;chamber=house</code></pre>
+<h3 id='parameters/explain-mode'>Explain mode</h3 id='parameters/explain-mode'>
+<p>Add an <code>explain=true</code> parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
+
+</p>
+<p>This is a convenience for debugging, not a &quot;supported&quot; API feature. Don&#39;t make automatic requests with explain mode turned on.
+
+</p>
 <h2 id='full-text-search'>Full text search</h2 id='full-text-search'>
 <p>Endpoints ending with <code>/search</code> that are given a <code>query</code> parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as <em>keywords</em> (use quotes to form phrases).
 
@@ -418,26 +446,51 @@ The number of actual documents in the response. Can be less than the given <code
 
 </p>
 <pre><code class="text">/bills/search?query=drugs&amp;highlight=true&amp;highlight.size=500</code></pre>
+<h2 id='bulk-data'>Bulk Data</h2 id='bulk-data'>
+<p>We provide some data for direct download. The Congress API is not designed for retrieving bulk data. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
+
+</p>
+<h3 id='bulk-data/legislator-spreadsheet'>Legislator spreadsheet</h3 id='bulk-data/legislator-spreadsheet'>
+<p>We offer a CSV of basic legislator information for <a href="https://github.com/sunlightlabs/apidata/raw/master/legislators/legislators.csv">direct download here</a> (right-click and Save As).
+
+</p>
+<p>It includes basic information about names, positions, biographical details, contact information, social media accounts, and identifiers for various public databases.
+
+</p>
+<p>It contains current information only - it does not include a legislator&#39;s history of changes to name, party, chamber, etc.
+
+</p>
+<h3 id='bulk-data/zip-codes-to-congressional-districts'>Zip Codes to Congressional Districts</h3 id='bulk-data/zip-codes-to-congressional-districts'>
+<p>We provide a CSV connecting Zip Code Tabulation Areas (ZCTAs) to congressional districts for <a href="http://assets.sunlightfoundation.com/data/districts.csv">direct download here</a>.
+
+</p>
+<p>This is the data we use in our <a href="legislators.html">/legislators/locate</a> and <a href="districts.html">/districts/locate</a> endpoints when a <code>zip</code> is provided. These are technically not zip codes, but ZCTAs: all of our <a href="http://sunlightlabs.com/blog/2012/dont-use-zipcodes/">warnings and caveats</a> about using ZCTAs apply.
+
+</p>
+<h3 id='bulk-data/legislator-photos'>Legislator Photos</h3 id='bulk-data/legislator-photos'>
+<p>We provide zip files of official photos of members of Congress, as taken from the <a href="http://www.gpo.gov/fdsys/browse/collection.action?collectionCode=GPO&amp;browsePath=Congressional+Pictorial+Directory&amp;isCollapsed=false&amp;leafLevelBrowse=false&amp;ycord=0">Congressional Pictorial Directory</a>. We offer them in 3 sizes, and the files are all named using the member&#39;s Bioguide ID.
+
+</p>
+<ul>
+<li><a href="http://assets.sunlightfoundation.com/moc/40x50.zip">Small, 40x50</a></li>
+<li><a href="http://assets.sunlightfoundation.com/moc/100x125.zip">Medium, 100x125</a></li>
+<li><a href="http://assets.sunlightfoundation.com/moc/200x250.zip">Large, 200x250</a></li>
+</ul>
+<h3 id='bulk-data/core-information'>Core Information</h3 id='bulk-data/core-information'>
+<p>Core information for legislators, committees, and bills come from public domain scrapers and bulk data at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
+
+</p>
+<ul>
+<li><a href="https://github.com/unitedstates/congress">Scrapers for bulk bill data</a> from THOMAS.gov, 1973-present</li>
+<li><a href="https://github.com/unitedstates/congress-legislators">Legislator and committee bulk data</a> from various sources, 1789-present.</li>
+<li><a href="https://github.com/unitedstates/bill-nicknames">Popular nicknames for bills</a>, manually updated and unofficial (e.g. &quot;obamacare&quot;).</li>
+</ul>
 <h2 id='other'>Other</h2 id='other'>
-<h3 id='other/explain-mode'>Explain mode</h3 id='other/explain-mode'>
-<p>Add an <code>explain=true</code> parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
-
-</p>
-<p>This is a convenience for debugging, not a &quot;supported&quot; API feature. Don&#39;t make automatic requests with explain mode turned on.
-
-</p>
 <h3 id='other/migrating-from-our-old-sunlight-congress-api'>Migrating from our old Sunlight Congress API</h3 id='other/migrating-from-our-old-sunlight-congress-api'>
 <p>This Sunlight Congress API replaces and deprecates our <a href="http://services.sunlightlabs.com/docs/Sunlight_Congress_API/">old Sunlight Congress API</a>. We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Conrgess API to upgrade to this one as soon as possible.
 
 </p>
 <p>We have prepared a <a href="migration.html">migration guide</a> that shows how to move from each method in the old API to the new API.
-
-</p>
-<h3 id='other/bulk-data'>Bulk Data</h3 id='other/bulk-data'>
-<p>Core data for legislators, committees, and bills come from public domain <a href="https://github.com/unitedstates/congress">scrapers</a> and <a href="https://github.com/unitedstates/congress-legislators">bulk data</a> at <a href="https://github.com/unitedstates/">github.com/unitedstates</a>. 
-
-</p>
-<p>The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data in bulk.
 
 </p>
 <h3 id='other/planned-additions'>Planned Additions</h3 id='other/planned-additions'>

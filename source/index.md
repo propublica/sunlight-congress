@@ -273,6 +273,12 @@ Provide a `query` parameter to return results the API thinks best match your que
 /floor_updates?query=committee of the whole&chamber=house
 ```
 
+### Explain mode
+
+Add an `explain=true` parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
+
+This is a convenience for debugging, not a "supported" API feature. Don't make automatic requests with explain mode turned on.
+
 ## Full text search
 
 Endpoints ending with `/search` that are given a `query` parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as *keywords* (use quotes to form phrases).
@@ -333,25 +339,48 @@ Control the size of highlighted excerpts with the `highlight.size` parameter. (N
 /bills/search?query=drugs&highlight=true&highlight.size=500
 ```
 
+## Bulk Data
+
+We provide some data for direct download. The Congress API is not designed for retrieving bulk data. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
+
+### Legislator spreadsheet
+
+We offer a CSV of basic legislator information for [direct download here](https://github.com/sunlightlabs/apidata/raw/master/legislators/legislators.csv) (right-click and Save As).
+
+It includes basic information about names, positions, biographical details, contact information, social media accounts, and identifiers for various public databases.
+
+It contains current information only - it does not include a legislator's history of changes to name, party, chamber, etc.
+
+### Zip Codes to Congressional Districts
+
+We provide a CSV connecting Zip Code Tabulation Areas (ZCTAs) to congressional districts for [direct download here](http://assets.sunlightfoundation.com/data/districts.csv).
+
+This is the data we use in our [/legislators/locate](legislators.html) and [/districts/locate](districts.html) endpoints when a `zip` is provided. These are technically not zip codes, but ZCTAs: all of our [warnings and caveats](http://sunlightlabs.com/blog/2012/dont-use-zipcodes/) about using ZCTAs apply.
+
+### Legislator Photos
+
+We provide zip files of official photos of members of Congress, as taken from the [Congressional Pictorial Directory](http://www.gpo.gov/fdsys/browse/collection.action?collectionCode=GPO&browsePath=Congressional+Pictorial+Directory&isCollapsed=false&leafLevelBrowse=false&ycord=0). We offer them in 3 sizes, and the files are all named using the member's Bioguide ID.
+
+* [Small, 40x50](http://assets.sunlightfoundation.com/moc/40x50.zip)
+* [Medium, 100x125](http://assets.sunlightfoundation.com/moc/100x125.zip)
+* [Large, 200x250](http://assets.sunlightfoundation.com/moc/200x250.zip)
+
+### Core Information
+
+Core information for legislators, committees, and bills come from public domain scrapers and bulk data at [github.com/unitedstates](https://github.com/unitedstates/). 
+
+* [Scrapers for bulk bill data](https://github.com/unitedstates/congress) from THOMAS.gov, 1973-present
+* [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) from various sources, 1789-present.
+* [Popular nicknames for bills](https://github.com/unitedstates/bill-nicknames), manually updated and unofficial (e.g. "obamacare").
+
+
 ## Other
-
-### Explain mode
-
-Add an `explain=true` parameter to any API request to return a JSON response with how the API interpreted the query, and database-specific explain information.
-
-This is a convenience for debugging, not a "supported" API feature. Don't make automatic requests with explain mode turned on.
 
 ### Migrating from our old Sunlight Congress API
 
 This Sunlight Congress API replaces and deprecates our [old Sunlight Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Conrgess API to upgrade to this one as soon as possible.
 
 We have prepared a [migration guide](migration.html) that shows how to move from each method in the old API to the new API.
-
-### Bulk Data
-
-Core data for legislators, committees, and bills come from public domain [scrapers](https://github.com/unitedstates/congress) and [bulk data](https://github.com/unitedstates/congress-legislators) at [github.com/unitedstates](https://github.com/unitedstates/). 
-
-The Congress API is not designed for bulk data downloads. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. Please use the above resources to collect this data in bulk.
 
 ### Planned Additions
 
