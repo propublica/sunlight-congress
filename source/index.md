@@ -373,7 +373,6 @@ Core information for legislators, committees, and bills come from public domain 
 * [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) in YAML from various sources, 1789-present.
 * [Popular nicknames for bills](https://github.com/unitedstates/bill-nicknames) in CSV, manually updated and unofficial (e.g. "obamacare").
 
-
 ## Other
 
 ### Migrating from our old Sunlight Congress API
