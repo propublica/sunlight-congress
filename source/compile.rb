@@ -43,27 +43,7 @@ footer = "
 </script>
 "
 
-menu_addition = "
-<ul class=\"contents\" id=\"sections\">
-  <li>
-    <a href=\"#\">Table of Contents</a>
-    <ul>
-      <li>
-        <a href=\"index.html\">Home</a>
-      </li>
-
-      <li>
-        <a href=\"legislators.html\">Legislators</a>
-      </li>
-
-      <li>
-        <a href=\"bills.html\">Bills</a>
-      </li>
-    </ul>
-  </li>
-</ul>"
-
-name = "Congress API"
+name = "Sunlight Congress API"
 twitter = "sunlightlabs"
 
 
@@ -86,27 +66,23 @@ files.each do |filename|
 
   content = File.read output_file
   
-  # add in our own header
+  # add in our own header (custom styles)
   content.sub! /<link.*?<\/head>/im, "#{header}\n</head>"
 
-  # clean up what markdown does to our dt/dd blocks
-  content.gsub! /<\/p>\n<dd>/m, "<dd>"
-  content.gsub! "<p><dt>", "<dt>"
-
-  # add in our own footer
+  # add in our own footer (Google Analytics)
   content.gsub! "</body>", "#{footer}\n</body>"
-
-  # get rid of braces around unindented (partial) JSON blocks
-  content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
 
   # link the main header to the index page
   content.gsub! "<a href=\"#\" id=\"logo\">", "<a href=\"index.html\" id=\"logo\">"
 
-  # add links to other models
+  # custom title for non-index pages
   if filename != "index"
     title = filename.split("_").map(&:capitalize).join " "
-    content.gsub! "<title>#{name}</title>", "<title>Congress API | #{title}</title>"
+    content.gsub! "<title>#{name}</title>", "<title>#{name} | #{title}</title>"
   end
+
+  # get rid of braces around unindented (partial) JSON blocks
+  content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
 
   File.open(output_file, "w") {|file| file.write content}
 end
