@@ -227,6 +227,8 @@ module Utils
   # legislative year - consider Jan 1, Jan 2, and first half of Jan 3 to be last year
   def self.current_legislative_year(now = nil)
     now ||= Time.now
+    now = now.in_time_zone # enforce EST
+
     year = now.year
     if now.month == 1
       if [1, 2].include?(now.day)
