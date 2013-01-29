@@ -57,9 +57,6 @@ How precise this information is. "day", "week", or null.
 
 The "legislative day" is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day's session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
 
-**bill_id**<br/>
-The ID of the [bill](bills.html) that is being scheduled.
-
 \* **congress**<br/>
 The number of the Congress this bill has been scheduled in.
 
@@ -74,3 +71,23 @@ The source for this information. "house_daily" ([Majority Leader daily schedule]
 
 **url**<br/>
 A permalink for this information. For the House, this may be a PDF.
+
+### Associated Bill
+
+```json
+{
+"bill_id": "hr41-113",
+"bill": {
+  "bill_id": "hr41-113",
+  "bill_type": "hr",
+  "congress": 113
+  ...
+}
+}
+```
+
+\* **bill_id**<br/>
+The ID of the [bill](bills.html) that is being scheduled.
+
+**bill**<br/>
+Some basic fields about the [bill](bills.html) that is being scheduled.

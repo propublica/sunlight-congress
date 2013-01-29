@@ -37,6 +37,14 @@
         <li>
           <a href="#fields">Fields</a>
           
+            <ul>
+              
+                <li>
+                  <a href="#fields/associated-bill">Associated Bill</a>
+                </li>
+              
+            </ul>
+          
         </li>
       
     </ul>
@@ -101,10 +109,6 @@ How precise this information is. &quot;day&quot;, &quot;week&quot;, or null.
 <p>The &quot;legislative day&quot; is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day&#39;s session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
 
 </p>
-<p><strong>bill_id</strong><br/>
-The ID of the <a href="bills.html">bill</a> that is being scheduled.
-
-</p>
 <p>* <strong>congress</strong><br/>
 The number of the Congress this bill has been scheduled in.
 
@@ -122,7 +126,24 @@ The source for this information. &quot;house_daily&quot; (<a href="http://majori
 
 </p>
 <p><strong>url</strong><br/>
-A permalink for this information. For the House, this may be a PDF.</p>
+A permalink for this information. For the House, this may be a PDF.
+
+</p>
+<h3 id='fields/associated-bill'>Associated Bill</h3 id='fields/associated-bill'>
+<pre><code class="json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
+"<span class="attribute">bill</span>": <span class="value">{
+  "<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
+  "<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>,
+  "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span>
+  ...
+</span>}
+</span></code></pre>
+<p>* <strong>bill_id</strong><br/>
+The ID of the <a href="bills.html">bill</a> that is being scheduled.
+
+</p>
+<p><strong>bill</strong><br/>
+Some basic fields about the <a href="bills.html">bill</a> that is being scheduled.</p>
 
   </div>
 </div>
