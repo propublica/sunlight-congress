@@ -502,6 +502,5 @@ a {
 #content ul, ol {color: #444;}
 #header #logo {
   font-size: 20px; line-height: 36px;
-  padding-top: 0;
+  padding-bottom: 0;
 }
-#nav {margin-top: 30px;}
