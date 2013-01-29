@@ -108,7 +108,5 @@ files.each do |filename|
     content.gsub! "<title>#{name}</title>", "<title>Congress API | #{title}</title>"
   end
 
-  f = File.open(output_file, "w")
-  f.write content
-  f.close
+  File.open(output_file, "w") {|file| file.write content}
 end
