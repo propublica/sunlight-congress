@@ -504,3 +504,5 @@ a {
   font-size: 20px; line-height: 36px;
   padding-bottom: 0;
 }
+#nav .thanks {color: #8e908c; font-size: 80%;}
+#nav .thanks a {display: inline; font-weight: normal; font-size: 100%;}

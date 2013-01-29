@@ -70,16 +70,19 @@ files.each do |filename|
   content.sub! /<link.*?<\/head>/im, "#{header}\n</head>"
 
   # add in our own footer (Google Analytics)
-  content.gsub! "</body>", "#{footer}\n</body>"
+  content.sub! "</body>", "#{footer}\n</body>"
 
   # link the main header to the index page
-  content.gsub! "<a href=\"#\" id=\"logo\">", "<a href=\"index.html\" id=\"logo\">"
+  content.sub! "<a href=\"#\" id=\"logo\">", "<a href=\"index.html\" id=\"logo\">"
 
   # custom title for non-index pages
   if filename != "index"
     title = filename.split("_").map(&:capitalize).join " "
-    content.gsub! "<title>#{name}</title>", "<title>#{name} | #{title}</title>"
+    content.sub! "<title>#{name}</title>", "<title>#{name} | #{title}</title>"
   end
+
+  # add mention of DocumentUp to the template, since we're not hosted there
+  content.sub! /<\/iframe>.*?<\/div>/im, "</iframe></div><div class=\"thanks\">powered by <a href=\"http://documentup.com\">DocumentUp</a></div>"
 
   # get rid of braces around unindented (partial) JSON blocks
   content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
