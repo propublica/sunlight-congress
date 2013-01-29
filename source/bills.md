@@ -4,7 +4,7 @@ Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 
 * Scrapers at [github.com/unitedstates](https://github.com/unitedstates/congress) for core status and history information.
 * Bulk data at [GPO's FDSys](http://www.gpo.gov/fdsys/) for version information, and full text.
-* The House' [MajorityLeader.gov](http://majorityleader.gov/) and Senate Democrat's [official site](http://democrats.senate.gov/) for notices of upcoming debate.
+* The House' [MajorityLeader.gov](http://majorityleader.gov/) and Senate Democrats' [official site](http://democrats.senate.gov/) for notices of upcoming debate.
 
 ## Methods
 
