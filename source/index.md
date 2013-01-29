@@ -23,7 +23,7 @@ We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum
 
 ## Methods
 
-The Sunlight Congress API lives at:
+Calls to the Sunlight Congress API are of the form:
 
 ```text
 http://congress.api.sunlightfoundation.com/[method]
