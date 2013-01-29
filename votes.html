@@ -201,7 +201,7 @@ If a vote is related to a bill, some basic fields about the bill.
   ...
 </span>}
 </span></code></pre>
-<p>Most votes are &quot;Yea&quot;, &quot;Nay&quot;, &quot;Present&quot;, and &quot;Not Voting&quot;. There are exceptions: in the Senate, impeachment votes are &quot;Guilty&quot; or &quot;Not Guilty&quot;. In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. &quot;Pelosi&quot; or &quot;Boehner&quot;).
+<p>Most votes are &quot;Yea&quot;, &quot;Nay&quot;, &quot;Present&quot;, and &quot;Not Voting&quot;. There are exceptions: in the Senate, impeachment votes are &quot;Guilty&quot; or &quot;Not Guilty&quot;. In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. &quot;Pelosi&quot; or &quot;Boehner&quot;). There may be other exceptions.
 
 </p>
 <p><strong>voter_ids</strong><br/>
@@ -221,7 +221,50 @@ Some basic fields about the voter.
 
 </p>
 <h3 id='fields/vote-breakdown'>Vote Breakdown</h3 id='fields/vote-breakdown'>
-<p>= TBD =</p>
+<pre><code class="json">"<span class="attribute">breakdown</span>": <span class="value">{
+  "<span class="attribute">total</span>": <span class="value">{
+    "<span class="attribute">Yea</span>": <span class="value"><span class="number">62</span></span>,
+    "<span class="attribute">Nay</span>": <span class="value"><span class="number">36</span></span>,
+    "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">2</span></span>,
+    "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+  </span>}</span>,
+  "<span class="attribute">party</span>": <span class="value">{
+    "<span class="attribute">R</span>": <span class="value">{
+      "<span class="attribute">Yea</span>": <span class="value"><span class="number">9</span></span>,
+      "<span class="attribute">Nay</span>": <span class="value"><span class="number">36</span></span>,
+      "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">0</span></span>,
+      "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+    </span>}</span>,
+    "<span class="attribute">D</span>": <span class="value">{
+      "<span class="attribute">Yea</span>": <span class="value"><span class="number">52</span></span>,
+      "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">1</span></span>,
+      "<span class="attribute">Nay</span>": <span class="value"><span class="number">0</span></span>,
+      "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+    </span>}</span>,
+    "<span class="attribute">I</span>": <span class="value">{
+      "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">1</span></span>,
+      "<span class="attribute">Yea</span>": <span class="value"><span class="number">1</span></span>,
+      "<span class="attribute">Nay</span>": <span class="value"><span class="number">0</span></span>,
+      "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+    </span>}
+  </span>}
+</span>}
+</span></code></pre>
+<p>The vote <strong>breakdown</strong> gives top-level numbers about what votes were cast.
+
+</p>
+<p>Most votes are &quot;Yea&quot;, &quot;Nay&quot;, &quot;Present&quot;, and &quot;Not Voting&quot;. There are exceptions: in the Senate, impeachment votes are &quot;Guilty&quot; or &quot;Not Guilty&quot;. In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. &quot;Pelosi&quot; or &quot;Boehner&quot;). There may be other exceptions.
+
+</p>
+<p>These fields are dynamic, but can all be filtered on.
+
+</p>
+<p>* <strong>breakdown.total.[vote]</strong><br/>
+The number of members who cast [vote], where [vote] is a valid vote as defined above.
+
+</p>
+<p>* <strong>breakdown.party.[party].[vote]</strong><br/>
+The number of members of [party] who cast [vote], where [party] is one of &quot;D&quot;, &quot;R&quot;, or &quot;I&quot;, and [vote] is a valid vote as defined above.</p>
 
   </div>
 </div>

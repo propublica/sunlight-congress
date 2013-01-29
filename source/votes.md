@@ -139,7 +139,7 @@ If a vote is related to a bill, some basic fields about the bill.
 }
 ```
 
-Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner").
+Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner"). There may be other exceptions.
 
 **voter_ids**<br/>
 An object connecting bioguide IDs of members to the vote values they cast.
@@ -155,4 +155,47 @@ Some basic fields about the voter.
 
 ### Vote Breakdown
 
-= TBD =
+```json
+{
+"breakdown": {
+  "total": {
+    "Yea": 62,
+    "Nay": 36,
+    "Not Voting": 2,
+    "Present": 0
+  },
+  "party": {
+    "R": {
+      "Yea": 9,
+      "Nay": 36,
+      "Not Voting": 0,
+      "Present": 0
+    },
+    "D": {
+      "Yea": 52,
+      "Not Voting": 1,
+      "Nay": 0,
+      "Present": 0
+    },
+    "I": {
+      "Not Voting": 1,
+      "Yea": 1,
+      "Nay": 0,
+      "Present": 0
+    }
+  }
+}
+}
+```
+
+The vote **breakdown** gives top-level numbers about what votes were cast.
+
+Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner"). There may be other exceptions.
+
+These fields are dynamic, but can all be filtered on.
+
+\* **breakdown.total.[vote]**<br/>
+The number of members who cast [vote], where [vote] is a valid vote as defined above.
+
+\* **breakdown.party.[party].[vote]**<br/>
+The number of members of [party] who cast [vote], where [party] is one of "D", "R", or "I", and [vote] is a valid vote as defined above.
