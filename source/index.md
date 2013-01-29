@@ -369,9 +369,9 @@ We provide zip files of official photos of members of Congress, as taken from th
 
 Core information for legislators, committees, and bills come from public domain scrapers and bulk data at [github.com/unitedstates](https://github.com/unitedstates/). 
 
-* [Scrapers for bulk bill data](https://github.com/unitedstates/congress) from THOMAS.gov, 1973-present
-* [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) from various sources, 1789-present.
-* [Popular nicknames for bills](https://github.com/unitedstates/bill-nicknames), manually updated and unofficial (e.g. "obamacare").
+* [Scrapers for bulk bill data](https://github.com/unitedstates/congress) in JSON from THOMAS.gov, 1973-present.
+* [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) in YAML from various sources, 1789-present.
+* [Popular nicknames for bills](https://github.com/unitedstates/bill-nicknames) in CSV, manually updated and unofficial (e.g. "obamacare").
 
 
 ## Other
