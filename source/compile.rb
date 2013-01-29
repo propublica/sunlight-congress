@@ -105,7 +105,7 @@ files.each do |filename|
   # add links to other models
   if filename != "index"
     title = filename.split("_").map(&:capitalize).join " "
-    content.gsub! "<title>#{name}</title>", "<title>API | #{title}</title>"
+    content.gsub! "<title>#{name}</title>", "<title>Congress API | #{title}</title>"
   end
 
   f = File.open(output_file, "w")
