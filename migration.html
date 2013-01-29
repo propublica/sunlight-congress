@@ -224,17 +224,16 @@
 
 </p>
 <ul>
-<li><code>in_office</code> is now a boolean, instead of an integer.</li>
 <li><code>fec_id</code> is now an array of strings, instead of a string.</li>
-<li><code>senate_class</code> is now numbers (1, 2, 3), instead of strings (&quot;I&quot;, &quot;II&quot;, &quot;III&quot;) .</li>
-<li><code>district</code> no longer contains &quot;Senior Seat&quot; or &quot;Junior Seat&quot; for Senators. Instead, the <code>state_rank</code> field will say &quot;Junior&quot; or &quot;Senior&quot;.</li>
+<li><code>senate_class</code> is now a number (1, 2, 3), instead of a string (&quot;I&quot;, &quot;II&quot;, &quot;III&quot;) .</li>
+<li><code>district</code> no longer contains &quot;Senior Seat&quot; or &quot;Junior Seat&quot; for Senators - it will be <code>null</code>. Instead, the <code>state_rank</code> field will say &quot;Junior&quot; or &quot;Senior&quot;.</li>
 <li><code>youtube_id</code> is now just the member&#39;s username on YouTube, instead of the full URL.</li>
 </ul>
 <p>The following fields are new:
 
 </p>
 <ul>
-<li><code>state_rank</code> - &quot;Junior&quot; or &quot;Senior&quot;, for Senators</li>
+<li><code>state_rank</code> - &quot;junior&quot; or &quot;senior&quot;, for Senators</li>
 <li><code>state_name</code> - Full state name (e.g. &quot;Pennsylvania&quot;)</li>
 <li><code>lis_id</code> - An official ID used by some sources for Senators.</li>
 <li><code>thomas_id</code> - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.</li>
@@ -375,7 +374,7 @@
 
 </p>
 <h3 id='committees/committees-getlist'>committees.getList</h3 id='committees/committees-getlist'>
-<p>In general, finding legislators is very similar.
+<p>In general, finding committees is very similar.
 
 </p>
 <p><strong>Filtering on fields</strong>

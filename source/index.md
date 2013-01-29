@@ -26,7 +26,7 @@ We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum
 The Sunlight Congress API lives at:
 
 ```text
-http://congress.api.sunlightfoundation.com
+http://congress.api.sunlightfoundation.com/[method]
 ```
 
 <table>
@@ -148,11 +148,11 @@ At the top-level of every response are **count** and **page** fields, with pagin
 
 ```json
 {
-count: 163,
-page: {
-  per_page: 50,
-  page: 3,
-  count: 50
+"count": 163,
+"page": {
+  "per_page": 50,
+  "page": 3,
+  "count": 50
 }
 }
 ```

@@ -89,15 +89,14 @@ The following fields have been dropped altogether:
 
 The following fields have changed:
 
-* `in_office` is now a boolean, instead of an integer.
 * `fec_id` is now an array of strings, instead of a string.
-* `senate_class` is now numbers (1, 2, 3), instead of strings ("I", "II", "III") .
-* `district` no longer contains "Senior Seat" or "Junior Seat" for Senators. Instead, the `state_rank` field will say "Junior" or "Senior".
+* `senate_class` is now a number (1, 2, 3), instead of a string ("I", "II", "III") .
+* `district` no longer contains "Senior Seat" or "Junior Seat" for Senators - it will be `null`. Instead, the `state_rank` field will say "Junior" or "Senior".
 * `youtube_id` is now just the member's username on YouTube, instead of the full URL.
 
 The following fields are new:
 
-* `state_rank` - "Junior" or "Senior", for Senators
+* `state_rank` - "junior" or "senior", for Senators
 * `state_name` - Full state name (e.g. "Pennsylvania")
 * `lis_id` - An official ID used by some sources for Senators.
 * `thomas_id` - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.
@@ -249,7 +248,7 @@ See the full [Committees](committees.html) documentation for more information.
 
 ### committees.getList
 
-In general, finding legislators is very similar.
+In general, finding committees is very similar.
 
 **Filtering on fields**
 

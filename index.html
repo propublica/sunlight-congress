@@ -176,7 +176,7 @@
 <p>The Sunlight Congress API lives at:
 
 </p>
-<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<pre><code class="text">http://congress.api.sunlightfoundation.com/[method]</code></pre>
 <table>
 <tr>
 <td><a href="legislators.html">/legislators</a></td>
@@ -278,13 +278,13 @@
 <p>At the top-level of every response are <strong>count</strong> and <strong>page</strong> fields, with pagination information.
 
 </p>
-<pre><code class="json">count: 163,
-page: {
-  per_page: 50,
-  page: 3,
-  count: 50
-}
-</code></pre>
+<pre><code class="json">"<span class="attribute">count</span>": <span class="value"><span class="number">163</span></span>,
+"<span class="attribute">page</span>": <span class="value">{
+  "<span class="attribute">per_page</span>": <span class="value"><span class="number">50</span></span>,
+  "<span class="attribute">page</span>": <span class="value"><span class="number">3</span></span>,
+  "<span class="attribute">count</span>": <span class="value"><span class="number">50</span>
+</span>}
+</span></code></pre>
 <p><strong>count</strong><br/>
 The total number of documents that match the query.
 
