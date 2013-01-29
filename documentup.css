@@ -499,7 +499,5 @@ a {
 
 /* user-added stuff */
 
-/*#nav {position: fixed;}
-#content {float: right;}*/
-#logo {line-height: 30px;}
 #content ul, ol {color: #444;}
+#header #logo {font-size: 20px;}
