@@ -2,7 +2,7 @@ class FloorUpdate
   include Api::Model
   publicly :queryable
 
-  basic_fields :chamber, :legislative_day, :timestamp, 
+  basic_fields :chamber, :legislative_day, :timestamp, :year,
     :update, :roll_ids, :bill_ids, :legislator_ids, :congress
   
   search_fields :update
@@ -18,4 +18,5 @@ class FloorUpdate
   index legislator_ids: 1
   index timestamp: 1
   index congress: 1
+  index year: 1
 end

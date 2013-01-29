@@ -30,21 +30,30 @@ class FloorHouse
     doc = Nokogiri::XML xml
     
     
-    congress = congress_for doc
     chamber = 'house'
+
+    # legislative_day can be reliably be taken from doc, even on a double Jan 3 session.
+    # It cannot be calculated per-item from the timestamp, because chamber leadership
+    # can extend legislative days to whenever they want.
     legislative_day = legislative_day_for doc
     legislative_day_stamp = legislative_day.strftime "%Y-%m-%d"
-    year = legislative_day.year
-    
+
+      
     (doc/:floor_action).each do |action|
       timestamp = Utils.utc_parse action.at("action_time")['for-search']
       item = action.at("action_description").inner_text.strip
+
+      # legislative year and congress need to be calculated per-item, via timestamp.
+      # They can be trusted to agree with the legislative day, as they will always
+      # change on Jan 3 at 12PM EST, no matter what chamber leadership wants.
+      year = Utils.current_legislative_year timestamp
+      congress = Utils.congress_for_year year
       
       update = FloorUpdate.find_or_initialize_by timestamp: timestamp, chamber: chamber
-        
       update.attributes = {
         update: item,
         congress: congress,
+        year: year,
         legislative_day: legislative_day_stamp,
         bill_ids: bill_ids_for(action, item, congress),
         roll_ids: roll_ids_for(item, year),
