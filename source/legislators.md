@@ -2,6 +2,8 @@
 
 Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
 
+**Unique ID**: The **bioguide_id** will be present and unique for all members of Congress. It is an official ID, assigned by Congress, and is the most suitable for use as a unique ID.
+
 ## Methods
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
