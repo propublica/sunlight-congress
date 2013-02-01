@@ -18,15 +18,16 @@ class FloorHouse
     chamber = 'house'
 
     days.each do |day|
-    
       # legislative_day can be reliably be taken from doc, even on a double Jan 3 session.
       # It cannot be calculated per-item from the timestamp, because chamber leadership
       # can extend legislative days to whenever they want.
       legislative_day = legislative_day_for day
       legislative_day_stamp = legislative_day.strftime "%Y-%m-%d"
 
+      puts "[#{legislative_day_stamp}] Processing..."
         
       (day/:floor_action).each do |action|
+        category = action["act-id"]
         timestamp = Utils.utc_parse action.at("action_time")['for-search']
         item = action.at("action_description").inner_text.strip
 
@@ -40,6 +41,7 @@ class FloorHouse
         update.attributes = {
           update: item,
           congress: congress,
+          category: category,
           year: year,
           legislative_day: legislative_day_stamp,
           bill_ids: bill_ids_for(action, item, congress),
@@ -72,8 +74,8 @@ class FloorHouse
   def self.days_for(options)
     doc = xml_for options
     return nil unless doc
-    
-    return [doc.at("legislative_activity")]
+
+    return doc / :legislative_activity
   end
 
   def self.xml_for(options)
@@ -81,11 +83,17 @@ class FloorHouse
     if options[:day]
       date = Utils.utc_parse(options[:day]).strftime("%Y%m%d")
       url = "http://clerk.house.gov/floorsummary/Download.aspx?file=#{date}.xml"
-      cache = "data/house/floor/day/#{date}"
-    elsif options[:year]
+      cache = "data/house/floor/day/#{date}.xml"
     
+    elsif options[:year]
+      year = options[:year].to_i
+      congress = Utils.congress_for_year year
+      session = Utils.legislative_session_for_year year
+
+      url = "http://clerk.house.gov/floorsummary/HDoc-#{congress}-#{session}-FloorProceedings.xml"
+      cache = "data/house/floor/year/#{year}.xml"
+
     else
-      
       html = nil
       begin
         html = open "http://clerk.house.gov/floorsummary/floor.aspx"
@@ -118,8 +126,9 @@ class FloorHouse
       return
     end
 
-    unless body =~ /^<\?xml/
-      Report.warning self, "No XML for that day, can't go on."
+    unless body["<?xml"]
+      puts "Result: #{body[0..100]}"
+      Report.warning self, "No XML for that day, can't go on.", body: body[0..100]
       return
     end
     
