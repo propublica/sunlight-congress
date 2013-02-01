@@ -4,69 +4,57 @@ require 'nokogiri'
 class FloorHouse
   
   # options:
+  #   year: Fetch a whole year at once
   #   day: Which day to fetch (YYYY-MM-DD)
 
   def self.run(options = {})
-    url = get_xml_url options
-    return unless url # a warning report will have been filed
+
+    days = days_for options
+    return unless days # a warning report will have been filed
     
     count = 0
     failures = []
     
-    xml = nil
-    begin
-      xml = open url
-      xml = xml.read
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Network error on fetching the floor log, can't go on."
-      return
-    end
-    
-    unless xml =~ /^<\?xml/
-      Report.warning self, "No XML for that day, can't go on."
-      return
-    end
-    
-    doc = Nokogiri::XML xml
-    
-    
     chamber = 'house'
 
-    # legislative_day can be reliably be taken from doc, even on a double Jan 3 session.
-    # It cannot be calculated per-item from the timestamp, because chamber leadership
-    # can extend legislative days to whenever they want.
-    legislative_day = legislative_day_for doc
-    legislative_day_stamp = legislative_day.strftime "%Y-%m-%d"
+    days.each do |day|
+    
+      # legislative_day can be reliably be taken from doc, even on a double Jan 3 session.
+      # It cannot be calculated per-item from the timestamp, because chamber leadership
+      # can extend legislative days to whenever they want.
+      legislative_day = legislative_day_for day
+      legislative_day_stamp = legislative_day.strftime "%Y-%m-%d"
 
-      
-    (doc/:floor_action).each do |action|
-      timestamp = Utils.utc_parse action.at("action_time")['for-search']
-      item = action.at("action_description").inner_text.strip
+        
+      (day/:floor_action).each do |action|
+        timestamp = Utils.utc_parse action.at("action_time")['for-search']
+        item = action.at("action_description").inner_text.strip
 
-      # legislative year and congress need to be calculated per-item, via timestamp.
-      # They can be trusted to agree with the legislative day, as they will always
-      # change on Jan 3 at 12PM EST, no matter what chamber leadership wants.
-      year = Utils.current_legislative_year timestamp
-      congress = Utils.congress_for_year year
-      
-      update = FloorUpdate.find_or_initialize_by timestamp: timestamp, chamber: chamber
-      update.attributes = {
-        update: item,
-        congress: congress,
-        year: year,
-        legislative_day: legislative_day_stamp,
-        bill_ids: bill_ids_for(action, item, congress),
-        roll_ids: roll_ids_for(item, year),
-        legislator_ids: legislator_ids_for(item)
-      }
-      
-      if update.save
-        count += 1
-      else
-        failures << floor_update.attributes
-        puts "Failed to save floor update, will file report"
+        # legislative year and congress need to be calculated per-item, via timestamp.
+        # They can be trusted to agree with the legislative day, as they will always
+        # change on Jan 3 at 12PM EST, no matter what chamber leadership wants.
+        year = Utils.current_legislative_year timestamp
+        congress = Utils.congress_for_year year
+        
+        update = FloorUpdate.find_or_initialize_by timestamp: timestamp, chamber: chamber
+        update.attributes = {
+          update: item,
+          congress: congress,
+          year: year,
+          legislative_day: legislative_day_stamp,
+          bill_ids: bill_ids_for(action, item, congress),
+          roll_ids: roll_ids_for(item, year),
+          legislator_ids: legislator_ids_for(item)
+        }
+        
+        if update.save
+          count += 1
+        else
+          failures << floor_update.attributes
+          puts "Failed to save floor update, will file report"
+        end
+        
       end
-      
     end
     
     if failures.any?
@@ -75,11 +63,25 @@ class FloorHouse
     
     Report.success self, "Updated/created #{count} floor updates in the House."
   end
-  
-  def self.get_xml_url(options)
+
+
+  # return an array of one or more <legislative_activity> nodes and their children
+  # can be from a day's file (in which case it's the root), 
+  # or a year's file (in which case it'a bunch of kids)
+
+  def self.days_for(options)
+    doc = xml_for options
+    return [doc.at("legislative_activity")]
+  end
+
+  def self.xml_for(options)
+
     if options[:day]
       date = Utils.utc_parse(options[:day]).strftime("%Y%m%d")
-      "http://clerk.house.gov/floorsummary/Download.aspx?file=#{date}.xml"
+      url = "http://clerk.house.gov/floorsummary/Download.aspx?file=#{date}.xml"
+      cache = "data/house/floor/day/#{date}"
+    elsif options[:year]
+    
     else
       
       html = nil
@@ -101,12 +103,25 @@ class FloorHouse
       url = elem['href']
       
       # in case they switch to absolute links
-      if url =~ /^http\:\/\//
-        url
-      else
-        "http://clerk.house.gov/floorsummary/#{url}"
+      if url !~ /^http\:\/\//
+        url = "http://clerk.house.gov/floorsummary/#{url}"
       end
+
+      # don't cache requests for "current" info
+      cache = nil
     end
+
+    unless body = Utils.download(url, options.merge(destination: cache))
+      Report.warning self, "Network error on fetching the floor log, can't go on."
+      return
+    end
+
+    unless body =~ /^<\?xml/
+      Report.warning self, "No XML for that day, can't go on."
+      return
+    end
+    
+    return Nokogiri::XML(body)
   end
   
   def self.congress_for(doc)
