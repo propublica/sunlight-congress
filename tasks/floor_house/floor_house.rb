@@ -71,6 +71,8 @@ class FloorHouse
 
   def self.days_for(options)
     doc = xml_for options
+    return nil unless doc
+    
     return [doc.at("legislative_activity")]
   end
 
