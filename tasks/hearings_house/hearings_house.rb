@@ -120,8 +120,15 @@ class HearingsHouse
       # second piece of bottom is the subcommittee name, or "Full Committee"
 
       if bottom_pieces[1] and (bottom_pieces[1] =~ /subcommittee[^s]/i)
-        unless subcommittee_id = subcommittee_for(bottom_pieces[1])
-          bad_committee_lookups << bottom_pieces[1]
+        # temporary: ignore these until committees can be updated
+        ignore = [
+          "Subcommittee on Middle East and North Africa",
+          "Subcommittee on Africa, Global Health, Global Human Rights and International Organizations"
+        ]
+        if !ignore.include?(bottom_pieces[1])
+          unless subcommittee_id = subcommittee_for(bottom_pieces[1])
+            bad_committee_lookups << bottom_pieces[1]
+          end
         end
       else
         subcommittee_id = nil
@@ -170,7 +177,6 @@ class HearingsHouse
     count
   end
 
-  # doesn't handle subcommittees right now
   def self.committee_for(committee_name)
     # ignore case
     name = (committee_name !~ /^(?:House|Joint) /) ? "House #{committee_name}" : committee_name
