@@ -1,8 +1,8 @@
 ############# unitedstates ###########
 
 
-# sync THOMAS data with Github once a day
-# 0 13 * * *   /projects/congress/sync-github.sh
+# sync unitedstates/congress data with S3 mirror once a day
+0 13 * * *   /projects/congress/congress/shared/cron/s3-sync.sh
 
 
 ############# congress API #########################
