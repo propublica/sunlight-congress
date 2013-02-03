@@ -61,7 +61,9 @@ class Bills
       committees, missing = committees_for doc['committees'], committee_cache
       missing_committees += missing.map {|m| [bill_id, m]} if missing.any?
 
-      related_bill_ids = doc['related_bills'].map {|details| details['bill_id']}
+      # todo: when amendments are supported, 
+      # pass on a full related_bills field with the original fields.
+      related_bill_ids = doc['related_bills'].map {|details| details['bill_id']}.compact
       
       votes = votes_for actions
       
