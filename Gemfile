@@ -14,6 +14,7 @@ gem 'ruby-hmac', '0.4.0'
 gem 'pony', '1.0.1'
 
 gem 'rake', '0.9.2.2'
+gem 'safe_yaml'
 
 group :development do
   gem 'wirb'
