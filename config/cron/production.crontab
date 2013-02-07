@@ -20,8 +20,8 @@
 # bill text from GPO, every half hour for the 113th
 */30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
 
-# re-index text overnight
-0 10 * * * /projects/congress/congress/shared/cron/task.sh bills_text
+# re-index text overnight and in the morning
+0 10,14 * * * /projects/congress/congress/shared/cron/task.sh bills_text
 
 # popular bill names, check once an hour
 0 * * * * /projects/congress/congress/shared/cron/task.sh bills_nicknames
