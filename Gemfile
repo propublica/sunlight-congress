@@ -24,5 +24,4 @@ end
 
 gem 'curb', '0.8.1'
 gem 'nokogiri', '1.5.5'
-gem 'feedzirra', '0.2.0rc2'
 gem 'docsplit', '0.6.3'

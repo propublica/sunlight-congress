@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-require 'feedzirra'
 require 'nokogiri'
 
 class UpcomingSenate
@@ -10,21 +9,13 @@ class UpcomingSenate
     
     url = "http://democrats.senate.gov/floor/daily-summary/feed/"
     
-    rss = nil
-    begin
-      rss = Feedzirra::Feed.fetch_and_parse url, :timeout => 20
-    rescue Exception => ex
-      Report.warning self, "Network error on fetching Senate Daily Summary feed, can't go on.", :url => url
+    unless body = Utils.download(url)
+      Report.warning self, "Problem downloading the Senate Daily Summary feed, can't go on.", url: url
       return
     end
 
-    if rss.is_a?(Fixnum)
-      Report.note self, "Got status code #{rss} from Senate Daily Summary feed, can't go on.", :url => url
-      return
-    elsif rss.nil?
-      Report.warning self, "Got a nil return value from Feedzirra from the Senate Daily Summary feed, can't go on.", :url => url
-      return
-    end
+    doc = Nokogiri::XML body
+    doc.remove_namespaces!
 
     # clear out Senate's upcoming records, this will replace them
     Utils.flush_bill_upcoming! "senate_daily"
@@ -33,13 +24,14 @@ class UpcomingSenate
     upcoming_bills = {}
     
     # go from most recent to oldest - stop after the most recent valid entry
-    rss.entries.each do |entry|
-      doc = Nokogiri::HTML entry.content
+    (doc / :item).each do |item|
+      item_doc = Nokogiri::HTML item.at("encoded").text
       
       # There are now a bunch of "State Work Period" entries in the feed, going forward in time through September
       # Just ignore them
-      next unless entry.title =~ /Schedule/i
-      next unless legislative_date = Utils.utc_parse(entry.title)
+      title = item.at("title").text
+      next unless title =~ /Schedule/i
+      next unless legislative_date = Utils.utc_parse(title)
       next if legislative_date > 6.months.from_now # sanity check
       
       legislative_day = legislative_date.strftime "%Y-%m-%d"
@@ -57,21 +49,21 @@ class UpcomingSenate
       text_pieces = []
       day_bill_ids = []
       
-      items = nil
-      if root = doc.at("/html/body/ul")
-        items = root.xpath "li"
+      lis = nil
+      if root = item_doc.at("/html/body/ul")
+        lis = root.xpath "li"
       else
-        items = doc.at("/html/body").element_children
+        lis = item_doc.at("/html/body").element_children
       end
       
-      items.each_with_index do |item, i|
-        text = item.text
+      lis.each_with_index do |li, i|
+        text = li.text
         next unless text.present?
             
         # figure out the text item, including any following sub-items
-        if item.next_element and item.next_element.name == "ul"
+        if li.next_element and li.next_element.name == "ul"
           text << "\n"
-          item.next_element.xpath("li").each do |subitem|
+          li.next_element.xpath("li").each do |subitem|
             text << "\n* #{subitem.text}"
           end
         end
@@ -95,7 +87,7 @@ class UpcomingSenate
               chamber: "senate",
               legislative_day: legislative_day,
               range: "day",
-              url: entry.url,
+              url: item.at("link").text,
 
               context: text
             }
