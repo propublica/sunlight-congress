@@ -67,7 +67,7 @@ The chamber of the committee holding the hearing. "house", "senate", or "joint".
 \* **dc**<br/>
 Whether the committee hearing is held in DC (true) or in the field (false).
 
-\* **room**<br/>
+**room**<br/>
 If the hearing is in DC, the building and room number the hearing is in. If the hearing is in the field, the address of the hearing.
 
 **description**<br/>
@@ -76,7 +76,7 @@ A description of the hearing.
 \* **bill_ids**<br/>
 The IDs of any bills mentioned by or associated with the hearing.
 
-\* **url**<br/>
+**url**<br/>
 (House only) A permalink to that hearing's description on that committee's official website.
 
 \* **hearing_type**<br/>
