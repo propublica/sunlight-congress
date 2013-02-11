@@ -373,6 +373,14 @@ Core information for legislators, committees, and bills come from public domain 
 * [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) in YAML from various sources, 1789-present.
 * [Popular nicknames for bills](https://github.com/unitedstates/bill-nicknames) in CSV, manually updated and unofficial (e.g. "obamacare").
 
+## Client Libraries
+
+If you've written a client library, please tweet at [@sunlightlabs](https://twitter.com/sunlightlabs) or [email us](mailto:api@sunlightfoundation.com) so we can link to it here.
+
+* Node: Matthew Whittemore's [sunlight-congress-api](https://npmjs.org/package/sunlight-congress-api) (unofficial)
+* Python: Coming soon.
+* Ruby: Coming soon.
+
 ## Other
 
 ### Migrating from our old Sunlight Congress API
