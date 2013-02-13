@@ -338,9 +338,9 @@ class VotesHouse
     datestamp = doc.at("action-date").inner_text
     timestamp = doc.at("action-time").inner_text
 
-    date = Utils.utc_parse datestamp
-    time = Utils.utc_parse timestamp
-    Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
+    Utils.utc_parse "#{datestamp} #{timestamp}"
+    # time = Utils.utc_parse timestamp
+    # Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
   end
 
   def self.question_for(doc, roll_type, bill_type, bill_number)
