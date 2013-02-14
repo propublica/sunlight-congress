@@ -117,7 +117,9 @@ class VotesHouse
         voter_ids: voter_ids,
         voters: voters,
 
-        breakdown: Utils.vote_breakdown_for(voters)
+        breakdown: Utils.vote_breakdown_for(voters),
+
+        source: url_for(year, number)
       }
       
       if bill_id
@@ -337,10 +339,7 @@ class VotesHouse
   def self.voted_at_for(doc)
     datestamp = doc.at("action-date").inner_text
     timestamp = doc.at("action-time").inner_text
-
     Utils.utc_parse "#{datestamp} #{timestamp}"
-    # time = Utils.utc_parse timestamp
-    # Time.utc date.year, date.month, date.day, time.hour, time.min, time.sec
   end
 
   def self.question_for(doc, roll_type, bill_type, bill_number)

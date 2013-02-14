@@ -111,7 +111,9 @@ class VotesSenate
         voter_ids: voter_ids,
         voters: voters,
 
-        breakdown: Utils.vote_breakdown_for(voters)
+        breakdown: Utils.vote_breakdown_for(voters),
+
+        source: url_for(congress, session, number)
       }
       
       if bill_id
