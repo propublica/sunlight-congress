@@ -50,7 +50,8 @@ This will search votes' `question` field.
 "roll_type": "On Motion to Suspend the Rules and Pass",
 "question": "On Motion to Suspend the Rules and Pass -- H.R. 41 -- To temporarily increase the borrowing authority of the Federal Emergency Management Agency for carrying out the National Flood Insurance Program",
 "required": "2/3",
-"result": "Passed"
+"result": "Passed",
+"source": "http://clerk.house.gov/evs/2013/roll007.xml"
 }
 ```
 
@@ -87,6 +88,8 @@ The required ratio of Aye votes necessary to pass the legislation. A value of "1
 \* **result**<br/>
 The official result of the vote. This is not completely standardized (both "Passed" and "Bill Passed" may appear). In the case of a vote for Speaker of the House, the `result` field contains the name of the victor.
 
+**source**<br/>
+The original, official source XML for this vote information.
 
 ### Associated Bill
 
