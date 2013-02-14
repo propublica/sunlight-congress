@@ -26,10 +26,16 @@ location:
   # :legislators: 
   #   - email@example.com
 
-# used to upload video caption files
+# used to back things up to S3
 s3: 
   secret: 
   key: 
+  s3cmd: /usr/bin/s3cmd
+  s3cfg: /home/USER/.s3cfg
+
+# where to back certain things up to:
+backup:
+  legislators: "unitedstates.sunlightfoundation.com/legislators/"
 
 # used to extract citations (https://github.com/unitedstates/citation)
 citation:

@@ -509,5 +509,25 @@ module Utils
       bill.save!
     end
   end
+
+  # source is a path to a file to be uploaded to S3
+  # destination is the location in S3 to back it up to
+  def self.backup!(bucket, source, destination)
+    s3cmd = Environment.config['s3']['s3cmd']
+    s3cfg = Environment.config['s3']['s3cfg']
+    
+    location = Environment.config['backup'][bucket.to_s]
+    if location !~ /^s3/
+      location = "s3://#{location}"
+    end
+
+    # ensure no double slash
+    location = location[0..-2] if location[-1..-1] == "/"
+    destination = destination[1..-1] if destination[0..0] == "/"
+
+    puts location, destination
+
+    system "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
+  end
   
 end

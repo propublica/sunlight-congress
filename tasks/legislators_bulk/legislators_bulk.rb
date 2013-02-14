@@ -8,6 +8,9 @@ class LegislatorsBulk
 
   def self.run(options = {})
     FileUtils.mkdir_p "data/sunlight"
+
+    old_csv = "misc/old-legislators.csv"
+    new_csv = "data/sunlight/legislators.csv"
     
     count = 0
 
@@ -16,7 +19,7 @@ class LegislatorsBulk
 
     # include all people who used to be in the old data
     old_legislators = {}
-    CSV.foreach("data/sunlight/old-legislators.csv") do |row|
+    CSV.foreach(old_csv) do |row|
       bioguide_ids << row[16]
       old_legislators[row[16]] = row
     end
@@ -31,7 +34,7 @@ class LegislatorsBulk
 
     eligible = eligible.sort_by {|l| l['bioguide_id']}
 
-    CSV.open("data/sunlight/legislators.csv", "w") do |csv|
+    CSV.open(new_csv, "w") do |csv|
       csv << %w{
         title firstname middlename lastname name_suffix nickname 
         party state district in_office gender 
@@ -100,6 +103,11 @@ class LegislatorsBulk
       end
     end
 
+    # now to upload to S3
+    if options[:backup]
+      Utils.backup! :legislators, new_csv, "legislators.csv"
+    end
+
     Report.success self, "Saved legislators.csv with #{count} current legislators"
   end
 
@@ -113,7 +121,7 @@ class LegislatorsBulk
 
   def self.district_for(legislator, old_legislator)
     if legislator['chamber'] == 'senate'
-      if legislator['state_rank'].nil? and old_legislator and old_legislator[0] == "Sen" and old_legislator[8]
+      if legislator['state_rank'].nil? and old_legislator and (old_legislator[0] == "Sen") and old_legislator[8]
         old_legislator[8]
       else
         "#{legislator['state_rank'].capitalize} Seat"
