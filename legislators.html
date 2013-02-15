@@ -313,13 +313,21 @@ The Twitter <em>username</em> for a member&#39;s official legislative account. T
 
 </p>
 <p><strong>youtube_id</strong><br/>
-The YouTube <em>username</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts.
+The YouTube <em>username or channel</em> for a member&#39;s official legislative account. This field does not contain the handles of campaign accounts. A few legislators use YouTube &quot;channels&quot; instead of regular accounts. These channels will be of the form <code>channel/[id]</code>.
 
 </p>
 <p><strong>facebook_id</strong><br/>
 The Facebook <em>username or ID</em> for a member&#39;s official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook&#39;s URLs and APIs. The referenced account may be either a Facebook Page or a user account.
 
 </p>
+<p>All social media account values can be turned into URLs by preceding them with the domain name of the service in question:
+
+</p>
+<ul>
+<li><code>http://twitter.com/[username]</code></li>
+<li><code>http://youtube.com/[username or channel ID]</code></li>
+<li><code>http://facebook.com/[username or ID]</code></li>
+</ul>
 <h3 id='fields/terms'>Terms</h3 id='fields/terms'>
 <p>An array of information for each term the member has served, from oldest to newest. Example:
 

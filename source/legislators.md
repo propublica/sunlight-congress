@@ -233,10 +233,16 @@ URL to their official contact form.
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
 **youtube_id**<br/>
-The YouTube *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
+The YouTube *username or channel* for a member's official legislative account. This field does not contain the handles of campaign accounts. A few legislators use YouTube "channels" instead of regular accounts. These channels will be of the form `channel/[id]`.
 
 **facebook_id**<br/>
 The Facebook *username or ID* for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+
+All social media account values can be turned into URLs by preceding them with the domain name of the service in question:
+
+* `http://twitter.com/[username]`
+* `http://youtube.com/[username or channel ID]`
+* `http://facebook.com/[username or ID]`
 
 ### Terms
 
