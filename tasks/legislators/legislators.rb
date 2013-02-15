@@ -138,7 +138,7 @@ class Legislators
   end
     
   def self.social_media_from(details)
-    facebook = details['social']['facebook_graph']
+    facebook = details['social']['facebook']
     facebook = facebook.to_s if facebook
     {
       twitter_id: details['social']['twitter'],
