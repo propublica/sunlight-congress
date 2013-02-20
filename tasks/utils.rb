@@ -163,6 +163,7 @@ module Utils
       body = begin
         curl = Curl::Easy.new url
         curl.follow_location = true # follow redirects
+        curl.headers["User-Agent"] = "sunlight-congress-api / curl"
         curl.perform
       rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
         Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
