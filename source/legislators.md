@@ -24,7 +24,7 @@ At-large districts, which encompass an entire state, are assigned a district num
 /legislators/locate?latitude=42.96&longitude=-108.09
 ```
 
-This will return both representatives and senators that represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
+This will return both representatives and senators that currently represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
 
 **By zip code**
 
@@ -40,6 +40,8 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 
 Search and filter for members of Congress. 
 
+By default, all requests will return **currently serving members**, but you can override this by supplying `all_legislators=true`.
+
 **Filtering on fields**
 
 ```text
@@ -48,7 +50,11 @@ Search and filter for members of Congress.
 
 Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
-By default, all requests will return *currently serving members*, but you can override this by supplying `in_office=false`.
+**Locating a particular member, whether in office or not**
+
+```text
+/legislators?bioguide_id=F000444&all_legislators=true
+```
 
 **Searching by a string**
 

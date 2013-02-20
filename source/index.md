@@ -385,7 +385,7 @@ If you've written a client library, please tweet at [@sunlightlabs](https://twit
 
 ### Migrating from our old Sunlight Congress API
 
-This Sunlight Congress API replaces and deprecates our [old Sunlight Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Conrgess API to upgrade to this one as soon as possible.
+This Sunlight Congress API replaces and deprecates our [old Sunlight Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). We will keep the old Congress API running until at least the end of the 113th Congress (January 2015).  We advise users of the old Congress API to upgrade to this one as soon as possible.
 
 We have prepared a [migration guide](migration.html) that shows how to move from each method in the old API to the new API.
 

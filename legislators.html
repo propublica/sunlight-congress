@@ -99,7 +99,7 @@
 
 </p>
 <pre><code class="text">/legislators/locate?latitude=42.96&amp;longitude=-108.09</code></pre>
-<p>This will return both representatives and senators that represent the given point or zip. For a given <code>latitude</code> and <code>longitude</code>, this should return up to 1 representative and 2 senators. 
+<p>This will return both representatives and senators that currently represent the given point or zip. For a given <code>latitude</code> and <code>longitude</code>, this should return up to 1 representative and 2 senators. 
 
 </p>
 <p><strong>By zip code</strong>
@@ -116,6 +116,9 @@
 <p>Search and filter for members of Congress. 
 
 </p>
+<p>By default, all requests will return <strong>currently serving members</strong>, but you can override this by supplying <code>all_legislators=true</code>.
+
+</p>
 <p><strong>Filtering on fields</strong>
 
 </p>
@@ -123,9 +126,10 @@
 <p>Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
 
 </p>
-<p>By default, all requests will return <em>currently serving members</em>, but you can override this by supplying <code>in_office=false</code>.
+<p><strong>Locating a particular member, whether in office or not</strong>
 
 </p>
+<pre><code class="text">/legislators?bioguide_id=F000444&amp;all_legislators=true</code></pre>
 <p><strong>Searching by a string</strong>
 
 </p>
