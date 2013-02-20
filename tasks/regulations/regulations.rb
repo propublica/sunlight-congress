@@ -160,8 +160,8 @@ class Regulations
       rule.save!
       count += 1
 
-      
       next if options[:skip_text]
+      
       puts "[#{document_number}] Fetching full text..."
 
       full_text = nil
