@@ -114,7 +114,7 @@ The date or time of the most recent official action.
 The date or time of the most recent vote on this bill.
 
 \* **last_version_on**<br/>
-The date the last version of this bill was published.
+The date the last version of this bill was published. This will be set to the `introduced_on` date until an official version of the bill's text is published.
 
 ### Titles
 
