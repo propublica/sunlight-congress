@@ -37,13 +37,20 @@ class BillsText
       # load in bill for this ID
       bill = Bill.where(bill_id: bill_id).first
 
-      # ES will index basic fields plus these other fields, whether text is available or not
-      bill_fields = Utils.bill_for(bill).merge(
+
+      # ES will index a bill's basic fields plus these others
+      es_only = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
         summary: bill['summary'],
         summary_short: bill['summary_short'],
         keywords: bill['keywords']
       )
+
+      mongo_only = {}
+
+      # new fields to go into both ES and Mongo
+      version_fields = {}
+
 
       # find all the versions of text for that bill
       version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{number}-#{congress}-[a-z]*.htm")
@@ -51,16 +58,12 @@ class BillsText
       if version_files.empty?
         gpo_missing << bill_id
 
-        # Update bill in ES
-        puts "[#{bill_id}] Indexing summary info in elasticsearch..." if options[:debug]
+        puts "[#{bill_id}] No text, using summary info and intro date..." if options[:debug]
 
-        Utils.es_batch!('bills', bill.bill_id, bill_fields,
-          batcher, options
-        )
+        version_fields = {
+          last_version_on: bill['introduced_on']
+        }
         
-        puts "[#{bill_id}] Indexed." if options[:debug]
-        
-        bill_count += 1
       else
       
         # accumulate an array of version objects
@@ -161,39 +164,35 @@ class BillsText
           citation_ids = []
         end
 
-        # Update bill in Mongo
-        
-        bill.attributes = {
-          versions: bill_versions,
+        version_fields = {
           last_version: last_version,
           last_version_on: last_version_on,
-          citation_ids: citation_ids
+          citation_ids: citation_ids,
         }
-        bill.save!
 
-        puts "[#{bill_id}] Updated bill with version codes." if options[:debug]
-
-
-        # Update bill in ES
-        puts "[#{bill_id}] Indexing full text in elasticsearch..." if options[:debug]
-
-        Utils.es_batch!('bills', bill.bill_id,
-          bill_fields.merge(
-            updated_at: Time.now,
-            last_version: last_version,
-            last_version_on: last_version_on,
-            citation_ids: citation_ids,
-
-            # ES gets the last version of text
-            text: last_version_text
-          ),
-          batcher, options
-        )
-        
-        puts "[#{bill_id}] Indexed." if options[:debug]
-        
-        bill_count += 1
+        mongo_only.merge! versions: bill_versions
+        es_only.merge! text: last_version_text
       end
+
+
+      # Update bill in Mongo
+      
+      bill.attributes = version_fields.merge(mongo_only)
+      bill.save!
+      puts "[#{bill_id}] Updated bill with version and citation info." if options[:debug]
+
+
+      # Update bill in ES
+      puts "[#{bill_id}] Indexing bill in elasticsearch..." if options[:debug]
+
+      Utils.es_batch!('bills', bill.bill_id,
+        version_fields.merge(es_only).merge(updated_at: Time.now),
+        batcher, options
+      )
+      
+      puts "[#{bill_id}] Indexed." if options[:debug]
+      
+      bill_count += 1
     end
     
     # index any leftover docs
