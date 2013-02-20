@@ -34,132 +34,10 @@ class BillsText
     targets.to_a.each do |bill_id|
       type, number, congress, chamber = Utils.bill_fields_from bill_id
       
-      # find all the versions of text for that bill
-      version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{number}-#{congress}-[a-z]*.htm")
-      if version_files.empty?
-        gpo_missing << bill_id
-        next
-      end
-      
-      # accumulate an array of version objects
-      bill_versions = [] 
-      
-      
-      version_files.each do |file|
-        # strip off the version code
-        bill_version_id = File.basename file, File.extname(file)
-        version_code = bill_version_id.match(/\-(\w+)$/)[1]
-        
-        # standard GPO version name
-        version_name = Utils.bill_version_name_for version_code
-        
-        # metadata from associated GPO MODS file
-        # -- MODS file is a constant reasonable size no matter how big the bill is
-        
-        mods_file = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.mods.xml"
-        mods_doc = nil
-        if File.exists?(mods_file)
-          mods_doc = Nokogiri::XML open(mods_file)
-        end
-        
-        issued_on = nil # will get filled in
-        urls = nil # may not...
-        if mods_doc
-          issued_on = issued_on_for mods_doc
-
-          urls = urls_for mods_doc
-
-          if issued_on.blank?
-            warnings << {message: "Had MODS data but no date available for #{bill_version_id}, SKIPPING"}
-            next
-          end
-
-        else
-          puts "[#{bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
-          
-          # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
-          # So if any other bill triggers this, send me a warning so I can check it out.
-          if bill_version_id != "hr81-112-enr"
-            warnings << {message: "No MODS data available for #{bill_version_id}, SKIPPING"}
-          end
-          
-          # either way, skip over the bill version, it's probably invalid
-          next
-        end
-        
-        
-        # read in full text
-        full_doc = Nokogiri::HTML File.read(file)
-        full_text = full_doc.at("pre").text
-        full_text = clean_text full_text
-        
-        # write text to disk if asked
-        Utils.write(text_cache(congress, bill_id), full_text) if options[:cache_text]
-
-
-
-        # put up top here because it's the first line of debug output for a bill
-        puts "[#{bill_id}][#{version_code}] Processing..." if options[:debug]
-
-
-        # archive text in MongoDB for use later (this is dumb)
-        version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
-        version_archive.attributes = {text: full_text}
-        version_archive.save!
-        
-        version_count += 1
-        
-        bill_versions << {
-          version_code: version_code,
-          issued_on: issued_on,
-          version_name: version_name,
-          bill_version_id: bill_version_id,
-          urls: urls,
-
-          # only the last version's text will ultimately be saved in ES
-          text: full_text
-        }
-      end
-      
-      if bill_versions.size == 0
-        warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
-        next
-      end
-      
-      bill_versions = bill_versions.sort_by {|v| v[:issued_on]}
-      last_version = bill_versions.last
-      last_version_text = last_version[:text].dup
-      last_version_on = last_version[:issued_on]
-
-      # don't store the full text (except the last version's text  we preserved, in ES only)
-      bill_versions.each {|v| v.delete :text}
-
-
       # load in bill for this ID
       bill = Bill.where(bill_id: bill_id).first
 
-      unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(congress, bill_id), options)
-        warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
-        citation_ids = []
-      end
-
-      # Update bill in Mongo
-      
-      bill.attributes = {
-        versions: bill_versions,
-        last_version: last_version,
-        last_version_on: last_version_on,
-        citation_ids: citation_ids
-      }
-      bill.save!
-
-      puts "[#{bill_id}] Updated bill with version codes." if options[:debug]
-
-
-      # Update bill in ES
-      puts "[#{bill_id}] Indexing..." if options[:debug]
-
-      # add some non-basic fields for ES to search on, or return in results
+      # ES will index basic fields plus these other fields, whether text is available or not
       bill_fields = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
         summary: bill['summary'],
@@ -167,22 +45,155 @@ class BillsText
         keywords: bill['keywords']
       )
 
-      Utils.es_batch!('bills', bill.bill_id,
-        bill_fields.merge(
-          updated_at: Time.now,
+      # find all the versions of text for that bill
+      version_files = Dir.glob("data/gpo/BILLS/#{congress}/#{type}/#{type}#{number}-#{congress}-[a-z]*.htm")
+
+      if version_files.empty?
+        gpo_missing << bill_id
+
+        # Update bill in ES
+        puts "[#{bill_id}] Indexing summary info in elasticsearch..." if options[:debug]
+
+        Utils.es_batch!('bills', bill.bill_id, bill_fields,
+          batcher, options
+        )
+        
+        puts "[#{bill_id}] Indexed." if options[:debug]
+        
+        bill_count += 1
+      else
+      
+        # accumulate an array of version objects
+        bill_versions = [] 
+        
+        version_files.each do |file|
+          # strip off the version code
+          bill_version_id = File.basename file, File.extname(file)
+          version_code = bill_version_id.match(/\-(\w+)$/)[1]
+          
+          # standard GPO version name
+          version_name = Utils.bill_version_name_for version_code
+          
+          # metadata from associated GPO MODS file
+          # -- MODS file is a constant reasonable size no matter how big the bill is
+          
+          mods_file = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.mods.xml"
+          mods_doc = nil
+          if File.exists?(mods_file)
+            mods_doc = Nokogiri::XML open(mods_file)
+          end
+          
+          issued_on = nil # will get filled in
+          urls = nil # may not...
+          if mods_doc
+            issued_on = issued_on_for mods_doc
+
+            urls = urls_for mods_doc
+
+            if issued_on.blank?
+              warnings << {message: "Had MODS data but no date available for #{bill_version_id}, SKIPPING"}
+              next
+            end
+
+          else
+            puts "[#{bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
+            
+            # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
+            # So if any other bill triggers this, send me a warning so I can check it out.
+            if bill_version_id != "hr81-112-enr"
+              warnings << {message: "No MODS data available for #{bill_version_id}, SKIPPING"}
+            end
+            
+            # either way, skip over the bill version, it's probably invalid
+            next
+          end
+          
+          
+          # read in full text
+          full_doc = Nokogiri::HTML File.read(file)
+          full_text = full_doc.at("pre").text
+          full_text = clean_text full_text
+          
+          # write text to disk if asked
+          Utils.write(text_cache(congress, bill_id), full_text) if options[:cache_text]
+
+
+
+          # put up top here because it's the first line of debug output for a bill
+          puts "[#{bill_id}][#{version_code}] Processing..." if options[:debug]
+
+
+          # archive text in MongoDB for use later (this is dumb)
+          version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
+          version_archive.attributes = {text: full_text}
+          version_archive.save!
+          
+          version_count += 1
+          
+          bill_versions << {
+            version_code: version_code,
+            issued_on: issued_on,
+            version_name: version_name,
+            bill_version_id: bill_version_id,
+            urls: urls,
+
+            # only the last version's text will ultimately be saved in ES
+            text: full_text
+          }
+        end
+        
+        if bill_versions.size == 0
+          warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
+          next
+        end
+        
+        bill_versions = bill_versions.sort_by {|v| v[:issued_on]}
+        last_version = bill_versions.last
+        last_version_text = last_version[:text].dup
+        last_version_on = last_version[:issued_on]
+
+        # don't store the full text (except the last version's text we preserved, in ES only)
+        bill_versions.each {|v| v.delete :text}
+
+
+        unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(congress, bill_id), options)
+          warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
+          citation_ids = []
+        end
+
+        # Update bill in Mongo
+        
+        bill.attributes = {
+          versions: bill_versions,
           last_version: last_version,
           last_version_on: last_version_on,
-          citation_ids: citation_ids,
+          citation_ids: citation_ids
+        }
+        bill.save!
 
-          # only ES gets only the last version of text
-          text: last_version_text
-        ),
-        batcher, options
-      )
-      
-      puts "[#{bill_id}] Indexed." if options[:debug]
-      
-      bill_count += 1
+        puts "[#{bill_id}] Updated bill with version codes." if options[:debug]
+
+
+        # Update bill in ES
+        puts "[#{bill_id}] Indexing full text in elasticsearch..." if options[:debug]
+
+        Utils.es_batch!('bills', bill.bill_id,
+          bill_fields.merge(
+            updated_at: Time.now,
+            last_version: last_version,
+            last_version_on: last_version_on,
+            citation_ids: citation_ids,
+
+            # ES gets the last version of text
+            text: last_version_text
+          ),
+          batcher, options
+        )
+        
+        puts "[#{bill_id}] Indexed." if options[:debug]
+        
+        bill_count += 1
+      end
     end
     
     # index any leftover docs
@@ -193,7 +204,7 @@ class BillsText
     end
 
     if gpo_missing.any?
-      Report.warning self, "GPO missing text for #{gpo_missing.size} bills", gpo_missing: gpo_missing
+      Report.note self, "GPO missing text for #{gpo_missing.size} bills", gpo_missing: gpo_missing
     end
 
     if notes.any?
