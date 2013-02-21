@@ -422,7 +422,7 @@ If the Sunlight Congress API doesn't have what you're looking for, check out oth
 
 Or if you're looking for other government data:
 
+* [Open States API](http://openstates.org/api/) - Legislative data for all 50 US states, DC, and Puerto Rico.
 * [FederalRegister.gov API](https://www.federalregister.gov/learn/developers) - Official (government-run) JSON API for the activity of the US' executive branch. Includes all proposed and final regulations, executive orders, and all kinds of things.
-* [Open States API](http://openstates.org/api/) - US legislative data for all 50 states.
 * [Capitol Words API](http://capitolwords.org/api/) - Search speeches of members of Congress (the Congressional Record), and get all sorts of language analysis on frequently used words and phrases.
 * [Influence Explorer API](http://data.influenceexplorer.com/api) - Data around federal lobbying, grants, contracts, and state and federal campaign contributions.
