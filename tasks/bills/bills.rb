@@ -96,6 +96,7 @@ class Bills
         enacted_as: enacted_as_for(doc),
 
         actions: actions,
+        last_action: actions ? actions.last : nil,
         last_action_at: actions.any? ? actions.last['acted_at'] : nil,
 
         votes: votes,
