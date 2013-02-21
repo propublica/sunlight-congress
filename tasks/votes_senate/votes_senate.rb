@@ -113,7 +113,8 @@ class VotesSenate
 
         breakdown: Utils.vote_breakdown_for(voters),
 
-        source: url_for(congress, session, number)
+        source: url_for(congress, session, number),
+        url: landing_url_for(congress, session, number)
       }
       
       if bill_id
@@ -196,6 +197,10 @@ class VotesSenate
   
   def self.url_for(congress, session, number)
     "http://www.senate.gov/legislative/LIS/roll_call_votes/vote#{congress}#{session}/vote_#{congress}_#{session}_#{zero_prefix number}.xml"
+  end
+
+  def self.landing_url_for(congress, session, number)
+    "http://www.senate.gov/legislative/LIS/roll_call_lists/roll_call_vote_cfm.cfm?congress=#{congress}&session=#{session}&vote=#{zero_prefix number}"
   end
   
   def self.zero_prefix(number)

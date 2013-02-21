@@ -7,7 +7,7 @@ class Vote
   basic_fields :roll_id, :number, :year, :chamber, :congress, 
     :question, :result, :voted_at, :required,
     :roll_type, :vote_type, 
-    :bill_id, :amendment_id, :source
+    :bill_id, :amendment_id, :source, :url
   
 
   # MongoDB behavior

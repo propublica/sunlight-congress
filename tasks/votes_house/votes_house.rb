@@ -119,7 +119,8 @@ class VotesHouse
 
         breakdown: Utils.vote_breakdown_for(voters),
 
-        source: url_for(year, number)
+        source: url_for(year, number),
+        url: url_for(year, number)
       }
       
       if bill_id
