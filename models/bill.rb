@@ -43,6 +43,7 @@ class Bill
   index amendment_ids: 1
 
   index last_action_at: 1
+  index "last_action.type" => 1
   index last_vote_at: 1
   index last_version_on: 1
   index summary_date: 1
