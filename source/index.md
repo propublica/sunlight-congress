@@ -213,12 +213,28 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 {
 "results": [
   {
+    "breakdown": {
+      "total": {
+        "Yea": 222,
+        "Nay": 190,
+        "Not Voting": 19,
+        "Present": 0
+      }
+    },
     "result": "Passed",
-    "roll_id": "h7-2013"
+    "roll_id": "h43-2013"
   },
   {
+    "breakdown": {
+      "total": {
+        "Yea": 261,
+        "Nay": 154,
+        "Not Voting": 16,
+        "Present": 0
+      }
+    },
     "result": "Passed",
-    "roll_id": "h3-2013"
+    "roll_id": "h44-2013"
   }
   ...
 ]

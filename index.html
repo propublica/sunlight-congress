@@ -344,12 +344,28 @@ The number of actual documents in the response. Can be less than the given <code
 <pre><code class="text">/votes?fields=roll_id,result,breakdown.total</code></pre>
 <pre><code class="json">"<span class="attribute">results</span>": <span class="value">[
   {
+    "<span class="attribute">breakdown</span>": <span class="value">{
+      "<span class="attribute">total</span>": <span class="value">{
+        "<span class="attribute">Yea</span>": <span class="value"><span class="number">222</span></span>,
+        "<span class="attribute">Nay</span>": <span class="value"><span class="number">190</span></span>,
+        "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">19</span></span>,
+        "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+      </span>}
+    </span>}</span>,
     "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span></span>,
-    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h7-2013"</span>
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h43-2013"</span>
   </span>},
   {
+    "<span class="attribute">breakdown</span>": <span class="value">{
+      "<span class="attribute">total</span>": <span class="value">{
+        "<span class="attribute">Yea</span>": <span class="value"><span class="number">261</span></span>,
+        "<span class="attribute">Nay</span>": <span class="value"><span class="number">154</span></span>,
+        "<span class="attribute">Not Voting</span>": <span class="value"><span class="number">16</span></span>,
+        "<span class="attribute">Present</span>": <span class="value"><span class="number">0</span>
+      </span>}
+    </span>}</span>,
     "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span></span>,
-    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h3-2013"</span>
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h44-2013"</span>
   </span>}
   ...
 ]
