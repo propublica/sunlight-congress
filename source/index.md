@@ -112,10 +112,10 @@ The API supports 8 operators that can be combined with filters:
 
 All operators are applied by adding two underscores ("__") after the field name. They cannot be combined.
 
-**Senate votes that got more than 70 ayes**
+**Senate votes that got more than 70 Yea votes**
 
 ```text
-/votes?breakdown.total.ayes__gte=70&chamber=senate
+/votes?breakdown.total.Yea__gte=70&chamber=senate
 ```
 
 **Bills that got an up or down vote in the House**
