@@ -428,7 +428,13 @@ The date or time the bill was enacted into law. Only present if this happened.
     "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span>
     <span class="string">"references"</span>: []
   </span>}
-]
+]</span>,
+"<span class="attribute">last_action</span>": <span class="value">{
+  "<span class="attribute">type</span>": <span class="value"><span class="string">"enacted"</span></span>,
+  "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
+  "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span>
+  <span class="string">"references"</span>: []
+</span>}
 </span></code></pre>
 <p>The <strong>actions</strong> field has a list of all official activity that has occurred to a bill. All fields are parsed out of non-standardized sentence text, so mistakes and omissions are possible.
 
@@ -467,6 +473,10 @@ If the action is a vote, the result. &quot;pass&quot; or &quot;fail&quot;.
 </p>
 <p><strong>actions.roll_id</strong><br/>
 If the action is a roll call vote, the ID of the roll call.
+
+</p>
+<p><strong>last_action</strong><br/>
+The most recent action.
 
 </p>
 <h3 id='fields/votes'>Votes</h3 id='fields/votes'>

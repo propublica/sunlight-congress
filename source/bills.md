@@ -325,7 +325,13 @@ The date or time the bill was enacted into law. Only present if this happened.
     "text": "Became Public Law No: 111-148."
     "references": []
   }
-]
+],
+"last_action": {
+  "type": "enacted",
+  "acted_at": "2010-03-23", 
+  "text": "Became Public Law No: 111-148."
+  "references": []
+}
 }
 ```
 
@@ -357,6 +363,9 @@ If the action is a vote, the result. "pass" or "fail".
 
 **actions.roll_id**<br/>
 If the action is a roll call vote, the ID of the roll call.
+
+**last_action**<br/>
+The most recent action.
 
 ### Votes
 
