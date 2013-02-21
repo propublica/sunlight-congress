@@ -107,8 +107,18 @@ class Bills
 
         urls: urls_for(bill_id)
       }
-      
+
       if bill.save
+        # work-around - last_action_at and last_vote_at can both be dates or times,
+        # and Mongo does not order these correctly together when times are turned into 
+        # Mongo native time objects. So, we serialize them to a string before saving it.
+        ['last_action_at', 'last_vote_at'].each do |field|
+          if bill[field]
+            bill[field] = bill[field].xmlschema unless bill[field].is_a?(String)
+            bill.set(field, bill[field])
+          end
+        end
+        
         count += 1
         puts "[#{bill_id}] Saved successfully" if options[:debug]
       else
@@ -131,7 +141,7 @@ class Bills
       Report.failure self, "Failed to save #{bad_bills.size} bills.", bill: bad_bills.last
     end
     
-    Report.success self, "Synced #{count} bills for congress ##{congress} from GovTrack.us."
+    Report.success self, "Synced #{count} bills for congress ##{congress} from THOMAS.gov."
   end
 
   def self.sponsor_for(sponsor, legislators)
