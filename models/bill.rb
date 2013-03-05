@@ -49,6 +49,8 @@ class Bill
   index summary_date: 1
     
   index introduced_on: 1
+  index "history.active" => 1
+  index "history.active_at" => 1
   index "history.house_passage_result" => 1
   index "history.house_passage_result_at" => 1
   index "history.senate_passage_result" => 1
