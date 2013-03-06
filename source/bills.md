@@ -24,6 +24,11 @@ Filter through bills in Congress. Filter by any [fields below](#fields) that hav
 /bills?congress=112&history.enacted=true
 ```
 
+**Active bills, ordered by recent activity**
+```text
+/bills?history.active=true&order=last_action_at
+```
+
 **Bills sponsored by Republicans that have been vetoed**
 
 ```text
@@ -225,8 +230,10 @@ An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, a
 ```json
 {
 "history": {
+  "active": true,
+  "active_at": "2009-10-07T18:35:00Z",
   "house_passage_result": "pass", 
-  "house_passage_result_at": "2010-03-21T22:48:00-05:00", 
+  "house_passage_result_at": "2010-03-22T02:48:00Z", 
   "senate_cloture_result": "pass",
   "senate_cloture_result_at": "2009-12-23",
   "senate_passage_result": "pass", 
@@ -242,6 +249,12 @@ An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, a
 The **history** field includes useful flags and dates/times in a bill's life. The above is a real-life example of H.R. 3590 - not all fields will be present for every bill.
 
 Time fields can hold either dates or times - Congress is inconsistent about providing specific timestamps.
+
+\* **history.active**<br/>
+Whether this bill has had any action beyond the standard action all bills get (introduction, referral to committee, sponsors' introductory remarks). Only a small percentage of bills get this additional activity.
+
+\* **history.active_at**<br/>
+If this bill got any action beyond initial introduction, the date or time of the first such action. This field will stay constant even as further action occurs. For the time of the most recent action, look to the `last_action_at` field.
 
 \* **history.house_passage_result**<br/>
 The result of the last time the House voted on passage. Only present if this vote occurred. "pass" or "fail".

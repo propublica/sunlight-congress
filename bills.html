@@ -130,6 +130,9 @@
 
 </p>
 <pre><code class="text">/bills?congress=112&amp;history.enacted=true</code></pre>
+<p><strong>Active bills, ordered by recent activity</strong>
+</p>
+<pre><code class="text">/bills?history.active=true&amp;order=last_action_at</code></pre>
 <p><strong>Bills sponsored by Republicans that have been vetoed</strong>
 
 </p>
@@ -315,8 +318,10 @@ An object with URLs for this bill&#39;s landing page on Congress.gov, GovTrack.u
 </p>
 <h3 id='fields/history'>History</h3 id='fields/history'>
 <pre><code class="json">"<span class="attribute">history</span>": <span class="value">{
+  "<span class="attribute">active</span>": <span class="value"><span class="literal">true</span></span>,
+  "<span class="attribute">active_at</span>": <span class="value"><span class="string">"2009-10-07T18:35:00Z"</span></span>,
   "<span class="attribute">house_passage_result</span>": <span class="value"><span class="string">"pass"</span></span>, 
-  "<span class="attribute">house_passage_result_at</span>": <span class="value"><span class="string">"2010-03-21T22:48:00-05:00"</span></span>, 
+  "<span class="attribute">house_passage_result_at</span>": <span class="value"><span class="string">"2010-03-22T02:48:00Z"</span></span>, 
   "<span class="attribute">senate_cloture_result</span>": <span class="value"><span class="string">"pass"</span></span>,
   "<span class="attribute">senate_cloture_result_at</span>": <span class="value"><span class="string">"2009-12-23"</span></span>,
   "<span class="attribute">senate_passage_result</span>": <span class="value"><span class="string">"pass"</span></span>, 
@@ -331,6 +336,14 @@ An object with URLs for this bill&#39;s landing page on Congress.gov, GovTrack.u
 
 </p>
 <p>Time fields can hold either dates or times - Congress is inconsistent about providing specific timestamps.
+
+</p>
+<p>* <strong>history.active</strong><br/>
+Whether this bill has had any action beyond the standard action all bills get (introduction, referral to committee, sponsors&#39; introductory remarks). Only a small percentage of bills get this additional activity.
+
+</p>
+<p>* <strong>history.active_at</strong><br/>
+If this bill got any action beyond initial introduction, the date or time of the first such action. This field will stay constant even as further action occurs. For the time of the most recent action, look to the <code>last_action_at</code> field.
 
 </p>
 <p>* <strong>history.house_passage_result</strong><br/>
@@ -425,15 +438,15 @@ The date or time the bill was enacted into law. Only present if this happened.
   {
     "<span class="attribute">type</span>": <span class="value"><span class="string">"enacted"</span></span>,
     "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
-    "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span>
-    <span class="string">"references"</span>: []
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span></span>,
+    "<span class="attribute">references</span>": <span class="value">[]
   </span>}
 ]</span>,
 "<span class="attribute">last_action</span>": <span class="value">{
   "<span class="attribute">type</span>": <span class="value"><span class="string">"enacted"</span></span>,
   "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
-  "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span>
-  <span class="string">"references"</span>: []
+  "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span></span>,
+  "<span class="attribute">references</span>": <span class="value">[]
 </span>}
 </span></code></pre>
 <p>The <strong>actions</strong> field has a list of all official activity that has occurred to a bill. All fields are parsed out of non-standardized sentence text, so mistakes and omissions are possible.
