@@ -6,6 +6,17 @@ before do
   end
 end
 
+post '/analytics/replicate_key/:key/' do
+  unless params[:key].present? and params[:status].present? and params[:email].present?
+    halt 403, "Missing a key, email, and/or status: #{params.inspect}"
+  end
+
+  key = ApiKey.find_or_create_by key: params[:key]
+  key.email = params[:email]
+  key.status = params[:status]
+  key.save!
+end
+
 post '/analytics/create_key/' do
   unless ApiKey.new(key: params[:key], email: params[:email], status: params[:status]).save
     halt 403, "Could not create key, duplicate key or email"
