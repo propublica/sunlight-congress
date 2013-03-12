@@ -14,7 +14,7 @@ class SunlightServices
   end
   
   def self.verify(params, shared_secret, api_name)
-    return false unless params[:key] and params[:email] and params[:status]
+    return false unless params[:email] and params[:status]
     return false unless params[:api] == api_name
     
     given_signature = params.delete 'signature'
