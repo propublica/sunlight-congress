@@ -14,6 +14,9 @@ class Bills
     missing_committees = []
     bad_bills = []
 
+    # we track when new summaries are added, for analytical interest
+    new_summaries = []
+
     unless File.exists?("data/unitedstates/congress/#{congress}/bills")
       Report.failure self, "Data not available on disk for the requested Congress."
       return
@@ -31,8 +34,8 @@ class Bills
         bill_ids = bill_ids.first options[:limit].to_i
       end
     end
-    
-    
+
+
     bill_ids.each do |bill_id|
       type, number, congress, chamber = Utils.bill_fields_from bill_id
       
@@ -41,6 +44,8 @@ class Bills
       doc = Oj.load open(path)
       
       bill = Bill.find_or_initialize_by bill_id: bill_id
+
+      introduced_on = doc['introduced_at'] # must get done before summary check
       
       if doc['sponsor']
         sponsor = sponsor_for doc['sponsor'], legislators
@@ -57,6 +62,11 @@ class Bills
       summary = summary_for doc['summary']
       summary_short = short_summary_for summary
       summary_date = summary_date_for doc['summary']
+
+      # if a summary is here, and it wasn't before, record this
+      if bill['summary'].blank? and summary.present?
+        new_summaries << {bill_id: bill_id, introduced_on: introduced_on, new_record: bill.new_record?}
+      end
       
       committees, missing = committees_for doc['committees'], committee_cache
       missing_committees += missing.map {|m| [bill_id, m]} if missing.any?
@@ -91,7 +101,7 @@ class Bills
         withdrawn_cosponsor_ids: withdrawn.map {|c| c['legislator']['bioguide_id']},
         withdrawn_cosponsors_count: withdrawn.size,
 
-        introduced_on: doc['introduced_at'],
+        introduced_on: introduced_on,
         history: history_for(doc['history']),
         enacted_as: enacted_as_for(doc),
 
@@ -140,6 +150,11 @@ class Bills
     
     if bad_bills.any?
       Report.failure self, "Failed to save #{bad_bills.size} bills.", bill: bad_bills.last
+    end
+
+    if new_summaries.any?
+      Event.new_summaries! new_summaries
+      Report.warning self, "Summaries added for #{new_summaries.size} bills, data attached", new_summaries: new_summaries
     end
     
     Report.success self, "Synced #{count} bills for congress ##{congress} from THOMAS.gov."
