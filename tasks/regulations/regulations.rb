@@ -6,9 +6,12 @@ class Regulations
   # options:
   #   document_number: index a specific document only.
   #
+  #   article_type: limit documents to a particular article_type (rule, prorule, notice).
+  #     does not apply to public inspection documents.
+  #
   #   public_inspection: 
+  #     if document_number is not given, fetch all current public inspection documents.
   #     if document_number is given, get the public_inspection version.
-  #     if document_number is not given, fetch current public inspection documents.
   #
   #   year: 
   #     if month is given, is combined with month to index that specific month.
@@ -28,9 +31,23 @@ class Regulations
   #     will not cache search requests, is safe to turn on for syncing new documents
   #
   #   skip_text: do not do full text processing (mongo only)
-    
+  
+  #  Hierarchy of regulatory documents:
+  #    All documents:
+  #      document_type: "article", "public_inspection"
+  #      article_type: "regulation", "notice"
+  #
+  #    For article_type "regulation":
+  #      stage: "proposed", "final"
+
   def self.run(options = {})
     document_type = options[:public_inspection] ? :public_inspection : :article
+
+    if options[:article_type]
+      article_types = [options[:article_type].upcase]
+    else
+      article_types = ["PRORULE", "RULE", "NOTICE"]
+    end
 
     # single regulation
     if options[:document_number]
@@ -44,7 +61,7 @@ class Regulations
     elsif document_type == :article
       targets = []
 
-      ["PRORULE", "RULE"].each do |stage|
+      article_types.each do |type|
         
         # a whole month or year
         if options[:year]
@@ -54,7 +71,7 @@ class Regulations
           months.each do |month|
             beginning = Time.parse("#{year}-#{month}-01")
             ending = (beginning + 1.month) - 1.day
-            targets += regulations_for stage, beginning, ending, options
+            targets += regulations_for type, beginning, ending, options
           end
 
         # default to last 7 days
@@ -62,7 +79,7 @@ class Regulations
           days = options[:days] ? options[:days].to_i : 7
           ending = Time.now.midnight # only yyyy-mm-dd is used, time of day doesn't matter
           beginning = ending - days.days
-          targets += regulations_for stage, beginning, ending, options
+          targets += regulations_for type, beginning, ending, options
         end
 
       end
@@ -82,7 +99,7 @@ class Regulations
 
     targets.each do |document_number|
 
-      puts "\n[#{document_type}][#{document_number}] Fetching rule..." if options[:debug]
+      puts "\n[#{document_type}][#{document_number}] Fetching article..." if options[:debug]
       url = details_url_for document_type, document_number
       destination = destination_for document_type, document_number, "json"
 
@@ -104,17 +121,11 @@ class Regulations
         rule = Regulation.new document_number: document_number
       end
 
-      # maps FR document type to rule stage
-      type_to_stage = {
-        "Proposed Rule" => "proposed",
-        "Rule" => "final"
-      }
-
+      
       # common to public inspection documents and to articles
       attributes = {
         document_type: document_type.to_s,
 
-        stage: type_to_stage[details['type']],
         agency_names: details['agencies'].map {|agency| agency['name'] || agency['raw_name']},
         agency_ids: details['agencies'].map {|agency| agency['id']},
         publication_date: details['publication_date'],
@@ -122,6 +133,20 @@ class Regulations
         url: details['html_url'],
         pdf_url: details['pdf_url']
       }
+
+      # maps FR document type to rule stage
+      type_to_stage = {
+        "Proposed Rule" => "proposed",
+        "Rule" => "final"
+      }
+
+      if stage = type_to_stage[details['type']]
+        attributes[:article_type] = "regulation"
+        attributes[:stage] = stage
+      
+      else # notices
+        attributes[:article_type] = details['type'].downcase 
+      end
 
 
       if document_type == :article
@@ -233,9 +258,9 @@ class Regulations
     end
 
     if document_type == :article
-      Report.success self, "Processed #{count} RULE and PRORULE regulations"
+      Report.success self, "Processed #{count} #{article_types.join ", "} regulations"
     elsif document_type == :public_inspection
-      Report.success self, "Processed #{count} current RULE and PRORULE public inspection docs"
+      Report.success self, "Processed #{count} current RULE, PRORULE, and NOTICE public inspection docs"
     end
 
     Report.success self, "Indexed #{search_count} documents as searchable"
@@ -275,7 +300,7 @@ class Regulations
       if ["proposed rule", "rule"].include?(article['type'].downcase)
         article['document_number']
       else
-        # puts "Skipping non-rule PI doc..." if options[:debug]
+        puts "Skipping non-rule PI doc..." if options[:debug]
         nil
       end
     end.compact
@@ -284,20 +309,22 @@ class Regulations
 
   # document numbers for published regs in the given range
 
-  def self.regulations_for(stage, beginning, ending, options)
+  def self.regulations_for(type, beginning, ending, options)
     base_url = "http://api.federalregister.gov/v1/articles.json"
-    base_url << "?conditions[type]=#{stage}"
+    base_url << "?conditions[type]=#{type}"
     base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
     base_url << "&conditions[publication_date][gte]=#{beginning.strftime "%m/%d/%Y"}"
     base_url << "&fields[]=document_number"
     base_url << "&per_page=1000"
 
-    puts "Fetching #{stage} regulations from #{beginning.strftime "%m/%d/%Y"} to #{ending.strftime "%m/%d/%Y"}..."
+    puts "Fetching #{type} articles from #{beginning.strftime "%m/%d/%Y"} to #{ending.strftime "%m/%d/%Y"}..."
     
     # the API serves a max of 1000 documents, no matter how it's paginated
     # fetch a page of 1000 documents
-    # - this should be enough to not miss anything if filtered by month and stage, 
+    # - this should be enough to not miss anything if filtered by month and type, 
     #   but if not, catch it
+    # - addendum: NOTICE type articles are more voluminous, and must be filtered per day, or week
+    #   2/13/2013 - 3/13/2013, for example: over 2,800 notices. (Wow.)
     
     unless response = Utils.download(base_url, options.merge(json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
@@ -315,7 +342,7 @@ class Regulations
     end
 
     if response['count'] >= 1000
-      Report.warning self, "Likely more than 1000 #{stage} regulations between #{ending} and #{beginning}"
+      Report.warning self, "Likely more than 1000 #{type} articles between #{ending} and #{beginning}"
       # continue on
     end
 
