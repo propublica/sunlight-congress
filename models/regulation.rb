@@ -3,7 +3,7 @@ class Regulation
   publicly :queryable, :searchable
   
   basic_fields :document_type, :document_number, 
-    :title, :stage, 
+    :title, :stage, :article_type,
     :agency_names, :agency_ids, :docket_ids, 
     :url, :pdf_url,
     :publication_date, :posted_at, 
@@ -21,6 +21,7 @@ class Regulation
 
   index document_number: 1
   index document_type: 1
+  index article_type: 1
   index stage: 1
   index posted_at: 1
   index docket_ids: 1
