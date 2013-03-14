@@ -192,10 +192,11 @@ class Regulations
       full_text = nil
 
       if document_type == :article
-        if details['full_text_xml_url']
-          full_text = text_for :article, document_number, :xml, details['full_text_xml_url'], options
+        # if details['full_text_xml_url']
+        #   full_text = text_for :article, document_number, :xml, details['full_text_xml_url'], options
           
-        elsif rule['body_html_url'] 
+        # els
+        if details['body_html_url'] 
           full_text = text_for :article, document_number, :html, details['body_html_url'], options
 
         else
