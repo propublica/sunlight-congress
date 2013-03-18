@@ -18,4 +18,7 @@ class UpcomingBill
   index source_type: 1
   index bill_id: 1
   index range: 1
+
+  # support an orderly ordering of upcoming bills
+  index({legislative_day: 1, range: 1})
 end
