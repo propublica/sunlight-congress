@@ -46,7 +46,7 @@ class Regulations
     if options[:article_type]
       article_types = [options[:article_type].upcase]
     else
-      article_types = ["PRORULE", "RULE"] #, "NOTICE"]
+      article_types = ["PRORULE", "RULE", "NOTICE"]
     end
 
     # single regulation
