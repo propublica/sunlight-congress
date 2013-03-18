@@ -36,6 +36,8 @@ This will search votes' `question` field.
 
 ## Fields
 
+**Many fields are not returned unless requested.** You can request specific fields with the `fields` parameter. See the [partial responses](index.html#parameters/partial-responses) documentation for more details.
+
 \* = can be used as a filter
 
 ```json

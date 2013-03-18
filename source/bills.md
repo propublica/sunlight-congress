@@ -78,6 +78,8 @@ This searches the bill's full text, `short_title`, `official_title`, `popular_ti
 
 All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protection and Affordable Care Act](http://www.govtrack.us/congress/bills/111/hr3590) (Obamacare).
 
+**Many fields are not returned unless requested.** You can request specific fields with the `fields` parameter. See the [partial responses](index.html#parameters/partial-responses) documentation for more details.
+
 \* = can be used as a filter
 
 ```json
