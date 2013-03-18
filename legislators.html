@@ -89,7 +89,10 @@
 </p>
 <pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
 <h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
-<p>Find members of Congress by a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. There is no support for operators, ordering, or partial responses.
+<p>Find members of Congress by a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code. 
+
+</p>
+<p>There is <strong>no support</strong> for further operators, ordering, or partial responses. All you can do is filter by location.
 
 </p>
 <p>At-large districts, which encompass an entire state, are assigned a district number of <code>0</code>.
@@ -113,7 +116,7 @@
 
 </p>
 <h3 id='methods/legislators'>/legislators</h3 id='methods/legislators'>
-<p>Search and filter for members of Congress. 
+<p>Search and filter for members of Congress. All <a href="index.html#parameters/operators">standard operators</a> apply.
 
 </p>
 <p>By default, all requests will return <strong>currently serving members</strong>, but you can override this by supplying <code>all_legislators=true</code>.

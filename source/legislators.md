@@ -14,7 +14,9 @@ http://congress.api.sunlightfoundation.com
 
 ### /legislators/locate
 
-Find members of Congress by a `latitude` and `longitude`, or a `zip` code. There is no support for operators, ordering, or partial responses.
+Find members of Congress by a `latitude` and `longitude`, or a `zip` code. 
+
+There is **no support** for further operators, ordering, or partial responses. All you can do is filter by location.
 
 At-large districts, which encompass an entire state, are assigned a district number of `0`.
 
@@ -38,7 +40,7 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 
 ### /legislators
 
-Search and filter for members of Congress. 
+Search and filter for members of Congress. All [standard operators](index.html#parameters/operators) apply.
 
 By default, all requests will return **currently serving members**, but you can override this by supplying `all_legislators=true`.
 
