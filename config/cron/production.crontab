@@ -54,11 +54,14 @@
 # GAO reports (full text) - add 1s between requests
 */20 * * * * /projects/congress/congress/shared/cron/task.sh gao_reports rate_limit=1
 
+
 # Regulations
-# formally published proposed and final regs, last 2 days - takes <2m even without cache
-*/10 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 days=2
-# pre-release regs (public inspection docs)
-*/60 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
+
+# formally published regs and notices, last 2 days - takes <2m even without cache
+0,10,20,30,40,50 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 days=2
+
+# public inspection docs - also takes <2m even without cache
+5,15,25,35,45,55 * * * * /projects/congress/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
 
 
 # leave the newline here
