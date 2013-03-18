@@ -69,9 +69,16 @@ class Regulations
           months = options[:month] ? [options[:month].to_i] : (1..12).to_a.reverse
           
           months.each do |month|
+
+            # break it up by week
             beginning = Time.parse("#{year}-#{month}-01")
-            ending = (beginning + 1.month) - 1.day
-            targets += regulations_for type, beginning, ending, options
+
+            # 5 weeks, there will be inefficient overlap, oh well
+            5.times do |i| 
+              ending = (beginning + 6.days) # 7 day window
+              targets += regulations_for type, beginning, ending, options
+              beginning += 7.days # advance counter by a week
+            end
           end
 
         # default to last 7 days
@@ -84,6 +91,8 @@ class Regulations
 
       end
     end
+
+    targets = targets.uniq # 5-week window may cause dupes
 
     if options[:limit]
       targets = targets.first options[:limit].to_i
