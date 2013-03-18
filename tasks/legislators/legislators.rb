@@ -70,7 +70,11 @@ class Legislators
 
   
   def self.attributes_from_united_states(us_legislator, current)
+    # don't pick from calculated terms, used for reference only
     last_term = us_legislator['terms'].last
+    
+    # massage terms array a bit, remove some top-level fields
+    terms = terms_for us_legislator
 
     attributes = {
       in_office: current,
@@ -107,7 +111,8 @@ class Legislators
       office: last_term['office'],
       contact_form: last_term['contact_form'],
 
-      terms: terms_for(us_legislator)
+      terms: terms,
+      terms_count: terms.size
     }
 
     if us_legislator['other_names']
@@ -148,7 +153,9 @@ class Legislators
   end
 
   def self.terms_for(us_legislator)
-    us_legislator['terms'].map do |term|
+    us_legislator['terms'].map do |original_term|
+      term = original_term.dup
+
       # these go on the top level and are only correct for the current term
       ['phone', 'fax', 'url', 'address', 'office', 'contact_form'].each {|field| term.delete field}
 

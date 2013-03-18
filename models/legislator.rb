@@ -44,4 +44,5 @@ class Legislator
 
   index term_start: 1
   index term_end: 1
+  index terms_count: 1 # undocumented for now
 end
