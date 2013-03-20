@@ -42,7 +42,7 @@ class Committees
     # store committees and subcommittees as peers, *and* nest subcommittees inside their committee
     (bill_committees + current_committees).each do |us_committee|
       committee_id = us_committee['thomas_id']
-      puts "[#{committee_id}] Processing..."
+      puts "[#{committee_id}] Processing..." if options[:debug]
 
       current = current_committees.include?(us_committee)
 
@@ -55,7 +55,7 @@ class Committees
       (us_committee['subcommittees'] || []).each do |us_subcommittee|
         subcommittee_id = us_subcommittee['thomas_id']
         full_id = [committee_id, subcommittee_id].join ""
-        puts "[#{committee_id}][#{subcommittee_id}] Processing..."
+        puts "[#{committee_id}][#{subcommittee_id}] Processing..." if options[:debug]
         
         subcommittee = Committee.find_or_initialize_by committee_id: full_id
 
@@ -82,11 +82,17 @@ class Committees
     end
 
     # should work for both parent and subcommittees.
-    memberships.each do |committee_id, members|
-      puts "[#{committee_id}] Members..."
-      committee = Committee.where(committee_id: committee_id).first
-      committee.attributes = memberships_for committee, memberships, legislator_cache, missing_members
-      committee.save!
+    Committee.where(current: true).each do |committee|
+      members = memberships_for committee, memberships, legislator_cache, missing_members
+      if members
+        puts "[#{committee.committee_id}] Saving members..." if options[:debug]
+        committee.attributes = members
+        committee.save!
+      else
+        puts "[#{committee.committee_id}] MISSING MEMBERSHIP, DESTROYING!"
+        missing_members << committee.committee_id
+        committee.destroy # yep: if we have no members yet for a committee, we're not sure it exists
+      end
     end
 
     if bad_committees.any?
@@ -139,9 +145,7 @@ class Committees
     committee_id = committee.committee_id
 
     unless memberships[committee_id]
-      puts "MISSING MEMBERSHIP for #{committee_id}"
-      missing_members << committee_id
-      return {}
+      return nil
     end
 
     members = memberships[committee_id].map do |member|
