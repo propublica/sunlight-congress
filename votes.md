@@ -1,3 +1,7 @@
+---
+layout: page
+title: Votes
+---
 # Votes
 
 Roll call votes taken by the House and Senate. This data is taken from original [House](http://clerk.house.gov/legislative/legvotes.aspx) and [Senate](http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm) sources, and goes back to 2009. 
@@ -10,9 +14,9 @@ Votes taken by voice or unanimous consent, where the votes of individual represe
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /votes
 
@@ -20,15 +24,15 @@ Search and filter through votes in Congress. Filter by any [fields below](#field
 
 **Recent votes in the Senate**
 
-```text
+{% highlight text %}
 /votes?chamber=senate&order=voted_at
-```
+{% endhighlight %}
 
 **Votes about 'guns'**
 
-```text
+{% highlight text %}
 /votes?query=guns
-```
+{% endhighlight %}
 
 This will search votes' `question` field.
 
@@ -40,7 +44,7 @@ This will search votes' `question` field.
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "roll_id": "h7-2013",
 "chamber": "house",
@@ -55,7 +59,7 @@ This will search votes' `question` field.
 "result": "Passed",
 "source": "http://clerk.house.gov/evs/2013/roll007.xml"
 }
-```
+{% endhighlight %}
 
 \* **roll_id**<br/>
 A unique identifier for a roll call vote. Made from the first letter of the `chamber`, the vote `number`, and the legislative `year`.
@@ -95,7 +99,7 @@ The original, official source XML for this vote information.
 
 ### Associated Bill
 
-```json
+{% highlight json %}
 {
 "bill_id": "hr41-113",
 "bill": {
@@ -105,7 +109,7 @@ The original, official source XML for this vote information.
   ...
 }
 }
-```
+{% endhighlight %}
 
 \* **bill_id**<br/>
 If a vote is related to a bill, the bill's ID.
@@ -115,7 +119,7 @@ If a vote is related to a bill, some basic fields about the bill.
 
 ### Voters
 
-```json
+{% highlight json %}
 {
 "voter_ids": {
   "A000055": "Yea",
@@ -142,7 +146,7 @@ If a vote is related to a bill, some basic fields about the bill.
   ...
 }
 }
-```
+{% endhighlight %}
 
 Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner"). There may be other exceptions.
 
@@ -160,7 +164,7 @@ Some basic fields about the voter.
 
 ### Vote Breakdown
 
-```json
+{% highlight json %}
 {
 "breakdown": {
   "total": {
@@ -191,7 +195,7 @@ Some basic fields about the voter.
   }
 }
 }
-```
+{% endhighlight %}
 
 The vote **breakdown** gives top-level numbers about what votes were cast.
 

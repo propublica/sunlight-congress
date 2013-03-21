@@ -1,3 +1,7 @@
+---
+layout: page
+title: Legislators
+---
 # Legislators
 
 Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
@@ -8,9 +12,9 @@ Data on members of Congress, dating back to 1789. All member information is sour
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /legislators/locate
 
@@ -22,17 +26,17 @@ At-large districts, which encompass an entire state, are assigned a district num
 
 **By latitude/longitude**
 
-```text
+{% highlight text %}
 /legislators/locate?latitude=42.96&longitude=-108.09
-```
+{% endhighlight %}
 
 This will return both representatives and senators that currently represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
 
 **By zip code**
 
-```text
+{% highlight text %}
 /legislators/locate?zip=11216
-```
+{% endhighlight %}
 
 A `zip` code may intersect multiple Congressional districts, so locating by `zip` may return multiple representatives, and possibly more than 2 senators if the zip code crosses state borders.
 
@@ -46,23 +50,23 @@ By default, all requests will return **currently serving members**, but you can 
 
 **Filtering on fields**
 
-```text
+{% highlight text %}
 /legislators?party=D&chamber=senate
-```
+{% endhighlight %}
 
 Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
 **Locating a particular member, whether in office or not**
 
-```text
+{% highlight text %}
 /legislators?bioguide_id=F000444&all_legislators=true
-```
+{% endhighlight %}
 
 **Searching by a string**
 
-```text
+{% highlight text %}
 /legislators?query=mcconnell
-```
+{% endhighlight %}
 
 This will search legislators' name fields: `first_name`, `last_name`, `middle_name`, `nickname`, `other_names.last`
 
@@ -70,16 +74,16 @@ This will search legislators' name fields: `first_name`, `last_name`, `middle_na
 
 You can turn off pagination for requests to `/legislators`, but doing so will force a filter of `in_office=true` (that cannot be overridden).
 
-```text
+{% highlight text %}
 /legislators?per_page=all
-```
+{% endhighlight %}
 
 
 ## Fields
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "in_office": true,
 "party": "D",
@@ -95,7 +99,7 @@ You can turn off pagination for requests to `/legislators`, but doing so will fo
 "term_start": "2007-01-04",
 "term_end": "2012-12-31"
 }
-```
+{% endhighlight %}
 
 \* **in_office**<br/>
 Whether a legislator is currently holding elected office in Congress.
@@ -138,7 +142,7 @@ The date a member's current term will end.
 
 ### Identifiers
 
-```json
+{% highlight json %}
 {
 "bioguide_id": "B000944",
 "thomas_id": "136",
@@ -150,7 +154,7 @@ The date a member's current term will end.
   "H2OH13033"
 ]
 }
-```
+{% endhighlight %}
 
 \* **bioguide_id**<br/>
 Identifier for this member in various Congressional sources. Originally taken from the [Congressional Biographical Directory](http://bioguide.congress.gov), but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
@@ -175,7 +179,7 @@ A list of identifiers for this member as they appear in filings at the [Federal 
 
 ### Names
 
-```json
+{% highlight json %}
 {
 "first_name": "Jefferson",
 "nickname": "Jeff",
@@ -183,7 +187,7 @@ A list of identifiers for this member as they appear in filings at the [Federal 
 "middle_name": "B.",
 "name_suffix": null
 }
-```
+{% endhighlight %}
 
 \* **first_name**<br/>
 The member's first name. This may or may not be the name they are usually called.
@@ -202,7 +206,7 @@ A name suffix, if the member uses one. For example, "Jr." or "III".
 
 ### Contact info
 
-```json
+{% highlight json %}
 {
 "phone": "202-224-2315",
 "website": "http://brown.senate.gov/",
@@ -210,7 +214,7 @@ A name suffix, if the member uses one. For example, "Jr." or "III".
 "contact_form": "http://www.brown.senate.gov/contact/",
 "fax": "202-228-6321"
 }
-```
+{% endhighlight %}
 
 **phone**<br/>
 Phone number of the members's DC office.
@@ -229,13 +233,13 @@ URL to their official contact form.
 
 ### Social Media
 
-```json
+{% highlight json %}
 {
 "twitter_id": "SenSherrodBrown",
 "youtube_id": "SherrodBrownOhio",
 "facebook_id": "109453899081640"
 }
-```
+{% endhighlight %}
 
 **twitter_id**<br/>
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
@@ -256,7 +260,7 @@ All social media account values can be turned into URLs by preceding them with t
 
 An array of information for each term the member has served, from oldest to newest. Example:
 
-```json
+{% highlight json %}
 {
 "terms": [{
   "start": "2013-01-03",
@@ -268,7 +272,7 @@ An array of information for each term the member has served, from oldest to newe
   "chamber": "senate"
 }]
 }
-```
+{% endhighlight %}
 
 **terms.start**<br/>
 The date this term began.

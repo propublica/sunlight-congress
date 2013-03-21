@@ -1,3 +1,7 @@
+---
+layout: page
+title: Bills
+---
 # Bills
 
 Data on bills in Congress goes back to 2009, and comes from a mix of sources:
@@ -10,9 +14,9 @@ Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /bills
 
@@ -20,32 +24,32 @@ Filter through bills in Congress. Filter by any [fields below](#fields) that hav
 
 **Bills enacted into law in the 112th Congress**
 
-```text
+{% highlight text %}
 /bills?congress=112&history.enacted=true
-```
+{% endhighlight %}
 
 **Active bills, ordered by recent activity**
-```text
+{% highlight text %}
 /bills?history.active=true&order=last_action_at
-```
+{% endhighlight %}
 
 **Bills sponsored by Republicans that have been vetoed**
 
-```text
+{% highlight text %}
 /bills?sponsor.party=R&history.vetoed=true
-```
+{% endhighlight %}
 
 **Most recent private laws**
 
-```text
+{% highlight text %}
 /bills?enacted.law_type=private&order=history.enacted_at
-```
+{% endhighlight %}
 
 **Joint resolutions that received a vote in the House and Senate**
 
-```text
+{% highlight text %}
 /bills?bill_type__in=hjres|sjres&history.house_passage_result__exists=true&history.senate_passage_result__exists=true
-```
+{% endhighlight %}
 
 ### /bills/search
 
@@ -57,21 +61,21 @@ This searches the bill's full text, `short_title`, `official_title`, `popular_ti
 
 **Laws matching "health care"**
 
-```text
+{% highlight text %}
 /bills/search?query="health care"&history.enacted=true
-```
+{% endhighlight %}
 
 **Bills matching "freedom of information" and words starting with "accountab"**
 
-```text
+{% highlight text %}
 /bills/search?query="freedom of information" accountab*
-```
+{% endhighlight %}
 
 **Bills with "transparency" and "accountability" within 5 words of each other, with excerpts**
 
-```text
+{% highlight text %}
 /bills/search?query="transparency accountability"~5&highlight=true
-```
+{% endhighlight %}
 
 
 ## Fields
@@ -82,7 +86,7 @@ All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protec
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "bill_id": "hr3590-111", 
 "bill_type": "hr", 
@@ -94,7 +98,7 @@ All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protec
 "last_vote_at": "2010-03-22T03:48:00Z",
 "last_version_on": "2012-08-25"
 }
-```
+{% endhighlight %}
 
 \* **bill_id**<br/>
 The unique ID for this bill. Formed from the `bill_type`, `number`, and `congress`.
@@ -125,12 +129,12 @@ The date the last version of this bill was published. This will be set to the `i
 
 ### Titles
 
-```json
+{% highlight json %}
 {
 "official_title": "An act entitled The Patient Protection and Affordable Care Act.", 
 "popular_title": "Health care reform bill", 
 "short_title": "Patient Protection and Affordable Care Act",
-
+ 
 "titles": [
   {
     "as": null, 
@@ -149,8 +153,7 @@ The date the last version of this bill was published. This will be set to the `i
   }
 ]
 }
-```
-
+{% endhighlight %}
 **official_title**<br/>
 The current official title of a bill. Official titles are sentences. Always present. Assigned at introduction, and can be revised any time.
 
@@ -174,21 +177,21 @@ The type of title this is. "official", "short", or "popular".
 
 ### Nicknames
 
-```json
+{% highlight json %}
 {
 "nicknames": [
   "obamacare",
   "ppaca"
 ]
 }
-```
+{% endhighlight %}
 
 \* **nicknames**<br/>
 An array of common nicknames for a bill that don't appear in official data. These nicknames are sourced from a public dataset at [unitedstates/bill-nicknames](https://github.com/unitedstates/bill-nicknames), and will only appear for a tiny fraction of bills. In the future, we plan to auto-generate acronyms from bill titles and add them to this array.
 
 ### Summary and keywords
 
-```json
+{% highlight json %}
 {
 "subjects": [
   "Abortion", 
@@ -201,8 +204,7 @@ An array of common nicknames for a bill that don't appear in official data. Thes
 
 "summary_short": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans..."
 }
-```
-
+{% endhighlight %}
 \* **keywords**<br/>
 A list of official keywords and phrases assigned by the Library of Congress. These keywords can be used to group bills into tags or topics, but there are many of them (1,023 unique keywords since 2009, as of late 2012), and they are not grouped into a hierarchy. They can be assigned or revised at any time after introduction.
 
@@ -214,7 +216,7 @@ The official summary, but capped to 1,000 characters (and an ellipse). Useful wh
 
 ### URLs
 
-```json
+{% highlight json %}
 {
 "urls": {
   "congress" :"http://beta.congress.gov/bill/111th/house-bill/3590",
@@ -222,14 +224,14 @@ The official summary, but capped to 1,000 characters (and an ellipse). Useful wh
   "opencongress" :"http://www.opencongress.org/bill/111-h3590/show"
 }
 }
-```
+{% endhighlight %}
 
 **urls**
 An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, and OpenCongress.org.
 
 ### History
 
-```json
+{% highlight json %}
 {
 "history": {
   "active": true,
@@ -246,7 +248,7 @@ An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, a
   "enacted_at": "2010-03-23"
 }
 }
-```
+{% endhighlight %}
 
 The **history** field includes useful flags and dates/times in a bill's life. The above is a real-life example of H.R. 3590 - not all fields will be present for every bill.
 
@@ -309,7 +311,7 @@ The date or time the bill was enacted into law. Only present if this happened.
 
 ### Actions
 
-```json
+{% highlight json %}
 {
 "actions": [
   {
@@ -348,7 +350,7 @@ The date or time the bill was enacted into law. Only present if this happened.
   "references": []
 }
 }
-```
+{% endhighlight %}
 
 The **actions** field has a list of all official activity that has occurred to a bill. All fields are parsed out of non-standardized sentence text, so mistakes and omissions are possible.
 
@@ -384,7 +386,7 @@ The most recent action.
 
 ### Votes
 
-```json
+{% highlight json %}
 {
 "votes": [
   {
@@ -405,14 +407,14 @@ The most recent action.
   }
 ]
 }
-```
+{% endhighlight %}
 
 The **votes** array is identical to the `actions` array, but limited to actions that are votes.
 
 
 ### Sponsorships
 
-```json
+{% highlight json %}
 {
 "sponsor_id": "R000053",
 "sponsor": {
@@ -454,8 +456,7 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 "withdrawn_cosponsors": [],
 "withdrawn_cosponsors_count": 0
 }
-```
-
+{% endhighlight %}
 \* **sponsor_id**<br/>
 The bioguide ID of the bill's sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.
 
@@ -491,7 +492,7 @@ An object with most simple [legislator fields](legislators.html#fields) for that
 
 ### Committees
 
-```json
+{% highlight json %}
 {
 "committee_ids": [
   "HSWM"
@@ -514,7 +515,7 @@ An object with most simple [legislator fields](legislators.html#fields) for that
   }
 ]
 }
-```
+{% endhighlight %}
 
 \* **committee_ids**<br/>
 A list of IDs of committees related to this bill.
@@ -524,7 +525,7 @@ A list of relationships that the committee has to the bill, as they appear on [T
 
 ### Related Bills
 
-```json
+{% highlight json %}
 {
 "related_bill_ids": [
   "hconres254-111",
@@ -535,14 +536,14 @@ A list of relationships that the committee has to the bill, as they appear on [T
   "s1790-111"
 ]
 }
-```
+{% endhighlight %}
 
 \* **related_bill_ids**<br/>
 A list of IDs of bills that the Library of Congress has declared "related". Relations can be pretty loose, use this field with caution.
 
 ### Versions
 
-```json
+{% highlight json %}
 {
 "versions": [
   {
@@ -577,7 +578,7 @@ A list of IDs of bills that the Library of Congress has declared "related". Rela
   }
 }
 }
-```
+{% endhighlight %}
 
 The **versions** field is an array of information on each version of the bill. This data is sourced from [GPO](http://www.gpo.gov/fdsys/browse/collection.action?collectionCode=BILLS), and is published on a different schedule than most other bill information.
 
@@ -598,7 +599,7 @@ Information for only the most recent version of a bill. Useful to limit the size
 
 ### Upcoming Debate
 
-```json
+{% highlight json %}
 {
 "upcoming": [
   {
@@ -611,7 +612,7 @@ Information for only the most recent version of a bill. Useful to limit the size
   }
 ]
 }
-```
+{% endhighlight %}
 
 The **upcoming** field has an array of objects describing when a bill has been scheduled for future debate on the House or Senate floor. Its information is taken from party leadership websites in the [House](http://majorityleader.gov/) and [Senate](http://democrats.senate.gov/), and updated frequently throughout the day.
 
@@ -637,7 +638,7 @@ Some surrounding context of why the bill is scheduled. This is only present for 
 
 ### Becoming Law
 
-```json
+{% highlight json %}
 { 
 "enacted_as": {
   "congress": 111,
@@ -645,7 +646,7 @@ Some surrounding context of why the bill is scheduled. This is only present for 
   "number": 148
 }
 }
-```
+{% endhighlight %}
 
 If a bill has been enacted into law, the **enacted_as** field contains information about the law number it was assigned. The above information is for [Public Law 111-148](http://www.gpo.gov/fdsys/pkg/PLAW-111publ148/content-detail.html).
 
