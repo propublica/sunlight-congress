@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlight Congress API | Committees</title>
+    
+    
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+  <body><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <a href="index.html" id="logo">Sunlight Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#methods">Methods</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#methods/committees">/committees</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#fields">Fields</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#fields/members">Members</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/subcommittees">Subcommittees</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/parent-committee">Parent Committee</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe></div><div class="thanks">powered by <a href="http://documentup.com">DocumentUp</a></div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Committees</h1>
+<p>Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate. 
+
+</p>
+<p>All committee information is sourced from bulk data at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>, which in turn comes from official <a href="http://clerk.house.gov/committee_info/index.aspx">House</a> and <a href="http://www.senate.gov/general/committee_assignments/assignments.htm">Senate</a> sources.
+
+</p>
+<p>We only provide information on current committees and memberships. For historic data on committee names, IDs, and contact info, refer to the <a href="https://github.com/unitedstates/congress-legislators">bulk data</a>.
+
+</p>
+<h2 id='methods'>Methods</h2 id='methods'>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<h3 id='methods/committees'>/committees</h3 id='methods/committees'>
+<p>Filter through committees in the House and Senate. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
+
+</p>
+<p><strong>Committees and subcommittees a given legislator is assigned to</strong>
+
+</p>
+<pre><code class="text">/committees?member_ids=L000551</code></pre>
+<p><strong>Joint committees, excluding subcommittees</strong>
+
+</p>
+<pre><code class="text">/committees?chamber=joint&amp;subcommittee=false</code></pre>
+<p><strong>Subcommittees of the House Ways and Means Committee</strong>
+
+</p>
+<pre><code class="text">/committees?parent_committee_id=HSWM</code></pre>
+<h2 id='fields'>Fields</h2 id='fields'>
+<p>* = can be used as a filter
+
+</p>
+<pre><code class="json">"<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Homeland Security"</span></span>,
+"<span class="attribute">committee_id</span>":<span class="value"><span class="string">"HSHM"</span></span>,
+"<span class="attribute">chamber</span>":<span class="value"><span class="string">"house"</span></span>,
+"<span class="attribute">url</span>": <span class="value"><span class="string">"http://homeland.house.gov/"</span></span>,
+"<span class="attribute">office</span>": <span class="value"><span class="string">"H2-176 FHOB"</span></span>,
+"<span class="attribute">phone</span>": <span class="value"><span class="string">"(202) 226-8417"</span></span>,
+"<span class="attribute">subcommittee</span>": <span class="value"><span class="literal">false</span></span>,
+</code></pre>
+<p><strong>name</strong><br/>
+Official name of the committee. Parent committees tend to have a prefix, e.g. &quot;House Committee on&quot;, and subcommittees do not, e.g. &quot;Health&quot;.
+
+</p>
+<p>* <strong>committee_id</strong><br/>
+Official ID of the committee, as it appears in various official sources (Senate, House, and Library of Congress).
+
+</p>
+<p>* <strong>chamber</strong><br/>
+The chamber this committee is part of. &quot;house&quot;, &quot;senate&quot;, or &quot;joint&quot;.
+
+</p>
+<p><strong>url</strong><br/>
+The committee&#39;s official website.
+
+</p>
+<p><strong>office</strong><br/>
+The committe&#39;s building and room number.
+
+</p>
+<p><strong>phone</strong><br/>
+The committee&#39;s phone number.
+
+</p>
+<p>* <strong>subcommittee</strong><br/>
+Whether or not the committee is a subcommittee.
+
+</p>
+<h3 id='fields/members'>Members</h3 id='fields/members'>
+<pre><code class="json">"<span class="attribute">member_ids</span>":<span class="value">[
+  <span class="string">"K000210"</span>,
+  <span class="string">"S000583"</span>
+  ...
+]</span>,
+
+"<span class="attribute">members</span>": <span class="value">[
+  {
+    "<span class="attribute">side</span>": <span class="value"><span class="string">"majority"</span></span>,
+    "<span class="attribute">rank</span>": <span class="value"><span class="number">1</span></span>,
+    "<span class="attribute">title</span>": <span class="value"><span class="string">"Chair"</span></span>,
+    "<span class="attribute">legislator</span>": <span class="value">{
+      "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"K000210"</span></span>,
+      "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
+      ...
+    </span>}
+  </span>}
+  ...
+]
+</span></code></pre>
+<p>* <strong>member_ids</strong><br/>
+An array of bioguide IDs of <a href="legislators.html">legislators</a> that are assigned to this committee.
+
+</p>
+<p><strong>members.side</strong><br/>
+Whether a member is in the majority or minority of this committee.
+
+</p>
+<p><strong>members.rank</strong><br/>
+The rank this member holds on the committee. Typically, this is calculated by seniority, but there can be exceptions.
+
+</p>
+<p><strong>members.title</strong><br/>
+A title, if any, the member holds on the committee. &quot;Chair&quot; (in the House) and &quot;Chairman&quot; (in the Senate) signifies the chair of the committee. &quot;Ranking Member&quot; (in both chambers) signifies the highest ranking minority member.
+
+</p>
+<h3 id='fields/subcommittees'>Subcommittees</h3 id='fields/subcommittees'>
+<pre><code class="json">"<span class="attribute">subcommittees</span>": <span class="value">[
+  {
+    "<span class="attribute">name</span>": <span class="value"><span class="string">"Cybersecurity, Infrastructure Protection, and Security Technologies"</span></span>,
+    "<span class="attribute">committee_id</span>": <span class="value"><span class="string">"HSHM08"</span></span>,
+    "<span class="attribute">phone</span>": <span class="value"><span class="string">"(202) 226-8417"</span></span>,
+    "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
+  </span>}
+  ...
+]
+</span></code></pre>
+<p>If the committee is a parent committee, the <strong>subcommittees</strong> field contains a few basic fields about its subcommittees.
+
+</p>
+<h3 id='fields/parent-committee'>Parent Committee</h3 id='fields/parent-committee'>
+<pre><code class="json">"<span class="attribute">parent_committee_id</span>": <span class="value"><span class="string">"HSSM"</span></span>,
+"<span class="attribute">parent_committee</span>": <span class="value">{
+  "<span class="attribute">committee_id</span>": <span class="value"><span class="string">"HSSM"</span></span>,
+  "<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Small Business"</span></span>,
+  "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+  "<span class="attribute">website</span>": <span class="value"><span class="literal">null</span></span>,
+  "<span class="attribute">office</span>": <span class="value"><span class="string">"2361 RHOB"</span></span>,
+  "<span class="attribute">phone</span>":  <span class="value"><span class="string">"(202) 225-5821"</span>
+</span>}
+</span></code></pre>
+<p>* <strong>parent_committee_id</strong><br/>
+If the committee is a subcommittee, the ID of its parent committee.
+
+</p>
+<p><strong>parent_committee</strong><br/>
+If the committee is a subcommittee, some basic details</p>
+
+  </div>
+</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>

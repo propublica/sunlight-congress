@@ -1,11 +1,4 @@
----
-layout: page
-title: Sunlight Congress API
----
 # Sunlight Congress API
-
-* toc
-{:toc}
 
 A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
 
@@ -32,22 +25,40 @@ We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum
 
 Calls to the Sunlight Congress API are of the form:
 
-{% highlight text %}
+```text
 http://congress.api.sunlightfoundation.com/[method]
-{% endhighlight %}
+```
 
- Method                                 | Description
---------------------------------------- | -----------------------------------------------------------------
-[/legislators](legislators.html)        | Current legislators' names, IDs, biography, and social media.            
-[/legislators/locate](legislators.html) | Find representatives and senators for a `latitude`/`longitude` or `zip`. 
-[/districts/locate](districts.html)     | Find congressional districts for a `latitude`/`longitude` or `zip`.
-[/committees](committees.html)          | Current committees, subcommittees, and their membership.
-[/bills](bills.html)                    | Legislation in the House and Senate, back to 2009. Updated daily.
-[/bills/search](bills.html)             | Full text search over legislation.
-[/votes](votes.html)                    | Roll call votes in Congress, back to 2009. Updated within minutes of votes.
-[/floor_updates](floor_updates.html)    | To-the-minute updates from the floor of the House and Senate.
-[/hearings](hearings.html)              | Committee hearings in Congress. Updated as hearings are announced.
-[/upcoming_bills](upcoming_bills.html)  | Bills scheduled for debate in the future, as announced by party leadership.
+<table>
+<tr>
+<td>[/legislators](legislators.html)</td>
+<td>Current legislators' names, IDs, biography, and social media.</td>
+</tr><tr>
+<td>[/legislators/locate](legislators.html)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
+</tr><tr>
+<td>[/districts/locate](districts.html)</td><td>Find congressional districts for a `latitude`/`longitude` or `zip`.</td>
+</tr><tr>
+<td>[/committees](committees.html)</td>
+<td>Current committees, subcommittees, and their membership.</td>
+</tr><tr>
+<td>[/bills](bills.html)</td>
+<td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
+</tr><tr>
+<td>[/bills/search](bills.html)</td><td>Full text search over legislation.</td>
+</tr><tr>
+<td>[/votes](votes.html)</td>
+<td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
+</tr><tr>
+<td>[/floor_updates](floor_updates.html)</td>
+<td>To-the-minute updates from the floor of the House and Senate.</td>
+</tr><tr>
+<td>[/hearings](hearings.html)</td>
+<td>Committee hearings in Congress. Updated as hearings are announced.</td>
+</tr><tr>
+<td>[/upcoming_bills](upcoming_bills.html)</td>
+<td>Bills scheduled for debate in the future, as announced by party leadership.</td>
+</tr>
+</table>
 
 ## Parameters
 
@@ -57,9 +68,9 @@ All requests to the Congress API require a Sunlight API key. An API key is [free
 
 API keys can be provided with a request through the query string:
 
-{% highlight text %}
+```text
 /bills?apikey=[your_api_key]
-{% endhighlight %}
+```
 
 Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
 
@@ -67,21 +78,21 @@ Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
 
 You can filter on many fields with a simple key/value pair:
 
-{% highlight text %}
+```text
 /legislators?last_name=Smith
-{% endhighlight %}
+```
 
-{% highlight text %}
+```text
 /bills?bill_type=hr&congress=112
-{% endhighlight %}
+```
 
 The API will automatically treat numbers as numbers, and "true" and "false" as booleans. Dates and times are compared as strings.
 
 To force the API to treat a value as a string, use quotes:
 
-{% highlight text %}
+```text
 /legislators?thomas_id="136"
-{% endhighlight %}
+```
 
 See the documentation for a specific data type to see what fields can be filtered on.
 
@@ -103,39 +114,39 @@ All operators are applied by adding two underscores ("__") after the field name.
 
 **Senate votes that got more than 70 Yea votes**
 
-{% highlight text %}
+```text
 /votes?breakdown.total.Yea__gte=70&chamber=senate
-{% endhighlight %}
+```
 
 **Bills that got an up or down vote in the House**
 
-{% highlight text %}
+```text
 /bills?history.house_passage_result__exists=true&chamber=house
-{% endhighlight %}
+```
 
 **Bills cosponsored by both John McCain and Joe Lieberman**
 
-{% highlight text %}
+```text
 /bills?cosponsor_ids__all=M000303|L000304
-{% endhighlight %}
+```
 
 **Bills sponsored by either John McCain and Joe Lieberman**
 
-{% highlight text %}
+```text
 /bills?sponsor_id__in=M000303|L000304
-{% endhighlight %}
+```
 
 ### Pagination
 
 All results in the Congress API are paginated. Set `per_page` and `page` to control the page size and offset. The maximum `per_page` is 50.
 
-{% highlight text %}
+```text
 /floor_updates?chamber=house&per_page=50&page=3
-{% endhighlight %}
+```
 
 At the top-level of every response are **count** and **page** fields, with pagination information.
 
-{% highlight json %}
+```json
 {
 "count": 163,
 "page": {
@@ -144,7 +155,7 @@ At the top-level of every response are **count** and **page** fields, with pagin
   "count": 50
 }
 }
-{% endhighlight %}
+```
 
 **count**<br/>
 The total number of documents that match the query.
@@ -168,21 +179,21 @@ Any field which can be used for filtering may be used for sorting. On full-text 
 
 **Most recent bills**
 
-{% highlight text %}
+```text
 /bills?order=introduced_on
-{% endhighlight %}
+```
 
 **Legislators from each state, sorted by last name within state**
 
-{% highlight text %}
+```text
 /legislators?order=state__asc,last_name__asc
-{% endhighlight %}
+```
 
 **Most relevant bills matching "health care"**
 
-{% highlight text %}
+```text
 /bills/search?query="health care"&order=score
-{% endhighlight %}
+```
 
 ### Partial responses
 
@@ -194,11 +205,11 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 
 **Latest vote numbers and their results**
 
-{% highlight text %}
+```text
 /votes?fields=roll_id,result,breakdown.total
-{% endhighlight %}
+```
 
-{% highlight json %}
+```json
 {
 "results": [
   {
@@ -228,7 +239,7 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
   ...
 ]
 }
-{% endhighlight %}
+```
 
 ### JSONP
 
@@ -236,13 +247,13 @@ Provide a `callback` parameter to wrap the results in a JavaScript function, sui
 
 For example:
 
-{% highlight text %}
+```text
 /legislators?last_name=Reid&callback=myCallback
-{% endhighlight %}
+```
 
 will return:
 
-{% highlight javascript %}
+```javascript
 myCallback({
   "results": [
     {
@@ -260,7 +271,7 @@ myCallback({
   }
 }
 });
-{% endhighlight %}
+```
 
 ### Search
 
@@ -268,15 +279,15 @@ Provide a `query` parameter to return results the API thinks best match your que
 
 **Senate hearings matching "environment"**
 
-{% highlight text %}
+```text
 /hearings?query=environment&chamber=senate
-{% endhighlight %}
+```
 
 **House floor updates matching "committee of the whole"**
 
-{% highlight text %}
+```text
 /floor_updates?query=committee of the whole&chamber=house
-{% endhighlight %}
+```
 
 ### Explain mode
 
@@ -290,9 +301,9 @@ Endpoints ending with `/search` that are given a `query` parameter perform full 
 
 **Laws matching "health care" and "medicine"**
 
-{% highlight text %}
+```text
 /bills/search?query="health care" medicine&history.enacted=true
-{% endhighlight %}
+```
 
 Operators allowed:
 
@@ -301,15 +312,15 @@ Operators allowed:
 
 **Bills matching "freedom of information" and words starting with "accountab"**
 
-{% highlight text %}
+```text
 /bills/search?query="freedom of information" accountab*
-{% endhighlight %}
+```
 
 **Bills with "transparency" and "accountability" within 5 words of each other**
 
-{% highlight text %}
+```text
 /bills/search?query="transparency accountability"~5
-{% endhighlight %}
+```
 
 
 ### Highlighting
@@ -318,31 +329,31 @@ When performing full text search, you can retrieve highlighted excerpts of where
 
 **Recent bills matching "gun control", with highlighting**
 
-{% highlight text %}
+```text
 /bills/search?query="gun control"&highlight=true&order=introduced_on
-{% endhighlight %}
+```
 
 By default, highlighting is performed with the `<em>` and `</em>` tags. Control these tags by passing start and close tags to the `highlight.tags` parameter. (Disable highlighting altogether by passing only `,`.)
 
 **Bills matching "immigration", highlighted with &lt;b&gt; tags**
 
-{% highlight text %}
+```text
 /bills/search?query=immigration&highlight=true&highlight.tags=<b>,</b>
-{% endhighlight %}
+```
 
 **Bills matching "immigration", with no highlighting**
 
-{% highlight text %}
+```text
 /bills/search?query=immigration&highlight=true&highlight.tags=,
-{% endhighlight %}
+```
 
 Control the size of highlighted excerpts with the `highlight.size` parameter. (Note: This doesn't always work; the database makes a best attempt.) The default `highlight.size` is 200.
 
 **Bills matching "drugs", with larger excerpts**
 
-{% highlight text %}
+```text
 /bills/search?query=drugs&highlight=true&highlight.size=500
-{% endhighlight %}
+```
 
 ## Bulk Data
 

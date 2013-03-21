@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlight Congress API | Bills</title>
+    
+    
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+  <body><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <a href="index.html" id="logo">Sunlight Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#methods">Methods</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#methods/bills">/bills</a>
+                </li>
+              
+                <li>
+                  <a href="#methods/bills-search">/bills/search</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#fields">Fields</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#fields/titles">Titles</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/nicknames">Nicknames</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/summary-and-keywords">Summary and keywords</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/urls">URLs</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/history">History</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/actions">Actions</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/votes">Votes</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/sponsorships">Sponsorships</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/committees">Committees</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/related-bills">Related Bills</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/versions">Versions</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/upcoming-debate">Upcoming Debate</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/becoming-law">Becoming Law</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe></div><div class="thanks">powered by <a href="http://documentup.com">DocumentUp</a></div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Bills</h1>
+<p>Data on bills in Congress goes back to 2009, and comes from a mix of sources:
+
+</p>
+<ul>
+<li>Scrapers at <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> for core status and history information.</li>
+<li>Bulk data at <a href="http://www.gpo.gov/fdsys/">GPO&#39;s FDSys</a> for version information, and full text.</li>
+<li>The House&#39; <a href="http://majorityleader.gov/">MajorityLeader.gov</a> and Senate Democrats&#39; <a href="http://democrats.senate.gov/">official site</a> for notices of upcoming debate.</li>
+</ul>
+<h2 id='methods'>Methods</h2 id='methods'>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<h3 id='methods/bills'>/bills</h3 id='methods/bills'>
+<p>Filter through bills in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
+
+</p>
+<p><strong>Bills enacted into law in the 112th Congress</strong>
+
+</p>
+<pre><code class="text">/bills?congress=112&amp;history.enacted=true</code></pre>
+<p><strong>Active bills, ordered by recent activity</strong>
+</p>
+<pre><code class="text">/bills?history.active=true&amp;order=last_action_at</code></pre>
+<p><strong>Bills sponsored by Republicans that have been vetoed</strong>
+
+</p>
+<pre><code class="text">/bills?sponsor.party=R&amp;history.vetoed=true</code></pre>
+<p><strong>Most recent private laws</strong>
+
+</p>
+<pre><code class="text">/bills?enacted.law_type=private&amp;order=history.enacted_at</code></pre>
+<p><strong>Joint resolutions that received a vote in the House and Senate</strong>
+
+</p>
+<pre><code class="text">/bills?bill_type__in=hjres|sjres&amp;history.house_passage_result__exists=true&amp;history.senate_passage_result__exists=true</code></pre>
+<h3 id='methods/bills-search'>/bills/search</h3 id='methods/bills-search'>
+<p>Search the full text of legislation, and other fields.
+
+</p>
+<p>The <code>query</code> parameter allows wildcards, quoting for phrases, and nearby word operators (<a href="index.html#full-text-search">full reference</a>) You can also retrieve <a href="index.html#full-text-search/highlighting">highlighted excerpts</a>, and all <a href="index.html#parameters/operators">normal operators</a> and filters.
+
+</p>
+<p>This searches the bill&#39;s full text, <code>short_title</code>, <code>official_title</code>, <code>popular_title</code>, <code>nicknames</code>, <code>summary</code>, and <code>keywords</code> fields.
+
+</p>
+<p><strong>Laws matching &quot;health care&quot;</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;health care&quot;&amp;history.enacted=true</code></pre>
+<p><strong>Bills matching &quot;freedom of information&quot; and words starting with &quot;accountab&quot;</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;freedom of information&quot; accountab*</code></pre>
+<p><strong>Bills with &quot;transparency&quot; and &quot;accountability&quot; within 5 words of each other, with excerpts</strong>
+
+</p>
+<pre><code class="text">/bills/search?query=&quot;transparency accountability&quot;~5&amp;highlight=true</code></pre>
+<h2 id='fields'>Fields</h2 id='fields'>
+<p>All examples below are from H.R. 3590 of the 111th Congress, the <a href="http://www.govtrack.us/congress/bills/111/hr3590">Patient Protection and Affordable Care Act</a> (Obamacare).
+
+</p>
+<p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.
+
+</p>
+<p>* = can be used as a filter
+
+</p>
+<pre><code class="json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr3590-111"</span></span>, 
+"<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>, 
+"<span class="attribute">number</span>": <span class="value"><span class="number">3590</span></span>, 
+"<span class="attribute">congress</span>": <span class="value"><span class="number">111</span></span>, 
+"<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+"<span class="attribute">introduced_on</span>": <span class="value"><span class="string">"2009-09-17"</span></span>,
+"<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>,
+"<span class="attribute">last_vote_at</span>": <span class="value"><span class="string">"2010-03-22T03:48:00Z"</span></span>,
+"<span class="attribute">last_version_on</span>": <span class="value"><span class="string">"2012-08-25"</span>
+</span></code></pre>
+<p>* <strong>bill_id</strong><br/>
+The unique ID for this bill. Formed from the <code>bill_type</code>, <code>number</code>, and <code>congress</code>.
+
+</p>
+<p>* <strong>bill_type</strong><br/>
+The type for this bill. For the bill &quot;H.R. 4921&quot;, the <code>bill_type</code> represents the &quot;H.R.&quot; part. Bill types can be: <strong>hr</strong>, <strong>hres</strong>, <strong>hjres</strong>, <strong>hconres</strong>, <strong>s</strong>, <strong>sres</strong>, <strong>sjres</strong>, <strong>sconres</strong>.
+
+</p>
+<p>* <strong>number</strong><br/>
+The number for this bill. For the bill &quot;H.R. 4921&quot;, the <code>number</code> is 4921.
+
+</p>
+<p>* <strong>congress</strong><br/>
+The Congress in which this bill was introduced. For example, bills introduced in the &quot;111th Congress&quot; have a <code>congress</code> of 111.
+
+</p>
+<p>* <strong>chamber</strong><br/>
+The chamber in which the bill originated.
+
+</p>
+<p>* <strong>introduced_on</strong><br/>
+The date this bill was introduced.
+
+</p>
+<p>* <strong>last_action_at</strong><br/>
+The date or time of the most recent official action.
+
+</p>
+<p>* <strong>last_vote_at</strong><br/>
+The date or time of the most recent vote on this bill.
+
+</p>
+<p>* <strong>last_version_on</strong><br/>
+The date the last version of this bill was published. This will be set to the <code>introduced_on</code> date until an official version of the bill&#39;s text is published.
+
+</p>
+<h3 id='fields/titles'>Titles</h3 id='fields/titles'>
+<pre><code class="json">"<span class="attribute">official_title</span>": <span class="value"><span class="string">"An act entitled The Patient Protection and Affordable Care Act."</span></span>, 
+"<span class="attribute">popular_title</span>": <span class="value"><span class="string">"Health care reform bill"</span></span>, 
+"<span class="attribute">short_title</span>": <span class="value"><span class="string">"Patient Protection and Affordable Care Act"</span></span>,
+
+"<span class="attribute">titles</span>": <span class="value">[
+  {
+    "<span class="attribute">as</span>": <span class="value"><span class="literal">null</span></span>, 
+    "<span class="attribute">title</span>": <span class="value"><span class="string">"Health care reform bill"</span></span>, 
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"popular"</span>
+  </span>}, 
+  {
+    "<span class="attribute">as</span>": <span class="value"><span class="string">"enacted"</span></span>, 
+    "<span class="attribute">title</span>": <span class="value"><span class="string">"Patient Protection and Affordable Care Act"</span></span>, 
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"short"</span>
+  </span>}, 
+  {
+    "<span class="attribute">as</span>": <span class="value"><span class="string">"amended by senate"</span></span>, 
+    "<span class="attribute">title</span>": <span class="value"><span class="string">"An act entitled The Patient Protection and Affordable Care Act."</span></span>, 
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"official"</span>
+  </span>}
+]
+</span></code></pre>
+<p><strong>official_title</strong><br/>
+The current official title of a bill. Official titles are sentences. Always present. Assigned at introduction, and can be revised any time.
+
+</p>
+<p><strong>short_title</strong><br/>
+The current shorter, catchier title of a bill. About half of bills get these, and they can be assigned any time.
+
+</p>
+<p><strong>popular_title</strong><br/>
+The current popular handle of a bill, as denoted by the Library of Congress. They are rare, and are assigned by the LOC for particularly ubiquitous bills. They are non-capitalized descriptive phrases. They can be assigned any time.
+
+</p>
+<p><strong>titles</strong><br/>
+A list of all titles ever assigned to this bill, with accompanying data.
+
+</p>
+<p><strong>titles.as</strong><br/>
+The state the bill was in when assigned this title.
+
+</p>
+<p><strong>titles.title</strong><br/>
+The title given to the bill.
+
+</p>
+<p><strong>titles.type</strong><br/>
+The type of title this is. &quot;official&quot;, &quot;short&quot;, or &quot;popular&quot;.
+
+</p>
+<h3 id='fields/nicknames'>Nicknames</h3 id='fields/nicknames'>
+<pre><code class="json">"<span class="attribute">nicknames</span>": <span class="value">[
+  <span class="string">"obamacare"</span>,
+  <span class="string">"ppaca"</span>
+]
+</span></code></pre>
+<p>* <strong>nicknames</strong><br/>
+An array of common nicknames for a bill that don&#39;t appear in official data. These nicknames are sourced from a public dataset at <a href="https://github.com/unitedstates/bill-nicknames">unitedstates/bill-nicknames</a>, and will only appear for a tiny fraction of bills. In the future, we plan to auto-generate acronyms from bill titles and add them to this array.
+
+</p>
+<h3 id='fields/summary-and-keywords'>Summary and keywords</h3 id='fields/summary-and-keywords'>
+<pre><code class="json">"<span class="attribute">subjects</span>": <span class="value">[
+  <span class="string">"Abortion"</span>, 
+  <span class="string">"Administrative law and regulatory procedures"</span>, 
+  <span class="string">"Adoption and foster care"</span>,
+  ...
+]</span>, 
+
+"<span class="attribute">summary</span>": <span class="value"><span class="string">"Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans..."</span></span>,
+
+"<span class="attribute">summary_short</span>": <span class="value"><span class="string">"Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans..."</span>
+</span></code></pre>
+<p>* <strong>keywords</strong><br/>
+A list of official keywords and phrases assigned by the Library of Congress. These keywords can be used to group bills into tags or topics, but there are many of them (1,023 unique keywords since 2009, as of late 2012), and they are not grouped into a hierarchy. They can be assigned or revised at any time after introduction.
+
+</p>
+<p><strong>summary</strong><br/>
+An official summary written and assigned at some point after introduction by the Library of Congress. These summaries are generally more accessible than the text of the bill, but can still be technical. The LOC does not write summaries for all bills, and when they do can assign and revise them at any time.
+
+</p>
+<p><strong>summary_short</strong><br/>
+The official summary, but capped to 1,000 characters (and an ellipse). Useful when you want to show only the first part of a bill&#39;s summary, but don&#39;t want to download a potentially large amount of text.
+
+</p>
+<h3 id='fields/urls'>URLs</h3 id='fields/urls'>
+<pre><code class="json">"<span class="attribute">urls</span>": <span class="value">{
+  "<span class="attribute">congress</span>" :<span class="value"><span class="string">"http://beta.congress.gov/bill/111th/house-bill/3590"</span></span>,
+  "<span class="attribute">govtrack</span>" :<span class="value"><span class="string">"http://www.govtrack.us/congress/bills/111/hr3590"</span></span>,
+  "<span class="attribute">opencongress</span>" :<span class="value"><span class="string">"http://www.opencongress.org/bill/111-h3590/show"</span>
+</span>}
+</span></code></pre>
+<p><strong>urls</strong>
+An object with URLs for this bill&#39;s landing page on Congress.gov, GovTrack.us, and OpenCongress.org.
+
+</p>
+<h3 id='fields/history'>History</h3 id='fields/history'>
+<pre><code class="json">"<span class="attribute">history</span>": <span class="value">{
+  "<span class="attribute">active</span>": <span class="value"><span class="literal">true</span></span>,
+  "<span class="attribute">active_at</span>": <span class="value"><span class="string">"2009-10-07T18:35:00Z"</span></span>,
+  "<span class="attribute">house_passage_result</span>": <span class="value"><span class="string">"pass"</span></span>, 
+  "<span class="attribute">house_passage_result_at</span>": <span class="value"><span class="string">"2010-03-22T02:48:00Z"</span></span>, 
+  "<span class="attribute">senate_cloture_result</span>": <span class="value"><span class="string">"pass"</span></span>,
+  "<span class="attribute">senate_cloture_result_at</span>": <span class="value"><span class="string">"2009-12-23"</span></span>,
+  "<span class="attribute">senate_passage_result</span>": <span class="value"><span class="string">"pass"</span></span>, 
+  "<span class="attribute">senate_passage_result_at</span>": <span class="value"><span class="string">"2009-12-24"</span></span>, 
+  "<span class="attribute">vetoed</span>": <span class="value"><span class="literal">false</span></span>,
+  "<span class="attribute">awaiting_signature</span>": <span class="value"><span class="literal">false</span></span>, 
+  "<span class="attribute">enacted</span>": <span class="value"><span class="literal">true</span></span>, 
+  "<span class="attribute">enacted_at</span>": <span class="value"><span class="string">"2010-03-23"</span>
+</span>}
+</span></code></pre>
+<p>The <strong>history</strong> field includes useful flags and dates/times in a bill&#39;s life. The above is a real-life example of H.R. 3590 - not all fields will be present for every bill.
+
+</p>
+<p>Time fields can hold either dates or times - Congress is inconsistent about providing specific timestamps.
+
+</p>
+<p>* <strong>history.active</strong><br/>
+Whether this bill has had any action beyond the standard action all bills get (introduction, referral to committee, sponsors&#39; introductory remarks). Only a small percentage of bills get this additional activity.
+
+</p>
+<p>* <strong>history.active_at</strong><br/>
+If this bill got any action beyond initial introduction, the date or time of the first such action. This field will stay constant even as further action occurs. For the time of the most recent action, look to the <code>last_action_at</code> field.
+
+</p>
+<p>* <strong>history.house_passage_result</strong><br/>
+The result of the last time the House voted on passage. Only present if this vote occurred. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p>* <strong>history.house_passage_result_at</strong><br/>
+The date or time the House last voted on passage. Only present if this vote occurred.
+
+</p>
+<p>* <strong>history.senate_cloture_result</strong><br/>
+The result of the last time the Senate voted on cloture. Only present if this vote occurred. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p>* <strong>history.senate_cloture_result_at</strong><br/>
+The date or time the Senate last voted on cloture. Only present if this vote occurred.
+
+</p>
+<p>* <strong>history.senate_passage_result</strong><br/>
+The result of the last time the Senate voted on passage. Only present if this vote occurred. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p>* <strong>history.senate_passage_result_at</strong><br/>
+The date or time the Senate last voted on passage. Only present if this vote occurred.
+
+</p>
+<p>* <strong>history.vetoed</strong><br/>
+Whether the bill has been vetoed by the President. Always present.
+
+</p>
+<p>* <strong>history.vetoed_at</strong><br/>
+The date or time the bill was vetoed by the President. Only present if this happened.
+
+</p>
+<p>* <strong>history.house_override_result</strong><br/>
+The result of the last time the House voted to override a veto. Only present if this vote occurred. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p>* <strong>history.house_override_result_at</strong><br/>
+The date or time the House last voted to override a veto. Only present if this vote occurred.
+
+</p>
+<p>* <strong>history.senate_override_result</strong><br/>
+The result of the last time the Senate voted to override a veto. Only present if this vote occurred. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p>* <strong>history.senate_override_result_at</strong><br/>
+The date or time the Senate last voted to override a veto. Only present if this vote occurred.
+
+</p>
+<p>* <strong>history.awaiting_signature</strong><br/>
+Whether the bill is currently awaiting the President&#39;s signature. Always present.
+
+</p>
+<p>* <strong>history.awaiting_signature_since</strong><br/>
+The date or time the bill began awaiting the President&#39;s signature. Only present if this happened.
+
+</p>
+<p>* <strong>history.enacted</strong><br/>
+Whether the bill has been enacted into law. Always present.
+
+</p>
+<p>* <strong>history.enacted_at</strong><br/>
+The date or time the bill was enacted into law. Only present if this happened.
+
+
+</p>
+<h3 id='fields/actions'>Actions</h3 id='fields/actions'>
+<pre><code class="json">"<span class="attribute">actions</span>": <span class="value">[
+  {
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"vote"</span></span>, 
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-21T22:48:00-05:00"</span></span>, 
+    "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+    "<span class="attribute">how</span>": <span class="value"><span class="string">"roll"</span></span>, 
+    "<span class="attribute">vote_type</span>": <span class="value"><span class="string">"pingpong"</span></span>, 
+    "<span class="attribute">result</span>": <span class="value"><span class="string">"pass"</span></span>, 
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"165"</span></span>, 
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165)."</span></span>, 
+    "<span class="attribute">references</span>": <span class="value">[
+      {
+        "<span class="attribute">reference</span>": <span class="value"><span class="string">"CR H1920-2152"</span></span>, 
+        "<span class="attribute">type</span>": <span class="value"><span class="string">"text as House agreed to Senate amendments"</span>
+      </span>}
+    ]
+  </span>}, 
+  {
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"signed"</span></span>,
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"Signed by President."</span></span>,
+    "<span class="attribute">references</span>": <span class="value">[]
+  </span>}, 
+  {
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"enacted"</span></span>,
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span></span>,
+    "<span class="attribute">references</span>": <span class="value">[]
+  </span>}
+]</span>,
+"<span class="attribute">last_action</span>": <span class="value">{
+  "<span class="attribute">type</span>": <span class="value"><span class="string">"enacted"</span></span>,
+  "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-23"</span></span>, 
+  "<span class="attribute">text</span>": <span class="value"><span class="string">"Became Public Law No: 111-148."</span></span>,
+  "<span class="attribute">references</span>": <span class="value">[]
+</span>}
+</span></code></pre>
+<p>The <strong>actions</strong> field has a list of all official activity that has occurred to a bill. All fields are parsed out of non-standardized sentence text, so mistakes and omissions are possible.
+
+</p>
+<p><strong>actions.type</strong><br/>
+The type of action. The default is &quot;action&quot;, but there can be many others. Always present.
+
+</p>
+<p><strong>actions.acted_at</strong><br/>
+The date or time the action occurred. Always present.
+
+</p>
+<p><strong>actions.text</strong><br/>
+The official text that describes this action. Always present.
+
+</p>
+<p><strong>actions.references</strong><br/>
+A list of references to the Congressional Record that this action links to.
+
+</p>
+<p><strong>actions.chamber</strong><br/>
+Which chamber this action occured in. &quot;house&quot; or &quot;senate&quot;.
+
+</p>
+<p><strong>actions.vote_type</strong><br/>
+If the action is a vote, this is the type of vote. &quot;vote&quot;, &quot;vote2&quot;, &quot;cloture&quot;, or &quot;pingpong&quot;.
+
+</p>
+<p><strong>actions.how</strong><br/>
+If the action is a vote, how the vote was taken. Can be &quot;roll&quot;, &quot;voice&quot;, or &quot;Unanimous Consent&quot;.
+
+</p>
+<p><strong>actions.result</strong><br/>
+If the action is a vote, the result. &quot;pass&quot; or &quot;fail&quot;.
+
+</p>
+<p><strong>actions.roll_id</strong><br/>
+If the action is a roll call vote, the ID of the roll call.
+
+</p>
+<p><strong>last_action</strong><br/>
+The most recent action.
+
+</p>
+<h3 id='fields/votes'>Votes</h3 id='fields/votes'>
+<pre><code class="json">"<span class="attribute">votes</span>": <span class="value">[
+  {
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"vote"</span></span>, 
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-03-21T22:48:00-05:00"</span></span>, 
+    "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+    "<span class="attribute">how</span>": <span class="value"><span class="string">"roll"</span></span>, 
+    "<span class="attribute">vote_type</span>": <span class="value"><span class="string">"pingpong"</span></span>, 
+    "<span class="attribute">result</span>": <span class="value"><span class="string">"pass"</span></span>, 
+    "<span class="attribute">roll_id</span>": <span class="value"><span class="string">"165"</span></span>, 
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165)."</span></span>, 
+    "<span class="attribute">references</span>": <span class="value">[
+      {
+        "<span class="attribute">reference</span>": <span class="value"><span class="string">"CR H1920-2152"</span></span>, 
+        "<span class="attribute">type</span>": <span class="value"><span class="string">"text as House agreed to Senate amendments"</span>
+      </span>}
+    ]
+  </span>}
+]
+</span></code></pre>
+<p>The <strong>votes</strong> array is identical to the <code>actions</code> array, but limited to actions that are votes.
+
+
+</p>
+<h3 id='fields/sponsorships'>Sponsorships</h3 id='fields/sponsorships'>
+<pre><code class="json">"<span class="attribute">sponsor_id</span>": <span class="value"><span class="string">"R000053"</span></span>,
+"<span class="attribute">sponsor</span>": <span class="value">{
+  "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"R000053"</span></span>,
+  "<span class="attribute">in_office</span>": <span class="value"><span class="literal">true</span></span>,
+  "<span class="attribute">last_name</span>": <span class="value"><span class="string">"Rangel"</span>
+  ...
+</span>}</span>,
+
+"<span class="attribute">cosponsor_ids</span>": <span class="value">[
+  <span class="string">"B000287"</span>,
+  <span class="string">"B001231"</span>
+  ...
+]</span>,
+"<span class="attribute">cosponsors_count</span>": <span class="value"><span class="number">90</span></span>,
+"<span class="attribute">cosponsors</span>": <span class="value">[
+  {
+    "<span class="attribute">sponsored_at</span>": <span class="value"><span class="string">"2009-09-17"</span></span>,
+    "<span class="attribute">legislator</span>": <span class="value">{
+      "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"B000287"</span></span>,
+      "<span class="attribute">in_office</span>": <span class="value"><span class="literal">true</span></span>,
+      "<span class="attribute">last_name</span>": <span class="value"><span class="string">"Becerra"</span>
+      ...
+    </span>}
+  </span>}, 
+  {
+    "<span class="attribute">sponsored_at</span>": <span class="value"><span class="string">"2009-09-17"</span></span>,
+    "<span class="attribute">legislator</span>": <span class="value">{
+      "<span class="attribute">bioguide_id</span>":<span class="value"><span class="string">"B001231"</span></span>,
+      "<span class="attribute">in_office</span>":<span class="value"><span class="literal">true</span></span>,
+      "<span class="attribute">last_name</span>":<span class="value"><span class="string">"Berkley"</span>
+      ...
+    </span>}
+  </span>},
+  ...
+]</span>,
+
+"<span class="attribute">withdrawn_cosponsor_ids</span>": <span class="value">[]</span>,
+"<span class="attribute">withdrawn_cosponsors</span>": <span class="value">[]</span>,
+"<span class="attribute">withdrawn_cosponsors_count</span>": <span class="value"><span class="number">0</span>
+</span></code></pre>
+<p>* <strong>sponsor_id</strong><br/>
+The bioguide ID of the bill&#39;s sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.
+
+</p>
+<p><strong>sponsor</strong><br/>
+An object with most simple <a href="legislators.html#fields">legislator fields</a> for the bill&#39;s sponsor, if there is one. 
+
+</p>
+<p>* <strong>cosponsor_ids</strong><br/>
+An array of bioguide IDs for each cosponsor of the bill. Bills do not always have cosponsors.
+
+</p>
+<p>* <strong>cosponsors_count</strong><br/>
+The number of active cosponsors of the bill.
+
+</p>
+<p><strong>cosponsors.sponsored_on</strong><br/>
+When a legislator signed on as a cosponsor of the legislation.
+
+</p>
+<p><strong>cosponsors.legislator</strong><br/>
+An object with most simple <a href="legislators.html#fields">legislator fields</a> for that cosponsor.
+
+</p>
+<p>* <strong>withdrawn_cosponsor_ids</strong><br/>
+An array of bioguide IDs for each legislator who has withdrawn their cosponsorship of the bill.
+
+</p>
+<p>* <strong>withdrawn_cosponsors_count</strong><br/>
+The number of withdrawn cosponsors of the bill.
+
+</p>
+<p><strong>withdrawn_cosponsors.withdrawn_on</strong><br/>
+The date the legislator withdrew their cosponsorship of the bill.
+
+</p>
+<p><strong>withdrawn_cosponsors.sponsored_on</strong><br/>
+The date the legislator originally cosponsored the bill.
+
+</p>
+<p><strong>withdrawn_cosponsors.legislator</strong><br/>
+An object with most simple <a href="legislators.html#fields">legislator fields</a> for that withdrawn cosponsor.
+
+</p>
+<h3 id='fields/committees'>Committees</h3 id='fields/committees'>
+<pre><code class="json">"<span class="attribute">committee_ids</span>": <span class="value">[
+  <span class="string">"HSWM"</span>
+]</span>,
+"<span class="attribute">committees</span>": <span class="value">[
+  {
+    "<span class="attribute">activity</span>": <span class="value">[
+      <span class="string">"referral"</span>
+    ]</span>,
+    "<span class="attribute">committee</span>": <span class="value">{
+      "<span class="attribute">address</span>": <span class="value"><span class="string">"1102 LHOB; Washington, DC 20515-6348"</span></span>,
+      "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+      "<span class="attribute">committee_id</span>": <span class="value"><span class="string">"HSWM"</span></span>,
+      "<span class="attribute">house_committee_id</span>": <span class="value"><span class="string">"WM"</span></span>,
+      "<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Ways and Means"</span></span>,
+      "<span class="attribute">office</span>": <span class="value"><span class="string">"1102 LHOB"</span></span>,
+      "<span class="attribute">phone</span>": <span class="value"><span class="string">"(202) 225-3625"</span></span>,
+      "<span class="attribute">subcommittee</span>": <span class="value"><span class="literal">false</span>
+    </span>}
+  </span>}
+]
+</span></code></pre>
+<p>* <strong>committee_ids</strong><br/>
+A list of IDs of committees related to this bill.
+
+</p>
+<p><strong>committees.activity</strong><br/>
+A list of relationships that the committee has to the bill, as they appear on <a href="http://thomas.loc.gov">THOMAS.gov</a>. The most common is &quot;referral&quot;, which means a committee has jurisdiction over this bill.
+
+</p>
+<h3 id='fields/related-bills'>Related Bills</h3 id='fields/related-bills'>
+<pre><code class="json">"<span class="attribute">related_bill_ids</span>": <span class="value">[
+  <span class="string">"hconres254-111"</span>,
+  <span class="string">"hres1203-111"</span>,
+  <span class="string">"hr3780-111"</span>,
+  <span class="string">"hr4872-111"</span>,
+  <span class="string">"s1728-111"</span>,
+  <span class="string">"s1790-111"</span>
+]
+</span></code></pre>
+<p>* <strong>related_bill_ids</strong><br/>
+A list of IDs of bills that the Library of Congress has declared &quot;related&quot;. Relations can be pretty loose, use this field with caution.
+
+</p>
+<h3 id='fields/versions'>Versions</h3 id='fields/versions'>
+<pre><code class="json">"<span class="attribute">versions</span>": <span class="value">[
+  {
+    "<span class="attribute">version_code</span>": <span class="value"><span class="string">"eas"</span></span>,
+    "<span class="attribute">issued_on</span>": <span class="value"><span class="string">"2009-12-24"</span></span>,
+    "<span class="attribute">version_name</span>": <span class="value"><span class="string">"Engrossed Amendment Senate"</span></span>,
+    "<span class="attribute">bill_version_id</span>": <span class="value"><span class="string">"hr3590-111-eas"</span></span>,
+    "<span class="attribute">urls</span>": <span class="value">{
+      "<span class="attribute">html</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/html/BILLS-111hr3590eas.htm"</span></span>,
+      "<span class="attribute">pdf</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590eas/pdf/BILLS-111hr3590eas.pdf"</span>
+    </span>}
+  </span>},
+  {
+    "<span class="attribute">version_code</span>": <span class="value"><span class="string">"enr"</span></span>,
+    "<span class="attribute">issued_on</span>": <span class="value"><span class="string">"2010-08-25"</span></span>,
+    "<span class="attribute">version_name</span>": <span class="value"><span class="string">"Enrolled Bill"</span></span>,
+    "<span class="attribute">bill_version_id</span>": <span class="value"><span class="string">"hr3590-111-enr"</span></span>,
+    "<span class="attribute">urls</span>": <span class="value">{
+      "<span class="attribute">html</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/html/BILLS-111hr3590enr.htm"</span></span>,
+      "<span class="attribute">pdf</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/pdf/BILLS-111hr3590enr.pdf"</span>
+    </span>}
+  </span>}
+]</span>,
+"<span class="attribute">last_version</span>": <span class="value">{
+  "<span class="attribute">version_code</span>": <span class="value"><span class="string">"enr"</span></span>,
+  "<span class="attribute">issued_on</span>": <span class="value"><span class="string">"2010-08-25"</span></span>,
+  "<span class="attribute">version_name</span>": <span class="value"><span class="string">"Enrolled Bill"</span></span>,
+  "<span class="attribute">bill_version_id</span>": <span class="value"><span class="string">"hr3590-111-enr"</span></span>,
+  "<span class="attribute">urls</span>": <span class="value">{
+    "<span class="attribute">html</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/html/BILLS-111hr3590enr.htm"</span></span>,
+    "<span class="attribute">pdf</span>": <span class="value"><span class="string">"http://www.gpo.gov/fdsys/pkg/BILLS-111hr3590enr/pdf/BILLS-111hr3590enr.pdf"</span>
+  </span>}
+</span>}
+</span></code></pre>
+<p>The <strong>versions</strong> field is an array of information on each version of the bill. This data is sourced from <a href="http://www.gpo.gov/fdsys/browse/collection.action?collectionCode=BILLS">GPO</a>, and is published on a different schedule than most other bill information.
+
+</p>
+<p><strong>versions.bill_version_id</strong><br/>
+The unique ID for this bill version. It&#39;s the bill&#39;s <code>bill_id</code> plus the version&#39;s <code>version_code</code>.
+
+</p>
+<p><strong>versions.version_code</strong><br/>
+The short-code for what stage the version of the bill is at. 
+
+</p>
+<p><strong>versions.version_name</strong><br/>
+The full name for the stage the version of the bill is at.
+
+</p>
+<p><strong>versions.urls</strong><br/>
+A set of HTML, PDF, and XML links (when available) for the official permanent URL of a bill version&#39;s text. Our full text search uses the text from the HTML version of a bill.
+
+</p>
+<p><strong>last_version</strong><br/>
+Information for only the most recent version of a bill. Useful to limit the size of a request with partial responses.
+
+</p>
+<h3 id='fields/upcoming-debate'>Upcoming Debate</h3 id='fields/upcoming-debate'>
+<pre><code class="json">"<span class="attribute">upcoming</span>": <span class="value">[
+  {
+    "<span class="attribute">source_type</span>": <span class="value"><span class="string">"senate_daily"</span></span>,
+    "<span class="attribute">url</span>": <span class="value"><span class="string">"http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/"</span></span>,
+    "<span class="attribute">chamber</span>": <span class="value"><span class="string">"senate"</span></span>,
+    "<span class="attribute">congress</span>" :<span class="value"><span class="number">113</span></span>,
+    "<span class="attribute">legislative_day</span>": <span class="value"><span class="string">"2013-01-21"</span></span>,
+    "<span class="attribute">context</span>": <span class="value"><span class="string">"The Senate stands in recess under the provisions of S.Con.Res.3.  The Senate will meet at 11:30am on Monday, January 21, 2013 for the Joint Session for the Inaugural Ceremonies."</span>
+  </span>}
+]
+</span></code></pre>
+<p>The <strong>upcoming</strong> field has an array of objects describing when a bill has been scheduled for future debate on the House or Senate floor. Its information is taken from party leadership websites in the <a href="http://majorityleader.gov/">House</a> and <a href="http://democrats.senate.gov/">Senate</a>, and updated frequently throughout the day.
+
+</p>
+<p>While this information is official, party leadership in both chambers have unilateral and immediate control over what is scheduled on the floor, and it can change at any time. We do our best to automatically remove entries when a bill has been yanked from the floor schedule.
+
+</p>
+<p><strong>upcoming.source_type</strong><br/>
+Where this information is coming from. Currently, the only values are &quot;senate_daily&quot; or &quot;house_daily&quot;.
+
+</p>
+<p><strong>upcoming.url</strong><br/>
+An official reference URL for this information.
+
+</p>
+<p><strong>upcoming.chamber</strong><br/>
+What chamber the bill is scheduled for debate in.
+
+</p>
+<p><strong>upcoming.congress</strong><br/>
+What Congress this is occurring in.
+
+</p>
+<p><strong>upcoming.legislative_day</strong><br/>
+The date the bill is scheduled for floor debate.
+
+</p>
+<p><strong>upcoming.context</strong><br/>
+Some surrounding context of why the bill is scheduled. This is only present for Senate updates right now.
+
+</p>
+<h3 id='fields/becoming-law'>Becoming Law</h3 id='fields/becoming-law'>
+<pre><code class="json">"<span class="attribute">enacted_as</span>": <span class="value">{
+  "<span class="attribute">congress</span>": <span class="value"><span class="number">111</span></span>,
+  "<span class="attribute">law_type</span>": <span class="value"><span class="string">"public"</span></span>,
+  "<span class="attribute">number</span>": <span class="value"><span class="number">148</span>
+</span>}
+</span></code></pre>
+<p>If a bill has been enacted into law, the <strong>enacted_as</strong> field contains information about the law number it was assigned. The above information is for <a href="http://www.gpo.gov/fdsys/pkg/PLAW-111publ148/content-detail.html">Public Law 111-148</a>.
+
+</p>
+<p>* <strong>enacted_as.congress</strong><br/>
+The Congress in which this bill was enacted into law.
+
+</p>
+<p>* <strong>enacted_as.law_type</strong><br/>
+Whether the law is a public or private law. Most laws are public laws; private laws affect individual citizens. &quot;public&quot; or &quot;private&quot;.
+
+</p>
+<p>* <strong>enacted_as.number</strong><br/>
+The number the law was assigned.</p>
+
+  </div>
+</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
