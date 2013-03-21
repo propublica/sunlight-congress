@@ -1,3 +1,7 @@
+---
+layout: page
+title: Upcoming Bills
+---
 # Upcoming Bills
 
 Bills that have been scheduled by party leadership for upcoming House and Senate floor action. House schedules are taken from the [House Majority Leader](http://majorityleader.gov/), and Senate schedules from the [Senate Democratic Caucus](http://democrats.senate.gov/).
@@ -8,9 +12,9 @@ This endpoint is future-looking only. Old data on bills scheduled in the past is
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /upcoming_bills
 
@@ -18,21 +22,21 @@ Filter through upcoming bills in the House and Senate. Filter by any [fields bel
 
 **Upcoming bills in the House**
 
-```text
+{% highlight text %}
 /upcoming_bills?chamber=house
-```
+{% endhighlight %}
 
 **Any scheduling of a particular bill**
 
-```text
+{% highlight text %}
 /upcoming_bills?bill_id=s968-112
-```
+{% endhighlight %}
 
 ## Fields
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "bill_id": "sconres3-113",
 "congress": 113,
@@ -43,7 +47,7 @@ Filter through upcoming bills in the House and Senate. Filter by any [fields bel
 "context": "The Senate stands in recess under the provisions of S.Con.Res.3.  The Senate will meet at 11:30am on Monday, January 21, 2013 for the Joint Session for the Inaugural Ceremonies.",
 "url": "http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/"
 }
-```
+{% endhighlight %}
 
 \* **legislative_day**<br/>
 The legislative day this bill is scheduled for. Combine with the `range` field to understand precision. May be null.
@@ -74,7 +78,7 @@ A permalink for this information. For the House, this may be a PDF.
 
 ### Associated Bill
 
-```json
+{% highlight json %}
 {
 "bill_id": "hr41-113",
 "bill": {
@@ -84,7 +88,7 @@ A permalink for this information. For the House, this may be a PDF.
   ...
 }
 }
-```
+{% endhighlight %}
 
 \* **bill_id**<br/>
 The ID of the [bill](bills.html) that is being scheduled.

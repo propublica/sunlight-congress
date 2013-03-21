@@ -1,3 +1,7 @@
+---
+layout: page
+title: Districts
+---
 # Districts
 
 Find a congressional district for a given coordinate, or for a zip code. Congressional districts are calculated based on data from the [2010 Census](http://www.census.gov/rdo/data/).
@@ -8,9 +12,9 @@ For zip code lookup, we use [ZIP Code Tabulation Areas](http://www.census.gov/ge
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /districts/locate
 
@@ -20,17 +24,17 @@ At-large districts, which encompass an entire state, are assigned a district num
 
 **By latitude/longitude**
 
-```text
+{% highlight text %}
 /districts/locate?latitude=42.96&longitude=-108.09
-```
+{% endhighlight %}
 
 For a given `latitude` and `longitude`, this should return 1 congressional district.
 
 **By zip code**
 
-```text
+{% highlight text %}
 /districts/locate?zip=11216
-```
+{% endhighlight %}
 
 A `zip` code may intersect multiple Congressional districts, so it is not as precise as using a `latitude` and `longitude`.
 
@@ -38,12 +42,12 @@ In general, we [recommend against using zip codes](http://sunlightlabs.com/blog/
 
 ## Fields
 
-```json
+{% highlight json %}
 {
 "state": "NY",
 "district": 8
 }
-```
+{% endhighlight %}
 
 **state**<br/>
 The two-letter state code of the state this district is in.
