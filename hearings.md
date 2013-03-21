@@ -1,3 +1,7 @@
+---
+layout: page
+title: Hearings
+---
 # Hearings
 
 Committee hearings scheduled by the House and Senate. This data is taken from original [House](http://house.gov/legislative/) and [Senate](http://www.senate.gov/pagelayout/committees/b_three_sections_with_teasers/committee_hearings.htm) sources.
@@ -8,9 +12,9 @@ This endpoint is future-looking. We don't automatically delete data on past hear
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /hearings
 
@@ -18,15 +22,15 @@ Search and filter through committee hearings in the House and Senate. Filter by 
 
 **House committee hearings in DC**
 
-```text
+{% highlight text %}
 /hearings?chamber=house&dc=true
-```
+{% endhighlight %}
 
 **Hearings about 'children'**
 
-```text
+{% highlight text %}
 /hearings?query=children
-```
+{% endhighlight %}
 
 This will search hearings' `description` field.
 
@@ -34,7 +38,7 @@ This will search hearings' `description` field.
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "committee_id": "HSIF",
 "occurs_at": "2013-01-22T15:00:00Z",
@@ -50,8 +54,7 @@ This will search hearings' `description` field.
 "url": "http://energycommerce.house.gov/markup/committee-organizational-meeting-113th-congress",
 "hearing_type": "Hearing"
 }
-```
-
+{% endhighlight %}
 \* **committee_id**<br/>
 The ID of the [committee](committees.html) holding the hearing.
 
@@ -84,7 +87,7 @@ The IDs of any bills mentioned by or associated with the hearing.
 
 ### Committee Details
 
-```json
+{% highlight json %}
 {
 "committee": {
   "address": "2125 RHOB; Washington, DC 20515",
@@ -96,6 +99,6 @@ The IDs of any bills mentioned by or associated with the hearing.
   "subcommittee" :false
 }
 }
-```
+{% endhighlight %}
 
 Basic details about the related committee will appear in the **committee** field.
