@@ -89,13 +89,9 @@ class Committees
         committee.attributes = members
         committee.save!
       else
-        puts "[#{committee.committee_id}] MISSING MEMBERSHIP, SAVING AS EMPTY LIST"
+        puts "[#{committee.committee_id}] MISSING MEMBERSHIP, DESTROYING!"
         missing_members << committee.committee_id
-        committee.attributes = {
-          member_ids: [],
-          members: []
-        }
-        committee.save!
+        committee.destroy # yep: if we have no members yet for a committee, we're not sure it exists
       end
     end
 
