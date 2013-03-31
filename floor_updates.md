@@ -1,3 +1,7 @@
+---
+layout: page
+title: Floor Updates
+---
 # Floor Updates
 
 Recent real time, to-the-minute updates from the House and Senate floor. House floor updates are sourced from XML at the [House Clerk](http://clerk.house.gov/floorsummary/floor.aspx), and Senate updates from the [Senate Periodical Press Gallery](http://www.senate.gov/galleries/pdcl/index.htm).
@@ -8,9 +12,9 @@ This endpoint focuses on the recent past. We don't automatically delete old floo
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /floor_updates
 
@@ -18,21 +22,21 @@ Search and filter through floor updates in the House and Senate. Filter by any [
 
 **Senate floor updates in the 113th Congress**
 
-```text
+{% highlight text %}
 /floor_updates?chamber=senate&congress=113
-```
+{% endhighlight %}
 
 **Floor activity on a given bill**
 
-```text
+{% highlight text %}
 /floor_updates?bill_ids=s968-112
-```
+{% endhighlight %}
 
 **House voice votes**
 
-```text
+{% highlight text %}
 /floor_updates?chamber=house&query=Agreed to by voice vote
-```
+{% endhighlight %}
 
 The value of the `query` parameter will be matched against floor updates' `update` field.
 
@@ -40,7 +44,7 @@ The value of the `query` parameter will be matched against floor updates' `updat
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "chamber": "house",
 "timestamp": "2013-01-04T18:34:14Z",
@@ -54,7 +58,7 @@ The value of the `query` parameter will be matched against floor updates' `updat
 "roll_ids": [],
 "legislator_ids": []
 }
-```
+{% endhighlight %}
 
 \* **chamber**<br/>
 The chamber this update took place in. "house" or "senate".

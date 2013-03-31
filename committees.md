@@ -1,3 +1,7 @@
+---
+layout: page
+title: Committees
+---
 # Committees
 
 Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate. 
@@ -10,9 +14,9 @@ We only provide information on current committees and memberships. For historic 
 
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
-```text
+{% highlight text %}
 http://congress.api.sunlightfoundation.com
-```
+{% endhighlight %}
 
 ### /committees
 
@@ -20,27 +24,27 @@ Filter through committees in the House and Senate. Filter by any [fields below](
 
 **Committees and subcommittees a given legislator is assigned to**
 
-```text
+{% highlight text %}
 /committees?member_ids=L000551
-```
+{% endhighlight %}
 
 **Joint committees, excluding subcommittees**
 
-```text
+{% highlight text %}
 /committees?chamber=joint&subcommittee=false
-```
+{% endhighlight %}
 
 **Subcommittees of the House Ways and Means Committee**
 
-```text
+{% highlight text %}
 /committees?parent_committee_id=HSWM
-```
+{% endhighlight %}
 
 ## Fields
 
 \* = can be used as a filter
 
-```json
+{% highlight json %}
 {
 "name": "House Committee on Homeland Security",
 "committee_id":"HSHM",
@@ -50,11 +54,10 @@ Filter through committees in the House and Senate. Filter by any [fields below](
 "phone": "(202) 226-8417",
 "subcommittee": false,
 }
-```
+{% endhighlight %}
 
 **name**<br/>
 Official name of the committee. Parent committees tend to have a prefix, e.g. "House Committee on", and subcommittees do not, e.g. "Health".
-
 \* **committee_id**<br/>
 Official ID of the committee, as it appears in various official sources (Senate, House, and Library of Congress).
 
@@ -75,7 +78,7 @@ Whether or not the committee is a subcommittee.
 
 ### Members
 
-```json
+{% highlight json %}
 {
 "member_ids":[
   "K000210",
@@ -97,8 +100,7 @@ Whether or not the committee is a subcommittee.
   ...
 ]
 }
-```
-
+{% endhighlight %}
 \* **member_ids**<br/>
 An array of bioguide IDs of [legislators](legislators.html) that are assigned to this committee.
 
@@ -113,7 +115,7 @@ A title, if any, the member holds on the committee. "Chair" (in the House) and "
 
 ### Subcommittees
 
-```json
+{% highlight json %}
 {
 "subcommittees": [
   {
@@ -125,13 +127,13 @@ A title, if any, the member holds on the committee. "Chair" (in the House) and "
   ...
 ]
 }
-```
+{% endhighlight %}
 
 If the committee is a parent committee, the **subcommittees** field contains a few basic fields about its subcommittees.
 
 ### Parent Committee
 
-```json
+{% highlight json %}
 {
 "parent_committee_id": "HSSM",
 "parent_committee": {
@@ -143,8 +145,7 @@ If the committee is a parent committee, the **subcommittees** field contains a f
   "phone":  "(202) 225-5821"
 }
 }
-```
-
+{% endhighlight %}
 \* **parent_committee_id**<br/>
 If the committee is a subcommittee, the ID of its parent committee.
 

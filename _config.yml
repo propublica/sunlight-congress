@@ -1,0 +1,5 @@
+# fill in with google analytics key
+google_analytics: UA-22821126-30
+pygments: true
+server: true
+auto: true
