@@ -1,7 +1,3 @@
----
-layout: page
-title: Migrating
----
 # Migrating
 
 This Congress API deprecates our previous [Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). The new Congress API keeps nearly all the data and features the old one offered.
@@ -16,15 +12,15 @@ This guide shows how to move from each method in the old API to the new API.
 
 The previous API root was `http://services.sunlightlabs.com/api/`. The new API root is:
 
-{% highlight text %}
+```text
 http://congress.api.sunlightfoundation.com
-{% endhighlight %}
+```
 
 Both the previous API and the new API require your [Sunlight API key](http://services.sunlightlabs.com/accounts/register/), so an API method documented as `/legislators/locate` would be used as:
 
-{% highlight text %}
+```text
 http://congress.api.sunlightfoundation.com/legislators/locate?apikey=[your_api_key]
-{% endhighlight %}
+```
 
 ### JSON only
 
@@ -38,7 +34,7 @@ We still support [JSONP](http://en.wikipedia.org/wiki/JSONP), but the parameter 
 
 All responses in the new Congress API are in the following form:
 
-{% highlight json %}
+```json
 {
   "results": [
     ... result objects ...
@@ -50,7 +46,7 @@ All responses in the new Congress API are in the following form:
     "page": 1
   }
 }
-{% endhighlight %}
+```
 
 All endpoints are plural, and return an array of objects. To look up a single object, use search criteria that guarantee a single result and look for the first (and only) result.
 
@@ -64,9 +60,9 @@ For example, a legislator's `terms` field, which contains extensive data on that
 
 Fields can be requested using the `fields` parameter:
 
-{% highlight text %}
+```text
 /legislators?fields=bioguide_id,last_name,state,terms
-{% endhighlight %}
+```
 
 This is documented further in [Partial Responses](index.html#parameters/partial-responses).
 
@@ -119,25 +115,25 @@ In general, finding legislators is very similar.
 
 When filtering on a chamber, use the `chamber` field instead of `title`.
 
-{% highlight text %}
+```text
 # old API:
 /legislators.getList.json?title=Sen&state=MT&lastname=Tester
 
 # new API:
 /legislators?chamber=senate&state=MT&last_name=Tester
-{% endhighlight %}
+```
 
 **Multiple values for a parameter**
 
 Instead of repeating a parameter, use the "in" operator with a pipe-separated list of values:
 
-{% highlight text %}
+```text
 # old API:
 /legislators.getList?lastname=Obama&lastname=McCain
 
 # new API:
 /legislators?last_name__in=Obama|McCain
-{% endhighlight %}
+```
 
 The [Operators](index.html#parameters/operators) documentation has more details on operators and filtering.
 
@@ -145,37 +141,37 @@ The [Operators](index.html#parameters/operators) documentation has more details 
 
 Finding a single legislator is the same as finding many. Filter by criteria that uniquely identify a legislator, and use the first (and only) result.
 
-{% highlight text %}
+```text
 # old API:
 /legislators.get?bioguide_id=L000551
 
 # new API:
 /legislators?bioguide_id=L000551
-{% endhighlight %}
+```
 
 ### legislators.allForLatLong
 
 Use the `/legislators/locate` endpoint.
 
-{% highlight text %}
+```text
 # old API:
 /legislators.allForLatLong.json?latitude=47.603560&longitude=-122.329439
 
 # new API:
 /legislators/locate?latitude=47.603560&longitude=-122.329439
-{% endhighlight %}
+```
 
 ### legislators.allForZip
 
 Use the `/legislators/locate` endpoint. 
 
-{% highlight text %}
+```text
 # old API:
 /legislators.allForZip.json?zip=11216
 
 # new API:
 /legislators/locate?zip=11216
-{% endhighlight %}
+```
 
 ### legislators.search
 
@@ -185,13 +181,13 @@ We **no longer support** "fuzzy search" of legislator names. The given `query` m
 
 **Any legislators whose name somehow matches "smi"**
 
-{% highlight text %}
+```text
 # old API:
 /legislators.search?name=smi
 
 # new API:
 /legislators?query=smi
-{% endhighlight %}
+```
 
 ## Districts
 
@@ -199,23 +195,23 @@ We **no longer support** "fuzzy search" of legislator names. The given `query` m
 
 ### districts.allForLatLong
 
-{% highlight text %}
+```text
 # old API:
 /districts.allForLatLong.json?latitude=47.603560&longitude=-122.329439
 
 # new API:
 /districts/locate?latitude=47.603560&longitude=-122.329439
-{% endhighlight %}
+```
 
 ### districts.allForZip
 
-{% highlight text %}
+```text
 # old API:
 /districts.allForZip.json?zip=11216
 
 # new API:
 /districts/locate?zip=11216
-{% endhighlight %}
+```
 
 ## Committees
 
@@ -256,34 +252,34 @@ In general, finding committees is very similar.
 
 **Filtering on fields**
 
-{% highlight text %}
+```text
 # old API:
 /committees.getList?chamber=House
 
 # new API:
 /committees?chamber=house
-{% endhighlight %}
+```
 
 ### committees.get
 
 Finding a single committee is the same as finding many. Filter by criteria that uniquely identify a committee, and use the first (and only) result.
 
-{% highlight text %}
+```text
 # old API:
 /committees.get?id=HSSM
 
 # new API:
 /committees?committee_id=HSSM
-{% endhighlight %}
+```
 
 ### committees.allForLegislator
 
 Use the `/committees` endpoint with a filter on `member_ids` to limit the response to committees and subcommittees the legislator servers on.
 
-{% highlight text %}
+```text
 # old API:
 /committees.allForLegislator?bioguide_id=S000148
 
 # new API:
 /committees?member_ids=S000148
-{% endhighlight %}
+```
