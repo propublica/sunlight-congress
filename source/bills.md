@@ -353,7 +353,7 @@ The date or time the bill was enacted into law. Only present if this happened.
 The **actions** field has a list of all official activity that has occurred to a bill. All fields are parsed out of non-standardized sentence text, so mistakes and omissions are possible.
 
 **actions.type**<br/>
-The type of action. The default is "action", but there can be many others. Always present.
+The type of action. Always present. Can be "action" (generic), "vote" (passage vote), "vote-aux" (cloture vote), "vetoed", "topresident", and "enacted". There can be other values, but these are the only ones we support.
 
 **actions.acted_at**<br/>
 The date or time the action occurred. Always present.
