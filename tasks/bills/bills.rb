@@ -145,7 +145,7 @@ class Bills
     
     if missing_committees.any?
       missing_committees = missing_committees.uniq
-      Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names.", {missing_committees: missing_committees}
+      # Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names.", {missing_committees: missing_committees}
     end
     
     if bad_bills.any?
