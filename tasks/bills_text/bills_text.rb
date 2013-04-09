@@ -20,7 +20,7 @@ class BillsText
       targets = Bill.where(congress: congress).distinct :bill_id
       
       if options[:limit]
-        targets = targets.limit options[:limit].to_i
+        targets = targets.first options[:limit].to_i
       end
     end
 
