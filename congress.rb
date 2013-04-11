@@ -242,6 +242,7 @@ helpers do
     )
 
     HitReport.log! now.strftime("%Y-%m-%d"), key, method
+    SearchReport.log! extras[:query], method if extras[:query]
   end
 
 end
