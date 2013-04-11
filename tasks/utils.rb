@@ -352,6 +352,12 @@ module Utils
     
     parties = breakdown[:party].keys
     votes = (breakdown[:total].keys + constant_vote_keys).uniq
+
+    # ensure that on impeachment votes, even if everyone votes one way, include a 0 for the other way
+    if votes.include?("Guilty") or votes.include?("Not Guilty")
+      votes = (votes + ["Guilty", "Not Guilty"]).uniq
+    end
+
     votes.each do |vote|
       breakdown[:total][vote] ||= 0
       parties.each do |party|
