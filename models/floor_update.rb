@@ -10,6 +10,7 @@ class FloorUpdate
   
   
   include Mongoid::Document
+  include Mongoid::Timestamps
   
   index chamber: 1
   index category: 1
