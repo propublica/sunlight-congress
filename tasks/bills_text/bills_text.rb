@@ -126,11 +126,6 @@ class BillsText
           puts "[#{bill_id}][#{version_code}] Processing..." if options[:debug]
 
 
-          # archive text in MongoDB for use later (this is dumb)
-          version_archive = BillVersion.find_or_initialize_by bill_version_id: bill_version_id
-          version_archive.attributes = {text: full_text}
-          version_archive.save!
-          
           version_count += 1
           
           bill_versions << {
