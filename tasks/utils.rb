@@ -416,6 +416,15 @@ module Utils
     end
   end
   
+  def self.split_roll_id(roll_id)
+    chamber = roll_id.gsub /[^a-z]/, ''
+    chamber = {'s' => 'senate', 'h' => 'house'}[chamber.downcase]
+    number = roll_id.match(/[a-z]+(\d+)-/)[1].to_i
+    year = roll_id.match(/-(\d+)$/)[1].to_i
+
+    [chamber, number, year]
+  end
+
   def self.bill_fields_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
