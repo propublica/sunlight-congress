@@ -39,8 +39,6 @@ class VotesSenate
     
     initialize_disk! congress
 
-    to_get = []
-
     if options[:roll_id]
       to_get = [options[:roll_id]]
     else
@@ -72,6 +70,7 @@ class VotesSenate
 
     to_get.each do |roll_id|
       number, year = roll_id.tr('s', '').split("-").map &:to_i
+      congress = Utils.congress_for_year year
       session = Utils.legislative_session_for_year year
       
       puts "[#{roll_id}] Syncing to disc..." if options[:debug]
