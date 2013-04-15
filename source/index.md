@@ -101,7 +101,7 @@ See the documentation for a specific data type to see what fields can be filtere
 The API supports 8 operators that can be combined with filters:
 
 **gt** - the field is greater than this value<br/>
-**gte** - the fiels is greater than or equal to this value<br/>
+**gte** - the field is greater than or equal to this value<br/>
 **lt** - the field is less than this value<br/>
 **lte** - the field is less than or equal to this value<br/>
 **not** - the field is not this value<br/>
