@@ -65,7 +65,7 @@
                 </li>
               
                 <li>
-                  <a href="#parameters/search">Search</a>
+                  <a href="#parameters/basic-search">Basic search</a>
                 </li>
               
                 <li>
@@ -271,7 +271,7 @@
 
 </p>
 <pre><code class="text">/bills?cosponsor_ids__all=M000303|L000304</code></pre>
-<p><strong>Bills sponsored by either John McCain and Joe Lieberman</strong>
+<p><strong>Bills sponsored by either John McCain or Joe Lieberman</strong>
 
 </p>
 <pre><code class="text">/bills?sponsor_id__in=M000303|L000304</code></pre>
@@ -398,7 +398,7 @@ The number of actual documents in the response. Can be less than the given <code
   }
 }
 });</code></pre>
-<h3 id='parameters/search'>Search</h3 id='parameters/search'>
+<h3 id='parameters/basic-search'>Basic search</h3 id='parameters/basic-search'>
 <p>Provide a <code>query</code> parameter to return results the API thinks best match your query. Queries are interpreted as <em>phrases</em>.
 
 </p>

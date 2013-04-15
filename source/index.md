@@ -273,7 +273,7 @@ myCallback({
 });
 ```
 
-### Search
+### Basic search
 
 Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as *phrases*.
 
