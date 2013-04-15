@@ -130,7 +130,7 @@ All operators are applied by adding two underscores ("__") after the field name.
 /bills?cosponsor_ids__all=M000303|L000304
 ```
 
-**Bills sponsored by either John McCain and Joe Lieberman**
+**Bills sponsored by either John McCain or Joe Lieberman**
 
 ```text
 /bills?sponsor_id__in=M000303|L000304
