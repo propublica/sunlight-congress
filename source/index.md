@@ -241,9 +241,9 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 }
 ```
 
-### Client-side (AJAX) support
+### Client-side support (AJAX and CORS)
 
-The Congress API supports [CORS](http://enable-cors.org/) for all domains, so any modern JavaScript library with AJAX support (e.g. jQuery) should Just Work.
+The Congress API supports [CORS](http://enable-cors.org/) for all domains, so requests using any [modern JavaScript library](http://jquery.com/) inside [any modern browser](http://enable-cors.org/client.html) should Just Work.
 
 If CORS isn't an option, you can provide a `callback` parameter to wrap the results in a JavaScript function, suitable for use with [JSONP](http://en.wikipedia.org/wiki/JSONP). This can be used to make cross-domain requests to the Congress API within the browser, when CORS is not supported.
 
