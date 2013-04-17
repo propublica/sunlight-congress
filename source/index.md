@@ -241,7 +241,7 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 }
 ```
 
-### Client-side support (AJAX and CORS)
+### Client-side support
 
 The Congress API supports [CORS](http://enable-cors.org/) for all domains, so requests using any [modern JavaScript library](http://jquery.com/) inside [any modern browser](http://enable-cors.org/client.html) should Just Work.
 
