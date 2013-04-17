@@ -28,7 +28,6 @@ def links():
   run("ln -s %s/data %s/data" % (home, version_path))
 
 def dependencies():
-  run("rvm rvmrc trust %s" % version_path)
   run("cd %s && bundle install --local" % version_path)
   run("workon congress && cd %s && pip install -r tasks/requirements.txt" % version_path)
 
@@ -38,6 +37,7 @@ def create_indexes():
 def make_current():
   run('rm -f %s && ln -s %s %s' % (current_path, version_path, current_path))
 
+# TODO...
 def prune_releases():
   pass
 
