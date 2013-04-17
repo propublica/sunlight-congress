@@ -61,7 +61,7 @@
                 </li>
               
                 <li>
-                  <a href="#parameters/jsonp">JSONP</a>
+                  <a href="#parameters/client-side-ajax-support">Client-side (AJAX) support</a>
                 </li>
               
                 <li>
@@ -370,8 +370,11 @@ The number of actual documents in the response. Can be less than the given <code
   ...
 ]
 </span></code></pre>
-<h3 id='parameters/jsonp'>JSONP</h3 id='parameters/jsonp'>
-<p>Provide a <code>callback</code> parameter to wrap the results in a JavaScript function, suitable for use with <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a>. This can be used to make cross-domain requests to the Congress API within the browser.
+<h3 id='parameters/client-side-ajax-support'>Client-side (AJAX) support</h3 id='parameters/client-side-ajax-support'>
+<p>The Congress API supports <a href="http://enable-cors.org/">CORS</a> for all domains, so any modern JavaScript library with AJAX support (e.g. jQuery) should Just Work.
+
+</p>
+<p>If CORS isn&#39;t an option, you can provide a <code>callback</code> parameter to wrap the results in a JavaScript function, suitable for use with <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a>. This can be used to make cross-domain requests to the Congress API within the browser, when CORS is not supported.
 
 </p>
 <p>For example:
@@ -448,14 +451,14 @@ The number of actual documents in the response. Can be less than the given <code
 
 </p>
 <pre><code class="text">/bills/search?query=&quot;gun control&quot;&amp;highlight=true&amp;order=introduced_on</code></pre>
-<p>By default, highlighting is performed with the <code>&lt;em&gt;</code> and <code>&lt;/em&gt;</code> tags. Control these tags by passing start and close tags to the <code>highlight.tags</code> parameter. (Disable highlighting altogether by passing only <code>,</code>.)
+<p>By default, highlighting is performed with the <code>&lt;em&gt;</code> and <code>&lt;/em&gt;</code> tags. Control these tags by passing start and close tags to the <code>highlight.tags</code> parameter. (Disable the highlighting of search terms altogether, leaving only a plain text excerpt, by passing a lone comma, <code>,</code>.)
 
 </p>
-<p><strong>Bills matching &quot;immigration&quot;, highlighted with &lt;b&gt; tags</strong>
+<p><strong>Bills matching &quot;immigration&quot;, with excerpts highlighted with &lt;b&gt; tags</strong>
 
 </p>
 <pre><code class="text">/bills/search?query=immigration&amp;highlight=true&amp;highlight.tags=&lt;b&gt;,&lt;/b&gt;</code></pre>
-<p><strong>Bills matching &quot;immigration&quot;, with no highlighting</strong>
+<p><strong>Bills matching &quot;immigration&quot;, with excerpts with no highlighting</strong>
 
 </p>
 <pre><code class="text">/bills/search?query=immigration&amp;highlight=true&amp;highlight.tags=,</code></pre>
@@ -467,7 +470,7 @@ The number of actual documents in the response. Can be less than the given <code
 </p>
 <pre><code class="text">/bills/search?query=drugs&amp;highlight=true&amp;highlight.size=500</code></pre>
 <h2 id='bulk-data'>Bulk Data</h2 id='bulk-data'>
-<p>We provide some data for direct download. The Congress API is not designed for retrieving bulk data. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
+<p>We provide some bulk data for direct download, separately. The Congress API as documented above is not designed for retrieving bulk data -- requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
 
 </p>
 <h3 id='bulk-data/legislator-spreadsheet'>Legislator spreadsheet</h3 id='bulk-data/legislator-spreadsheet'>

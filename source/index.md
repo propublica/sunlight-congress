@@ -241,9 +241,11 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 }
 ```
 
-### JSONP
+### Client-side (AJAX) support
 
-Provide a `callback` parameter to wrap the results in a JavaScript function, suitable for use with [JSONP](http://en.wikipedia.org/wiki/JSONP). This can be used to make cross-domain requests to the Congress API within the browser.
+The Congress API supports [CORS](http://enable-cors.org/) for all domains, so any modern JavaScript library with AJAX support (e.g. jQuery) should Just Work.
+
+If CORS isn't an option, you can provide a `callback` parameter to wrap the results in a JavaScript function, suitable for use with [JSONP](http://en.wikipedia.org/wiki/JSONP). This can be used to make cross-domain requests to the Congress API within the browser, when CORS is not supported.
 
 For example:
 
@@ -333,15 +335,15 @@ When performing full text search, you can retrieve highlighted excerpts of where
 /bills/search?query="gun control"&highlight=true&order=introduced_on
 ```
 
-By default, highlighting is performed with the `<em>` and `</em>` tags. Control these tags by passing start and close tags to the `highlight.tags` parameter. (Disable highlighting altogether by passing only `,`.)
+By default, highlighting is performed with the `<em>` and `</em>` tags. Control these tags by passing start and close tags to the `highlight.tags` parameter. (Disable the highlighting of search terms altogether, leaving only a plain text excerpt, by passing a lone comma, `,`.)
 
-**Bills matching "immigration", highlighted with &lt;b&gt; tags**
+**Bills matching "immigration", with excerpts highlighted with &lt;b&gt; tags**
 
 ```text
 /bills/search?query=immigration&highlight=true&highlight.tags=<b>,</b>
 ```
 
-**Bills matching "immigration", with no highlighting**
+**Bills matching "immigration", with excerpts with no highlighting**
 
 ```text
 /bills/search?query=immigration&highlight=true&highlight.tags=,
@@ -357,7 +359,7 @@ Control the size of highlighted excerpts with the `highlight.size` parameter. (N
 
 ## Bulk Data
 
-We provide some data for direct download. The Congress API is not designed for retrieving bulk data. Requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
+We provide some bulk data for direct download, separately. The Congress API as documented above is not designed for retrieving bulk data -- requests are limited to a maximum of 50 per page, and many fields need to be specifically requested. If you need data in bulk, please use these resources rather than fetching it all through the API.
 
 ### Legislator spreadsheet
 
