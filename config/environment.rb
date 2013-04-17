@@ -5,6 +5,7 @@ require 'rubberband'
 require 'pony'
 
 require 'sinatra'
+require 'sinatra/cross_origin'
 disable :protection
 disable :logging
 
@@ -27,6 +28,8 @@ class Environment
 end
 
 configure do
+  enable :cross_origin
+  
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
   Searchable.configure_clients!

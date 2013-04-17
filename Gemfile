@@ -1,6 +1,7 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 gem 'sinatra', '1.3.3'
+gem 'sinatra-cross_origin'
 gem 'rack', '1.4.1'
 
 gem 'oj', '1.3.0' # for serialization
