@@ -28,7 +28,7 @@ google_analytics = settings['google_analytics']
 header = '
   <link rel="shortcut icon" type="image/ico" href="http://s3.amazonaws.com/assets.sunlightfoundation.com/brisket/1.0/images/favicon.ico">
   <link rel="stylesheet" type="text/css" href="documentup.css">
-  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 '
 
