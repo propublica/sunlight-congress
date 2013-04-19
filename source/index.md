@@ -396,8 +396,8 @@ Core information for legislators, committees, and bills come from public domain 
 If you've written a client library, please tweet at [@sunlightlabs](https://twitter.com/sunlightlabs) or [email us](mailto:api@sunlightfoundation.com) so we can link to it here.
 
 * Node: Matthew Chase Whittemore's [sunlight-congress-api](https://npmjs.org/package/sunlight-congress-api) (unofficial)
+* Ruby: Erik Michaels-Ober's [congress gem](http://rubygems.org/gems/congress) (unofficial)
 * Python: Coming soon.
-* Ruby: Coming soon.
 
 ## Other
 
