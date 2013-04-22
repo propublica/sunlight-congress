@@ -193,14 +193,17 @@ class BillsText
         puts "[#{bill_id}] Processing XML into plain HTML using unitedstates/documents..." if options[:debug]
         bill_version_id = version_fields[:last_version][:bill_version_id]
         last_version_xml = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.xml"
-        last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
         
-        # cache the html on disk
-        last_version_local = html_cache(congress, type, bill_version_id)
-        Utils.write last_version_local, last_version_html
+        begin
+          last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
+          
+          # cache the html on disk
+          last_version_local = html_cache(congress, type, bill_version_id)
+          Utils.write last_version_local, last_version_html
+        rescue
+          warnings << {message: "Error while processing XML->HTML for #{bill_version_id}"}
+        end
       end
-
-
       
       puts "[#{bill_id}] Indexed." if options[:debug]
       
