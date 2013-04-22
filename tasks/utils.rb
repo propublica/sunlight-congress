@@ -528,7 +528,7 @@ module Utils
 
   # source is a path to a file to be uploaded to S3
   # destination is the location in S3 to back it up to
-  def self.backup!(bucket, source, destination)
+  def self.backup!(bucket, source, destination, options = {})
     s3cmd = Environment.config['s3']['s3cmd']
     s3cfg = Environment.config['s3']['s3cfg']
     
@@ -541,9 +541,13 @@ module Utils
     location = location[0..-2] if location[-1..-1] == "/"
     destination = destination[1..-1] if destination[0..0] == "/"
 
-    puts location, destination
+    command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
 
-    system "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
+    if options[:silent]
+      command << " > /dev/null"
+    end
+
+    system command
   end
   
 end

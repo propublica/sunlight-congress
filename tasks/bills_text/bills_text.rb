@@ -1,5 +1,7 @@
 require 'nokogiri'
 
+require File.join(File.dirname(__FILE__), "unitedstates/documents/bills")
+
 class BillsText
 
   # Indexes full text of versions of bills into ElasticSearch.
@@ -184,6 +186,24 @@ class BillsText
         version_fields.merge(es_only).merge(updated_at: Time.now),
         batcher, options
       )
+
+      
+      # Run last version's XML through the processor into plain HTML, index in S3
+      if version_fields[:last_version]
+        puts "[#{bill_id}] Processing XML into plain HTML using unitedstates/documents..." if options[:debug]
+        bill_version_id = version_fields[:last_version][:bill_version_id]
+        last_version_xml = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.xml"
+        last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
+        
+        # cache the html on disk
+        last_version_local = html_cache congress, type, bill_version_id
+        last_version_remote = "#{type}/#{bill_version_id}.htm"
+
+        Utils.write last_version_local, last_version_html
+        Utils.backup! :bills, last_version_local, last_version_remote, silent: true
+      end
+
+
       
       puts "[#{bill_id}] Indexed." if options[:debug]
       
@@ -263,8 +283,13 @@ class BillsText
     "data/citation/bills/#{congress}/#{bill_id}.json"
   end
 
+  # todo: (?) move this out of data/citation
   def self.text_cache(congress, bill_id)
     "data/citation/bills/#{congress}/#{bill_id}.txt"
+  end
+
+  def self.html_cache(congress, bill_type, bill_version_id)
+    "data/unitedstates/documents/bills/#{congress}/#{bill_type}/#{bill_version_id}.htm"
   end
   
 end
