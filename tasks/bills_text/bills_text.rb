@@ -212,7 +212,7 @@ class BillsText
 
     # sync extracted HTML to S3
     Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
-      sync: true, silent: true
+      sync: true, silent: !options[:debug]
     })
 
     if warnings.any?
