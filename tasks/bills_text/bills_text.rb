@@ -241,16 +241,6 @@ class BillsText
     end
   end
   
-  # expects the bill version's XML
-  def self.backup_issued_on_for(doc)
-    timestamp = doc.xpath("//dc:date", "dc" => "http://purl.org/dc/elements/1.1/").text
-    if timestamp.present?
-      Utils.utc_parse(timestamp).strftime "%Y-%m-%d"
-    else
-      nil
-    end
-  end
-  
   # expects the bill version's associated MODS XML
   def self.urls_for(doc)
     urls = {}
