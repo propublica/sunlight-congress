@@ -189,7 +189,7 @@ class BillsText
 
       
       # Run last version's XML through the processor into plain HTML, index in S3
-      if version_fields[:last_version]
+      if version_fields[:last_version] and (version_fields[:last_version][:urls]['xml'])
         puts "[#{bill_id}] Processing XML into plain HTML using unitedstates/documents..." if options[:debug]
         bill_version_id = version_fields[:last_version][:bill_version_id]
         last_version_xml = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.xml"
