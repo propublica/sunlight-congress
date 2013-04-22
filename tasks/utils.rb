@@ -175,6 +175,11 @@ module Utils
         curl.body_str
       end
 
+      # if the code was 404, don't save some html 404 page
+      if curl.status.starts_with?("404")
+        return nil
+      end
+
       body = Yajl::Parser.parse(body) if body and options[:json]
 
       # returns true or false if a destination is given
