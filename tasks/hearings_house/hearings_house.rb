@@ -10,11 +10,13 @@ class HearingsHouse
 
   def self.run(options = {})
     count = 0
+    
     bad_committee_lookups = []
+    warnings = []
 
     # if a specific date, do just that date
     if options[:date]
-      count += hearings_for_day options[:date], bad_committee_lookups, options
+      count += hearings_for_day options[:date], bad_committee_lookups, options, warnings
     else
 
       # if a specific month is given (form "YYYY-MM")
@@ -43,7 +45,7 @@ class HearingsHouse
         dates = days_for year, month
 
         dates.each do |datestamp|
-          count += hearings_for_day datestamp, bad_committee_lookups, options
+          count += hearings_for_day datestamp, bad_committee_lookups, options, warnings
         end
       end
     end
@@ -52,15 +54,19 @@ class HearingsHouse
       Report.warning self, "#{bad_committee_lookups.size} bad committee lookups", bad_committee_lookups: bad_committee_lookups
     end
 
+    if warnings.any?
+      Report.warning self, "#{warnings.size} warnings while looking up hearing schedules", warnings: warnings
+    end
+
     Report.success self, "Updated or created #{count} committee hearings for the House."
   end
 
-  def self.hearings_for_day(datestamp, bad_committee_lookups, options)
+  def self.hearings_for_day(datestamp, bad_committee_lookups, options, warnings)
     puts "Fetching hearings for #{datestamp}..."
 
     url = "http://house.gov/legislative/date/#{datestamp}"
     unless body = Utils.curl(url)
-      Report.warning self, "Couldn't load day listing for #{datestamp} on House.gov committee hearings", url: url
+      warnings << {message: "Couldn't load day listing for #{datestamp} on House.gov committee hearings", url: url}
       return 0
     end
 
