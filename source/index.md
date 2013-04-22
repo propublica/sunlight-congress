@@ -363,7 +363,7 @@ We provide some bulk data for direct download, separately. The Congress API as d
 
 ### Legislator spreadsheet
 
-We offer a CSV of basic legislator information for [direct download here](https://github.com/sunlightlabs/apidata/raw/master/legislators/legislators.csv) (right-click and Save As).
+We offer a CSV of basic legislator information for [direct download here](http://unitedstates.sunlightfoundation.com/legislators/legislators.csv).
 
 It includes basic information about names, positions, biographical details, contact information, social media accounts, and identifiers for various public databases.
 
