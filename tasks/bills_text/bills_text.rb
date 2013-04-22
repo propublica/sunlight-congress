@@ -196,11 +196,8 @@ class BillsText
         last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
         
         # cache the html on disk
-        last_version_local = html_cache congress, type, bill_version_id
-        last_version_remote = "#{type}/#{bill_version_id}.htm"
-
+        last_version_local = html_cache(congress, type, bill_version_id)
         Utils.write last_version_local, last_version_html
-        Utils.backup! :bills, last_version_local, last_version_remote, silent: true
       end
 
 
@@ -212,6 +209,11 @@ class BillsText
     
     # index any leftover docs
     Utils.es_flush! 'bills', batcher
+
+    # sync extracted HTML to S3
+    Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
+      sync: true, silent: true
+    })
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
@@ -290,6 +292,11 @@ class BillsText
 
   def self.html_cache(congress, bill_type, bill_version_id)
     "data/unitedstates/documents/bills/#{congress}/#{bill_type}/#{bill_version_id}.htm"
+  end
+
+  # bucket is set as unitedstates/documents/bills
+  def self.html_remote(congress, bill_type, bill_version_id)
+    "#{congress}/#{bill_type}/#{bill_version_id}.htm"
   end
   
 end
