@@ -214,11 +214,7 @@ class BillsText
     Utils.es_flush! 'bills', batcher
 
     # sync extracted HTML to S3
-    # if options[:backup]
-      Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
-        sync: true, silent: !options[:debug]
-      })
-    # end
+    backup_congress! congress, options
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
@@ -302,6 +298,12 @@ class BillsText
   # bucket is set as unitedstates/documents/bills
   def self.html_remote(congress, bill_type, bill_version_id)
     "#{congress}/#{bill_type}/#{bill_version_id}.htm"
+  end
+
+  def self.backup_congress!(congress, options)
+    Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
+      sync: true, silent: !options[:debug]
+    })
   end
   
 end
