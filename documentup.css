@@ -153,26 +153,33 @@ a img {
   border: none;
 }
 body {
-  margin: 10px;
+	margin: 0;
+	background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_bg.jpg) center 48px repeat-x #FFFFFF;
+	color: #3B3633;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	line-height: 19px;
+	margin-top: -9px;
 }
 html {
   height: 100%;
 }
 body {
   padding: 0;
-  margin: 0;
   font: 14px/22px "adelle", Georgia, sans-serif;
   font-size-adjust: none;
   font-style: normal;
   font-variant: normal;
   font-weight: normal;
-  background: #f4f6ec;
 }
 a {
-  color: #369;
+  color: #78bcbf;
 }
-#container {
-  width: 922px;
+a:hover {
+  color: #635F5C;
+}
+#container, .container {
+  width: 940px;
   margin: 0 auto;
 }
 #header {
@@ -181,9 +188,6 @@ a {
   margin-bottom: 10px;
 }
 #header #logo {
-  color: #111;
-  font-size: 25px;
-  font-weight: bold;
   padding: 10px 0;
   text-decoration: none;
 }
@@ -191,7 +195,9 @@ a {
   float: left;
   width: 230px;
   margin-right: 30px;
-  margin-top: 40px;
+  margin-top: 53px;
+  position: fixed;
+  top: 86px;
 }
 #nav a {
   display: block;
@@ -208,6 +214,9 @@ a {
   padding: 5px 0;
   color: #444;
   font-size: 16px;
+}
+#nav #sections > li > ul > li > a {
+  color: #1E7275;
 }
 #nav #sections ul {
   margin-bottom: 15px;
@@ -246,15 +255,18 @@ a {
 #content {
   padding: 30px 30px 20px 30px;
   min-height: 100px;
-  width: 600px;
+  width: 618px;
   background: #fff;
   float: left;
   border: 1px solid rgba(0,0,0,0.20);
-  -webkit-border-radius: 3px 3px 0 0;
-  -moz-border-radius: 3px 3px 0 0;
-  border-radius: 3px 3px 0 0;
+  -webkit-border-radius: 3px 30px 0 0;
+  -moz-border-radius: 3px 30px 0 0;
+  border-radius: 3px 30px 0 0;
   margin-top: 15px;
-/* From Tripoli  */
+  background: white url(https://assets-sfcom.s3.amazonaws.com/img/bg_foldedCorner.png) right top no-repeat;
+  border: 1px solid #eceae3;
+  padding: 40px 30px 50px;
+  margin-left: 260px;
 }
 #content #loader {
   color: #888;
@@ -297,21 +309,34 @@ a {
 #content h4,
 #content h5,
 #content h6 {
-  font-weight: bold;
   line-height: 1.2em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-weight: normal;
+  color: #635f5c;
 }
-#content h1 {
+#content h1, h1 {
   font-size: 2.125em;
   margin-bottom: 0.4em;
+  font-family: "prenton-condensed","Helvetica Neue","Helvetica","Arial",sans-serif;
+  line-height: 1.1em;
+  text-transform: uppercase;
+}
+#content h1 {
+	font-size: 343.36%;
+	text-transform: uppercase;
+}
+
+h1 a{
+	color: #C9A70D;
 }
 #content h2 {
   font-size: 1.7em;
   margin: 0.855em 0 0.4em;
-  color: #cc333f;
 }
 #content h3 {
   font-size: 1.3em;
   margin: 0.956em 0 0.4em;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
 #content h4 {
   font-size: 1.1em;
@@ -332,7 +357,7 @@ a {
 }
 #content li ul,
 #content li ol {
-  margin: 0 1.625em;
+  margin: 0 1.625em 1em;
 }
 #content ul,
 #content ol {
@@ -340,12 +365,18 @@ a {
 }
 #content dl {
   margin: 0 0 1.625em 0;
+  width: 100%;
+  overflow:hidden;
 }
 #content dl dt {
   font-weight: bold;
+  margin-bottom: 0.25em;
+  float: left;
+  clear: left;
 }
 #content dl dd {
   margin-left: 1.625em;
+  float: left;
 }
 #content a {
   text-decoration: underline;
@@ -366,6 +397,7 @@ a {
   margin: 0;
   padding: 0 1.625em 0 1em;
   height: 26px;
+  vertical-align: top;
 }
 #content tfoot {
   font-style: italic;
@@ -425,7 +457,7 @@ a {
   line-height: 1.5;
 }
 #content code {
-  background: #f7f8f1;
+  background: #f9f8f8;
   padding: 1px 2px;
   border: 1px solid #ccc;
 }
@@ -439,7 +471,12 @@ a {
   margin: 1.625em 0;
 }
 #content hr {
-  margin-bottom: 1.625em;
+  border:3px solid #dbddd4;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  height: 0;
+  margin: 2.5em 0 2em;
 }
 #content table {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -469,12 +506,17 @@ a {
     width: 100%;
     margin-top: 10px;
     float: none;
+    position: relative;
+    top: 0;
   }
   #nav #sections,
   #nav #header,
   #nav .extra {
     padding-left: 30px;
     padding-right: 30px;
+  }
+  .container {
+  	width: 100%;
   }
   #content {
     -webkit-border-radius: 0;
@@ -489,9 +531,14 @@ a {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    margin-left: 0;
+    background: none;
   }
   #github-ribbon img {
     width: 100px;
+  }
+  #nav .thanks {
+  	margin-left: 30px;
   }
 }
 
@@ -499,10 +546,39 @@ a {
 
 /* user-added stuff */
 
-#content ul, ol {color: #444;}
-#header #logo {
-  font-size: 20px; line-height: 36px;
-  padding-bottom: 0;
+#content ul, ol {
+	color: #444;
 }
-#nav .thanks {color: #8e908c; font-size: 80%;}
-#nav .thanks a {display: inline; font-weight: normal; font-size: 100%;}
+
+#nav .thanks {
+	color: #8e908c; 
+	font-size: 80%;
+}
+#nav .thanks a {
+	display: inline; 
+	font-weight: normal; 
+	font-size: 100%;
+}
+.sf-header {
+    background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_bg_header.jpg) center bottom repeat-x;
+    background-color: rgb(234, 245, 240);
+    height: 60px;
+    margin-bottom: 50px;
+}
+.sf-header a.sf-logo {
+    background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_logo.png) top right no-repeat;
+    display: block;
+    float: right;
+    height: 40px;
+    text-indent: -9999px;
+    width: 128px;
+    margin-top: 15px;
+}
+
+
+
+
+
+
+
+

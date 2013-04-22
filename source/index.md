@@ -1,5 +1,3 @@
-# Sunlight Congress API
-
 A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
 
 ## Features

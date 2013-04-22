@@ -3,9 +3,9 @@
 # Before use: copy config.yml.example to config.yml, and fill in the Google Analytics key.
 
 # Usage:
-# 
+#
 # Compile all .md scripts in this directory:
-#   ./compile.rb 
+#   ./compile.rb
 #
 # Compile a particular .md script in this directory:
 #   ./compile.rb index
@@ -19,11 +19,16 @@ unless File.exist?("config.yml")
   exit
 end
 
-google_analytics = YAML.load(open("config.yml"))['google_analytics']
+settings = YAML.load(open("config.yml"))
+
+name = settings['name']
+twitter = settings['twitter']
+google_analytics = settings['google_analytics']
 
 header = '
+  <link rel="shortcut icon" type="image/ico" href="http://s3.amazonaws.com/assets.sunlightfoundation.com/brisket/1.0/images/favicon.ico">
   <link rel="stylesheet" type="text/css" href="documentup.css">
-  <script type="text/javascript" src="//use.typekit.net/egj6wnp.js"></script>
+  <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 '
 
@@ -43,10 +48,6 @@ footer = "
 </script>
 "
 
-name = "Sunlight Congress API"
-twitter = "sunlightlabs"
-
-
 if ARGV[0]
   files = [File.basename(ARGV[0], ".md")]
 else
@@ -65,15 +66,19 @@ files.each do |filename|
     \"http://documentup.com/compiled\" > #{output_file}"
 
   content = File.read output_file
-  
+
   # add in our own header (custom styles)
   content.sub! /<link.*?<\/head>/im, "#{header}\n</head>"
+
+  content.sub! "<body><div id=\"container\">", "<body><div class=\"sf-header\"><div class=\"container\"><a class=\"sf-logo\" href=\"http://www.sunlightfoundation.com\">Sunlight Foundation</a></div></div><div id=\"container\">"
 
   # add in our own footer (Google Analytics)
   content.sub! "</body>", "#{footer}\n</body>"
 
   # link the main header to the index page
-  content.sub! "<a href=\"#\" id=\"logo\">", "<a href=\"index.html\" id=\"logo\">"
+  content.sub! "<a href=\"#\" id=\"logo\">", "<h1><a href=\"index.html\" id=\"logo\">"
+
+  content.sub! "</div><ul id=\"sections\">", "</h1></div><ul id=\"sections\">"
 
   # custom title for non-index pages
   if filename != "index"
