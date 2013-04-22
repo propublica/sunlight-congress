@@ -214,9 +214,11 @@ class BillsText
     Utils.es_flush! 'bills', batcher
 
     # sync extracted HTML to S3
-    Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
-      sync: true, silent: !options[:debug]
-    })
+    # if options[:backup]
+      Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
+        sync: true, silent: !options[:debug]
+      })
+    # end
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings

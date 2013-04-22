@@ -545,11 +545,14 @@ module Utils
     # ensure no double slash
     location = location[0..-2] if location[-1..-1] == "/"
     destination = destination[1..-1] if destination[0..0] == "/"
+
+    # remove slashes from end of paths
+    source = source[0..-2] if source[-1..-1] == "/"
     destination = destination[0..-2] if destination[-1..-1] == "/"
 
     # sync means that source and destination are directories
     if options[:sync]
-      command = "#{s3cmd} --config=#{s3cfg} sync -P #{source} #{location}/#{destination}/"
+      command = "#{s3cmd} --config=#{s3cfg} sync -P #{source}/ #{location}/#{destination}/"
     # otherwise, assume it's a single file, just put
     else
       command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
