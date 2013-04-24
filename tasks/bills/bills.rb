@@ -202,7 +202,7 @@ class Bills
 
       if person
         cosponsorship = {'sponsored_on' => cosponsor['sponsored_at']}
-        if cosponsor['withdrawn_on']
+        if cosponsor['withdrawn_at']
           cosponsorship['withdrawn_on'] = cosponsor['withdrawn_at']
           withdrawn_cosponsors << cosponsorship.merge('legislator' => person)
         else
