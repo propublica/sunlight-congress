@@ -90,10 +90,12 @@ class BillsText
           
           issued_on = nil # will get filled in
           urls = nil # may not...
+          pages = nil
+
           if mods_doc
             issued_on = issued_on_for mods_doc
-
             urls = urls_for mods_doc
+            pages = pages_for mods_doc
 
             if issued_on.blank?
               warnings << {message: "Had MODS data but no date available for #{bill_version_id}, SKIPPING"}
@@ -136,6 +138,7 @@ class BillsText
             version_name: version_name,
             bill_version_id: bill_version_id,
             urls: urls,
+            pages: pages,
 
             # only the last version's text will ultimately be saved in ES
             text: full_text
@@ -214,7 +217,9 @@ class BillsText
     Utils.es_flush! 'bills', batcher
 
     # sync extracted HTML to S3
-    backup_congress! congress, options
+    if options[:backup]
+      backup_congress! congress, options
+    end
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
@@ -280,6 +285,13 @@ class BillsText
     end
     
     urls
+  end
+
+  # expects the bill version's associated MODS XML
+  def self.pages_for(doc)
+    if extent = (doc / :physicalDescription / :extent).first
+      extent.text.to_i
+    end
   end
 
   def self.citation_cache(congress, bill_id)
