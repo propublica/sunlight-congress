@@ -161,7 +161,7 @@ end
 helpers do
 
   def json(results)
-    response['Content-Type'] = 'application/json'
+    response['Content-Type'] = 'application/json; charset=utf-8'
     json = Oj.dump results, mode: :compat, time_format: :ruby
     if params[:callback].present? and params[:callback] =~ /^[\.a-zA-Z0-9\$_]+$/
       "#{params[:callback]}(#{json});"
@@ -171,7 +171,7 @@ helpers do
   end
   
   def xml(results)
-    response['Content-Type'] = 'application/xml'
+    response['Content-Type'] = 'application/xml; charset=utf-8'
     results.to_xml root: 'results', dasherize: false
   end
 
