@@ -26,6 +26,7 @@ class Document
   index posted_at: 1
   index categories: 1
   index citation_ids: 1
+  index created_at: 1
 
   index "gao_report.gao_id" => 1
 end

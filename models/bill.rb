@@ -73,4 +73,6 @@ class Bill
 
   # for internal use in keeping upcoming field up to date
   index "upcoming.source" => 1
+
+  index created_at: 1 # useful for syncing
 end

@@ -32,6 +32,7 @@ class Regulation
   index rins: 1
 
   index citation_ids: 1
+  index created_at: 1
 
   validates_presence_of :document_number
   validates_uniqueness_of :document_number
