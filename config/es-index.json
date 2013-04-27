@@ -1,0 +1,12 @@
+{
+  "settings" : {
+    "analysis" : {
+      "filter" : {
+        "stop" : {
+          "type" : "stop",
+          "enable_position_increments" : "false"
+        }
+      }
+    }
+  }
+}
