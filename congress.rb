@@ -163,11 +163,15 @@ helpers do
   def json(results)
     response['Content-Type'] = 'application/json; charset=utf-8'
     json = Oj.dump results, mode: :compat, time_format: :ruby
-    if params[:callback].present? and params[:callback] =~ /^[\.a-zA-Z0-9\$_]+$/
+    if jsonp?
       "#{params[:callback]}(#{json});"
     else
       json
     end
+  end
+
+  def jsonp?
+    !!(params[:callback].present?) and (params[:callback] =~ /^[\.a-zA-Z0-9\$_]+$/)
   end
   
   def xml(results)
@@ -184,9 +188,9 @@ helpers do
     }
 
     if format == "json"
-      halt 200, json(results)
+      halt( (jsonp? ? 200 : status), json(results))
     else
-      halt 200, xml(results)
+      halt status, xml(results)
     end
   end
 
