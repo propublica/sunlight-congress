@@ -14,16 +14,9 @@
 
 require 'yaml'
 
-unless File.exist?("config.yml")
-  puts "Copy config.yml.example to config.yml and fill it in before running."
-  exit
-end
-
-settings = YAML.load(open("config.yml"))
-
-name = settings['name']
-twitter = settings['twitter']
-google_analytics = settings['google_analytics']
+name = "Sunlight Congress API"
+twitter = "sunlightlabs"
+google_analytics = "UA-22821126-30"
 
 header = '
   <link rel="shortcut icon" type="image/ico" href="http://s3.amazonaws.com/assets.sunlightfoundation.com/brisket/1.0/images/favicon.ico">
