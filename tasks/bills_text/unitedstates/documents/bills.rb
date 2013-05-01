@@ -11,6 +11,7 @@ module UnitedStates
 
       # elements to be turned into divs (must be listed explicitly)
       BLOCKS = %w{
+        bill form amendment-form engrossed-amendment-form resolution-form
         legis-body resolution-body engrossed-amendment-body amendment-body 
         title
         amendment amendment-block amendment-instruction
@@ -33,8 +34,13 @@ module UnitedStates
         doc = Nokogiri::XML text
 
         # let's start by just caring about the body of the bill - the legis-body
-        body = doc.at("legis-body") || doc.at("resolution-body") || doc.at("engrossed-amendment-body") || doc.at("amendment-body")
+        body = doc.root
         body.traverse do |node|
+
+          if node.name == "metadata"
+            node.remove
+            next
+          end
 
           # for some nodes, we'll preserve some attributes
           preserved = {}
