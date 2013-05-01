@@ -5,7 +5,7 @@ require 'net/http'
 class SunlightServices
   
   def self.report(key, endpoint, calls, date, api, shared_secret)
-    url = URI.parse "http://services.sunlightlabs.com/analytics/report_calls/"
+    url = URI.parse "http://sunlightfoundation.com/api/analytics/report_calls/"
     
     params = {key: key, endpoint: endpoint, date: date, api: api, calls: calls}
     signature = signature_for params, shared_secret
