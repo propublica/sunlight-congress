@@ -212,10 +212,9 @@ class Regulations
         if details['body_html_url'] 
           full_text = text_for :article, document_number, :html, details['body_html_url'], options
 
-          # prepend abstract, if it exists
+          # take the opportunity to just download abstract, if it exists
           if details['abstract_html_url']
-            abstract = text_for :article_abstract, document_number, :html, details['abstract_html_url'], options
-            full_text = "#{abstract}\n\n#{full_text}"
+            text_for :article_abstract, document_number, :html, details['abstract_html_url'], options
           end
 
         else
