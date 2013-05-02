@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), "unitedstates/documents/federal_register")
+
 class Regulations
 
   # Downloads metadata about proposed and final regulations from FederalRegister.gov.
@@ -167,7 +169,10 @@ class Regulations
           abstract: details['abstract'],
           effective_on: details['effective_on'],
           rins: details['regulation_id_numbers'],
-          comments_close_on: details['comments_close_on']
+          comments_close_on: details['comments_close_on'],
+
+          abstract_html_url: details['abstract_html_url'],
+          body_html_url: details['body_html_url']
         )
 
       elsif document_type == :public_inspection
@@ -201,12 +206,14 @@ class Regulations
       full_text = nil
 
       if document_type == :article
-        # if details['full_text_xml_url']
-        #   full_text = text_for :article, document_number, :xml, details['full_text_xml_url'], options
-          
-        # els
         if details['body_html_url'] 
           full_text = text_for :article, document_number, :html, details['body_html_url'], options
+
+          # prepend abstract, if it exists
+          if details['abstract_html_url']
+            abstract = text_for :article_abstract, document_number, :html, details['abstract_html_url'], options
+            full_text = "#{abstract}\n\n#{full_text}"
+          end
 
         else
           missing_links << document_number
@@ -248,6 +255,12 @@ class Regulations
       rule['citation_ids'] = citation_ids
       rule.save!
 
+      # for published docs, download the abstract and body html, 
+      # save to disk, backup in S3 if asked
+      if document_type != :public_inspection
+        html_document! rule, warnings, options
+      end
+
       search_count += 1
     end
 
@@ -274,6 +287,34 @@ class Regulations
     end
 
     Report.success self, "Indexed #{search_count} documents as searchable"
+  end
+
+  # for published documents only
+  def self.html_document!(document, warnings, options = {})
+    puts "[#{document['document_number']}] Transforming HTML using unitedstates/documents..." if options[:debug]
+
+    begin
+      # join abstract and body html together into one document, if both exist
+      # abstract and body html will already have been downloaded
+      html = ""
+      
+      abstract_cache = destination_for :article_abstract, document['document_number'], "html"
+      if File.exists?(abstract_cache)
+        abstract = File.read abstract_cache
+        html << UnitedStates::Documents::FederalRegister.process(abstract, class: "abstract")
+      end
+
+      body_cache = destination_for :article, document['document_number'], "html"
+      if File.exists?(body_cache)
+        body = File.read body_cache
+        html << UnitedStates::Documents::FederalRegister.process(body, class: "body")
+      end
+      
+      # cache the html on disk
+      Utils.write html_cache(document['document_number']), html
+    rescue
+      warnings << {message: "Error while processing HTML for #{document['document_number']}"}
+    end
   end
 
 
@@ -378,15 +419,9 @@ class Regulations
       return nil
     end
 
-
     body = File.read destination
 
-    if format == :xml
-      text = full_text_for Nokogiri::XML(body)
-      text_destination = destination_for document_type, document_number, :txt
-      Utils.write text_destination, text
-      text
-    elsif format == :html
+    if format == :html
       text = full_text_for Nokogiri::HTML(body)
       text_destination = destination_for document_type, document_number, :txt
       Utils.write text_destination, text
@@ -426,6 +461,10 @@ class Regulations
 
   def self.citation_cache(document_number)
     destination_for "citation", document_number, "json"
+  end
+
+  def self.html_cache(document_number)
+    destination_for "document", document_number, "html"
   end
 
   def self.noon_utc_for(timestamp)
