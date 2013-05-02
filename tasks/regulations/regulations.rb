@@ -377,7 +377,13 @@ class Regulations
     # - addendum: NOTICE type articles are more voluminous, and must be filtered per day, or week
     #   2/13/2013 - 3/13/2013, for example: over 2,800 notices. (Wow.)
     
-    unless response = Utils.download(base_url, options.merge(json: true))
+    if options[:cache_lists]
+      destination = list_cache :article, type, beginning, ending
+    else
+      destination = nil
+    end
+
+    unless response = Utils.download(base_url, options.merge(destination: destination, json: true))
       Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
       return []
     end
@@ -457,6 +463,12 @@ class Regulations
   def self.destination_for(document_type, document_number, format)
     yearish = document_number.split("-").first
     "data/federalregister/#{yearish}/#{document_number}/#{document_type}.#{format}"
+  end
+
+  def self.list_cache(article_type, document_type, beginning, ending)
+    begin_day = beginning.strftime "%Y-%m-%d"
+    end_day = ending.strftime "%Y-%m-%d"
+    "data/federalregister/lists/#{article_type}/#{document_type}/#{begin_day}-#{end_day}.json"
   end
 
   def self.citation_cache(document_number)
