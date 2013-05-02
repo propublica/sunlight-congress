@@ -32,6 +32,9 @@ class Regulations
   #     cache requests for detail JSON on individual documents
   #     will not cache search requests, is safe to turn on for syncing new documents
   #
+  #   cache_lists:
+  #     cache search requests, useful for debugging
+  #
   #   skip_text: do not do full text processing (mongo only)
   
   #  Hierarchy of regulatory documents:
