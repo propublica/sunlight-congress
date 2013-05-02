@@ -270,6 +270,9 @@ class Regulations
     # index any leftover docs
     Utils.es_flush! 'regulations', batcher
 
+    # back up all regulation html - would like to be more efficient...
+    backup! options if options[:backup]
+
     
     if warnings.any?
       Report.warning self, "#{warnings.size} warnings", warnings: warnings
@@ -292,15 +295,16 @@ class Regulations
     Report.success self, "Indexed #{search_count} documents as searchable"
   end
 
+
   # for published documents only
   def self.html_document!(document, warnings, options = {})
     puts "[#{document['document_number']}] Transforming HTML using unitedstates/documents..." if options[:debug]
 
+    # join abstract and body html together into one document, if both exist
+    # abstract and body html will already have been downloaded
+    html = ""
+
     begin
-      # join abstract and body html together into one document, if both exist
-      # abstract and body html will already have been downloaded
-      html = ""
-      
       abstract_cache = destination_for :article_abstract, document['document_number'], "html"
       if File.exists?(abstract_cache)
         abstract = File.read abstract_cache
@@ -312,12 +316,14 @@ class Regulations
         body = File.read body_cache
         html << UnitedStates::Documents::FederalRegister.process(body, class: "body")
       end
-      
-      # cache the html on disk
-      Utils.write html_cache(document['document_number']), html
-    rescue
-      warnings << {message: "Error while processing HTML for #{document['document_number']}"}
+    rescue Exception => ex
+      warnings << {message: "Error while processing HTML for #{document['document_number']}", exception: ex.message, name: ex.class.to_s}
     end
+
+    # cache the html on disk
+    Utils.write html_cache(document['document_number']), html
+
+    true
   end
 
 
@@ -479,7 +485,19 @@ class Regulations
   end
 
   def self.html_cache(document_number)
-    destination_for "document", document_number, "html"
+    "data/unitedstates/documents/federal_register/article/#{document_number}.htm"
+  end
+
+  # bucket is set as unitedstates/documents, put into "federal_register/article"
+  def self.html_remote(document_number)
+    "#{document_number}.htm"
+  end
+
+  # whole corpus, sigh
+  def self.backup!(options)
+    Utils.backup!(:regulations, "data/unitedstates/documents/federal_register/article/", "federal_register/article", {
+      sync: true, silent: !options[:debug]
+    })
   end
 
   def self.noon_utc_for(timestamp)
