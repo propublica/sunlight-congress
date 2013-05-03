@@ -197,14 +197,14 @@ class Regulations
       end
 
       # save the mongo document
-      puts "[#{document_number}] Saving to MongoDB..."
+      puts "[#{document_number}] Saving to MongoDB..." if options[:debug]
       rule.attributes = attributes
       rule.save!
       count += 1
 
       next if options[:skip_text]
       
-      puts "[#{document_number}] Fetching full text..."
+      puts "[#{document_number}] Fetching full text..." if options[:debug]
 
       full_text = nil
 
@@ -247,7 +247,7 @@ class Regulations
       end
 
       # index into elasticsearch
-      puts "[#{document_number}] Indexing text of regulation..."
+      puts "[#{document_number}] Indexing text of regulation..." if options[:debug]
       fields['text'] = full_text
       fields['citation_ids'] = citation_ids
 
