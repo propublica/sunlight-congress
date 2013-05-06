@@ -190,7 +190,7 @@ An array of common nicknames for a bill that don't appear in official data. Thes
 
 ```json
 {
-"subjects": [
+"keywords": [
   "Abortion", 
   "Administrative law and regulatory procedures", 
   "Adoption and foster care",
