@@ -4,7 +4,6 @@ class Bills
   #   congress: The congress to update.
   #   bill_id: The particular bill to update. Useful for development.
   #   limit: A limit on the number of processed bills. Useful for development.
-  #   skip_sync: Don't sync to GovTrack for committee information.
 
   def self.run(options = {})
     congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
@@ -37,13 +36,12 @@ class Bills
 
 
     bill_ids.each do |bill_id|
+      bill = Bill.find_or_initialize_by bill_id: bill_id
       type, number, congress, chamber = Utils.bill_fields_from bill_id
       
       path = "data/unitedstates/congress/#{congress}/bills/#{type}/#{type}#{number}/data.json"
-
       doc = Oj.load open(path)
       
-      bill = Bill.find_or_initialize_by bill_id: bill_id
 
       introduced_on = doc['introduced_at'] # must get done before summary check
       
@@ -78,6 +76,9 @@ class Bills
       votes = votes_for actions
       
       bill.attributes = {
+        document_type: "bill",
+        document_id: bill_id,
+        
         bill_type: type,
         number: number,
         congress: congress,
@@ -106,7 +107,7 @@ class Bills
         enacted_as: enacted_as_for(doc),
 
         actions: actions,
-        last_action: actions ? actions.last : nil,
+        last_action: actions.any? ? actions.last : nil,
         last_action_at: actions.any? ? actions.last['acted_at'] : nil,
 
         votes: votes,
@@ -222,6 +223,7 @@ class Bills
     now = Time.now
 
     actions.map do |action|
+
       if action['acted_at'].is_a?(String)
         time = Time.parse(action['acted_at'])
       else

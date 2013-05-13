@@ -445,6 +445,16 @@ module Utils
     
     [type, number, congress, chamber]
   end
+
+  def self.amendment_fields_from(amendment_id)
+    type = amendment_id.gsub /[^a-z]/, ''
+    number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
+    congress = amendment_id.match(/-(\d+)$/)[1].to_i
+    
+    chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
+    
+    [type, number, congress, chamber]
+  end
   
   def self.format_bill_code(bill_type, number)
     {
@@ -491,6 +501,18 @@ module Utils
     else
       if bill = Bill.where(bill_id: bill_id).only(Bill.basic_fields).first
         document_for bill, Bill.basic_fields
+      else
+        nil
+      end
+    end
+  end
+
+  def self.amendment_for(amendment_id)
+    if amendment_id.is_a?(Bill)
+      document_for amendment_id, Bill.basic_fields
+    else
+      if amendment = Bill.where(amendment_id: amendment_id).only(Bill.basic_fields).first
+        document_for amendment, Bill.basic_fields
       else
         nil
       end
