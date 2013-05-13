@@ -158,6 +158,28 @@ get(/(legislators|districts)\/locate\/?/) do
 end
 
 
+# error handler and test
+get '/error' do
+  raise Exception.new("KABOOM.")
+end
+
+error do
+  exception = env['sinatra.error']
+  name = exception.class.name
+  message = exception.message
+
+  request = {
+    method: env['REQUEST_METHOD'], 
+    url: env['REQUEST_URI'],
+    params: params.inspect,
+    user_agent: env['HTTP_USER_AGENT']
+  }
+  
+  Email.report Report.exception("Exception Notifier", "#{name}: #{message}", exception, request: request)
+  halt 500
+end
+
+
 helpers do
 
   def json(results)
