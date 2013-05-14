@@ -15,7 +15,7 @@ class Bill
     :amendment_id, 
     :amends_bill_id, :amends_treaty_id, :amends_amendment_id,
     :offered_on, :proposed_on, :submitted_on,
-    :sponsor_type, 
+    :sponsor_type, :sponsor_committee_id, :house_number,
     :description, :purpose, :title
 
 
@@ -31,8 +31,10 @@ class Bill
   include Mongoid::Document
   include Mongoid::Timestamps
   
+  index document_type: 1
+  index document_id: 1
+
   index bill_id: 1
-  
   index({bill_type: 1, number: 1})
 
   # support an orderly ordering of recent bills

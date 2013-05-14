@@ -16,6 +16,7 @@ class Amendments
     missing_bills = []
     missing_amendments = []
     missing_committees = []
+    missing_people = []
     bad_amendments = []
     
     legislators = {}
@@ -41,7 +42,7 @@ class Amendments
 
     amendment_ids.each do |amendment_id|
       amendment = Bill.find_or_initialize_by amendment_id: amendment_id
-      
+
       type, number, congress, chamber = Utils.amendment_fields_from amendment_id
 
       path = "data/unitedstates/congress/#{congress}/amendments/#{type}/#{type}#{number}/data.json"
@@ -74,39 +75,35 @@ class Amendments
         last_action: actions.last,
         last_action_at: actions.last ? actions.last['acted_at'] : nil
       }
-      
-      # if sponsor
-      #   amendment.attributes = {
-      #     sponsor: sponsor,
-      #     sponsor_type: sponsor_type,
-      #     sponsor_id: sponsor_id
-      #   }
-      # end
 
-      # sponsor_type = sponsor_type_for doc
-      # if sponsor_type == 'legislator'
-      #   sponsor = sponsor_for amendment_id, doc, legislators, missing_ids
-      #   sponsor_id = sponsor['bioguide_id'] # ?
-      # else
-      #   sponsor = sponsor_committee_for amendment_id, doc, chamber, missing_committees
-      #   sponsor_id = sponsor[:committee_id] # ?
-      # end
+      amendment[:house_number] = doc['house_number'] if doc['house_number']
       
-      # if bill_id
-      #   if bill = Utils.bill_for(bill_id)
-      #     amendment.attributes = {
-      #       bill_id: bill_id,
-      #       bill: bill
-      #     }
 
-      #     if bill_sequence
-      #       amendment[:bill_sequence] = bill_sequence
-      #     end
-      #   else
-      #     Report.warning self, "[#{amendment_id}] Found bill_id #{bill_id}, but couldn't find bill."
-      #   end
-      # end
-      
+      # amendments can be sponsored by people or committees, sigh
+      sponsor_type = doc['sponsor']['type']
+
+      if sponsor_type == 'person'
+        if sponsor = Bills.sponsor_for(doc['sponsor'], legislators)
+          sponsor_id = sponsor['bioguide_id']
+        else
+          sponsor_id = nil
+          missing_people << [amendment_id, doc['sponsor']] 
+        end
+      else
+        if sponsor = sponsor_committee_for(doc['sponsor'])
+          sponsor_id = sponsor['committee_id']
+        else
+          sponsor_id = nil
+          missing_committees << [amendment_id, doc['sponsor']] 
+        end
+      end
+
+      amendment.attributes = {
+        sponsor_type: sponsor_type,
+        sponsor: sponsor,
+        sponsor_id: sponsor_id
+      }
+
       if doc['amends_bill']
         amendment['amends_bill_id'] = doc['amends_bill']['bill_id']
         if amended_bill = Utils.bill_for(doc['amends_bill']['bill_id'])
@@ -154,39 +151,18 @@ class Amendments
     Report.success self, "Synced #{count} amendments for congress ##{congress} from GovTrack.us."
   end
   
-  def self.sponsor_type_for(doc)
-    sponsor = doc.at :sponsor
-    if sponsor['id']
-      'legislator'
-    elsif sponsor['committee']
-      'committee'
-    end
-  end
-  
-  def self.sponsor_for(amendment_id, doc, legislators, missing_ids)
-    sponsor = doc.at :sponsor
-    if legislators[sponsor['id']]
-      legislators[sponsor['id']]
-    else
-      missing_ids << [sponsor['id'], amendment_id]
-      nil
-    end
-  end
-  
-  def self.sponsor_committee_for(amendment_id, doc, chamber, missing_committees)
-    name = doc.at(:sponsor)['committee']
-    chamber = chamber.capitalize
-    full_name = name.sub /^#{chamber}/, "#{chamber} Committee on"
-    if committee = Committee.where(name: full_name).first
+  # only amendments can be sponsored by committees
+  def self.sponsor_committee_for(sponsor)
+    committee_id, subcommittee_id = sponsor['committee_id'].scan(/^([a-zA-Z]+)(\d+)$/).first
+    committee_id = committee_id.upcase
+    
+    criteria = {committee_id: committee_id}
+    criteria[:subcommittee_id] = subcommittee_id unless subcommittee_id == "00"
+
+    if committee = Committee.where(criteria).first
       Utils.committee_for committee
     else
-      missing_committees << [name, amendment_id]
       nil
     end
   end
-  
-  def self.actions_for(doc)
-    
-  end
-
 end
