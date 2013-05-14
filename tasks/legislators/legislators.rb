@@ -97,7 +97,10 @@ class Legislators
       state: last_term['state'],
       state_name: state_map[last_term['state']],
       party: party_for(last_term['party']),
-      title: last_term['type'].capitalize,
+      
+      # take advantage of title rewriting on calculated terms
+      title: terms.last['title'],
+
       chamber: {
         'rep' => 'house',
         'sen' => 'senate',
@@ -160,9 +163,16 @@ class Legislators
       ['phone', 'fax', 'url', 'address', 'office', 'contact_form'].each {|field| term.delete field}
 
       type = term.delete 'type'
+      # override for non-voting members
+      if term['state'] == "PR"
+        type = "com"
+      elsif ["VI", "MP", "AS", "GU", "DC"].include?(term['state'])
+        type = "del"
+      end
 
       term['party'] = party_for term['party']
       term['title'] = type.capitalize
+
       term['chamber'] = {
         'rep' => 'house',
         'sen' => 'senate',
@@ -176,19 +186,22 @@ class Legislators
 
   def self.state_map
     @state_map ||= {
+      "MP" => "Northern Mariana Islands",
+      "DC" => "District of Columbia",
+      "AS" => "American Samoa",
+      "PR" => "Puerto Rico",
+      "GU" => "Guam",
+      "VI" => "US Virgin Islands",
       "AL" => "Alabama",
       "AK" => "Alaska",
       "AZ" => "Arizona",
       "AR" => "Arkansas",
-      "AS" => "American Samoa",
       "CA" => "California",
       "CO" => "Colorado",
       "CT" => "Connecticut",
       "DE" => "Delaware",
-      "DC" => "District of Columbia",
       "FL" => "Florida",
       "GA" => "Georgia",
-      "GU" => "Guam",
       "HI" => "Hawaii",
       "ID" => "Idaho",
       "IL" => "Illinois",
@@ -202,7 +215,6 @@ class Legislators
       "MA" => "Massachusetts",
       "MI" => "Michigan",
       "MN" => "Minnesota",
-      "MP" => "Northern Mariana Islands",
       "MS" => "Mississippi",
       "MO" => "Missouri",
       "MT" => "Montana",
@@ -218,7 +230,6 @@ class Legislators
       "OK" => "Oklahoma",
       "OR" => "Oregon",
       "PA" => "Pennsylvania",
-      "PR" => "Puerto Rico",
       "RI" => "Rhode Island",
       "SC" => "South Carolina",
       "SD" => "South Dakota",
@@ -227,7 +238,6 @@ class Legislators
       "UT" => "Utah",
       "VT" => "Vermont",
       "VA" => "Virginia",
-      "VI" => "US Virgin Islands",
       "WA" => "Washington",
       "WV" => "West Virginia",
       "WI" => "Wisconsin",
