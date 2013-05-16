@@ -226,6 +226,15 @@ class VotesSenate
     
     doc.search("//members/member").each do |elem|
       vote = (elem / 'vote_cast').text
+      
+      # override special arrangement, seen in s5-2009:
+      # http://www.senate.gov/legislative/LIS/roll_call_votes/vote1111/vote_111_1_00005.xml
+      # and explained here:
+      # http://en.wikipedia.org/wiki/Live_pair
+      if vote == "Present, Giving Live Pair"
+        vote = "Present"
+      end
+
       lis_id = (elem / 'lis_member_id').text
 
       legislators[lis_id] ||= lookup_legislator lis_id, elem
