@@ -409,7 +409,7 @@ module Utils
       "passage"
       
     # senate
-    when /^On the Joint Resolution/i, /^On the Concurrent Resolution/i, /^On the Resolution/i
+    when /^On the Joint Resolution/i, /^On the Concurrent Resolution/i, /^On the Resolution/i, /^On the Conference Report/i
       "passage"
     
     # house only
