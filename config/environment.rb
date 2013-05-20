@@ -86,7 +86,7 @@ class Email
         to: to
       )
     else
-      puts "[FAKE] Sending to #{to}:\n\n#{subject}\n\n#{body}"
+      # puts "[FAKE] Sending to #{to}:\n\n#{subject}\n\n#{body}"
     end
   rescue Errno::ECONNREFUSED
     puts "Couldn't email report, connection refused! Check system settings."
