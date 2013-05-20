@@ -1,6 +1,5 @@
 require 'nokogiri'
-
-require File.join(File.dirname(__FILE__), "unitedstates/documents/bills")
+require 'us-documents'
 
 class BillsText
 
