@@ -41,39 +41,55 @@ class Amendments
     amendment_ids.sort!
 
     amendment_ids.each do |amendment_id|
-      amendment = Bill.find_or_initialize_by amendment_id: amendment_id
+      amendment = Amendment.find_or_initialize_by amendment_id: amendment_id
 
       type, number, congress, chamber = Utils.amendment_fields_from amendment_id
 
       path = "data/unitedstates/congress/#{congress}/amendments/#{type}/#{type}#{number}/data.json"
       doc = Oj.load open(path)
       
-      # not sure how to tell the difference between these yet
-      offered_on = Utils.utc_parse(doc['offered_at']) if doc['offered_at']
-      proposed_on = Utils.utc_parse(doc['proposed_at']) if doc['proposed_at']
-      submitted_on = Utils.utc_parse(doc['submitted_at']) if doc['submitted_at']
-      
+      proposed_on = nil
+
+      # in House, an amendment is "offered", and that's it
+      if chamber == "house"
+        introduced_on = Utils.utc_parse doc['offered_at']
+
+      # in Senate, an amendment is "submitted", and then optionally later "proposed"
+      else
+        introduced_on = Utils.utc_parse doc['submitted_at']
+        proposed_on = Utils.utc_parse(doc['proposed_at']) if doc['proposed_at']
+      end
+
       actions = Bills.actions_for doc['actions']
+
+      # if there's no actions, set the last action as the proposed or introduced date
+      if actions.last
+        last_action_at = actions.last['acted_at']
+      else
+        last_action_at = proposed_on || introduced_on
+      end
+
+      # purpose and description stats for 111th Congress up until 2013-05-21:
+      # 11,608 amendments -
+      #   1,839 with description and purpose
+      #   29 with description and no purpose
+      #   2,856 with purpose and no description
+      #   6,884 with no purpose and no description
       
       amendment.attributes = {
-        document_type: "amendment",
-        document_id: amendment_id,
-
         congress: congress,
         number: number,
         chamber: chamber,
 
-        offered_on: offered_on,
+        introduced_on: introduced_on,
         proposed_on: proposed_on,
-        submitted_on: submitted_on,
         
-        title: doc['title'],
         purpose: doc['purpose'],
         description: doc['description'],
         
         actions: actions,
         last_action: actions.last,
-        last_action_at: actions.last ? actions.last['acted_at'] : nil
+        last_action_at: last_action_at
       }
 
       amendment[:house_number] = doc['house_number'] if doc['house_number']
@@ -137,15 +153,15 @@ class Amendments
     end
 
     if missing_bills.any?
-      Report.warning self, "Found #{missing_bills.size} missing bills", missing_bills
+      Report.warning self, "Found #{missing_bills.size} missing bills", {missing_bills: missing_bills}
     end
 
     if missing_amendments.any?
-      Report.warning self, "Found #{missing_amendments.size} missing amendments", missing_amendments
+      Report.warning self, "Found #{missing_amendments.size} missing amendments", {missing_amendments: missing_amendments}
     end
     
     if bad_amendments.any?
-      Report.failure self, "Failed to save #{bad_amendments.size} amendments.", amendment: bad_amendments.last
+      Report.failure self, "Failed to save #{bad_amendments.size} amendments.", {last_bad_amendment: bad_amendments.last}
     end
     
     Report.success self, "Synced #{count} amendments for congress ##{congress} from GovTrack.us."

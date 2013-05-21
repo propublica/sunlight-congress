@@ -2,27 +2,17 @@ class Bill
   include Api::Model
   publicly :queryable, :searchable
   
-  basic_fields :document_type,
-    # bill fields
-    :bill_id, :bill_type, :number, :congress, :chamber, 
+  basic_fields :bill_id, :bill_type, :number, :congress, :chamber, 
     :sponsor_id, :committee_ids, :related_bill_ids,
     :short_title, :official_title, :popular_title, :nicknames,
     :introduced_on, :history, :enacted_as,
     :last_action_at, :last_vote_at, :last_version_on, 
     :last_version, :urls, 
-    :cosponsors_count, :withdrawn_cosponsors_count,
-    # amendment fields
-    :amendment_id, 
-    :amends_bill_id, :amends_treaty_id, :amends_amendment_id,
-    :offered_on, :proposed_on, :submitted_on,
-    :sponsor_type, :sponsor_committee_id, :house_number,
-    :description, :purpose, :title
+    :cosponsors_count, :withdrawn_cosponsors_count
 
 
   search_fields :popular_title, :official_title, :short_title, 
-    :nicknames, :summary, :keywords, :text,
-    # amendment fields
-    :title, :purpose, :description 
+    :nicknames, :summary, :keywords, :text
 
   cite_key :bill_id
 
@@ -86,14 +76,4 @@ class Bill
 
   # for internal use in keeping upcoming field up to date
   index "upcoming.source" => 1
-
-  # amendment-only fields
-  index proposed_on: 1
-  index offered_on: 1
-  index submitted_on: 1
-  index sponsor_type: 1
-  index amendment_id: 1
-  index amends_bill_id: 1
-  index amends_amendment_id: 1
-  index amends_treaty_id: 1
 end

@@ -75,10 +75,7 @@ class Bills
       
       votes = votes_for actions
       
-      bill.attributes = {
-        document_type: "bill",
-        document_id: bill_id,
-        
+      bill.attributes = {        
         bill_type: type,
         number: number,
         congress: congress,
