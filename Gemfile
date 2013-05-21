@@ -26,3 +26,4 @@ end
 gem 'curb', '0.8.1'
 gem 'nokogiri', '1.5.5'
 gem 'docsplit', '0.6.3'
+gem 'us-documents' # for bill/FR html processing

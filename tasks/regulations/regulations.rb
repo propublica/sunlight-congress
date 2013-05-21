@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), "unitedstates/documents/federal_register")
+require 'us-documents'
 
 class Regulations
 

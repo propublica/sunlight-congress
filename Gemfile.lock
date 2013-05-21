@@ -58,6 +58,8 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
+    us-documents (0.2.0)
+      nokogiri
     wirb (0.5.0)
     yajl-ruby (1.1.0)
 
@@ -81,5 +83,6 @@ DEPENDENCIES
   sinatra-cross_origin
   tzinfo (= 0.3.23)
   unicorn
+  us-documents
   wirb
   yajl-ruby (= 1.1.0)
