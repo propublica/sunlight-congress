@@ -36,9 +36,19 @@ class Amendments
       end
     end
 
-    # sorting is necessary ensures amendments which
+    # sorting by chamber/number is necessary, ensures amendments which
     # amend prior amendments can find them
-    amendment_ids.sort!
+    amendment_ids.sort! do |a, b|
+      as = Utils.amendment_fields_from a
+      bs = Utils.amendment_fields_from b
+
+      if as[3] == bs[3] # chamber
+        as[1] <=> bs[1] # number
+      else
+        as[3] <=> bs[3]
+      end
+
+    end
 
     amendment_ids.each do |amendment_id|
       amendment = Amendment.find_or_initialize_by amendment_id: amendment_id
