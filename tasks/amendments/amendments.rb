@@ -8,35 +8,35 @@
 require "./tasks/bills/bills"
 
 class Amendments
-  
+
   def self.run(options)
     congress = options[:congress]
     count = 0
-    
+
     missing_bills = []
     missing_amendments = []
     missing_committees = []
     missing_people = []
     bad_amendments = []
-    
+
     legislators = {}
     Legislator.where(thomas_id: {"$exists" => true}).only(Legislator.basic_fields).each do |legislator|
       legislators[legislator.thomas_id] = Utils.legislator_for legislator
     end
-    
+
     amendment_ids = []
     if options[:amendment_id]
       amendment_ids = [options[:amendment_id]]
     else
       paths = Dir.glob("data/unitedstates/congress/#{congress}/amendments/*/*")
       amendment_ids = paths.map {|path| "#{File.basename path}-#{congress}"}
-      
+
       if options[:limit]
         amendment_ids = amendment_ids.first options[:limit].to_i
       end
     end
-    
-    # sorting is necessary ensures amendments which  
+
+    # sorting is necessary ensures amendments which
     # amend prior amendments can find them
     amendment_ids.sort!
 
@@ -47,18 +47,9 @@ class Amendments
 
       path = "data/unitedstates/congress/#{congress}/amendments/#{type}/#{type}#{number}/data.json"
       doc = Oj.load open(path)
-      
-      proposed_on = nil
 
-      # in House, an amendment is "offered", and that's it
-      if chamber == "house"
-        introduced_on = Utils.utc_parse doc['offered_at']
-
-      # in Senate, an amendment is "submitted", and then optionally later "proposed"
-      else
-        introduced_on = Utils.utc_parse doc['submitted_at']
-        proposed_on = Utils.utc_parse(doc['proposed_at']) if doc['proposed_at']
-      end
+      introduced_on = Utils.utc_parse doc['introduced_at']
+      proposed_on = Utils.utc_parse(doc['proposed_at']) if doc['proposed_at']
 
       actions = Bills.actions_for doc['actions']
 
@@ -75,7 +66,7 @@ class Amendments
       #   29 with description and no purpose
       #   2,856 with purpose and no description
       #   6,884 with no purpose and no description
-      
+
       amendment.attributes = {
         congress: congress,
         number: number,
@@ -83,17 +74,20 @@ class Amendments
 
         introduced_on: introduced_on,
         proposed_on: proposed_on,
-        
+
         purpose: doc['purpose'],
         description: doc['description'],
-        
+
         actions: actions,
         last_action: actions.last,
         last_action_at: last_action_at
       }
 
-      amendment[:house_number] = doc['house_number'] if doc['house_number']
-      
+      if chamber == "house"
+        amendment[:house_number] = doc['house_number']
+        amendment[:offered_order] = doc['offered_order']
+      end
+
 
       # amendments can be sponsored by people or committees, sigh
       sponsor_type = doc['sponsor']['type']
@@ -103,14 +97,14 @@ class Amendments
           sponsor_id = sponsor['bioguide_id']
         else
           sponsor_id = nil
-          missing_people << [amendment_id, doc['sponsor']] 
+          missing_people << [amendment_id, doc['sponsor']]
         end
       else
         if sponsor = sponsor_committee_for(doc['sponsor'])
           sponsor_id = sponsor['committee_id']
         else
           sponsor_id = nil
-          missing_committees << [amendment_id, doc['sponsor']] 
+          missing_committees << [amendment_id, doc['sponsor']]
         end
       end
 
@@ -141,12 +135,12 @@ class Amendments
           missing_amendments << {amendment_id: amendment_id, amended_amendment_id: doc['amends_amendment']['amendment_id']}
         end
       end
-      
+
       amendment.save!
       count += 1
       puts "[#{amendment_id}] Saved" if options[:debug]
     end
-    
+
     if missing_committees.any?
       missing_committees = missing_committees.uniq
       Report.warning self, "Found #{missing_committees.size} missing committees by name.", {missing_committees: missing_committees}
@@ -159,19 +153,19 @@ class Amendments
     if missing_amendments.any?
       Report.warning self, "Found #{missing_amendments.size} missing amendments", {missing_amendments: missing_amendments}
     end
-    
+
     if bad_amendments.any?
       Report.failure self, "Failed to save #{bad_amendments.size} amendments.", {last_bad_amendment: bad_amendments.last}
     end
-    
+
     Report.success self, "Synced #{count} amendments for congress ##{congress} from GovTrack.us."
   end
-  
+
   # only amendments can be sponsored by committees
   def self.sponsor_committee_for(sponsor)
     committee_id, subcommittee_id = sponsor['committee_id'].scan(/^([a-zA-Z]+)(\d+)$/).first
     committee_id = committee_id.upcase
-    
+
     criteria = {committee_id: committee_id}
     criteria[:subcommittee_id] = subcommittee_id unless subcommittee_id == "00"
 

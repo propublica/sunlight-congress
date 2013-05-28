@@ -4,13 +4,13 @@ class Amendment
   include Api::Model
   publicly :queryable, :searchable
 
-  basic_fields :amendment_id, 
-    :amendment_type, :congress, :chamber, 
-    :number, :house_number,
+  basic_fields :amendment_id,
+    :amendment_type, :congress, :chamber,
+    :number, :house_number, :offered_order,
     :last_action_at,
     :amends_bill_id, :amends_treaty_id, :amends_amendment_id,
     :introduced_on, :proposed_on,
-    :sponsor_type, :sponsor_id, 
+    :sponsor_type, :sponsor_id,
     :purpose, :description
 
   search_fields :purpose, :description
@@ -23,7 +23,7 @@ class Amendment
   index congress: 1
   index chamber: 1
   index last_action_at: 1
-  
+
   index introduced_on: 1
   index proposed_on: 1
 
