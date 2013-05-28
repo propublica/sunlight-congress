@@ -15,7 +15,10 @@
 0 3 * * *  /projects/congress/congress/shared/cron/task.sh legislators && /projects/congress/congress/shared/cron/task.sh legislators_bulk backup=1 && /projects/congress/congress/shared/cron/task.sh committees
 
 # bills from THOMAS, once an hour (THOMAS scraper uses --fast mode)
-0 * * * * /projects/congress/congress/shared/cron/us-sync.sh && /projects/congress/congress/shared/cron/task.sh bills
+0 * * * * /projects/congress/congress/shared/cron/us-sync-bills.sh && /projects/congress/congress/shared/cron/task.sh bills
+
+# amendments from THOMAS, once an hour (THOMAS scraper uses --fast mode)
+30 * * * * /projects/congress/congress/shared/cron/us-sync-amendments.sh && /projects/congress/congress/shared/cron/task.sh amendments
 
 # bill text from GPO, every half hour for the 113th
 */30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
