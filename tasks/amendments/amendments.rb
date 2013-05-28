@@ -47,7 +47,6 @@ class Amendments
       else
         as[3] <=> bs[3]
       end
-
     end
 
     amendment_ids.each do |amendment_id|
