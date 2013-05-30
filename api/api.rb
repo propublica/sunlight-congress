@@ -1,5 +1,5 @@
 module Api
-  
+
   module Helpers
 
     def query_string_for(params)
@@ -29,10 +29,11 @@ module Api
       fields.each do |field, value|
         field, operator = field.split "__"
         operator = nil unless operators.include?(operator)
-        value = value_for value
 
         if ["all", "in", "nin"].include?(operator)
-          value = value.split "|"
+          value = value.split("|").map {|v| value_for v}
+        else
+          value = value_for value
         end
 
         filters[field] = [value, operator]
@@ -97,7 +98,7 @@ module Api
         value == "true"
       elsif value =~ /^\d+$/
         value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ/)
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/)
         Time.zone.parse(value).utc rescue nil
       else # use quotes to force a value to be a string
         value.tr "\"", ""
@@ -108,19 +109,19 @@ module Api
       default_per_page = 20
       max_per_page = 50
       max_page = 200000000 # let's keep it realistic
-      
+
       # rein in per_page to somewhere between 1 and the max
       per_page = (params[:per_page] || default_per_page).to_i
       per_page = default_per_page if per_page <= 0
       per_page = max_per_page if per_page > max_per_page
-      
+
       # valid page number, please
       page = (params[:page] || 1).to_i
       page = 1 if page <= 0 or page > max_page
 
       # debug override - if all fields asked for, limit to 1
       per_page = 1 if params[:fields] == "all"
-      
+
       {per_page: per_page, page: page}
     end
 
@@ -128,12 +129,12 @@ module Api
     def magic_fields
       [
         # documented operators
-        "fields", 
+        "fields",
         "order",
         "page", "per_page",
-        "query", 
+        "query",
         "highlight", "highlight.tags", "highlight.size",
-        "explain", 
+        "explain",
         "apikey",
         "callback", "_", # (_ is what jQuery cache-busts JSONP with)
 
@@ -177,5 +178,5 @@ module Api
       @search_route ||= /^\/((?:(?:#{searchable.map {|m| m.to_s.underscore.pluralize}.join "|"}),?)+)\/search\/?$/
     end
   end
-  
+
 end
