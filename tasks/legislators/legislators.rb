@@ -7,7 +7,7 @@ class Legislators
   #   clear: wipe the db of legislators first
 
   def self.run(options = {})
-    
+
     # wipe and re-clone the unitedstates legislators repo
     unless options[:cache]
       FileUtils.mkdir_p "data/unitedstates"
@@ -21,7 +21,7 @@ class Legislators
 
     puts "Loading in YAML files..." if options[:debug]
     current_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-current.yaml")
-    
+
     social_media = YAML.load open("data/unitedstates/congress-legislators/legislators-social-media.yaml")
     social_media_cache = {}
     social_media.each {|details| social_media_cache[details['id']['bioguide']] = details}
@@ -29,7 +29,7 @@ class Legislators
     bad_legislators = []
     count = 0
 
-    us_legislators = current_legislators.map {|l| [l, true]} 
+    us_legislators = current_legislators.map {|l| [l, true]}
     unless options[:current]
       historical_legislators = YAML.load open("data/unitedstates/congress-legislators/legislators-historical.yaml")
       us_legislators += historical_legislators.map {|l| [l, false]}
@@ -64,15 +64,15 @@ class Legislators
     if bad_legislators.any?
       Report.warning self, "Failed to save #{bad_legislators.size} united_states legislators.", bad_legislators: bad_legislators
     end
-    
+
     Report.success self, "Processed #{count} legislators from unitedstates"
   end
 
-  
+
   def self.attributes_from_united_states(us_legislator, current)
     # don't pick from calculated terms, used for reference only
     last_term = us_legislator['terms'].last
-    
+
     # massage terms array a bit, remove some top-level fields
     terms = terms_for us_legislator
 
@@ -97,7 +97,7 @@ class Legislators
       state: last_term['state'],
       state_name: state_map[last_term['state']],
       party: party_for(last_term['party']),
-      
+
       # take advantage of title rewriting on calculated terms
       title: terms.last['title'],
 
@@ -144,9 +144,9 @@ class Legislators
       'Independent' => 'I'
     }[us_party] || us_party
   end
-    
+
   def self.social_media_from(details)
-    facebook = details['social']['facebook']
+    facebook = details['social']['facebook_id'] || details['social']['facebook']
     facebook = facebook.to_s if facebook
     {
       twitter_id: details['social']['twitter'],
@@ -244,5 +244,5 @@ class Legislators
       "WY" => "Wyoming"
     }
   end
-  
+
 end
