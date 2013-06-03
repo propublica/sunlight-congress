@@ -1,11 +1,14 @@
-############# unitedstates ###########
+############# unitedstates tasks ###########
 
 
 # sync unitedstates/congress data with S3 mirror once a day
-0 13 * * *   /projects/congress/congress/shared/cron/s3-sync.sh
+0 13 * * *   /projects/congress/congress/shared/cron/s3-sync-congress.sh
+
+# sync unitedstates/glossary data with S3 mirror once an hour
+0 * * * *    /projects/congress/congress/shared/cron/s3-sync-glossary.sh
 
 
-############# congress API #########################
+############# congress API tasks #########################
 
 ## analytics reporting
 0 6 * * *  /projects/congress/congress/shared/cron/analytics.sh
