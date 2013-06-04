@@ -1,5 +1,5 @@
 class Bills
-  
+
   # options:
   #   congress: The congress to update.
   #   bill_id: The particular bill to update. Useful for development.
@@ -7,7 +7,7 @@ class Bills
 
   def self.run(options = {})
     congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
-    
+
     count = 0
     missing_legislators = []
     missing_committees = []
@@ -20,10 +20,10 @@ class Bills
       Report.failure self, "Data not available on disk for the requested Congress."
       return
     end
-    
+
     legislators = {}
     committee_cache = {}
-    
+
     if options[:bill_id]
       bill_ids = [options[:bill_id]]
     else
@@ -38,13 +38,13 @@ class Bills
     bill_ids.each do |bill_id|
       bill = Bill.find_or_initialize_by bill_id: bill_id
       type, number, congress, chamber = Utils.bill_fields_from bill_id
-      
+
       path = "data/unitedstates/congress/#{congress}/bills/#{type}/#{type}#{number}/data.json"
       doc = Oj.load open(path)
-      
+
 
       introduced_on = doc['introduced_at'] # must get done before summary check
-      
+
       if doc['sponsor']
         sponsor = sponsor_for doc['sponsor'], legislators
         missing_legislators << [bill_id, doc['sponsor']] if sponsor.nil?
@@ -65,22 +65,22 @@ class Bills
       if bill['summary'].blank? and summary.present?
         new_summaries << {bill_id: bill_id, introduced_on: introduced_on, new_record: bill.new_record?}
       end
-      
+
       committees, missing = committees_for doc['committees'], committee_cache
       missing_committees += missing.map {|m| [bill_id, m]} if missing.any?
 
-      # todo: when amendments are supported, 
+      # todo: when amendments are supported,
       # pass on a full related_bills field with the original fields.
       related_bill_ids = doc['related_bills'].map {|details| details['bill_id']}.compact
-      
+
       votes = votes_for actions
-      
-      bill.attributes = {        
+
+      bill.attributes = {
         bill_type: type,
         number: number,
         congress: congress,
         chamber: {'h' => 'house', 's' => 'senate'}[type.first.downcase],
-        
+
         short_title: doc['short_title'],
         official_title: doc['official_title'],
         popular_title: doc['popular_title'],
@@ -89,7 +89,7 @@ class Bills
         summary: summary,
         summary_short: summary_short,
         summary_date: summary_date,
-        
+
         sponsor: sponsor,
         sponsor_id: (sponsor ? sponsor['bioguide_id'] : nil),
         cosponsors: cosponsors,
@@ -119,7 +119,7 @@ class Bills
 
       if bill.save
         # work-around - last_action_at and last_vote_at can both be dates or times,
-        # and Mongo does not order these correctly together when times are turned into 
+        # and Mongo does not order these correctly together when times are turned into
         # Mongo native time objects. So, we serialize them to a string before saving it.
         ['last_action_at', 'last_vote_at'].each do |field|
           if bill[field]
@@ -127,7 +127,7 @@ class Bills
             bill.set(field, bill[field])
           end
         end
-        
+
         count += 1
         puts "[#{bill_id}] Saved successfully" if options[:debug]
       else
@@ -140,28 +140,28 @@ class Bills
       missing_legislators = missing_legislators.uniq
       Report.warning self, "Found #{missing_legislators.size} unmatchable legislators.", {missing_legislators: missing_legislators}
     end
-    
+
     if missing_committees.any?
       missing_committees = missing_committees.uniq
       # Report.warning self, "Found #{missing_committees.size} missing committee IDs or subcommittee names.", {missing_committees: missing_committees}
     end
-    
+
     if bad_bills.any?
       Report.failure self, "Failed to save #{bad_bills.size} bills.", bill: bad_bills.last
     end
 
     if new_summaries.any?
       Event.new_summaries! new_summaries
-      Report.warning self, "Summaries added for #{new_summaries.size} bills, data attached", new_summaries: new_summaries
+      # Report.warning self, "Summaries added for #{new_summaries.size} bills, data attached", new_summaries: new_summaries
     end
-    
+
     Report.success self, "Synced #{count} bills for congress ##{congress} from THOMAS.gov."
   end
 
   def self.sponsor_for(sponsor, legislators)
     # cached by thomas ID
     if legislators[sponsor['thomas_id']]
-      legislators[sponsor['thomas_id']] 
+      legislators[sponsor['thomas_id']]
     elsif legislator = legislator_for(sponsor['thomas_id'])
       # cache it for next time
       legislators[sponsor['thomas_id']] = legislator
@@ -182,7 +182,7 @@ class Bills
     end
     new_history
   end
-  
+
   def self.cosponsors_for(cosponsors, legislators)
     new_cosponsors = []
     withdrawn_cosponsors = []
@@ -214,7 +214,7 @@ class Bills
 
     [new_cosponsors, withdrawn_cosponsors, missing]
   end
-  
+
   # clean up on some fields in actions
   def self.actions_for(actions)
     now = Time.now
@@ -252,17 +252,17 @@ class Bills
       action
     end.compact
   end
-  
+
   def self.votes_for(actions)
-    actions.select do |action| 
+    actions.select do |action|
       (action['type'] =~ /vote/)
     end
   end
-    
+
   def self.committees_for(elements, committee_cache)
     committees = []
     missing = []
-    
+
     elements.each do |committee|
       # we're not getting subcommittees, way too hard to match them up
       if committee['subcommittee_id'].present?
@@ -280,7 +280,7 @@ class Bills
         missing << committee_id
       end
     end
-    
+
     [committees, missing]
   end
 
@@ -288,7 +288,7 @@ class Bills
     legislator = Legislator.where(thomas_id: thomas_id).first
     legislator ? Utils.legislator_for(legislator) : nil
   end
-  
+
   def self.committee_match(id, committee_cache)
     unless committee_cache[id]
       if committee = Committee.where(committee_id: id).first
@@ -331,11 +331,11 @@ class Bills
     id = "#{congress}-#{govtrack_type type}#{number}"
     "http://www.opencongress.org/bill/#{id}/show"
   end
-  
+
   def self.govtrack_url(congress, type, number)
     "http://www.govtrack.us/congress/bills/#{congress}/#{type}#{number}"
   end
-  
+
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
   def self.congress_gov_url(congress, type, number)
     "http://beta.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
@@ -353,7 +353,7 @@ class Bills
       "sconres" => "sc"
     }[bill_type]
   end
-  
+
   def self.congress_gov_type(bill_type)
     {
       "hr" => "house-bill",
@@ -369,7 +369,7 @@ class Bills
 
   def self.enacted_as_for(doc)
     return nil unless doc['enacted_as']
-    
+
     enacted_as = doc['enacted_as'].dup
     enacted_as['congress'] = enacted_as['congress'].to_i
     enacted_as['number'] = enacted_as['number'].to_i
