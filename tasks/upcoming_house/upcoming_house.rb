@@ -6,25 +6,25 @@ class UpcomingHouse
   # options:
   #
   #   range: "day" or "week" (default)
-  
+
   def self.run(options = {})
     total_count = 0
 
     range = options[:range] || "week"
-    
+
     page = {day: "daily", week: "weekly"}[range.to_sym]
     source_type = "house_#{page}"
     url = "http://www.majorityleader.house.gov/floor/#{page}.html"
-    
+
     begin
       html = open(url).read
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.warning self, "Network error on fetching House Republican daily schedule, can't go on.", :url => url
       return
     end
-    
+
     doc = Nokogiri::HTML html
-    
+
     url, legislative_day = details_from(url, doc)
 
     unless legislative_day
@@ -34,15 +34,15 @@ class UpcomingHouse
 
     year = legislative_day.split("-").first
     congress = Utils.congress_for_year year
-    
+
     element = doc.css("div#news_text").first
     unless element
       Report.failure self, "Couldn't find the House majority leader daily schedule content node, can't go on"
       return
     end
-    
+
     bill_ids = Utils.bill_ids_for element.text, congress
-    
+
 
     # flush existing records for this source type
     Utils.flush_bill_upcoming! source_type
@@ -57,10 +57,10 @@ class UpcomingHouse
       return
     end
 
-    
+
     upcoming_count = 0
     bill_ids.each do |bill_id|
-      
+
       upcoming = UpcomingBill.new(
         source_type: source_type,
         legislative_day: legislative_day,
@@ -82,9 +82,9 @@ class UpcomingHouse
 
       upcoming_count += 1
     end
-    
+
     Report.success self, "Saved #{upcoming_count} upcoming bills for the House for #{legislative_day}"
-    
+
   end
 
   # should work for both daily and weekly house notices
@@ -104,9 +104,10 @@ class UpcomingHouse
 
     if a
       pdf_url = a['href']
-      date_results = pdf_url.scan(/\/([^\/]+)\.pdf$/i)
+      pdf_url
+      date_results = pdf_url.gsub(/%20[^\.]*\.pdf/i, '.pdf').scan(/\/([^\/]+)\.pdf$/i)
     end
-    
+
     if date_results and date_results.any? and date_results.first.any?
       date_text = date_results.first.first
       url = pdf_url
@@ -141,5 +142,5 @@ class UpcomingHouse
       number
     end
   end
-  
+
 end
