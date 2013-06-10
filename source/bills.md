@@ -606,6 +606,7 @@ Information for only the most recent version of a bill. Useful to limit the size
     "url": "http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/",
     "chamber": "senate",
     "congress" :113,
+    "range": "day",
     "legislative_day": "2013-01-21",
     "context": "The Senate stands in recess under the provisions of S.Con.Res.3.  The Senate will meet at 11:30am on Monday, January 21, 2013 for the Joint Session for the Inaugural Ceremonies."
   }
@@ -619,6 +620,9 @@ While this information is official, party leadership in both chambers have unila
 
 **upcoming.source_type**<br/>
 Where this information is coming from. Currently, the only values are "senate_daily" or "house_daily".
+
+**upcoming.range**<br/>
+How precise this information is. "day", "week", or null. See more details on this field in the [/upcoming_bills](upcoming_bills.html) documentation.
 
 **upcoming.url**<br/>
 An official reference URL for this information.
