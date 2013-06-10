@@ -75,6 +75,12 @@ class Bills
 
       votes = votes_for actions
 
+      # in rare cases, there are no actions. in those cases:
+      #   * make last_action null
+      #   * set last_action_at to introduced_on, so there's always something to sort on
+      last_action = actions.any? ? actions.last : nil
+      last_action_at = actions.any? ? actions.last['acted_at'] : introduced_on
+
       bill.attributes = {
         bill_type: type,
         number: number,
@@ -104,8 +110,8 @@ class Bills
         enacted_as: enacted_as_for(doc),
 
         actions: actions,
-        last_action: actions.any? ? actions.last : nil,
-        last_action_at: actions.any? ? actions.last['acted_at'] : nil,
+        last_action: last_action,
+        last_action_at: last_action_at,
 
         votes: votes,
         last_vote_at: votes.last ? votes.last['acted_at'] : nil,
