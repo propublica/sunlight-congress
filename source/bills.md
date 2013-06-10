@@ -115,7 +115,7 @@ The chamber in which the bill originated.
 The date this bill was introduced.
 
 \* **last_action_at**<br/>
-The date or time of the most recent official action.
+The date or time of the most recent official action. In the rare case that there are no official actions, this field will be set to the value of `introduced_on`.
 
 \* **last_vote_at**<br/>
 The date or time of the most recent vote on this bill.
