@@ -122,7 +122,7 @@ class FloorHouse
     end
 
     unless body = Utils.download(url, options.merge(destination: cache))
-      Report.warning self, "Network error on fetching the floor log, can't go on."
+      Report.note self, "Network error on fetching the floor log, can't go on."
       return
     end
 
