@@ -84,10 +84,10 @@ All examples below are from H.R. 3590 of the 111th Congress, the [Patient Protec
 
 ```json
 {
-"bill_id": "hr3590-111", 
-"bill_type": "hr", 
-"number": 3590, 
-"congress": 111, 
+"bill_id": "hr3590-111",
+"bill_type": "hr",
+"number": 3590,
+"congress": 111,
 "chamber": "house",
 "introduced_on": "2009-09-17",
 "last_action_at": "2010-03-23",
@@ -127,24 +127,24 @@ The date the last version of this bill was published. This will be set to the `i
 
 ```json
 {
-"official_title": "An act entitled The Patient Protection and Affordable Care Act.", 
-"popular_title": "Health care reform bill", 
+"official_title": "An act entitled The Patient Protection and Affordable Care Act.",
+"popular_title": "Health care reform bill",
 "short_title": "Patient Protection and Affordable Care Act",
 
 "titles": [
   {
-    "as": null, 
-    "title": "Health care reform bill", 
+    "as": null,
+    "title": "Health care reform bill",
     "type": "popular"
-  }, 
+  },
   {
-    "as": "enacted", 
-    "title": "Patient Protection and Affordable Care Act", 
+    "as": "enacted",
+    "title": "Patient Protection and Affordable Care Act",
     "type": "short"
-  }, 
+  },
   {
-    "as": "amended by senate", 
-    "title": "An act entitled The Patient Protection and Affordable Care Act.", 
+    "as": "amended by senate",
+    "title": "An act entitled The Patient Protection and Affordable Care Act.",
     "type": "official"
   }
 ]
@@ -191,11 +191,11 @@ An array of common nicknames for a bill that don't appear in official data. Thes
 ```json
 {
 "keywords": [
-  "Abortion", 
-  "Administrative law and regulatory procedures", 
+  "Abortion",
+  "Administrative law and regulatory procedures",
   "Adoption and foster care",
   ...
-], 
+],
 
 "summary": "Patient Protection and Affordable Care Act - Title I: Quality, Affordable Health Care for All Americans...",
 
@@ -224,7 +224,7 @@ The official summary, but capped to 1,000 characters (and an ellipse). Useful wh
 }
 ```
 
-**urls**
+**urls**<br/>
 An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, and OpenCongress.org.
 
 ### History
@@ -234,15 +234,15 @@ An object with URLs for this bill's landing page on Congress.gov, GovTrack.us, a
 "history": {
   "active": true,
   "active_at": "2009-10-07T18:35:00Z",
-  "house_passage_result": "pass", 
-  "house_passage_result_at": "2010-03-22T02:48:00Z", 
+  "house_passage_result": "pass",
+  "house_passage_result_at": "2010-03-22T02:48:00Z",
   "senate_cloture_result": "pass",
   "senate_cloture_result_at": "2009-12-23",
-  "senate_passage_result": "pass", 
-  "senate_passage_result_at": "2009-12-24", 
+  "senate_passage_result": "pass",
+  "senate_passage_result_at": "2009-12-24",
   "vetoed": false,
-  "awaiting_signature": false, 
-  "enacted": true, 
+  "awaiting_signature": false,
+  "enacted": true,
   "enacted_at": "2010-03-23"
 }
 }
@@ -313,37 +313,37 @@ The date or time the bill was enacted into law. Only present if this happened.
 {
 "actions": [
   {
-    "type": "vote", 
-    "acted_at": "2010-03-21T22:48:00-05:00", 
+    "type": "vote",
+    "acted_at": "2010-03-21T22:48:00-05:00",
     "chamber": "house",
-    "how": "roll", 
-    "vote_type": "pingpong", 
-    "result": "pass", 
-    "roll_id": "165", 
-    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
+    "how": "roll",
+    "vote_type": "pingpong",
+    "result": "pass",
+    "roll_id": "165",
+    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).",
     "references": [
       {
-        "reference": "CR H1920-2152", 
+        "reference": "CR H1920-2152",
         "type": "text as House agreed to Senate amendments"
       }
     ]
-  }, 
+  },
   {
     "type": "signed",
-    "acted_at": "2010-03-23", 
+    "acted_at": "2010-03-23",
     "text": "Signed by President.",
     "references": []
-  }, 
+  },
   {
     "type": "enacted",
-    "acted_at": "2010-03-23", 
+    "acted_at": "2010-03-23",
     "text": "Became Public Law No: 111-148.",
     "references": []
   }
 ],
 "last_action": {
   "type": "enacted",
-  "acted_at": "2010-03-23", 
+  "acted_at": "2010-03-23",
   "text": "Became Public Law No: 111-148.",
   "references": []
 }
@@ -388,17 +388,17 @@ The most recent action.
 {
 "votes": [
   {
-    "type": "vote", 
-    "acted_at": "2010-03-21T22:48:00-05:00", 
+    "type": "vote",
+    "acted_at": "2010-03-21T22:48:00-05:00",
     "chamber": "house",
-    "how": "roll", 
-    "vote_type": "pingpong", 
-    "result": "pass", 
-    "roll_id": "165", 
-    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).", 
+    "how": "roll",
+    "vote_type": "pingpong",
+    "result": "pass",
+    "roll_id": "165",
+    "text": "On motion that the House agree to the Senate amendments Agreed to by recorded vote: 219 - 212 (Roll no. 165).",
     "references": [
       {
-        "reference": "CR H1920-2152", 
+        "reference": "CR H1920-2152",
         "type": "text as House agreed to Senate amendments"
       }
     ]
@@ -430,16 +430,16 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 "cosponsors_count": 90,
 "cosponsors": [
   {
-    "sponsored_at": "2009-09-17",
+    "sponsored_on": "2009-09-17",
     "legislator": {
       "bioguide_id": "B000287",
       "in_office": true,
       "last_name": "Becerra"
       ...
     }
-  }, 
+  },
   {
-    "sponsored_at": "2009-09-17",
+    "sponsored_on": "2009-09-17",
     "legislator": {
       "bioguide_id":"B001231",
       "in_office":true,
@@ -460,7 +460,7 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 The bioguide ID of the bill's sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.
 
 **sponsor**<br/>
-An object with most simple [legislator fields](legislators.html#fields) for the bill's sponsor, if there is one. 
+An object with most simple [legislator fields](legislators.html#fields) for the bill's sponsor, if there is one.
 
 \* **cosponsor_ids**<br/>
 An array of bioguide IDs for each cosponsor of the bill. Bills do not always have cosponsors.
@@ -585,7 +585,7 @@ The **versions** field is an array of information on each version of the bill. T
 The unique ID for this bill version. It's the bill's `bill_id` plus the version's `version_code`.
 
 **versions.version_code**<br/>
-The short-code for what stage the version of the bill is at. 
+The short-code for what stage the version of the bill is at.
 
 **versions.version_name**<br/>
 The full name for the stage the version of the bill is at.
@@ -638,7 +638,7 @@ Some surrounding context of why the bill is scheduled. This is only present for 
 ### Becoming Law
 
 ```json
-{ 
+{
 "enacted_as": {
   "congress": 111,
   "law_type": "public",
