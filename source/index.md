@@ -383,7 +383,7 @@ We provide zip files of official photos of members of Congress, as taken from th
 
 ### Core Information
 
-Core information for legislators, committees, and bills come from public domain scrapers and bulk data at [github.com/unitedstates](https://github.com/unitedstates/). 
+Core information for legislators, committees, and bills come from public domain scrapers and bulk data at [github.com/unitedstates](https://github.com/unitedstates/).
 
 * [Scrapers for bulk bill data](https://github.com/unitedstates/congress) in JSON from THOMAS.gov, 1973-present.
 * [Legislator and committee bulk data](https://github.com/unitedstates/congress-legislators) in YAML from various sources, 1789-present.
@@ -395,6 +395,7 @@ If you've written a client library, please tweet at [@sunlightlabs](https://twit
 
 * Node: Matthew Chase Whittemore's [sunlight-congress-api](https://npmjs.org/package/sunlight-congress-api) (unofficial)
 * Ruby: Erik Michaels-Ober's [congress gem](http://rubygems.org/gems/congress) (unofficial)
+* PHP: lobostome's [FurryBear](https://github.com/lobostome/FurryBear) (unofficial)
 * Python: Coming soon.
 
 ## Other
