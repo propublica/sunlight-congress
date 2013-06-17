@@ -19,6 +19,8 @@ class Amendments
     missing_people = []
     bad_amendments = []
 
+    batcher = [] # used to persist a batch indexing container
+
     legislators = {}
     Legislator.where(thomas_id: {"$exists" => true}).only(Legislator.basic_fields).each do |legislator|
       legislators[legislator.thomas_id] = Utils.legislator_for legislator
@@ -50,8 +52,6 @@ class Amendments
     end
 
     amendment_ids.each do |amendment_id|
-      amendment = Amendment.find_or_initialize_by amendment_id: amendment_id
-
       type, number, congress, chamber = Utils.amendment_fields_from amendment_id
 
       path = "data/unitedstates/congress/#{congress}/amendments/#{type}/#{type}#{number}/data.json"
@@ -76,7 +76,7 @@ class Amendments
       #   2,856 with purpose and no description
       #   6,884 with no purpose and no description
 
-      amendment.attributes = {
+      attributes = {
         congress: congress,
         number: number,
         chamber: chamber,
@@ -93,8 +93,8 @@ class Amendments
       }
 
       if chamber == "house"
-        amendment[:house_number] = doc['house_number']
-        amendment[:offered_order] = doc['offered_order']
+        attributes[:house_number] = doc['house_number']
+        attributes[:offered_order] = doc['offered_order']
       end
 
 
@@ -117,38 +117,47 @@ class Amendments
         end
       end
 
-      amendment.attributes = {
+      attributes.merge!(
         sponsor_type: sponsor_type,
         sponsor: sponsor,
         sponsor_id: sponsor_id
-      }
+      )
 
       if doc['amends_bill']
-        amendment['amends_bill_id'] = doc['amends_bill']['bill_id']
+        attributes['amends_bill_id'] = doc['amends_bill']['bill_id']
         if amended_bill = Utils.bill_for(doc['amends_bill']['bill_id'])
-          amendment['amends_bill'] = amended_bill
+          attributes['amends_bill'] = amended_bill
         else
           missing_bills << {amendment_id: amendment_id, bill_id: doc['amends_bill']['bill_id']}
         end
       end
 
       if doc['amends_treaty']
-        amendment['amends_treaty_id'] = doc['amends_treaty']['treaty_id']
+        attributes['amends_treaty_id'] = doc['amends_treaty']['treaty_id']
       end
 
       if doc['amends_amendment']
-        amendment['amends_amendment_id'] = doc['amends_amendment']['amendment_id']
+        attributes['amends_amendment_id'] = doc['amends_amendment']['amendment_id']
         if amended_amendment = Utils.amendment_for(doc['amends_amendment']['amendment_id'])
-          amendment['amends_amendment'] = amended_amendment
+          attributes['amends_amendment'] = amended_amendment
         else
           missing_amendments << {amendment_id: amendment_id, amended_amendment_id: doc['amends_amendment']['amendment_id']}
         end
       end
 
+      # index in Mongo
+      amendment = Amendment.find_or_initialize_by amendment_id: amendment_id
+      amendment.attributes = attributes
       amendment.save!
+
+      # index in ES
+      Utils.es_batch! 'amendments', amendment_id, attributes, batcher, options
+
       count += 1
       puts "[#{amendment_id}] Saved" if options[:debug]
     end
+
+    Utils.es_flush! 'amendments', batcher
 
     if missing_committees.any?
       missing_committees = missing_committees.uniq

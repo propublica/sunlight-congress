@@ -1,0 +1,40 @@
+{
+  "amendments": {
+    "properties": {
+      "purpose": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+      "description": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+
+
+      "amendment_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "amends_bill_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "amends_amendment_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "amends_treaty_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "sponsor_id": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "sponsor_type": {
+        "index": "not_analyzed",
+        "type": "string"
+      }
+    }
+  }
+}
