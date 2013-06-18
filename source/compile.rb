@@ -19,7 +19,7 @@ twitter = "sunlightlabs"
 google_analytics = "UA-22821126-30"
 
 header = '
-  <link rel="shortcut icon" type="image/ico" href="http://s3.amazonaws.com/assets.sunlightfoundation.com/brisket/1.0/images/favicon.ico">
+  <link rel="shortcut icon" type="image/ico" href="/favicon.ico">
   <link rel="stylesheet" type="text/css" href="documentup.css">
   <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
