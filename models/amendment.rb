@@ -21,6 +21,7 @@ class Amendment
 
   index number: 1
   index congress: 1
+  index amendment_type: 1
   index chamber: 1
   index last_action_at: 1
 

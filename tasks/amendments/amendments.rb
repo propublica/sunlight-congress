@@ -80,6 +80,7 @@ class Amendments
         congress: congress,
         number: number,
         chamber: chamber,
+        amendment_type: type,
 
         introduced_on: introduced_on,
         proposed_on: proposed_on,
