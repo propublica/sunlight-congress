@@ -4,15 +4,15 @@ require 'yajl'
 
 module Utils
 
-  # document is a hash, 
-  # collection is a mapping (e.g. 'bills'), 
+  # document is a hash,
+  # collection is a mapping (e.g. 'bills'),
   # id is a string unique to the collection
   # bulk_container is an array, will use it to persist a batch for bulk indexing
-  # 
+  #
   # if given a bulk_size, will use it to determine when to batch and empty the container
   def self.es_batch!(collection, id, document, batcher, options = {})
     # disable batching by default
-    options[:batch_size] ||= 1 
+    options[:batch_size] ||= 1
 
     # batch the document
     batcher << [id, document]
@@ -30,7 +30,7 @@ module Utils
 
   # force a batch index of the container (useful to close out a batch)
   def self.es_flush!(collection, batcher)
-    return if batcher.empty? 
+    return if batcher.empty?
 
     puts "\n-- Batch indexing #{batcher.size} documents into '#{collection}' --\n\n"
 
@@ -53,19 +53,19 @@ module Utils
       url = "http://#{Environment.config['citation']['hostname']}/citation/find.json"
       puts "\tExtracting citations..." if options[:debug]
 
-      curl = Curl.post url, 
-        text: CGI.escape(text), 
+      curl = Curl.post url,
+        text: CGI.escape(text),
         "options[excerpt]" => (options[:cite_excerpt] || 250),
         "options[types]" => "usc,law",
         "options[parents]" => "true"
-        
+
       body = curl.body_str
       hash = MultiJson.load body
       Utils.write destination, JSON.pretty_generate(hash)
     end
 
     puts body if ENV['cite_debug'].present?
-    
+
 
     # index citations by ID: assumes they are unique even across types
     citations = {}
@@ -77,7 +77,7 @@ module Utils
 
     # document's unique key as defined in model
     document_id = document[document.class.cite_key.to_s]
-    
+
     # clear existing citations for this document
     Citation.where(document_id: document_id).delete_all
 
@@ -95,9 +95,9 @@ module Utils
 
     citations.keys
 
-  rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
+  rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
     Curl::Err::RecvError, Curl::Err::HostResolutionError,
-    Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, 
+    Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT,
     Errno::ENETUNREACH, Errno::ECONNREFUSED => ex
     puts "Error connecting to citation API"
     nil
@@ -115,8 +115,8 @@ module Utils
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
       curl.perform
-    rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
-      Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+    rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
+      Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError,
       Curl::Err::GotNothingError,
       Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
       puts "Error curling #{url}"
@@ -135,11 +135,11 @@ module Utils
     else
       body
     end
-    
+
   end
 
   # general helper for downloading stuff and caching
-  # 
+  #
   # options:
   #   cache: use cache; will always download from network if missing
   #   destination: destination on disk, required for caching
@@ -151,7 +151,7 @@ module Utils
     # cache if caching is opted-into, and the cache exists
     if options[:cache] and options[:destination] and File.exists?(options[:destination])
       puts "Cached #{url} from #{options[:destination]}, not downloading..." if options[:debug]
-      
+
       body = File.read options[:destination]
       body = Yajl::Parser.parse(body) if options[:json]
       body
@@ -159,14 +159,14 @@ module Utils
     # download, potentially saving to disk
     else
       puts "Downloading #{url} to #{options[:destination] || "[not cached]"}..." if options[:debug]
-      
+
       body = begin
         curl = Curl::Easy.new url
         curl.follow_location = true # follow redirects
         curl.headers["User-Agent"] = "sunlight-congress-api / curl"
         curl.perform
-      rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError, 
-        Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError, 
+      rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
+        Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError,
         Curl::Err::GotNothingError,
         Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
         puts "Error curling #{url}"
@@ -196,7 +196,7 @@ module Utils
       if options[:rate_limit]
         sleep options[:rate_limit].to_f
       end
-      
+
       body
     end
   end
@@ -215,17 +215,17 @@ module Utils
     body = curl url
     body ? Nokogiri::XML(body) : nil
   end
-  
+
   def self.utc_parse(timestamp)
     time = Time.zone.parse(timestamp)
     time ? time.utc : nil
   end
-  
+
   # e.g. 2009 & 2010 -> 111th congress, 2011 & 2012 -> 112th congress
   def self.current_congress
     congress_for_year current_legislative_year
   end
-  
+
   def self.congress_for_year(year)
     ((year.to_i + 1) / 2) - 894
   end
@@ -261,7 +261,7 @@ module Utils
     first = ((congress + 894) * 2) - 1
     [first, first + 1]
   end
-  
+
   # adapted from http://www.gpoaccess.gov/bills/glossary.html
   def self.bill_version_name_for(version_code)
     {
@@ -331,30 +331,30 @@ module Utils
       's_p' => "Star (No.) Print of an Amendment"
     }[version_code]
   end
-  
+
   def self.constant_vote_keys
     ["Yea", "Nay", "Not Voting", "Present"]
   end
-  
+
   def self.constant_vote_keys
     ["Yea", "Nay", "Not Voting", "Present"]
   end
-  
+
   def self.vote_breakdown_for(voters)
     breakdown = {total: {}, party: {}}
-    
-    voters.each do|bioguide_id, voter|      
+
+    voters.each do|bioguide_id, voter|
       party = voter[:voter]['party']
       vote = voter[:vote]
-      
+
       breakdown[:party][party] ||= {}
       breakdown[:party][party][vote] ||= 0
       breakdown[:total][vote] ||= 0
-      
+
       breakdown[:party][party][vote] += 1
       breakdown[:total][vote] += 1
     end
-    
+
     parties = breakdown[:party].keys
     votes = (breakdown[:total].keys + constant_vote_keys).uniq
 
@@ -369,64 +369,72 @@ module Utils
         breakdown[:party][party][vote] ||= 0
       end
     end
-    
+
     breakdown
   end
-  
+
   # Used when processing roll call votes the first time.
   # "passage" will also reliably get set in the second half of votes_archive,
   # when it goes back over each bill and looks at its passage votes.
   def self.vote_type_for(roll_type, question)
     case roll_type
-    
+
     # senate only
-    when /cloture/i 
+    when /cloture/i
       "cloture"
-      
+
     # senate only
     when /^On the Nomination$/i
       "nomination"
-    
+
     when /^Guilty or Not Guilty/i
       "impeachment"
-    
+
     when /^On the Resolution of Ratification/i
       "treaty"
-    
+
     when /^On (?:the )?Motion to Recommit/i
       "recommit"
-      
+
     # common
     when /^On Passage/i
       "passage"
-      
+
+    # senate
+    when /On the Amendment/i
+      "amendment"
+
+    # house
+    when /^On Agreeing to the Amendment/i
+      "amendment"
+
     # house
     when /^On Motion to Concur/i, /^On Motion to Suspend the Rules and (Agree|Concur|Pass)/i, /^Suspend (?:the )?Rules and (Agree|Concur)/i
       "passage"
-    
+
     # house
     when /^On Agreeing to the Resolution/i, /^On Agreeing to the Concurrent Resolution/i, /^On Agreeing to the Conference Report/i
       "passage"
-      
+
     # senate
     when /^On the Joint Resolution/i, /^On the Concurrent Resolution/i, /^On the Resolution/i, /^On the Conference Report/i
       "passage"
-    
+
     # house only
     when /^Call of the House$/i
       "quorum"
-    
+
     # house only
     when /^Election of the Speaker$/i
       "leadership"
-    
+
     # various procedural things (and various unstandardized vote desc's that will fall through the cracks)
     else
       "other"
-      
+
     end
   end
-  
+
   def self.split_roll_id(roll_id)
     chamber = roll_id.gsub /[^a-z]/, ''
     chamber = {'s' => 'senate', 'h' => 'house'}[chamber.downcase]
@@ -440,9 +448,9 @@ module Utils
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
     congress = bill_id.match(/-(\d+)$/)[1].to_i
-    
+
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
-    
+
     [type, number, congress, chamber]
   end
 
@@ -450,12 +458,12 @@ module Utils
     type = amendment_id.gsub /[^a-z]/, ''
     number = amendment_id.match(/[a-z]+(\d+)-/)[1].to_i
     congress = amendment_id.match(/-(\d+)$/)[1].to_i
-    
+
     chamber = {'h' => 'house', 's' => 'senate'}[type.first.downcase]
-    
+
     [type, number, congress, chamber]
   end
-  
+
   def self.format_bill_code(bill_type, number)
     {
       "hres" => "H. Res.",
@@ -468,24 +476,24 @@ module Utils
       "sconres" => "S. Con. Res."
     }[bill_type] + " #{number}"
   end
-  
+
   # fetching
-  
+
   def self.document_for(document, fields)
     attributes = document.attributes.dup
     allowed_keys = fields.map {|f| f.to_s}
-    
+
     # for some reason, the 'sort' here causes more keys to get filtered out than without it
     # without the 'sort', it is broken. I do not know why.
     attributes.keys.sort.each {|key| attributes.delete(key) unless allowed_keys.include?(key)}
-    
+
     attributes
   end
-  
+
   def self.legislator_for(legislator)
     document_for legislator, Legislator.basic_fields
   end
-  
+
   def self.amendment_for(amendment)
     if amendment.is_a?(Amendment)
       document_for amendment, Amendment.basic_fields
@@ -497,11 +505,11 @@ module Utils
       end
     end
   end
-  
+
   def self.committee_for(committee)
     document_for committee, Committee.basic_fields
   end
-  
+
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
     if bill_id.is_a?(Bill)
@@ -514,13 +522,13 @@ module Utils
       end
     end
   end
-  
+
   def self.bill_ids_for(text, congress)
     matches = text.scan(/((S\.|H\.)(\s?J\.|\s?R\.|\s?Con\.| ?)(\s?Res\.?)*\s?\d+)/i).map {|r| r.first}.compact
     matches = matches.map {|code| bill_code_to_id code, congress}
     matches.uniq
   end
-    
+
   def self.bill_code_to_id(code, congress)
     "#{code.tr(" ", "").tr('.', '').downcase}-#{congress}"
   end
@@ -554,7 +562,7 @@ module Utils
   def self.backup!(bucket, source, destination, options = {})
     s3cmd = Environment.config['s3']['s3cmd']
     s3cfg = Environment.config['s3']['s3cfg']
-    
+
     location = Environment.config['backup'][bucket.to_s]
     if location !~ /^s3/
       location = "s3://#{location}"
@@ -582,5 +590,5 @@ module Utils
 
     system command
   end
-  
+
 end
