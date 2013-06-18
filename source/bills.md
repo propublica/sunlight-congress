@@ -365,7 +365,7 @@ The official text that describes this action. Always present.
 A list of references to the Congressional Record that this action links to.
 
 **actions.chamber**<br/>
-Which chamber this action occured in. "house" or "senate".
+If the action is a vote, which chamber this vote occured in. "house" or "senate".
 
 **actions.vote_type**<br/>
 If the action is a vote, this is the type of vote. "vote", "vote2", "cloture", or "pingpong".
