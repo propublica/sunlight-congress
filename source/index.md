@@ -19,13 +19,17 @@ All data is served in JSON, and requires a Sunlight API key. An API key is [free
 We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss), and can be found on Twitter at [@sunlightlabs](http://twitter.com/sunlightlabs). Bugs and feature requests can be made on [Github Issues](https://github.com/sunlightlabs/congress/issues).
 
 
-## Methods
+## Using the API
 
 Calls to the Sunlight Congress API are of the form:
 
 ```text
 http://congress.api.sunlightfoundation.com/[method]
 ```
+
+Use `https://` with any URL in the Congress API to turn on SSL encryption.
+
+### Methods
 
 <table>
 <tr>
