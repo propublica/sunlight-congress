@@ -27,6 +27,8 @@ Calls to the Sunlight Congress API are of the form:
 http://congress.api.sunlightfoundation.com/[method]
 ```
 
+Use `https://` with any URL in the Congress API to turn on SSL encryption.
+
 ### Methods
 
 <table>
