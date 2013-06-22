@@ -23,6 +23,10 @@
 # amendments from THOMAS, once an hour (THOMAS scraper uses --fast mode)
 30 * * * * /projects/congress/congress/shared/cron/us-sync-amendments.sh && /projects/congress/congress/shared/cron/task.sh amendments
 
+# re-download bills and amendments once a day, don't use --fast mode
+0 11 * * * /projects/congress/congress/shared/cron/us-sync-bills-all.sh
+0 12 * * * /projects/congress/congress/shared/cron/us-sync-amendments-all.sh
+
 # bill text from GPO, every half hour for the 113th
 */30 * * * * /projects/congress/congress/shared/cron/task.sh bills_bulk
 
