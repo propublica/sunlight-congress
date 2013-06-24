@@ -4,12 +4,12 @@ from fabric.api import run, execute, env
 environment = "production"
 
 env.use_ssh_config = True
-env.hosts = ["congress@congress"]
+env.hosts = ["congress-api@congress"]
 
 branch = "master"
 repo = "git://github.com/sunlightlabs/congress.git"
 
-home = "/projects/congress"
+home = "/projects/congress-api"
 shared_path = "%s/congress/shared" % home
 version_path = "%s/congress/versions/%s" % (home, time.strftime("%Y%m%d%H%M%S"))
 current_path = "%s/congress/current" % home
@@ -29,7 +29,7 @@ def links():
 
 def dependencies():
   run("cd %s && bundle install --local" % version_path)
-  run("workon congress && cd %s && pip install -r tasks/requirements.txt" % version_path)
+  # run("workon congress && cd %s && pip install -r tasks/requirements.txt" % version_path)
 
 def create_indexes():
   run("cd %s && rake create_indexes" % version_path)
@@ -66,3 +66,12 @@ def deploy():
   execute(make_current)
   execute(set_crontab)
   execute(restart)
+
+def deploy_cold():
+  execute(checkout)
+  execute(links)
+  execute(dependencies)
+  execute(create_indexes)
+  execute(make_current)
+  execute(set_crontab)
+  execute(start)
