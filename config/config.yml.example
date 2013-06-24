@@ -5,10 +5,11 @@ elastic_search:
 
 # location of a boundary server instance to lookup districts by lat/lng or zip
 location:
-  host: 
+  host:
+  zips: # path to district CSV to output
 
 :email:
-  :from: 
+  :from:
   :via: :smtp
   :via_options:
     :address:
@@ -21,21 +22,23 @@ location:
 
 :recipients:
   :admin:
-    - 
+    -
   # to send emails to owners of specific tasks:
-  # :legislators: 
+  # :legislators:
   #   - email@example.com
 
 # used to back things up to S3
-s3: 
-  secret: 
-  key: 
+s3:
+  secret:
+  key:
   s3cmd: /usr/bin/s3cmd
   s3cfg: /home/USER/.s3cfg
 
 # where to back certain things up to:
 backup:
   legislators: "unitedstates.sunlightfoundation.com/legislators/"
+  bills: "unitedstates.sunlightfoundation.com/documents/bills/"
+  regulations: "unitedstates.sunlightfoundation.com/documents/"
 
 # used to extract citations (https://github.com/unitedstates/citation)
 citation:
