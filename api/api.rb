@@ -27,6 +27,9 @@ module Api
 
       filters = {}
       fields.each do |field, value|
+        # we don't allow bracket based syntax, all instances of it are an error
+        next if value.is_a?(Hash)
+
         field, operator = field.split "__"
         operator = nil unless operators.include?(operator)
 
