@@ -1,6 +1,6 @@
 # Committees
 
-Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate. 
+Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate.
 
 All committee information is sourced from bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators), which in turn comes from official [House](http://clerk.house.gov/committee_info/index.aspx) and [Senate](http://www.senate.gov/general/committee_assignments/assignments.htm) sources.
 
@@ -98,6 +98,8 @@ Whether or not the committee is a subcommittee.
 ]
 }
 ```
+
+Note: membership information is not returned by default for requests to `/committees`. You must specifically request these fields by using the `fields` parameter as documented in [Partial Responses](/index.html#parameters/partial-responses).
 
 \* **member_ids**<br/>
 An array of bioguide IDs of [legislators](legislators.html) that are assigned to this committee.

@@ -66,7 +66,7 @@
   <div id="content">
     
     <h1>Committees</h1>
-<p>Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate. 
+<p>Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate.
 
 </p>
 <p>All committee information is sourced from bulk data at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>, which in turn comes from official <a href="http://clerk.house.gov/committee_info/index.aspx">House</a> and <a href="http://www.senate.gov/general/committee_assignments/assignments.htm">Senate</a> sources.
@@ -157,6 +157,9 @@ Whether or not the committee is a subcommittee.
   ...
 ]
 </span></code></pre>
+<p>Note: membership information is not returned by default for requests to <code>/committees</code>. You must specifically request these fields by using the <code>fields</code> parameter as documented in <a href="/index.html#parameters/partial-responses">Partial Responses</a>.
+
+</p>
 <p>* <strong>member_ids</strong><br/>
 An array of bioguide IDs of <a href="legislators.html">legislators</a> that are assigned to this committee.
 
