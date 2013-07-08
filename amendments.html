@@ -135,13 +135,50 @@ The date or time of the most recent official action on the amendment. Often, the
 
 </p>
 <h3 id='fields/what-it-amends'>What it Amends</h3 id='fields/what-it-amends'>
-<pre><code class="json">}</code></pre>
-<h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
-<pre><code class="json">{
-
+<pre><code class="json">&quot;amends_amendment_id&quot;: &quot;hamdt5-113&quot;,
+&quot;amends_amendment&quot;: {
+  &quot;amendment_id&quot;: &quot;hamdt5-113&quot;,
+  &quot;congress&quot;: 113,
+  &quot;number&quot;: 5,
+  ...
+},
+&quot;amends_bill_id&quot;: &quot;hr152-113&quot;,
+&quot;amends_bill&quot;: {
+  &quot;bill_id&quot;: &quot;hr152-113&quot;,
+  &quot;bill_type&quot;: &quot;hr&quot;,
+  &quot;chamber&quot;: &quot;house&quot;,
+  ...
+}
 </code></pre>
+<p>An amendment will relate to either a <strong>bill</strong> or a <strong>treaty</strong>. An amendment can either amend a bill or treaty directly, or it can amend an <strong>amendment</strong> that amends a bill.
+
+</p>
+<p>* <strong>amends_bill_id</strong><br/>
+If this amendment relates to a bill, this field is the ID of the related bill.
+
+</p>
+<p><strong>amends_bill</strong><br/>
+If this amendment relates to a bill, some basic details about that related bill.
+
+</p>
+<p>* <strong>amends_treaty_id</strong><br/>
+If this amendment relates to a treaty, this field is the ID of the related treaty. Treaty IDs are of the form <code>treatyX-Y</code>, where X is the treaty&#39;s number, and Y is the Congress the treaty is being considered in.
+
+</p>
+<p>* <strong>amends_amendment_id</strong><br/>
+If this amendment amends an amendment, this field is the ID of the amended amendment.
+
+</p>
+<p><strong>amends_amendment</strong><br/>
+If this amendment amends an amendment, some basic details about that amended amendment.
+
+
+</p>
+<h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
+<pre><code class="json">}</code></pre>
 <h3 id='fields/description-and-purpose'>Description and Purpose</h3 id='fields/description-and-purpose'>
-<pre><code class="json">"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
+<pre><code class="json">{
+"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
 "<span class="attribute">description</span>": <span class="value"><span class="string">"Amendment to clarify that the Corps of Engineers..."</span>
 </span></code></pre>
 <p>Amendments can have a <code>purpose</code> and a <code>description</code>. It&#39;s not clear why there are two separate fields. When both are available, the <code>purpose</code> has slightly more information, but that information may be procedural and not relevant to the content of the amendment, as in the example above.

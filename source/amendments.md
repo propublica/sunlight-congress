@@ -69,9 +69,40 @@ The date or time of the most recent official action on the amendment. Often, the
 
 ```json
 {
-
+"amends_amendment_id": "hamdt5-113",
+"amends_amendment": {
+  "amendment_id": "hamdt5-113",
+  "congress": 113,
+  "number": 5,
+  ...
+},
+"amends_bill_id": "hr152-113",
+"amends_bill": {
+  "bill_id": "hr152-113",
+  "bill_type": "hr",
+  "chamber": "house",
+  ...
+}
 }
 ```
+
+An amendment will relate to either a **bill** or a **treaty**. An amendment can either amend a bill or treaty directly, or it can amend an **amendment** that amends a bill.
+
+\* **amends_bill_id**<br/>
+If this amendment relates to a bill, this field is the ID of the related bill.
+
+**amends_bill**<br/>
+If this amendment relates to a bill, some basic details about that related bill.
+
+\* **amends_treaty_id**<br/>
+If this amendment relates to a treaty, this field is the ID of the related treaty. Treaty IDs are of the form `treatyX-Y`, where X is the treaty's number, and Y is the Congress the treaty is being considered in.
+
+\* **amends_amendment_id**<br/>
+If this amendment amends an amendment, this field is the ID of the amended amendment.
+
+**amends_amendment**<br/>
+If this amendment amends an amendment, some basic details about that amended amendment.
+
 
 ### Sponsor
 
