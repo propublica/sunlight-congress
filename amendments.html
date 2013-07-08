@@ -175,10 +175,32 @@ If this amendment amends an amendment, some basic details about that amended ame
 
 </p>
 <h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
-<pre><code class="json">}</code></pre>
+<pre><code class="json">&quot;sponsor_type&quot;: &quot;person&quot;,
+&quot;sponsor_id&quot;: &quot;B000574&quot;,
+&quot;sponsor&quot;: {
+  &quot;bioguide_id&quot;: &quot;B000574&quot;,
+  &quot;birthday&quot;: &quot;1948-08-16&quot;,
+  &quot;chamber&quot;: &quot;house&quot;,
+  ...
+}
+</code></pre>
+<p>Unlike bills, amendments can be sponsored by either a <strong>person</strong> or a <strong>committee</strong>.
+
+</p>
+<p>* <strong>sponsor_type</strong><br/>
+Whether the amendment is sponsored by a &quot;person&quot; or a &quot;committee&quot;.
+
+</p>
+<p>* <strong>sponsor_id</strong><br/>
+If the <code>sponsor_type</code> is &quot;person&quot;, this will be that person&#39;s bioguide ID. If the <code>sponsor_type</code> is &quot;committee&quot;, this will be that committee&#39;s ID (see the <a href="committees.html">committee docs</a> for information on committee IDs).
+
+</p>
+<p><strong>sponsor</strong><br/>
+If the <code>sponsor_type</code> is &quot;person&quot;, some basic details about that person. If the <code>sponsor_type</code> is &quot;committee&quot;, some basic details about that committee.
+
+</p>
 <h3 id='fields/description-and-purpose'>Description and Purpose</h3 id='fields/description-and-purpose'>
-<pre><code class="json">{
-"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
+<pre><code class="json">"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
 "<span class="attribute">description</span>": <span class="value"><span class="string">"Amendment to clarify that the Corps of Engineers..."</span>
 </span></code></pre>
 <p>Amendments can have a <code>purpose</code> and a <code>description</code>. It&#39;s not clear why there are two separate fields. When both are available, the <code>purpose</code> has slightly more information, but that information may be procedural and not relevant to the content of the amendment, as in the example above.

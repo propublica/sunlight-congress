@@ -108,9 +108,27 @@ If this amendment amends an amendment, some basic details about that amended ame
 
 ```json
 {
-
+"sponsor_type": "person",
+"sponsor_id": "B000574",
+"sponsor": {
+  "bioguide_id": "B000574",
+  "birthday": "1948-08-16",
+  "chamber": "house",
+  ...
+}
 }
 ```
+
+Unlike bills, amendments can be sponsored by either a **person** or a **committee**.
+
+\* **sponsor_type**<br/>
+Whether the amendment is sponsored by a "person" or a "committee".
+
+\* **sponsor_id**<br/>
+If the `sponsor_type` is "person", this will be that person's bioguide ID. If the `sponsor_type` is "committee", this will be that committee's ID (see the [committee docs](committees.html) for information on committee IDs).
+
+**sponsor**<br/>
+If the `sponsor_type` is "person", some basic details about that person. If the `sponsor_type` is "committee", some basic details about that committee.
 
 ### Description and Purpose
 
