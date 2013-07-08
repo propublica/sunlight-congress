@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlight Congress API | Amendments</title>
+    
+    
+  <link rel="shortcut icon" type="image/ico" href="/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+  <body><div class="sf-header"><div class="container"><a class="sf-logo" href="http://www.sunlightfoundation.com">Sunlight Foundation</a></div></div><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <h1><a href="index.html" id="logo">Sunlight Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#methods">Methods</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#methods/amendments">/amendments</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#fields">Fields</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#fields/what-it-amends">What it Amends</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/sponsor">Sponsor</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/description-and-purpose">Description and Purpose</a>
+                </li>
+              
+                <li>
+                  <a href="#fields/actions">Actions</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe></div><div class="thanks">powered by <a href="http://documentup.com">DocumentUp</a></div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Amendments</h1>
+<p>Data on amendments in Congress goes back to 2009, and comes from scrapers at <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> for core status and history information.
+
+</p>
+<h2 id='methods'>Methods</h2 id='methods'>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
+
+</p>
+<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<h3 id='methods/amendments'>/amendments</h3 id='methods/amendments'>
+<p>Filter through amendments in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
+
+</p>
+<p><strong>Bills enacted into law in the 112th Congress</strong>
+
+</p>
+<pre><code class="text">/bills?congress=112&amp;history.enacted=true</code></pre>
+<h2 id='fields'>Fields</h2 id='fields'>
+<p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.
+
+</p>
+<p>* = can be used as a filter
+
+</p>
+<pre><code class="json">"<span class="attribute">amendment_id</span>": <span class="value"><span class="string">"hamdt10-113"</span></span>,
+"<span class="attribute">amendment_type</span>": <span class="value"><span class="string">"hamdt"</span></span>,
+"<span class="attribute">number</span>": <span class="value"><span class="number">10</span></span>,
+"<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
+"<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+"<span class="attribute">house_number</span>": <span class="value"><span class="number">8</span></span>,
+"<span class="attribute">introduced_on</span>": <span class="value"><span class="string">"2013-01-15T05:00:00Z"</span></span>,
+"<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2013-01-15T22:27:00Z"</span></span>,
+</code></pre>
+<p>* <strong>amendment_id</strong><br/>
+The unique ID for this amendment. Formed from the <code>amendment_type</code>, <code>number</code>, and <code>congress</code>.
+
+</p>
+<p>* <strong>amendment_type</strong><br/>
+The type for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>amendment_type</code> represents the &quot;H.Amdt.&quot; part. Amendment types can be either <strong>hamdt</strong> or <strong>samdt</strong>.
+
+</p>
+<p>* <strong>number</strong><br/>
+The number for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>number</code> is 10.
+
+</p>
+<p>* <strong>congress</strong><br/>
+The Congress in which this amendment was introduced. For example, amendments introduced in the &quot;113th Congress&quot; have a <code>congress</code> of 113.
+
+</p>
+<p>* <strong>chamber</strong><br/>
+The chamber in which the amendment was introduced.
+
+</p>
+<p>* <strong>house_number</strong><br/>
+If the amendment was introduced in the House, this is a <strong>relative</strong> amendment number, scoped to the bill or treaty the House it relates to. How this number gets assigned is complicated and involves multiple institutions within the House and the Library of Congress. You can read the <a href="https://github.com/unitedstates/congress/issues/68">gory details</a> if you want, but this number will <strong>usually</strong> do the job of connecting to data from the House Clerk&#39;s <a href="http://clerk.house.gov/evs/2013/index.asp">Electronic Voting System</a>.
+
+</p>
+<p>* <strong>introduced_on</strong><br/>
+The date this amendment was introduced.
+
+</p>
+<p>* <strong>last_action_at</strong><br/>
+The date or time of the most recent official action on the amendment. Often, there are no official actions, in which case this field will be set to the value of <code>introduced_on</code>.
+
+</p>
+<h3 id='fields/what-it-amends'>What it Amends</h3 id='fields/what-it-amends'>
+<pre><code class="json">}</code></pre>
+<h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
+<pre><code class="json">{
+
+</code></pre>
+<h3 id='fields/description-and-purpose'>Description and Purpose</h3 id='fields/description-and-purpose'>
+<pre><code class="json">"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
+"<span class="attribute">description</span>": <span class="value"><span class="string">"Amendment to clarify that the Corps of Engineers..."</span>
+</span></code></pre>
+<p>Amendments can have a <code>purpose</code> and a <code>description</code>. It&#39;s not clear why there are two separate fields. When both are available, the <code>purpose</code> has slightly more information, but that information may be procedural and not relevant to the content of the amendment, as in the example above.
+
+</p>
+<p>Amendments can have neither of these two fields (very common), or only a <code>purpose</code> (common), or only a <code>description</code> (common), or neither (very rare). You can read <a href="https://github.com/unitedstates/congress/issues/71#issuecomment-18246379">further discussion</a> if you&#39;re interested.
+
+</p>
+<h3 id='fields/actions'>Actions</h3 id='fields/actions'>
+<p>Actions on an amendment are identical to actions on bills. Please refer to the <a href="bills.html#fields/actions">documentation on bill actions</a> for examples and details.</p>
+
+  </div>
+</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>
