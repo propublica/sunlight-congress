@@ -36,7 +36,7 @@ Filter through amendments in Congress. Filter by any [fields below](#fields) tha
 "congress": 113,
 "chamber": "house",
 "house_number": 8,
-"introduced_on": "2013-01-15T05:00:00Z",
+"introduced_on": "2013-01-15",
 "last_action_at": "2013-01-15T22:27:00Z",
 }
 ```
