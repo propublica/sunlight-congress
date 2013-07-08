@@ -57,8 +57,8 @@ class Amendments
       path = "data/unitedstates/congress/#{congress}/amendments/#{type}/#{type}#{number}/data.json"
       doc = Oj.load open(path)
 
-      introduced_on = Utils.utc_parse doc['introduced_at']
-      proposed_on = Utils.utc_parse(doc['proposed_at']) if doc['proposed_at']
+      introduced_on = doc['introduced_at']
+      # proposed_on = doc['proposed_at'] if doc['proposed_at']
 
       actions = Bills.actions_for doc['actions']
 
@@ -66,7 +66,7 @@ class Amendments
       if actions.last
         last_action_at = actions.last['acted_at']
       else
-        last_action_at = proposed_on || introduced_on
+        last_action_at = introduced_on
       end
 
       # purpose and description stats for 111th Congress up until 2013-05-21:
@@ -83,7 +83,7 @@ class Amendments
         amendment_type: type,
 
         introduced_on: introduced_on,
-        proposed_on: proposed_on,
+        # proposed_on: proposed_on,
 
         purpose: doc['purpose'],
         description: doc['description'],
@@ -95,7 +95,6 @@ class Amendments
 
       if chamber == "house"
         attributes[:house_number] = doc['house_number']
-        attributes[:offered_order] = doc['offered_order']
       end
 
 
