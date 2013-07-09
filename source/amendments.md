@@ -1,6 +1,6 @@
 # Amendments
 
-Data on amendments in Congress goes back to 2009, and comes from scrapers at [github.com/unitedstates](https://github.com/unitedstates/congress) for core status and history information.
+Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the [github.com/unitedstates](https://github.com/unitedstates/congress) project.
 
 ## Methods
 

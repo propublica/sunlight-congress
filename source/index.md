@@ -48,6 +48,8 @@ Use `https://` with any URL in the Congress API to turn on SSL encryption.
 </tr><tr>
 <td>[/bills/search](bills.html)</td><td>Full text search over legislation.</td>
 </tr><tr>
+<td>[/amendments](amendments.html)</td><td>Amendments in the House and Senate, back to 2009. Updated daily.</td>
+</tr><tr>
 <td>[/votes](votes.html)</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
 </tr><tr>
