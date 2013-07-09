@@ -58,7 +58,7 @@ class Amendments
       doc = Oj.load open(path)
 
       introduced_on = doc['introduced_at']
-      # proposed_on = doc['proposed_at'] if doc['proposed_at']
+      proposed_on = doc['proposed_at'] if doc['proposed_at']
 
       actions = Bills.actions_for doc['actions']
 
@@ -83,7 +83,7 @@ class Amendments
         amendment_type: type,
 
         introduced_on: introduced_on,
-        # proposed_on: proposed_on,
+        proposed_on: proposed_on,
 
         purpose: doc['purpose'],
         description: doc['description'],
