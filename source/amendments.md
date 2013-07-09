@@ -14,12 +14,23 @@ http://congress.api.sunlightfoundation.com
 
 Filter through amendments in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
-**Bills enacted into law in the 112th Congress**
+**Senate amendments in the 113th Congress**
 
 ```text
-/bills?congress=112&history.enacted=true
+/amendments?chamber=house&congress=113
 ```
 
+**Amendments sponsored by the House Rules Committee**
+
+```text
+/amendments?sponsor_type=committee&sponsor_id=HSRU
+```
+
+**Amendments of CISPA, H.R. 624**
+
+```text
+/amendments?amends_bill_id=hr624-113
+```
 
 
 ## Fields
@@ -37,7 +48,7 @@ Filter through amendments in Congress. Filter by any [fields below](#fields) tha
 "chamber": "house",
 "house_number": 8,
 "introduced_on": "2013-01-15",
-"last_action_at": "2013-01-15T22:27:00Z",
+"last_action_at": "2013-01-15T22:27:00Z"
 }
 ```
 
@@ -73,14 +84,14 @@ The date or time of the most recent official action on the amendment. Often, the
 "amends_amendment": {
   "amendment_id": "hamdt5-113",
   "congress": 113,
-  "number": 5,
+  "number": 5
   ...
 },
 "amends_bill_id": "hr152-113",
 "amends_bill": {
   "bill_id": "hr152-113",
   "bill_type": "hr",
-  "chamber": "house",
+  "chamber": "house"
   ...
 }
 }
@@ -113,7 +124,7 @@ If this amendment amends an amendment, some basic details about that amended ame
 "sponsor": {
   "bioguide_id": "B000574",
   "birthday": "1948-08-16",
-  "chamber": "house",
+  "chamber": "house"
   ...
 }
 }

@@ -82,10 +82,18 @@
 <p>Filter through amendments in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
 
 </p>
-<p><strong>Bills enacted into law in the 112th Congress</strong>
+<p><strong>Senate amendments in the 113th Congress</strong>
 
 </p>
-<pre><code class="text">/bills?congress=112&amp;history.enacted=true</code></pre>
+<pre><code class="text">/amendments?chamber=house&amp;congress=113</code></pre>
+<p><strong>Amendments sponsored by the House Rules Committee</strong>
+
+</p>
+<pre><code class="text">/amendments?sponsor_type=committee&amp;sponsor_id=HSRU</code></pre>
+<p><strong>Amendments of CISPA, H.R. 624</strong>
+
+</p>
+<pre><code class="text">/amendments?amends_bill_id=hr624-113</code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
 <p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.
 
@@ -100,8 +108,8 @@
 "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
 "<span class="attribute">house_number</span>": <span class="value"><span class="number">8</span></span>,
 "<span class="attribute">introduced_on</span>": <span class="value"><span class="string">"2013-01-15"</span></span>,
-"<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2013-01-15T22:27:00Z"</span></span>,
-</code></pre>
+"<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2013-01-15T22:27:00Z"</span>
+</span></code></pre>
 <p>* <strong>amendment_id</strong><br/>
 The unique ID for this amendment. Formed from the <code>amendment_type</code>, <code>number</code>, and <code>congress</code>.
 
@@ -135,21 +143,21 @@ The date or time of the most recent official action on the amendment. Often, the
 
 </p>
 <h3 id='fields/what-it-amends'>What it Amends</h3 id='fields/what-it-amends'>
-<pre><code class="json">&quot;amends_amendment_id&quot;: &quot;hamdt5-113&quot;,
-&quot;amends_amendment&quot;: {
-  &quot;amendment_id&quot;: &quot;hamdt5-113&quot;,
-  &quot;congress&quot;: 113,
-  &quot;number&quot;: 5,
+<pre><code class="json">"<span class="attribute">amends_amendment_id</span>": <span class="value"><span class="string">"hamdt5-113"</span></span>,
+"<span class="attribute">amends_amendment</span>": <span class="value">{
+  "<span class="attribute">amendment_id</span>": <span class="value"><span class="string">"hamdt5-113"</span></span>,
+  "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
+  "<span class="attribute">number</span>": <span class="value"><span class="number">5</span>
   ...
-},
-&quot;amends_bill_id&quot;: &quot;hr152-113&quot;,
-&quot;amends_bill&quot;: {
-  &quot;bill_id&quot;: &quot;hr152-113&quot;,
-  &quot;bill_type&quot;: &quot;hr&quot;,
-  &quot;chamber&quot;: &quot;house&quot;,
+</span>}</span>,
+"<span class="attribute">amends_bill_id</span>": <span class="value"><span class="string">"hr152-113"</span></span>,
+"<span class="attribute">amends_bill</span>": <span class="value">{
+  "<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr152-113"</span></span>,
+  "<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>,
+  "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
   ...
-}
-</code></pre>
+</span>}
+</span></code></pre>
 <p>An amendment will relate to either a <strong>bill</strong> or a <strong>treaty</strong>. An amendment can either amend a bill or treaty directly, or it can amend an <strong>amendment</strong> that amends a bill.
 
 </p>
@@ -175,15 +183,15 @@ If this amendment amends an amendment, some basic details about that amended ame
 
 </p>
 <h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
-<pre><code class="json">&quot;sponsor_type&quot;: &quot;person&quot;,
-&quot;sponsor_id&quot;: &quot;B000574&quot;,
-&quot;sponsor&quot;: {
-  &quot;bioguide_id&quot;: &quot;B000574&quot;,
-  &quot;birthday&quot;: &quot;1948-08-16&quot;,
-  &quot;chamber&quot;: &quot;house&quot;,
+<pre><code class="json">"<span class="attribute">sponsor_type</span>": <span class="value"><span class="string">"person"</span></span>,
+"<span class="attribute">sponsor_id</span>": <span class="value"><span class="string">"B000574"</span></span>,
+"<span class="attribute">sponsor</span>": <span class="value">{
+  "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"B000574"</span></span>,
+  "<span class="attribute">birthday</span>": <span class="value"><span class="string">"1948-08-16"</span></span>,
+  "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
   ...
-}
-</code></pre>
+</span>}
+</span></code></pre>
 <p>Unlike bills, amendments can be sponsored by either a <strong>person</strong> or a <strong>committee</strong>.
 
 </p>
