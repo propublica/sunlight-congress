@@ -30,7 +30,7 @@ For the Ruby side of this project, it uses the Bundler dependency management sys
 
 Make sure you add the directory you use to the .gitignore file if it's not there already. "vendor/gems" has already been set aside for this purpose, in accordance with Bundler convention.
 
-For the Oython tasks, Python 2.7 or higher is required. Tasks have not been tested for Python 3 compatibility. To install third party Python dependencies, use pip and the requirements file: "pip install -r requirements.txt"
+For the Python tasks, Python 2.7 or higher is required. Tasks have not been tested for Python 3 compatibility. To install third party Python dependencies, use pip and the requirements file: "pip install -r requirements.txt"
 
 
 = Running the development server
