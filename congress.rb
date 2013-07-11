@@ -34,7 +34,7 @@ get queryable_route do
     documents = Citable.add_to model, documents, params
     results = Queryable.results_for criteria, documents, pagination
   end
-  
+
   hit! "query", format
 
   if format == 'json'
@@ -63,7 +63,7 @@ get searchable_route do
 
   filter = Searchable.filter_for filters
   other = Searchable.other_options_for params, search_fields
-  
+
   begin
     if params[:explain] == 'true'
       results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
@@ -76,7 +76,7 @@ get searchable_route do
   rescue ElasticSearch::RequestError => exc
     results = Searchable.error_from exc
   end
-  
+
   hit! "search", format
 
   if format == 'json'
@@ -103,7 +103,7 @@ get(/(legislators|districts)\/locate\/?/) do
       else
         districts = []
       end
-      
+
       details = {zip: params[:zip]}
     elsif params[:latitude] and params[:longitude]
       url = Location.url_for params[:latitude], params[:longitude]
@@ -127,7 +127,7 @@ get(/(legislators|districts)\/locate\/?/) do
       pagination = pagination_for params
       order = order_for params, "_id"
       conditions = Location.district_to_legislators districts
-      
+
       if params[:explain] == 'true'
         explain = Queryable.explain_for model, conditions, fields, order, pagination
         results = {location: location, query: explain}
@@ -169,12 +169,12 @@ error do
   message = exception.message
 
   request = {
-    method: env['REQUEST_METHOD'], 
+    method: env['REQUEST_METHOD'],
     url: env['REQUEST_URI'],
     params: params.inspect,
     user_agent: env['HTTP_USER_AGENT']
   }
-  
+
   Email.report Report.exception("Exception Notifier", "#{name}: #{message}", exception, request: request)
   halt 500
 end
@@ -195,7 +195,7 @@ helpers do
   def jsonp?
     !!(params[:callback].present?) and (params[:callback] =~ /^[\.a-zA-Z0-9\$_]+$/)
   end
-  
+
   def xml(results)
     response['Content-Type'] = 'application/xml; charset=utf-8'
     results.to_xml root: 'results', dasherize: false
@@ -251,13 +251,13 @@ helpers do
 
     hit = Hit.create!(
       key: key,
-      
+
       method: method,
       method_type: method_type,
       format: format,
 
       extras: extras,
-      
+
       user_agent: request.env['HTTP_USER_AGENT'],
       app_version: request.env['HTTP_X_APP_VERSION'],
       os_version: request.env['HTTP_X_OS_VERSION'],
