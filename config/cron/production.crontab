@@ -7,6 +7,9 @@
 # sync unitedstates/glossary data with S3 mirror once an hour
 0 * * * *    /projects/congress-api/congress/shared/cron/s3-sync-glossary.sh
 
+# generate unitedstates/congress-legislators social media leads once a night
+0 13 * * *   /projects/congress-api/congress/shared/cron/social-media-leads.sh
+
 
 ############# congress API tasks #########################
 
