@@ -91,6 +91,7 @@ class Legislators
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
       birthday: us_legislator['bio'] ? us_legislator['bio']['birthday'] : nil,
+      leadership_role: nil,
 
       term_start: last_term['start'],
       term_end: last_term['end'],
@@ -117,6 +118,13 @@ class Legislators
       terms: terms,
       terms_count: terms.size
     }
+    
+    if us_legislator['leadership_roles'] 
+      role = us_legislator['leadership_roles'].last
+      unless role.has_key?("end")
+        attributes[:leadership_role] = role['title']
+      end
+    end  
 
     if us_legislator['other_names']
       attributes[:other_names] = us_legislator['other_names']
