@@ -6,7 +6,7 @@ class Legislator
       :votesmart_id, :crp_id, :govtrack_id,
       :title, :first_name, :nickname, :middle_name, :last_name, :name_suffix, 
       :other_names, :gender, :in_office, :senate_class, :birthday,
-      :state, :state_name, :party, :chamber, :district, :state_rank,
+      :state, :state_name, :party, :chamber, :leadership_role, :district, :state_rank,
       :phone, :fax, :office, :website, :contact_form,
       :twitter_id, :facebook_id, :youtube_id
 
