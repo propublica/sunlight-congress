@@ -5,6 +5,7 @@ class Legislators
   #   current: limit to current legislators only
   #   limit: stop after N legislators
   #   clear: wipe the db of legislators first
+  #   bioguide_id: limit to one legislator, with this bioguide ID
 
   def self.run(options = {})
 
@@ -41,6 +42,10 @@ class Legislators
     # limit if requested
     us_legislators = us_legislators.to_a
     us_legislators = us_legislators.first(options[:limit].to_i) if options[:limit]
+
+    if options[:bioguide_id].present?
+      us_legislators = us_legislators.select {|l, current| l['id']['bioguide'] == options[:bioguide_id]}
+    end
 
     us_legislators.each do |us_legislator, current|
       bioguide_id = us_legislator['id']['bioguide']
@@ -118,13 +123,13 @@ class Legislators
       terms: terms,
       terms_count: terms.size
     }
-    
-    if us_legislator['leadership_roles'] 
+
+    if us_legislator['leadership_roles']
       role = us_legislator['leadership_roles'].last
       unless role.has_key?("end")
         attributes[:leadership_role] = role['title']
       end
-    end  
+    end
 
     if us_legislator['other_names']
       attributes[:other_names] = us_legislator['other_names']
