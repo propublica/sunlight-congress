@@ -78,6 +78,52 @@ API keys can be provided with a request through the query string:
 
 Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
 
+### Partial responses
+
+You can request specific fields by supplying a comma-separated list of fields as the `fields` parameter.
+
+**Many fields are not returned unless requested.** If you don't supply a `fields` parameter, you will get the most commonly used subset of fields only.
+
+To save on bandwidth, parsing time, and confusion, it's recommended to always specify which fields you will be using.
+
+**Latest vote numbers and their results**
+
+```text
+/votes?fields=roll_id,result,breakdown.total
+```
+
+```json
+{
+"results": [
+  {
+    "breakdown": {
+      "total": {
+        "Yea": 222,
+        "Nay": 190,
+        "Not Voting": 19,
+        "Present": 0
+      }
+    },
+    "result": "Passed",
+    "roll_id": "h43-2013"
+  },
+  {
+    "breakdown": {
+      "total": {
+        "Yea": 261,
+        "Nay": 154,
+        "Not Voting": 16,
+        "Present": 0
+      }
+    },
+    "result": "Passed",
+    "roll_id": "h44-2013"
+  }
+  ...
+]
+}
+```
+
 ### Filtering
 
 You can filter on many fields with a simple key/value pair:
@@ -197,52 +243,6 @@ Any field which can be used for filtering may be used for sorting. On full-text 
 
 ```text
 /bills/search?query="health care"&order=score
-```
-
-### Partial responses
-
-You can request specific fields by supplying a comma-separated list of fields as the `fields` parameter.
-
-**Many fields are not returned unless requested.** If you don't supply a `fields` parameter, you will get the most commonly used subset of fields only.
-
-To save on bandwidth, parsing time, and confusion, it's recommended to always specify which fields you will be using.
-
-**Latest vote numbers and their results**
-
-```text
-/votes?fields=roll_id,result,breakdown.total
-```
-
-```json
-{
-"results": [
-  {
-    "breakdown": {
-      "total": {
-        "Yea": 222,
-        "Nay": 190,
-        "Not Voting": 19,
-        "Present": 0
-      }
-    },
-    "result": "Passed",
-    "roll_id": "h43-2013"
-  },
-  {
-    "breakdown": {
-      "total": {
-        "Yea": 261,
-        "Nay": 154,
-        "Not Voting": 16,
-        "Present": 0
-      }
-    },
-    "result": "Passed",
-    "roll_id": "h44-2013"
-  }
-  ...
-]
-}
 ```
 
 ### Client-side support
