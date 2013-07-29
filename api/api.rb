@@ -3,7 +3,7 @@ module Api
   module Helpers
 
     def query_string_for(params)
-      params[:query].present? ? params[:query].strip.downcase : nil
+      params[:query].present? ? params[:query].strip : nil
     end
 
     def format_for(params)
