@@ -14,7 +14,7 @@ http://congress.api.sunlightfoundation.com
 
 ### /legislators/locate
 
-Find members of Congress by a `latitude` and `longitude`, or a `zip` code. 
+Find members of Congress by a `latitude` and `longitude`, or a `zip` code.
 
 There is **no support** for further operators, ordering, or partial responses. All you can do is filter by location.
 
@@ -26,7 +26,7 @@ At-large districts, which encompass an entire state, are assigned a district num
 /legislators/locate?latitude=42.96&longitude=-108.09
 ```
 
-This will return both representatives and senators that currently represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators. 
+This will return both representatives and senators that currently represent the given point or zip. For a given `latitude` and `longitude`, this should return up to 1 representative and 2 senators.
 
 **By zip code**
 
@@ -146,6 +146,7 @@ The date a member's current term will end.
 "votesmart_id": "27018",
 "crp_id": "N00003535",
 "lis_id": "S307",
+"icpsr_id": 14263,
 "fec_ids": [
   "H2OH13033"
 ]
@@ -169,6 +170,9 @@ Identifier for this member as it appears on [Project Vote Smart](http://votesmar
 
 \* **crp_id**<br/>
 Identifier for this member as it appears on CRP's [OpenSecrets](http://www.opensecrets.org).
+
+\* **icpsr_id**<br/>
+Identifier for this member as it is maintained by the [Inter-university Consortium for Political and Social Research](http://icpsr.umich.edu).
 
 \* **fec_ids**<br/>
 A list of identifiers for this member as they appear in filings at the [Federal Election Commission](http://fec.gov/).
