@@ -139,6 +139,10 @@ class Legislators
       attributes[:votesmart_id] = us_legislator['id']['votesmart']
     end
 
+    if us_legislator['id']['icpsr'].present?
+      attributes[:icpsr_id] = us_legislator['id']['icpsr']
+    end
+
     if attributes[:chamber] == "senate"
       attributes[:senate_class] = last_term['class']
       attributes[:lis_id] = us_legislator['id']['lis'].to_s
