@@ -36,6 +36,14 @@ Filter through committees in the House and Senate. Filter by any [fields below](
 /committees?parent_committee_id=HSWM
 ```
 
+**Disabling pagination**
+
+You can turn off pagination for requests to `/committees`.
+
+```text
+/committees?per_page=all
+```
+
 ## Fields
 
 \* = can be used as a filter
