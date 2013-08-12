@@ -5,6 +5,7 @@ class Legislators
   #   current: limit to current legislators only
   #   limit: stop after N legislators
   #   clear: wipe the db of legislators first
+  #   bioguide_id: limit to one legislator, with this bioguide ID
 
   def self.run(options = {})
 
@@ -13,7 +14,7 @@ class Legislators
       FileUtils.mkdir_p "data/unitedstates"
       FileUtils.rm_rf "data/unitedstates/congress-legislators"
       unless system "git clone git://github.com/unitedstates/congress-legislators.git data/unitedstates/congress-legislators"
-        Report.exception self, "Couldn't clone legislator data from unitedstates."
+        Report.failure self, "Couldn't clone legislator data from unitedstates."
         return false
       end
       puts
@@ -41,6 +42,10 @@ class Legislators
     # limit if requested
     us_legislators = us_legislators.to_a
     us_legislators = us_legislators.first(options[:limit].to_i) if options[:limit]
+
+    if options[:bioguide_id].present?
+      us_legislators = us_legislators.select {|l, current| l['id']['bioguide'] == options[:bioguide_id]}
+    end
 
     us_legislators.each do |us_legislator, current|
       bioguide_id = us_legislator['id']['bioguide']
@@ -91,6 +96,7 @@ class Legislators
       name_suffix: us_legislator['name']['suffix'],
       gender: us_legislator['bio'] ? us_legislator['bio']['gender'] : nil,
       birthday: us_legislator['bio'] ? us_legislator['bio']['birthday'] : nil,
+      leadership_role: nil,
 
       term_start: last_term['start'],
       term_end: last_term['end'],
@@ -118,12 +124,23 @@ class Legislators
       terms_count: terms.size
     }
 
+    if us_legislator['leadership_roles']
+      role = us_legislator['leadership_roles'].last
+      unless role.has_key?("end")
+        attributes[:leadership_role] = role['title']
+      end
+    end
+
     if us_legislator['other_names']
       attributes[:other_names] = us_legislator['other_names']
     end
 
     if us_legislator['id']['votesmart'].present?
       attributes[:votesmart_id] = us_legislator['id']['votesmart']
+    end
+
+    if us_legislator['id']['icpsr'].present?
+      attributes[:icpsr_id] = us_legislator['id']['icpsr']
     end
 
     if attributes[:chamber] == "senate"
