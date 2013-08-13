@@ -238,11 +238,8 @@ module Searchable
   def self.profiles_for(models, params)
     models = [models] unless models.is_a?(Array)
     if params.has_key? "search.profile"
-      profiles = models.map {|m| m.search_profiles[params["search.profile"].to_sym]}.flatten
-    else
-      profiles = nil
+      models.map {|m| m.search_profiles[params["search.profile"].to_sym]}.flatten
     end
-    profiles
   end
 
   def self.request_for(models, query, filter, fields, order, pagination, profiles, other)
