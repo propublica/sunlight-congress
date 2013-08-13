@@ -14,7 +14,7 @@ class Bill
   search_fields :popular_title, :official_title, :short_title,
     :nicknames, :summary, :keywords, :text
 
-  search_profile :bill_title_recency,
+  search_profile :title_summary_recency,
     fields: [:short_title, :summary],
     filters: [
       {
