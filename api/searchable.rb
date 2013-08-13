@@ -133,8 +133,8 @@ module Searchable
     models.map {|m| m.search_fields.map {|field| field.to_s}}.flatten.uniq
   end
 
-  def self.raw_results_for(models, query, filter, fields, order, pagination, other)
-    request = request_for models, query, filter, fields, order, pagination, other
+  def self.raw_results_for(models, query, filter, fields, order, pagination, profiles, other)
+    request = request_for models, query, filter, fields, order, pagination, profiles, other
     if other[:explain]
       @explain_client.search request[0], request[1]
     else
@@ -162,9 +162,9 @@ module Searchable
     }
   end
 
-  def self.explain_for(query_string, models, query, filter, fields, order, pagination, other)
+  def self.explain_for(query_string, models, query, filter, fields, order, pagination, profiles, other)
     # could get moved up to api handler
-    request = request_for models, query, filter, fields, order, pagination, other
+    request = request_for models, query, filter, fields, order, pagination, profiles, other
     mapping = mapping_for models
 
     begin
@@ -235,12 +235,45 @@ module Searchable
     options
   end
 
-  def self.request_for(models, query, filter, fields, order, pagination, other)
+  def self.profiles_for(models, params)
+    models = [models] unless models.is_a?(Array)
+    if params.has_key? "search.profile"
+      models.map {|m| m.search_profiles[params["search.profile"].to_sym]}.flatten
+    end
+  end
+
+  def self.request_for(models, query, filter, fields, order, pagination, profiles, other)
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
 
     query_filter = {}
-    if query and filter
+
+    if profiles and query
+
+      profile = profiles.first
+
+      query_filter[:query] = {
+        custom_filters_score: {
+          query: {
+            multi_match: {
+              query: query[:query_string][:query],
+              use_dis_max: true,
+              fields: profile[:fields]
+            }
+          },
+          params: {
+            now: Time.now.to_i * 1000
+          },
+          filters: profile[:filters]
+        },
+        fields: query[:query_string][:fields]
+      }
+
+      if filter
+        query_filter[:query][:filter] = filter
+      end
+
+    elsif query and filter
       query_filter = {
         query: {
           filtered: {

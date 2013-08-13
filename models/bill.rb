@@ -1,26 +1,39 @@
 class Bill
   include Api::Model
   publicly :queryable, :searchable
-  
-  basic_fields :bill_id, :bill_type, :number, :congress, :chamber, 
+
+  basic_fields :bill_id, :bill_type, :number, :congress, :chamber,
     :sponsor_id, :committee_ids, :related_bill_ids,
     :short_title, :official_title, :popular_title, :nicknames,
     :introduced_on, :history, :enacted_as,
-    :last_action_at, :last_vote_at, :last_version_on, 
-    :last_version, :urls, 
+    :last_action_at, :last_vote_at, :last_version_on,
+    :last_version, :urls,
     :cosponsors_count, :withdrawn_cosponsors_count
 
 
-  search_fields :popular_title, :official_title, :short_title, 
+  search_fields :popular_title, :official_title, :short_title,
     :nicknames, :summary, :keywords, :text
+
+  search_profile :title_summary_recency,
+    fields: [:short_title, :summary],
+    filters: [
+      {
+        filter: {
+          exists: {
+            field: :introduced_on
+          }
+        },
+        script: "(0.08 / ((3.16*pow(10,-11)) * abs(now - doc['introduced_on'].date.getMillis()) + 0.05)) + 1.0"
+      }
+    ]
 
   cite_key :bill_id
 
-  
-  
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
-  
+
   index document_type: 1
   index document_id: 1
 
@@ -35,7 +48,7 @@ class Bill
 
   index keywords: 1
   index nicknames: 1
-  
+
   index sponsor_id: 1
   index cosponsor_ids: 1
   index cosponsors_count: 1
@@ -50,7 +63,7 @@ class Bill
   index last_vote_at: 1
   index last_version_on: 1
   index summary_date: 1
-    
+
   index introduced_on: 1
   index "history.active" => 1
   index "history.active_at" => 1
