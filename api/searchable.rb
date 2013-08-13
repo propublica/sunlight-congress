@@ -248,13 +248,9 @@ module Searchable
 
     query_filter = {}
 
-    if profiles
+    if profiles and query
 
       profile = profiles.first
-
-      if not query
-        # raise some sort of error
-      end
 
       query_filter[:query] = {
         custom_filters_score: {
@@ -277,25 +273,21 @@ module Searchable
         query_filter[:query][:filter] = filter
       end
 
-    else
-
-      if query and filter
-        query_filter = {
-          query: {
-            filtered: {
-              filter: filter,
-              query: query
-            }
+    elsif query and filter
+      query_filter = {
+        query: {
+          filtered: {
+            filter: filter,
+            query: query
           }
         }
-      elsif query
-        query_filter = {query: query}
-      elsif filter
-        query_filter = {filter: filter}
-      else
-        # uh oh?
-      end
-
+      }
+    elsif query
+      query_filter = {query: query}
+    elsif filter
+      query_filter = {filter: filter}
+    else
+      # uh oh?
     end
 
     sort = order.map do |field, direction|
