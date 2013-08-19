@@ -56,6 +56,7 @@ get searchable_route do
   order = order_for params, "_score"
 
   search_fields = Searchable.search_fields_for models
+  profiles = Searchable.profiles_for models, params
 
   # query is actually optional, these may both end up null
   query_string = query_string_for params
@@ -66,9 +67,9 @@ get searchable_route do
 
   begin
     if params[:explain] == 'true'
-      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, other
+      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, profiles, other
     else
-      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, other
+      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, profiles, other
       documents = Searchable.documents_for query_string, fields, raw_results
       documents = Citable.add_to models, documents, params
       results = Searchable.results_for raw_results, documents, pagination
