@@ -544,7 +544,16 @@ h1 a{
 
 
 
-/* user-added stuff */
+/**********************************
+ *
+ *
+ *  Sunlight-added stuff
+ *
+ *
+ **********************************/
+
+/* fix for mis-colored text blocks, a documentup bug */
+pre code.lang-text * {color: #4d4d4c !important;}
 
 #content {
     margin-left: 0;
@@ -562,19 +571,19 @@ h1 a{
     top: 0;
 }
 /*
-::-webkit-scrollbar { 
-    display: none; 
+::-webkit-scrollbar {
+    display: none;
 }
-::-moz-scrollbar { 
-    display: none; 
+::-moz-scrollbar {
+    display: none;
 } */
 #nav .thanks {
-    color: #8e908c; 
+    color: #8e908c;
     font-size: 80%;
 }
 #nav .thanks a {
-    display: inline; 
-    font-weight: normal; 
+    display: inline;
+    font-weight: normal;
     font-size: 100%;
 }
 .sf-header {
@@ -597,11 +606,3 @@ h1 a{
 #nav > *:last-child.scroll_effect{
     margin-bottom: 0;
 }
-
-
-
-
-
-
-
-
