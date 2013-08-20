@@ -58,34 +58,20 @@
   <div id="content">
     
     <h1>Upcoming Bills</h1>
-<p>Bills that have been scheduled by party leadership for upcoming House and Senate floor action. House schedules are taken from the <a href="http://majorityleader.gov/">House Majority Leader</a>, and Senate schedules from the <a href="http://democrats.senate.gov/">Senate Democratic Caucus</a>.
-
-</p>
-<p>This endpoint is future-looking only. Old data on bills scheduled in the past is automatically deleted.
-
-</p>
+<p>Bills that have been scheduled by party leadership for upcoming House and Senate floor action. House schedules are taken from the <a href="http://majorityleader.gov/">House Majority Leader</a>, and Senate schedules from the <a href="http://democrats.senate.gov/">Senate Democratic Caucus</a>.</p>
+<p>This endpoint is future-looking only. Old data on bills scheduled in the past is automatically deleted.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
-
-</p>
-<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
+<pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
 <h3 id='methods/upcoming_bills'>/upcoming_bills</h3 id='methods/upcoming_bills'>
-<p>Filter through upcoming bills in the House and Senate. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
-
-</p>
-<p><strong>Upcoming bills in the House</strong>
-
-</p>
-<pre><code class="text">/upcoming_bills?chamber=house</code></pre>
-<p><strong>Any scheduling of a particular bill</strong>
-
-</p>
-<pre><code class="text">/upcoming_bills?bill_id=s968-112</code></pre>
+<p>Filter through upcoming bills in the House and Senate. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.</p>
+<p><strong>Upcoming bills in the House</strong></p>
+<pre><code class="lang-text">/upcoming_bills<span class="number">?c</span>hamber=house</code></pre>
+<p><strong>Any scheduling of a particular bill</strong></p>
+<pre><code class="lang-text">/upcoming_bills<span class="number">?b</span>ill_id=s968-<span class="number">112</span></code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
-<p>* = can be used as a filter
-
-</p>
-<pre><code class="json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"sconres3-113"</span></span>,
+<p>* = can be used as a filter</p>
+<pre><code class="lang-json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"sconres3-113"</span></span>,
 "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
 "<span class="attribute">chamber</span>": <span class="value"><span class="string">"senate"</span></span>,
 "<span class="attribute">source_type</span>": <span class="value"><span class="string">"senate_daily"</span></span>,
@@ -95,59 +81,42 @@
 "<span class="attribute">url</span>": <span class="value"><span class="string">"http://democrats.senate.gov/2013/01/21/senate-floor-schedule-for-monday-january-21-2013/"</span>
 </span></code></pre>
 <p>* <strong>legislative_day</strong><br/>
-The legislative day this bill is scheduled for. Combine with the <code>range</code> field to understand precision. May be null.
-
-</p>
+The legislative day this bill is scheduled for. Combine with the <code>range</code> field to understand precision. May be null.</p>
 <p>* <strong>range</strong><br/>
-How precise this information is. &quot;day&quot;, &quot;week&quot;, or null. 
-
-</p>
+How precise this information is. &quot;day&quot;, &quot;week&quot;, or null. </p>
 <ul>
 <li><code>range</code> is &quot;day&quot;: bill has been scheduled specifically for the <code>legislative_day</code>.</li>
 <li><code>range</code> is &quot;week&quot;: bill has been scheduled for the &quot;Week of&quot; the <code>legislative_day</code>. </li>
 <li><code>range</code> is null: bill has been scheduled at an indefinite time in the future. (<code>legislative_day</code> is null.)</li>
 </ul>
-<p>The &quot;legislative day&quot; is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day&#39;s session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
-
-</p>
+<p>The &quot;legislative day&quot; is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day&#39;s session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)</p>
 <p>* <strong>congress</strong><br/>
-The number of the Congress this bill has been scheduled in.
-
-</p>
+The number of the Congress this bill has been scheduled in.</p>
 <p>* <strong>chamber</strong><br/>
-The chamber which has scheduled this bill.
-
-</p>
+The chamber which has scheduled this bill.</p>
 <p>* <strong>source_type</strong><br/>
-The source for this information. &quot;house_daily&quot; (<a href="http://majorityleader.gov/floor/daily.html">Majority Leader daily schedule</a> or &quot;senate_daily&quot; (<a href="http://democrats.senate.gov/floor/">Senate Democrats&#39; Floor feed</a>.
-
-</p>
+The source for this information. &quot;house_daily&quot; (<a href="http://majorityleader.gov/floor/daily.html">Majority Leader daily schedule</a> or &quot;senate_daily&quot; (<a href="http://democrats.senate.gov/floor/">Senate Democrats&#39; Floor feed</a>.</p>
 <p><strong>context</strong><br/>
-(Senate only) Some context for what kind of activity will be occurring to the bill.
-
-</p>
+(Senate only) Some context for what kind of activity will be occurring to the bill.</p>
 <p><strong>url</strong><br/>
-A permalink for this information. For the House, this may be a PDF.
-
-</p>
+A permalink for this information. For the House, this may be a PDF.</p>
 <h3 id='fields/associated-bill'>Associated Bill</h3 id='fields/associated-bill'>
-<pre><code class="json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
 "<span class="attribute">bill</span>": <span class="value">{
   "<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
   "<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>,
   "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span>
   ...
-</span>}
+}</span>
 </span></code></pre>
 <p>* <strong>bill_id</strong><br/>
-The ID of the <a href="bills.html">bill</a> that is being scheduled.
-
-</p>
+The ID of the <a href="bills.html">bill</a> that is being scheduled.</p>
 <p><strong>bill</strong><br/>
 Some basic fields about the <a href="bills.html">bill</a> that is being scheduled.</p>
 
   </div>
 </div>
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];

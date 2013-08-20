@@ -50,41 +50,23 @@
   <div id="content">
     
     <h1>Floor Updates</h1>
-<p>Recent real time, to-the-minute updates from the House and Senate floor. House floor updates are sourced from XML at the <a href="http://clerk.house.gov/floorsummary/floor.aspx">House Clerk</a>, and Senate updates from the <a href="http://www.senate.gov/galleries/pdcl/index.htm">Senate Periodical Press Gallery</a>.
-
-</p>
-<p>This endpoint focuses on the recent past. We don&#39;t automatically delete old floor updates, but we also don&#39;t guarantee non-recent data will remain available.
-
-</p>
+<p>Recent real time, to-the-minute updates from the House and Senate floor. House floor updates are sourced from XML at the <a href="http://clerk.house.gov/floorsummary/floor.aspx">House Clerk</a>, and Senate updates from the <a href="http://www.senate.gov/galleries/pdcl/index.htm">Senate Periodical Press Gallery</a>.</p>
+<p>This endpoint focuses on the recent past. We don&#39;t automatically delete old floor updates, but we also don&#39;t guarantee non-recent data will remain available.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
-
-</p>
-<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
+<pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
 <h3 id='methods/floor_updates'>/floor_updates</h3 id='methods/floor_updates'>
-<p>Search and filter through floor updates in the House and Senate. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
-
-</p>
-<p><strong>Senate floor updates in the 113th Congress</strong>
-
-</p>
-<pre><code class="text">/floor_updates?chamber=senate&amp;congress=113</code></pre>
-<p><strong>Floor activity on a given bill</strong>
-
-</p>
-<pre><code class="text">/floor_updates?bill_ids=s968-112</code></pre>
-<p><strong>House voice votes</strong>
-
-</p>
-<pre><code class="text">/floor_updates?chamber=house&amp;query=Agreed to by voice vote</code></pre>
-<p>The value of the <code>query</code> parameter will be matched against floor updates&#39; <code>update</code> field.
-
-</p>
+<p>Search and filter through floor updates in the House and Senate. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.</p>
+<p><strong>Senate floor updates in the 113th Congress</strong></p>
+<pre><code class="lang-text">/floor_updates<span class="number">?c</span>hamber=senate&amp;congress=<span class="number">113</span></code></pre>
+<p><strong>Floor activity on a given bill</strong></p>
+<pre><code class="lang-text">/floor_updates<span class="number">?b</span>ill_ids=s968-<span class="number">112</span></code></pre>
+<p><strong>House voice votes</strong></p>
+<pre><code class="lang-text">/floor_updates?chamber=house&amp;query=Agreed <span class="keyword">to</span> <span class="keyword">by</span> voice vote</code></pre>
+<p>The value of the <code>query</code> parameter will be matched against floor updates&#39; <code>update</code> field.</p>
 <h2 id='fields'>Fields</h2 id='fields'>
-<p>* = can be used as a filter
-
-</p>
-<pre><code class="json">"<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
+<p>* = can be used as a filter</p>
+<pre><code class="lang-json">"<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
 "<span class="attribute">timestamp</span>": <span class="value"><span class="string">"2013-01-04T18:34:14Z"</span></span>,
 "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
 "<span class="attribute">year</span>": <span class="value"><span class="number">2013</span></span>,
@@ -97,42 +79,27 @@
 "<span class="attribute">legislator_ids</span>": <span class="value">[]
 </span></code></pre>
 <p>* <strong>chamber</strong><br/>
-The chamber this update took place in. &quot;house&quot; or &quot;senate&quot;.
-
-</p>
+The chamber this update took place in. &quot;house&quot; or &quot;senate&quot;.</p>
 <p>* <strong>timestamp</strong><br/>
-The time this update took place. For Senate updates, this actually means the time our system first observed the update, and is susceptible to error; the Senate does not offer precise timestamps.
-
-</p>
+The time this update took place. For Senate updates, this actually means the time our system first observed the update, and is susceptible to error; the Senate does not offer precise timestamps.</p>
 <p>* <strong>congress</strong><br/>
-The number of the Congress this update took place during.
-
-</p>
+The number of the Congress this update took place during.</p>
 <p>* <strong>legislative_day</strong><br/>
-The &quot;legislative day&quot; this update took place in. The &quot;legislative day&quot; is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day&#39;s session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)
-
-</p>
+The &quot;legislative day&quot; this update took place in. The &quot;legislative day&quot; is a formal construct that is usually, but not always, the same as the calendar day. For example, if a day&#39;s session of Congress runs past midnight, the legislative_day will often stay the same as it was before midnight, until that session adjourns. On January 3rd, it is possible that the same legislative_day could span two Congresses. (This occurred in 2013.)</p>
 <p>* <strong>year</strong><br/>
-The &quot;legislative year&quot; of the update. This is <strong>not quite the same</strong> as the calendar year - the legislative year changes at noon EST on January 3rd. A vote taken on January 1, 2013 has a &quot;legislative year&quot; of 2012.
-
-</p>
+The &quot;legislative year&quot; of the update. This is <strong>not quite the same</strong> as the calendar year - the legislative year changes at noon EST on January 3rd. A vote taken on January 1, 2013 has a &quot;legislative year&quot; of 2012.</p>
 <p><strong>update</strong><br/>
-The text of the update.
-
-</p>
+The text of the update.</p>
 <p>* <strong>bill_ids</strong><br/>
-An array of IDs of <a href="bills.html">bills</a> that are referenced by or associated with this floor update.
-
-</p>
+An array of IDs of <a href="bills.html">bills</a> that are referenced by or associated with this floor update.</p>
 <p>* <strong>roll_ids</strong><br/>
-An array of IDs of <a href="votes.html">roll call votes</a> that are referenced by or associated with this floor update.
-
-</p>
+An array of IDs of <a href="votes.html">roll call votes</a> that are referenced by or associated with this floor update.</p>
 <p>* <strong>legislator_ids</strong><br/>
 An array of bioguide IDs of <a href="legislators.html">legislators</a> that are referenced by this floor update.</p>
 
   </div>
 </div>
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];

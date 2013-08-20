@@ -85,8 +85,7 @@
 <h2 id='fields'>Fields</h2 id='fields'>
 <p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.</p>
 <p>* = can be used as a filter</p>
-<pre><code class="lang-json">{
-"<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h7-2013"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">roll_id</span>": <span class="value"><span class="string">"h7-2013"</span></span>,
 "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span></span>,
 "<span class="attribute">number</span>": <span class="value"><span class="number">7</span></span>,
 "<span class="attribute">year</span>": <span class="value"><span class="number">2013</span></span>,
@@ -98,7 +97,7 @@
 "<span class="attribute">required</span>": <span class="value"><span class="string">"2/3"</span></span>,
 "<span class="attribute">result</span>": <span class="value"><span class="string">"Passed"</span></span>,
 "<span class="attribute">source</span>": <span class="value"><span class="string">"http://clerk.house.gov/evs/2013/roll007.xml"</span>
-}</span></code></pre>
+</span></code></pre>
 <p>* <strong>roll_id</strong><br/>
 A unique identifier for a roll call vote. Made from the first letter of the <code>chamber</code>, the vote <code>number</code>, and the legislative <code>year</code>.</p>
 <p>* <strong>chamber</strong><br/>
@@ -124,22 +123,20 @@ The official result of the vote. This is not completely standardized (both &quot
 <p><strong>source</strong><br/>
 The original, official source XML for this vote information.</p>
 <h3 id='fields/associated-bill'>Associated Bill</h3 id='fields/associated-bill'>
-<pre><code class="lang-json">{
-"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
 "<span class="attribute">bill</span>": <span class="value">{
   "<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr41-113"</span></span>,
   "<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>,
   "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span>
   ...
 }</span>
-}</span></code></pre>
+</span></code></pre>
 <p>* <strong>bill_id</strong><br/>
 If a vote is related to a bill, the bill&#39;s ID.</p>
 <p><strong>bill</strong><br/>
 If a vote is related to a bill, some basic fields about the bill.</p>
 <h3 id='fields/voters'>Voters</h3 id='fields/voters'>
-<pre><code class="lang-json">{
-"<span class="attribute">voter_ids</span>": <span class="value">{
+<pre><code class="lang-json">"<span class="attribute">voter_ids</span>": <span class="value">{
   "<span class="attribute">A000055</span>": <span class="value"><span class="string">"Yea"</span></span>,
   "<span class="attribute">A000361</span>": <span class="value"><span class="string">"Yea"</span>
   ...
@@ -163,7 +160,7 @@ If a vote is related to a bill, some basic fields about the bill.</p>
   }</span>
   ...
 }</span>
-}</span></code></pre>
+</span></code></pre>
 <p>Most votes are &quot;Yea&quot;, &quot;Nay&quot;, &quot;Present&quot;, and &quot;Not Voting&quot;. There are exceptions: in the Senate, impeachment votes are &quot;Guilty&quot; or &quot;Not Guilty&quot;. In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. &quot;Pelosi&quot; or &quot;Boehner&quot;). There may be other exceptions.</p>
 <p><strong>voter_ids</strong><br/>
 An object connecting bioguide IDs of members to the vote values they cast.</p>
@@ -174,8 +171,7 @@ The value of the vote this voter cast.</p>
 <p><strong>voters.voter</strong><br/>
 Some basic fields about the voter.</p>
 <h3 id='fields/vote-breakdown'>Vote Breakdown</h3 id='fields/vote-breakdown'>
-<pre><code class="lang-json">{
-"<span class="attribute">breakdown</span>": <span class="value">{
+<pre><code class="lang-json">"<span class="attribute">breakdown</span>": <span class="value">{
   "<span class="attribute">total</span>": <span class="value">{
     "<span class="attribute">Yea</span>": <span class="value"><span class="number">62</span></span>,
     "<span class="attribute">Nay</span>": <span class="value"><span class="number">36</span></span>,
@@ -203,7 +199,7 @@ Some basic fields about the voter.</p>
     }</span>
   }</span>
 }</span>
-}</span></code></pre>
+</span></code></pre>
 <p>The vote <strong>breakdown</strong> gives top-level numbers about what votes were cast.</p>
 <p>Most votes are &quot;Yea&quot;, &quot;Nay&quot;, &quot;Present&quot;, and &quot;Not Voting&quot;. There are exceptions: in the Senate, impeachment votes are &quot;Guilty&quot; or &quot;Not Guilty&quot;. In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. &quot;Pelosi&quot; or &quot;Boehner&quot;). There may be other exceptions.</p>
 <p>Values for &quot;Present&quot; and &quot;Not Voting&quot; will always be present, no matter what kind of vote it is.</p>

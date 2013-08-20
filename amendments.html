@@ -70,38 +70,22 @@
   <div id="content">
     
     <h1>Amendments</h1>
-<p>Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> project.
-
-</p>
+<p>Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> project.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
-<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:
-
-</p>
-<pre><code class="text">http://congress.api.sunlightfoundation.com</code></pre>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
+<pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
 <h3 id='methods/amendments'>/amendments</h3 id='methods/amendments'>
-<p>Filter through amendments in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.
-
-</p>
-<p><strong>Senate amendments in the 113th Congress</strong>
-
-</p>
-<pre><code class="text">/amendments?chamber=house&amp;congress=113</code></pre>
-<p><strong>Amendments sponsored by the House Rules Committee</strong>
-
-</p>
-<pre><code class="text">/amendments?sponsor_type=committee&amp;sponsor_id=HSRU</code></pre>
-<p><strong>Amendments of CISPA, H.R. 624</strong>
-
-</p>
-<pre><code class="text">/amendments?amends_bill_id=hr624-113</code></pre>
+<p>Filter through amendments in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.</p>
+<p><strong>Senate amendments in the 113th Congress</strong></p>
+<pre><code class="lang-text">/amendments<span class="number">?c</span>hamber=house&amp;congress=<span class="number">113</span></code></pre>
+<p><strong>Amendments sponsored by the House Rules Committee</strong></p>
+<pre><code class="lang-text">/amendments<span class="number">?s</span>ponsor_type=committee&amp;sponsor_id=<span class="constant">HSRU</span></code></pre>
+<p><strong>Amendments of CISPA, H.R. 624</strong></p>
+<pre><code class="lang-text">/amendments<span class="number">?a</span>mends_bill_id=hr624-<span class="number">113</span></code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
-<p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.
-
-</p>
-<p>* = can be used as a filter
-
-</p>
-<pre><code class="json">"<span class="attribute">amendment_id</span>": <span class="value"><span class="string">"hamdt10-113"</span></span>,
+<p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.</p>
+<p>* = can be used as a filter</p>
+<pre><code class="lang-json">"<span class="attribute">amendment_id</span>": <span class="value"><span class="string">"hamdt10-113"</span></span>,
 "<span class="attribute">amendment_type</span>": <span class="value"><span class="string">"hamdt"</span></span>,
 "<span class="attribute">number</span>": <span class="value"><span class="number">10</span></span>,
 "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
@@ -111,117 +95,77 @@
 "<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2013-01-15T22:27:00Z"</span>
 </span></code></pre>
 <p>* <strong>amendment_id</strong><br/>
-The unique ID for this amendment. Formed from the <code>amendment_type</code>, <code>number</code>, and <code>congress</code>.
-
-</p>
+The unique ID for this amendment. Formed from the <code>amendment_type</code>, <code>number</code>, and <code>congress</code>.</p>
 <p>* <strong>amendment_type</strong><br/>
-The type for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>amendment_type</code> represents the &quot;H.Amdt.&quot; part. Amendment types can be either <strong>hamdt</strong> or <strong>samdt</strong>.
-
-</p>
+The type for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>amendment_type</code> represents the &quot;H.Amdt.&quot; part. Amendment types can be either <strong>hamdt</strong> or <strong>samdt</strong>.</p>
 <p>* <strong>number</strong><br/>
-The number for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>number</code> is 10.
-
-</p>
+The number for this amendment. For the amendment &quot;H.Amdt. 10&quot;, the <code>number</code> is 10.</p>
 <p>* <strong>congress</strong><br/>
-The Congress in which this amendment was introduced. For example, amendments introduced in the &quot;113th Congress&quot; have a <code>congress</code> of 113.
-
-</p>
+The Congress in which this amendment was introduced. For example, amendments introduced in the &quot;113th Congress&quot; have a <code>congress</code> of 113.</p>
 <p>* <strong>chamber</strong><br/>
-The chamber in which the amendment was introduced.
-
-</p>
+The chamber in which the amendment was introduced.</p>
 <p>* <strong>house_number</strong><br/>
-If the amendment was introduced in the House, this is a <strong>relative</strong> amendment number, scoped to the bill or treaty the House it relates to. How this number gets assigned is complicated and involves multiple institutions within the House and the Library of Congress. You can read the <a href="https://github.com/unitedstates/congress/issues/68">gory details</a> if you want, but this number will <strong>usually</strong> do the job of connecting to data from the House Clerk&#39;s <a href="http://clerk.house.gov/evs/2013/index.asp">Electronic Voting System</a>.
-
-</p>
+If the amendment was introduced in the House, this is a <strong>relative</strong> amendment number, scoped to the bill or treaty the House it relates to. How this number gets assigned is complicated and involves multiple institutions within the House and the Library of Congress. You can read the <a href="https://github.com/unitedstates/congress/issues/68">gory details</a> if you want, but this number will <strong>usually</strong> do the job of connecting to data from the House Clerk&#39;s <a href="http://clerk.house.gov/evs/2013/index.asp">Electronic Voting System</a>.</p>
 <p>* <strong>introduced_on</strong><br/>
-The date this amendment was introduced.
-
-</p>
+The date this amendment was introduced.</p>
 <p>* <strong>last_action_at</strong><br/>
-The date or time of the most recent official action on the amendment. Often, there are no official actions, in which case this field will be set to the value of <code>introduced_on</code>.
-
-</p>
+The date or time of the most recent official action on the amendment. Often, there are no official actions, in which case this field will be set to the value of <code>introduced_on</code>.</p>
 <h3 id='fields/what-it-amends'>What it Amends</h3 id='fields/what-it-amends'>
-<pre><code class="json">"<span class="attribute">amends_amendment_id</span>": <span class="value"><span class="string">"hamdt5-113"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">amends_amendment_id</span>": <span class="value"><span class="string">"hamdt5-113"</span></span>,
 "<span class="attribute">amends_amendment</span>": <span class="value">{
   "<span class="attribute">amendment_id</span>": <span class="value"><span class="string">"hamdt5-113"</span></span>,
   "<span class="attribute">congress</span>": <span class="value"><span class="number">113</span></span>,
   "<span class="attribute">number</span>": <span class="value"><span class="number">5</span>
   ...
-</span>}</span>,
+}</span></span>,
 "<span class="attribute">amends_bill_id</span>": <span class="value"><span class="string">"hr152-113"</span></span>,
 "<span class="attribute">amends_bill</span>": <span class="value">{
   "<span class="attribute">bill_id</span>": <span class="value"><span class="string">"hr152-113"</span></span>,
   "<span class="attribute">bill_type</span>": <span class="value"><span class="string">"hr"</span></span>,
   "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
   ...
-</span>}
+}</span>
 </span></code></pre>
-<p>An amendment will relate to either a <strong>bill</strong> or a <strong>treaty</strong>. An amendment can either amend a bill or treaty directly, or it can amend an <strong>amendment</strong> that amends a bill.
-
-</p>
+<p>An amendment will relate to either a <strong>bill</strong> or a <strong>treaty</strong>. An amendment can either amend a bill or treaty directly, or it can amend an <strong>amendment</strong> that amends a bill.</p>
 <p>* <strong>amends_bill_id</strong><br/>
-If this amendment relates to a bill, this field is the ID of the related bill.
-
-</p>
+If this amendment relates to a bill, this field is the ID of the related bill.</p>
 <p><strong>amends_bill</strong><br/>
-If this amendment relates to a bill, some basic details about that related bill.
-
-</p>
+If this amendment relates to a bill, some basic details about that related bill.</p>
 <p>* <strong>amends_treaty_id</strong><br/>
-If this amendment relates to a treaty, this field is the ID of the related treaty. Treaty IDs are of the form <code>treatyX-Y</code>, where X is the treaty&#39;s number, and Y is the Congress the treaty is being considered in.
-
-</p>
+If this amendment relates to a treaty, this field is the ID of the related treaty. Treaty IDs are of the form <code>treatyX-Y</code>, where X is the treaty&#39;s number, and Y is the Congress the treaty is being considered in.</p>
 <p>* <strong>amends_amendment_id</strong><br/>
-If this amendment amends an amendment, this field is the ID of the amended amendment.
-
-</p>
+If this amendment amends an amendment, this field is the ID of the amended amendment.</p>
 <p><strong>amends_amendment</strong><br/>
-If this amendment amends an amendment, some basic details about that amended amendment.
-
-
-</p>
+If this amendment amends an amendment, some basic details about that amended amendment.</p>
 <h3 id='fields/sponsor'>Sponsor</h3 id='fields/sponsor'>
-<pre><code class="json">"<span class="attribute">sponsor_type</span>": <span class="value"><span class="string">"person"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">sponsor_type</span>": <span class="value"><span class="string">"person"</span></span>,
 "<span class="attribute">sponsor_id</span>": <span class="value"><span class="string">"B000574"</span></span>,
 "<span class="attribute">sponsor</span>": <span class="value">{
   "<span class="attribute">bioguide_id</span>": <span class="value"><span class="string">"B000574"</span></span>,
   "<span class="attribute">birthday</span>": <span class="value"><span class="string">"1948-08-16"</span></span>,
   "<span class="attribute">chamber</span>": <span class="value"><span class="string">"house"</span>
   ...
-</span>}
+}</span>
 </span></code></pre>
-<p>Unlike bills, amendments can be sponsored by either a <strong>person</strong> or a <strong>committee</strong>.
-
-</p>
+<p>Unlike bills, amendments can be sponsored by either a <strong>person</strong> or a <strong>committee</strong>.</p>
 <p>* <strong>sponsor_type</strong><br/>
-Whether the amendment is sponsored by a &quot;person&quot; or a &quot;committee&quot;.
-
-</p>
+Whether the amendment is sponsored by a &quot;person&quot; or a &quot;committee&quot;.</p>
 <p>* <strong>sponsor_id</strong><br/>
-If the <code>sponsor_type</code> is &quot;person&quot;, this will be that person&#39;s bioguide ID. If the <code>sponsor_type</code> is &quot;committee&quot;, this will be that committee&#39;s ID (see the <a href="committees.html">committee docs</a> for information on committee IDs).
-
-</p>
+If the <code>sponsor_type</code> is &quot;person&quot;, this will be that person&#39;s bioguide ID. If the <code>sponsor_type</code> is &quot;committee&quot;, this will be that committee&#39;s ID (see the <a href="committees.html">committee docs</a> for information on committee IDs).</p>
 <p><strong>sponsor</strong><br/>
-If the <code>sponsor_type</code> is &quot;person&quot;, some basic details about that person. If the <code>sponsor_type</code> is &quot;committee&quot;, some basic details about that committee.
-
-</p>
+If the <code>sponsor_type</code> is &quot;person&quot;, some basic details about that person. If the <code>sponsor_type</code> is &quot;committee&quot;, some basic details about that committee.</p>
 <h3 id='fields/description-and-purpose'>Description and Purpose</h3 id='fields/description-and-purpose'>
-<pre><code class="json">"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
+<pre><code class="lang-json">"<span class="attribute">purpose</span>": <span class="value"><span class="string">"An amendment numbered 6 printed in Part C of House Report 113-1 to clarify that the Corps of Engineers..."</span></span>,
 "<span class="attribute">description</span>": <span class="value"><span class="string">"Amendment to clarify that the Corps of Engineers..."</span>
 </span></code></pre>
-<p>Amendments can have a <code>purpose</code> and a <code>description</code>. It&#39;s not clear why there are two separate fields. When both are available, the <code>purpose</code> has slightly more information, but that information may be procedural and not relevant to the content of the amendment, as in the example above.
-
-</p>
-<p>Amendments can have neither of these two fields (very common), or only a <code>purpose</code> (common), or only a <code>description</code> (common), or neither (very rare). You can read <a href="https://github.com/unitedstates/congress/issues/71#issuecomment-18246379">further discussion</a> if you&#39;re interested.
-
-</p>
+<p>Amendments can have a <code>purpose</code> and a <code>description</code>. It&#39;s not clear why there are two separate fields. When both are available, the <code>purpose</code> has slightly more information, but that information may be procedural and not relevant to the content of the amendment, as in the example above.</p>
+<p>Amendments can have neither of these two fields (very common), or only a <code>purpose</code> (common), or only a <code>description</code> (common), or neither (very rare). You can read <a href="https://github.com/unitedstates/congress/issues/71#issuecomment-18246379">further discussion</a> if you&#39;re interested.</p>
 <h3 id='fields/actions'>Actions</h3 id='fields/actions'>
 <p>Actions on an amendment are identical to actions on bills. Please refer to the <a href="bills.html#fields/actions">documentation on bill actions</a> for examples and details.</p>
 
   </div>
 </div>
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];

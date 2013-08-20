@@ -85,15 +85,14 @@
 <pre><code class="lang-text">/committees<span class="number">?p</span>er_page=all</code></pre>
 <h2 id='fields'>Fields</h2 id='fields'>
 <p>* = can be used as a filter</p>
-<pre><code class="lang-json">{
-"<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Homeland Security"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Homeland Security"</span></span>,
 "<span class="attribute">committee_id</span>":<span class="value"><span class="string">"HSHM"</span></span>,
 "<span class="attribute">chamber</span>":<span class="value"><span class="string">"house"</span></span>,
 "<span class="attribute">url</span>": <span class="value"><span class="string">"http://homeland.house.gov/"</span></span>,
 "<span class="attribute">office</span>": <span class="value"><span class="string">"H2-176 FHOB"</span></span>,
 "<span class="attribute">phone</span>": <span class="value"><span class="string">"(202) 226-8417"</span></span>,
 "<span class="attribute">subcommittee</span>": <span class="value"><span class="literal">false</span></span>,
-}</code></pre>
+</code></pre>
 <p><strong>name</strong><br/>
 Official name of the committee. Parent committees tend to have a prefix, e.g. &quot;House Committee on&quot;, and subcommittees do not, e.g. &quot;Health&quot;.</p>
 <p>* <strong>committee_id</strong><br/>
@@ -109,8 +108,7 @@ The committee&#39;s phone number.</p>
 <p>* <strong>subcommittee</strong><br/>
 Whether or not the committee is a subcommittee.</p>
 <h3 id='fields/members'>Members</h3 id='fields/members'>
-<pre><code class="lang-json">{
-"<span class="attribute">member_ids</span>":<span class="value">[
+<pre><code class="lang-json">"<span class="attribute">member_ids</span>":<span class="value">[
   <span class="string">"K000210"</span>,
   <span class="string">"S000583"</span>
   ...
@@ -129,7 +127,7 @@ Whether or not the committee is a subcommittee.</p>
   }</span>
   ...
 ]
-}</span></code></pre>
+</span></code></pre>
 <p>Note: membership information is not returned by default for requests to <code>/committees</code>. You must specifically request these fields by using the <code>fields</code> parameter as documented in <a href="/index.html#parameters/partial-responses">Partial Responses</a>.</p>
 <p>* <strong>member_ids</strong><br/>
 An array of bioguide IDs of <a href="legislators.html">legislators</a> that are assigned to this committee.</p>
@@ -140,8 +138,7 @@ The rank this member holds on the committee. Typically, this is calculated by se
 <p><strong>members.title</strong><br/>
 A title, if any, the member holds on the committee. &quot;Chair&quot; (in the House) and &quot;Chairman&quot; (in the Senate) signifies the chair of the committee. &quot;Ranking Member&quot; (in both chambers) signifies the highest ranking minority member.</p>
 <h3 id='fields/subcommittees'>Subcommittees</h3 id='fields/subcommittees'>
-<pre><code class="lang-json">{
-"<span class="attribute">subcommittees</span>": <span class="value">[
+<pre><code class="lang-json">"<span class="attribute">subcommittees</span>": <span class="value">[
   {
     "<span class="attribute">name</span>": <span class="value"><span class="string">"Cybersecurity, Infrastructure Protection, and Security Technologies"</span></span>,
     "<span class="attribute">committee_id</span>": <span class="value"><span class="string">"HSHM08"</span></span>,
@@ -150,11 +147,10 @@ A title, if any, the member holds on the committee. &quot;Chair&quot; (in the Ho
   }</span>
   ...
 ]
-}</span></code></pre>
+</span></code></pre>
 <p>If the committee is a parent committee, the <strong>subcommittees</strong> field contains a few basic fields about its subcommittees.</p>
 <h3 id='fields/parent-committee'>Parent Committee</h3 id='fields/parent-committee'>
-<pre><code class="lang-json">{
-"<span class="attribute">parent_committee_id</span>": <span class="value"><span class="string">"HSSM"</span></span>,
+<pre><code class="lang-json">"<span class="attribute">parent_committee_id</span>": <span class="value"><span class="string">"HSSM"</span></span>,
 "<span class="attribute">parent_committee</span>": <span class="value">{
   "<span class="attribute">committee_id</span>": <span class="value"><span class="string">"HSSM"</span></span>,
   "<span class="attribute">name</span>": <span class="value"><span class="string">"House Committee on Small Business"</span></span>,
@@ -163,7 +159,7 @@ A title, if any, the member holds on the committee. &quot;Chair&quot; (in the Ho
   "<span class="attribute">office</span>": <span class="value"><span class="string">"2361 RHOB"</span></span>,
   "<span class="attribute">phone</span>":  <span class="value"><span class="string">"(202) 225-5821"</span>
 }</span>
-}</span></code></pre>
+</span></code></pre>
 <p>* <strong>parent_committee_id</strong><br/>
 If the committee is a subcommittee, the ID of its parent committee.</p>
 <p><strong>parent_committee</strong><br/>

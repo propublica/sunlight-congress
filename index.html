@@ -224,8 +224,7 @@
 <p>To save on bandwidth, parsing time, and confusion, it&#39;s recommended to always specify which fields you will be using.</p>
 <p><strong>Latest vote numbers and their results</strong></p>
 <pre><code class="lang-text">/votes<span class="number">?f</span>ields=roll_id,result,breakdown.total</code></pre>
-<pre><code class="lang-json">{
-"<span class="attribute">results</span>": <span class="value">[
+<pre><code class="lang-json">"<span class="attribute">results</span>": <span class="value">[
   {
     "<span class="attribute">breakdown</span>": <span class="value">{
       "<span class="attribute">total</span>": <span class="value">{
@@ -252,7 +251,7 @@
   }</span>
   ...
 ]
-}</span></code></pre>
+</span></code></pre>
 <h3 id='parameters/filtering'>Filtering</h3 id='parameters/filtering'>
 <p>You can filter on many fields with a simple key/value pair:</p>
 <pre><code class="lang-text">/legislators<span class="number">?l</span>ast_name=<span class="constant">Smith</span></code></pre>
@@ -285,14 +284,13 @@
 <p>All results in the Congress API are paginated. Set <code>per_page</code> and <code>page</code> to control the page size and offset. The maximum <code>per_page</code> is 50.</p>
 <pre><code class="lang-text">/floor_updates<span class="number">?c</span>hamber=house&amp;per_page=<span class="number">50</span>&amp;page=<span class="number">3</span></code></pre>
 <p>At the top-level of every response are <strong>count</strong> and <strong>page</strong> fields, with pagination information.</p>
-<pre><code class="lang-json">{
-"<span class="attribute">count</span>": <span class="value"><span class="number">163</span></span>,
+<pre><code class="lang-json">"<span class="attribute">count</span>": <span class="value"><span class="number">163</span></span>,
 "<span class="attribute">page</span>": <span class="value">{
   "<span class="attribute">per_page</span>": <span class="value"><span class="number">50</span></span>,
   "<span class="attribute">page</span>": <span class="value"><span class="number">3</span></span>,
   "<span class="attribute">count</span>": <span class="value"><span class="number">50</span>
 }</span>
-}</span></code></pre>
+</span></code></pre>
 <p><strong>count</strong><br/>
 The total number of documents that match the query.</p>
 <p><strong>page.per_page</strong><br/>
