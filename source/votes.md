@@ -1,6 +1,6 @@
 # Votes
 
-Roll call votes taken by the House and Senate. This data is taken from original [House](http://clerk.house.gov/legislative/legvotes.aspx) and [Senate](http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm) sources, and goes back to 2009. 
+Roll call votes taken by the House and Senate. This data is taken from original [House](http://clerk.house.gov/legislative/legvotes.aspx) and [Senate](http://www.senate.gov/pagelayout/legislative/a_three_sections_with_teasers/votes.htm) sources, and goes back to 2009.
 
 House and Senate votes normally appear within an hour after the vote is taken. House data usually appears more quickly, since the House uses an electronic voting system.
 
@@ -30,9 +30,17 @@ Search and filter through votes in Congress. Filter by any [fields below](#field
 /votes?query=guns
 ```
 
-This will search votes' `question` field.
+**Votes taken by Rep. Robert Aderholt**
 
-**= TBD =**
+```text
+/votes?voter_ids.A000055__exists=true
+```
+
+**Votes since July 2, 2013**
+
+```text
+/votes?voted_at__gte=2013-07-02T4:00:00Z
+```
 
 ## Fields
 
