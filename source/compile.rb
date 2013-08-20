@@ -83,7 +83,9 @@ files.each do |filename|
   content.sub! /<\/iframe>.*?<\/div>/im, "</iframe></div><div class=\"thanks\">powered by <a href=\"http://documentup.com\">DocumentUp</a></div>"
 
   # get rid of braces around unindented (partial) JSON blocks
-  content.gsub!(/(<code class=\"json\">){\s*\n([^\s])(.*?)}(<\/code>)/im) { [$1, $2, $3, $4].join("") }
+  content.gsub!(/(<code class=\"lang\-json\">){\s*\n([^\s])(.*?)}((?:<\/span>)?<\/code>)/im) {
+    [$1, $2, $3, $4].join("")
+  }
 
   File.open(output_file, "w") {|file| file.write content}
 end
