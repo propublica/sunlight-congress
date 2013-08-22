@@ -4,12 +4,12 @@ require 'us-documents'
 class BillsText
 
   # Indexes full text of versions of bills into ElasticSearch.
-  # 
+  #
   # options:
   #   congress: which congress (e.g. 111, 112) of Congress to load
   #   limit: number of bills to stop at (useful for development)
   #   bill_id: index only a specific bill.
-  
+
   def self.run(options = {})
     bill_count = 0
     version_count = 0
@@ -19,7 +19,7 @@ class BillsText
     else
       congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
       targets = Bill.where(congress: congress).distinct :bill_id
-      
+
       if options[:limit]
         targets = targets.first options[:limit].to_i
       end
@@ -34,7 +34,7 @@ class BillsText
 
     targets.to_a.each do |bill_id|
       type, number, congress, chamber = Utils.bill_fields_from bill_id
-      
+
       # load in bill for this ID
       bill = Bill.where(bill_id: bill_id).first
 
@@ -42,6 +42,7 @@ class BillsText
       # ES will index a bill's basic fields plus these others
       es_only = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
+        last_action: bill['last_action'],
         summary: bill['summary'],
         summary_short: bill['summary_short'],
         keywords: bill['keywords']
@@ -64,29 +65,29 @@ class BillsText
         version_fields = {
           last_version_on: bill['introduced_on']
         }
-        
+
       else
-      
+
         # accumulate an array of version objects
-        bill_versions = [] 
-        
+        bill_versions = []
+
         version_files.each do |file|
           # strip off the version code
           bill_version_id = File.basename file, File.extname(file)
           version_code = bill_version_id.match(/\-(\w+)$/)[1]
-          
+
           # standard GPO version name
           version_name = Utils.bill_version_name_for version_code
-          
+
           # metadata from associated GPO MODS file
           # -- MODS file is a constant reasonable size no matter how big the bill is
-          
+
           mods_file = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.mods.xml"
           mods_doc = nil
           if File.exists?(mods_file)
             mods_doc = Nokogiri::XML open(mods_file)
           end
-          
+
           issued_on = nil # will get filled in
           urls = nil # may not...
           pages = nil
@@ -103,23 +104,23 @@ class BillsText
 
           else
             puts "[#{bill_id}][#{version_code}] No MODS data, skipping!" if options[:debug]
-            
+
             # hr81-112-enr is known to trigger this, but that looks like a mistake on GPO's part (HR 81 was never voted on)
             # So if any other bill triggers this, send me a warning so I can check it out.
             if bill_version_id != "hr81-112-enr"
               warnings << {message: "No MODS data available for #{bill_version_id}, SKIPPING"}
             end
-            
+
             # either way, skip over the bill version, it's probably invalid
             next
           end
-          
-          
+
+
           # read in full text
           full_doc = Nokogiri::HTML File.read(file)
           full_text = full_doc.at("pre").text
           full_text = clean_text full_text
-          
+
           # write text to disk if asked
           Utils.write(text_cache(congress, bill_id), full_text) if options[:cache_text]
 
@@ -130,7 +131,7 @@ class BillsText
 
 
           version_count += 1
-          
+
           bill_versions << {
             version_code: version_code,
             issued_on: issued_on,
@@ -143,12 +144,12 @@ class BillsText
             text: full_text
           }
         end
-        
+
         if bill_versions.size == 0
           warnings << {message: "No versions with a valid date found for bill #{bill_id}, SKIPPING update of the bill entirely in ES and Mongo", bill_id: bill_id}
           next
         end
-        
+
         bill_versions = bill_versions.sort_by {|v| v[:issued_on]}
         last_version = bill_versions.last
         last_version_text = last_version[:text].dup
@@ -175,7 +176,7 @@ class BillsText
 
 
       # Update bill in Mongo
-      
+
       bill.attributes = version_fields.merge(mongo_only)
       bill.save!
       puts "[#{bill_id}] Updated bill with version and citation info." if options[:debug]
@@ -189,16 +190,16 @@ class BillsText
         batcher, options
       )
 
-      
+
       # Run last version's XML through the processor into plain HTML, index in S3
       if version_fields[:last_version] and (version_fields[:last_version][:urls]['xml'])
         puts "[#{bill_id}] Processing XML into plain HTML using unitedstates/documents..." if options[:debug]
         bill_version_id = version_fields[:last_version][:bill_version_id]
         last_version_xml = "data/gpo/BILLS/#{congress}/#{type}/#{bill_version_id}.xml"
-        
+
         begin
           last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
-          
+
           # cache the html on disk
           last_version_local = html_cache(congress, type, bill_version_id)
           Utils.write last_version_local, last_version_html
@@ -206,12 +207,12 @@ class BillsText
           warnings << {message: "Error while processing XML->HTML for #{bill_version_id}"}
         end
       end
-      
+
       puts "[#{bill_id}] Indexed." if options[:debug]
-      
+
       bill_count += 1
     end
-    
+
     # index any leftover docs
     Utils.es_flush! 'bills', batcher
 
@@ -231,14 +232,14 @@ class BillsText
     if notes.any?
       Report.note self, "Notes found while parsing bill text and metadata", notes: notes
     end
-    
+
     Report.success self, "Loaded in full text of #{bill_count} bills (#{version_count} versions)."
   end
-  
+
   def self.clean_text(text)
     # weird artifact at end
     text.gsub! '<all>', ''
-    
+
     # remove unneeded whitespace
     text.gsub! "\n", " "
     text.gsub! "\t", " "
@@ -253,10 +254,10 @@ class BillsText
 
     # de-hyphenate words broken up over multiple lines
     text.gsub!(/(\w)\-\s+(\w)/) {$1 + $2}
-    
+
     text.strip
   end
-  
+
   # expects the bill version's associated MODS XML
   def self.issued_on_for(doc)
     elem = doc.at("dateIssued")
@@ -267,11 +268,11 @@ class BillsText
       nil
     end
   end
-  
+
   # expects the bill version's associated MODS XML
   def self.urls_for(doc)
     urls = {}
-    
+
     (doc / "url").each do |elem|
       label = elem['displayLabel']
       if label =~ /HTML/i
@@ -282,7 +283,7 @@ class BillsText
         urls['pdf'] = elem.text
       end
     end
-    
+
     urls
   end
 
@@ -316,5 +317,5 @@ class BillsText
       sync: true, silent: !options[:debug]
     })
   end
-  
+
 end
