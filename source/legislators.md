@@ -241,6 +241,8 @@ URL to their official contact form.
 }
 ```
 
+Social media account data is sourced from the [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) project on Github. If you spot any missing or incorrect accounts, please [file a ticket](https://github.com/unitedstates/congress-legislators/issues) or [open a pull request](https://github.com/unitedstates/congress-legislators/pulls)!
+
 **twitter_id**<br/>
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
 
