@@ -15,7 +15,7 @@ class Bill
     :nicknames, :summary, :keywords, :text
 
   search_profile :title_summary_recency,
-    fields: [:nicknames, :short_title, :summary, :number],
+    fields: [:nicknames, :short_title, :summary],
     filters: [
       {
         filter: {
