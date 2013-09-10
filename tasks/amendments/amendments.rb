@@ -1,8 +1,7 @@
 # reads in amendments from the unitedstates/congress project
-# mixes in to the Bill stream, with a document_type of 'amendment'
 # options:
-  #   congress: limit to a particular congress' worth of amendment's.
-  #   amendment_id: limit to a particular amendment.
+  #   congress: Limit to a particular congress.
+  #   amendment_id: Limit to a particular amendment.
   #   limit: Limit to a number of amendments total.
 
 require "./tasks/bills/bills"
