@@ -444,6 +444,11 @@ module Utils
     [chamber, number, year]
   end
 
+  # number, congress (strings)
+  def self.nomination_fields_from(nomination_id)
+    nomination_id.match(/PN([\d-]+)-(\d+)$/).to_a[1..-1]
+  end
+
   def self.bill_fields_from(bill_id)
     type = bill_id.gsub /[^a-z]/, ''
     number = bill_id.match(/[a-z]+(\d+)-/)[1].to_i
