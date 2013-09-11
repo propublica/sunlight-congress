@@ -273,6 +273,9 @@ class Bills
       # we're not getting subcommittees, way too hard to match them up
       if committee['subcommittee_id'].present?
         committee_id = committee['committee_id'] + committee['subcommittee_id']
+      elsif committee['subcommittee']
+        puts "unitedstates layer failed to normalize subcommittee (#{committee['subcommittee']}) for committee ID #{committee['committee_id']} -- skipping"
+        next
       else
         committee_id = committee['committee_id']
       end
