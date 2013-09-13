@@ -107,7 +107,7 @@ Whether or not the committee is a subcommittee.
 }
 ```
 
-Note: membership information is not returned by default for requests to `/committees`. You must specifically request these fields by using the `fields` parameter as documented in [Partial Responses](/index.html#parameters/partial-responses).
+Note: membership information is not returned by default for requests to `/committees`. You must specifically request these fields by using the `fields` parameter as documented in [Partial Responses](index.html#parameters/partial-responses).
 
 \* **member_ids**<br/>
 An array of bioguide IDs of [legislators](legislators.html) that are assigned to this committee.
