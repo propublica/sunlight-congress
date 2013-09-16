@@ -515,6 +515,12 @@ module Utils
     document_for committee, Committee.basic_fields
   end
 
+  def self.nomination_for(nomination_id)
+    if nomination = Nomination.where(nomination_id: nomination_id).first
+      document_for nomination, Nomination.basic_fields
+    end
+  end
+
   # usually referenced in absence of an actual bill object
   def self.bill_for(bill_id)
     if bill_id.is_a?(Bill)

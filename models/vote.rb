@@ -7,7 +7,8 @@ class Vote
   basic_fields :roll_id, :number, :year, :chamber, :congress,
     :question, :result, :voted_at, :required,
     :roll_type, :vote_type,
-    :bill_id, :amendment_id, :source, :url
+    :bill_id, :amendment_id, :nomination_id,
+    :source, :url
 
 
   # MongoDB behavior
@@ -32,11 +33,16 @@ class Vote
   index vote_type: 1
   index required: 1
 
+  index nomination_id: 1
+  index "nomination.organization" => 1
+  index "nomination.committee_ids" => 1
+
   # common breakdown filters
   ["Yea", "Nay", "Not Voting", "Present", "Guilty", "Not Guilty"].each do |vote|
     index "breakdown.total.#{vote}" => 1
-    index "breakdown.party.D.#{vote}" => 1
-    index "breakdown.party.R.#{vote}" => 1
-    index "breakdown.party.I.#{vote}" => 1
+
+    ["D", "R", "I"].each do |party|
+      index "breakdown.party.#{party}.#{vote}" => 1
+    end
   end
 end
