@@ -24,7 +24,7 @@ class Nominations
       nomination_ids = [options[:nomination_id]]
     else
       paths = Dir.glob("data/unitedstates/congress/#{congress}/nominations/*")
-      numbers = paths.map {|path| File.basename(path).to_i}.sort
+      numbers = paths.map {|path| File.basename(path).to_s}.sort
       nomination_ids = numbers.map {|number| "PN#{number}-#{congress}"}
       if options[:limit]
         nomination_ids = nomination_ids.first options[:limit].to_i
