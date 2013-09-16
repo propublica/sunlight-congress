@@ -43,17 +43,13 @@ class Nominations
       last_action_at = actions.any? ? actions.last['acted_at'] : received_on
 
       attributes = {
-        nomination_id: nomination_id,
         congress: congress.to_i,
 
-        name: doc["name"],
-        nominee: doc["nominee"],
+        nominees: doc["nominees"],
         organization: doc["organization"],
-        position: doc["position"],
+
         received_on: doc["received_on"],
-        state: doc["state"],
-        # todo: referred_to committees post-normalization
-        # todo: multiple nominees
+        committee_ids: doc["referred_to"],
 
         actions: actions,
         last_action: last_action,
