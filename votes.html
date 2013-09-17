@@ -45,6 +45,10 @@
                 </li>
               
                 <li>
+                  <a href="#fields/associated-nominations">Associated Nominations</a>
+                </li>
+              
+                <li>
                   <a href="#fields/voters">Voters</a>
                 </li>
               
@@ -132,9 +136,29 @@ The original, official source XML for this vote information.</p>
 }</span>
 </span></code></pre>
 <p>* <strong>bill_id</strong><br/>
-If a vote is related to a bill, the bill&#39;s ID.</p>
+If a vote is related to a <a href="bills.html">bill</a>, the bill&#39;s ID.</p>
 <p><strong>bill</strong><br/>
-If a vote is related to a bill, some basic fields about the bill.</p>
+If a vote is related to a <a href="bills.html">bill</a>, some basic fields about the bill.</p>
+<h3 id='fields/associated-nominations'>Associated Nominations</h3 id='fields/associated-nominations'>
+<pre><code class="lang-json">"<span class="attribute">nomination_id</span>": <span class="value"><span class="string">"PN202-113"</span></span>,
+"<span class="attribute">nomination</span>": <span class="value">{
+  "<span class="attribute">organization</span>": <span class="value"><span class="string">"The Judiciary"</span></span>,
+  "<span class="attribute">received_on</span>": <span class="value"><span class="string">"2013-03-19"</span></span>,
+  "<span class="attribute">nominees</span>": <span class="value">[
+    {
+      "<span class="attribute">name</span>": <span class="value"><span class="string">"Elaine D. Kaplan"</span></span>,
+      "<span class="attribute">position</span>": <span class="value"><span class="string">"Judge of the United States Court of Federal Claims"</span></span>,
+      "<span class="attribute">state</span>": <span class="value"><span class="string">"DC"</span>
+    }</span>
+  ]
+  ...
+}</span>
+</span></code></pre>
+<p>These fields can only occur on Senate votes, as the Senate is the only chamber which considers presidential nominations.</p>
+<p>* <strong>nomination_id</strong><br/>
+If a vote is related to a <a href="nominations.html">nomination</a>, the nomination&#39;s ID.</p>
+<p><strong>nomination</strong><br/>
+If a vote is related to a <a href="nominations.html">nomination</a>, some basic fields about the nomination.</p>
 <h3 id='fields/voters'>Voters</h3 id='fields/voters'>
 <pre><code class="lang-json">"<span class="attribute">voter_ids</span>": <span class="value">{
   "<span class="attribute">A000055</span>": <span class="value"><span class="string">"Yea"</span></span>,

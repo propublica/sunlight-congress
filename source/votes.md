@@ -116,10 +116,38 @@ The original, official source XML for this vote information.
 ```
 
 \* **bill_id**<br/>
-If a vote is related to a bill, the bill's ID.
+If a vote is related to a [bill](bills.html), the bill's ID.
 
 **bill**<br/>
-If a vote is related to a bill, some basic fields about the bill.
+If a vote is related to a [bill](bills.html), some basic fields about the bill.
+
+### Associated Nominations
+
+```json
+{
+"nomination_id": "PN202-113",
+"nomination": {
+  "organization": "The Judiciary",
+  "received_on": "2013-03-19",
+  "nominees": [
+    {
+      "name": "Elaine D. Kaplan",
+      "position": "Judge of the United States Court of Federal Claims",
+      "state": "DC"
+    }
+  ]
+  ...
+}
+}
+```
+
+These fields can only occur on Senate votes, as the Senate is the only chamber which considers presidential nominations.
+
+\* **nomination_id**<br/>
+If a vote is related to a [nomination](nominations.html), the nomination's ID.
+
+**nomination**<br/>
+If a vote is related to a [nomination](nominations.html), some basic fields about the nomination.
 
 ### Voters
 
