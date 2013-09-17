@@ -18,6 +18,7 @@ class Nomination
   index nomination_id: 1
   index congress: 1
   index number: 1
+  index organization: 1
   index received_on: 1
   index last_action_at: 1
   index "last_action.type" => 1
