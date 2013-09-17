@@ -229,7 +229,15 @@ class VotesSenate
     elsif number < 10000
       "0#{number}"
     else
-      number
+      number.to_s
+    end
+  end
+
+  def self.short_zero_prefix(number)
+    if number < 10
+      "0#{number}"
+    else
+      number.to_s
     end
   end
 
@@ -276,7 +284,13 @@ class VotesSenate
 
   def self.nomination_id_for(doc, congress)
     return unless (document = doc.at('document')) and (type = document.at('document_type')) and (type.text.strip == "PN")
-    return "#{document.at('document_name').text.strip}-#{congress}"
+    number = document.at('document_name').text.strip
+
+    if (pieces = number.split("-")).size > 1
+      number = "#{pieces[0]}-#{short_zero_prefix pieces[1].to_i}"
+    end
+
+    return "#{number}-#{congress}"
   end
 
   def self.bill_id_for(doc, congress)
