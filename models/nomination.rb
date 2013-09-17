@@ -15,6 +15,7 @@ class Nomination
   field :number, type: String # can have hyphens in them
 
   index "nominees.position" => 1
+  index "nominees.state" => 1
   index nomination_id: 1
   index congress: 1
   index number: 1
