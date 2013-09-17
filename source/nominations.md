@@ -88,6 +88,18 @@ The organization the nominee would be appointed to, if confirmed.
 \* **committee_ids**<br/>
 An array of IDs of [committees](committees.html) that the nomination has been referred to for consideration.
 
+\* **nominees**<br/>
+An array of objects with fields (described below) about each nominee. Nominations for civil posts tend to have only one nominee. Nominations for military posts tend to have batches of multiple nominees. In either case, the `nominees` field will always be an array.
+
+**nominees.name**<br/>
+The name of the nominee, as it appears in THOMAS. Capitalization is not consistent.
+
+\* **nominees.position**<br/>
+The position the nominee is being nominated for.
+
+\* **nominees.state**<br/>
+The which state in the United States this nominee hails from. This field is only available for some nominees, and never for batches of multiple nominees.
+
 
 ## Action history
 

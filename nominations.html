@@ -104,6 +104,14 @@ The date this nomination last received action. If there are no official <code>ac
 The organization the nominee would be appointed to, if confirmed.</p>
 <p>* <strong>committee_ids</strong><br/>
 An array of IDs of <a href="committees.html">committees</a> that the nomination has been referred to for consideration.</p>
+<p>* <strong>nominees</strong><br/>
+An array of objects with fields (described below) about each nominee. Nominations for civil posts tend to have only one nominee. Nominations for military posts tend to have batches of multiple nominees. In either case, the <code>nominees</code> field will always be an array.</p>
+<p><strong>nominees.name</strong><br/>
+The name of the nominee, as it appears in THOMAS. Capitalization is not consistent.</p>
+<p>* <strong>nominees.position</strong><br/>
+The position the nominee is being nominated for.</p>
+<p>* <strong>nominees.state</strong><br/>
+The which state in the United States this nominee hails from. This field is only available for some nominees, and never for batches of multiple nominees.</p>
 <h2 id='action-history'>Action history</h2 id='action-history'>
 <pre><code class="lang-json">"<span class="attribute">actions</span>": <span class="value">[
   {
