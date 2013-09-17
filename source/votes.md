@@ -183,7 +183,7 @@ If a vote is related to a [nomination](nominations.html), some basic fields abou
 Most votes are "Yea", "Nay", "Present", and "Not Voting". There are exceptions: in the Senate, impeachment votes are "Guilty" or "Not Guilty". In the House, votes for the Speaker of the House are the name of the person being voted for (e.g. "Pelosi" or "Boehner"). There may be other exceptions.
 
 **voter_ids**<br/>
-An object connecting bioguide IDs of members to the vote values they cast.
+An object connecting bioguide IDs of [legislators](legislators.html) to the vote values they cast.
 
 **voters**<br/>
 An object connecting bioguide IDs to their vote value, and some basic information about the voter.

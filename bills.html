@@ -112,17 +112,18 @@
     <h1>Bills</h1>
 <p>Data on bills in Congress goes back to 2009, and comes from a mix of sources:</p>
 <ul>
-<li>Scrapers at <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> for core status and history information.</li>
+<li>Scrapers at <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> for most data, including core status and history information.</li>
 <li>Bulk data at <a href="http://www.gpo.gov/fdsys/">GPO&#39;s FDSys</a> for version information, and full text.</li>
 <li>The House&#39; <a href="http://majorityleader.gov/">MajorityLeader.gov</a> and Senate Democrats&#39; <a href="http://democrats.senate.gov/">official site</a> for notices of upcoming debate.</li>
 </ul>
+<p>Feel free to <a href="https://github.com/unitedstates/congress/issues/new">open a ticket</a> with any bugs or suggestions.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
 <p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
 <pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
 <h3 id='methods/bills'>/bills</h3 id='methods/bills'>
 <p>Filter through bills in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.</p>
-<p><strong>Bills enacted into law in the 112th Congress</strong></p>
-<pre><code class="lang-text">/bills<span class="number">?c</span>ongress=<span class="number">112</span>&amp;history.enacted=<span class="keyword">true</span></code></pre>
+<p><strong>Bills enacted into law in the 113th Congress</strong></p>
+<pre><code class="lang-text">/bills<span class="number">?c</span>ongress=<span class="number">113</span>&amp;history.enacted=<span class="keyword">true</span></code></pre>
 <p><strong>Active bills, ordered by recent activity</strong></p>
 <pre><code class="lang-text">/bills<span class="number">?h</span>istory.active=<span class="keyword">true</span>&amp;order=last_action_at</code></pre>
 <p><strong>Bills sponsored by Republicans that have been vetoed</strong></p>
@@ -421,7 +422,7 @@ The most recent action.</p>
 "<span class="attribute">withdrawn_cosponsors_count</span>": <span class="value"><span class="number">0</span>
 </span></code></pre>
 <p>* <strong>sponsor_id</strong><br/>
-The bioguide ID of the bill&#39;s sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.</p>
+The bioguide ID of the bill&#39;s sponsoring <a href="legislators.html">legislator</a>, if there is one. It is possible, but rare, to have bills with no sponsor.</p>
 <p><strong>sponsor</strong><br/>
 An object with most simple <a href="legislators.html#fields">legislator fields</a> for the bill&#39;s sponsor, if there is one.</p>
 <p>* <strong>cosponsor_ids</strong><br/>
@@ -465,7 +466,7 @@ An object with most simple <a href="legislators.html#fields">legislator fields</
 ]
 </span></code></pre>
 <p>* <strong>committee_ids</strong><br/>
-A list of IDs of committees related to this bill.</p>
+A list of IDs of <a href="committees.html">committees</a> related to this bill.</p>
 <p><strong>committees.activity</strong><br/>
 A list of relationships that the committee has to the bill, as they appear on <a href="http://thomas.loc.gov">THOMAS.gov</a>. The most common is &quot;referral&quot;, which means a committee has jurisdiction over this bill.</p>
 <h3 id='fields/related-bills'>Related Bills</h3 id='fields/related-bills'>

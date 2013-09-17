@@ -27,7 +27,7 @@ Calls to the Sunlight Congress API are of the form:
 http://congress.api.sunlightfoundation.com/[method]
 ```
 
-Use `https://` with any URL in the Congress API to turn on SSL encryption.
+**SSL Support:** Use `https://` with any URL in the Congress API to turn on SSL encryption.
 
 ### Methods
 
@@ -49,6 +49,8 @@ Use `https://` with any URL in the Congress API to turn on SSL encryption.
 <td>[/bills/search](bills.html)</td><td>Full text search over legislation.</td>
 </tr><tr>
 <td>[/amendments](amendments.html)</td><td>Amendments in the House and Senate, back to 2009. Updated daily.</td>
+</tr><tr>
+<td>[/nominations](nominations.html)</td><td>Presidential nominations before the Senate, back to 2009. Updated daily.</td>
 </tr><tr>
 <td>[/votes](votes.html)</td>
 <td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>

@@ -2,9 +2,11 @@
 
 Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 
-* Scrapers at [github.com/unitedstates](https://github.com/unitedstates/congress) for core status and history information.
+* Scrapers at [github.com/unitedstates](https://github.com/unitedstates/congress) for most data, including core status and history information.
 * Bulk data at [GPO's FDSys](http://www.gpo.gov/fdsys/) for version information, and full text.
 * The House' [MajorityLeader.gov](http://majorityleader.gov/) and Senate Democrats' [official site](http://democrats.senate.gov/) for notices of upcoming debate.
+
+Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
 
 ## Methods
 
@@ -18,10 +20,10 @@ http://congress.api.sunlightfoundation.com
 
 Filter through bills in Congress. Filter by any [fields below](#fields) that have a star next to them. All [standard operators](index.html#parameters/operators) apply.
 
-**Bills enacted into law in the 112th Congress**
+**Bills enacted into law in the 113th Congress**
 
 ```text
-/bills?congress=112&history.enacted=true
+/bills?congress=113&history.enacted=true
 ```
 
 **Active bills, ordered by recent activity**
@@ -457,7 +459,7 @@ The **votes** array is identical to the `actions` array, but limited to actions 
 ```
 
 \* **sponsor_id**<br/>
-The bioguide ID of the bill's sponsor, if there is one. It is possible, but rare, to have bills with no sponsor.
+The bioguide ID of the bill's sponsoring [legislator](legislators.html), if there is one. It is possible, but rare, to have bills with no sponsor.
 
 **sponsor**<br/>
 An object with most simple [legislator fields](legislators.html#fields) for the bill's sponsor, if there is one.
@@ -517,7 +519,7 @@ An object with most simple [legislator fields](legislators.html#fields) for that
 ```
 
 \* **committee_ids**<br/>
-A list of IDs of committees related to this bill.
+A list of IDs of [committees](committees.html) related to this bill.
 
 **committees.activity**<br/>
 A list of relationships that the committee has to the bill, as they appear on [THOMAS.gov](http://thomas.loc.gov). The most common is "referral", which means a committee has jurisdiction over this bill.

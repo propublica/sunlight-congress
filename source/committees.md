@@ -4,6 +4,8 @@ Names, IDs, contact info, and memberships of committees and subcommittees in the
 
 All committee information is sourced from bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators), which in turn comes from official [House](http://clerk.house.gov/committee_info/index.aspx) and [Senate](http://www.senate.gov/general/committee_assignments/assignments.htm) sources.
 
+Feel free to [open a ticket](https://github.com/unitedstates/congress-legislators/issues/new) with any bugs or suggestions.
+
 We only provide information on current committees and memberships. For historic data on committee names, IDs, and contact info, refer to the [bulk data](https://github.com/unitedstates/congress-legislators).
 
 ## Methods

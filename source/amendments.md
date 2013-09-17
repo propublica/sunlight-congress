@@ -1,6 +1,6 @@
 # Amendments
 
-Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the [github.com/unitedstates](https://github.com/unitedstates/congress) project.
+Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the [github.com/unitedstates](https://github.com/unitedstates/congress) project. Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
 
 ## Methods
 
@@ -100,7 +100,7 @@ The date or time of the most recent official action on the amendment. Often, the
 An amendment will relate to either a **bill** or a **treaty**. An amendment can either amend a bill or treaty directly, or it can amend an **amendment** that amends a bill.
 
 \* **amends_bill_id**<br/>
-If this amendment relates to a bill, this field is the ID of the related bill.
+If this amendment relates to a [bill](bills.html), this field is the ID of the related bill.
 
 **amends_bill**<br/>
 If this amendment relates to a bill, some basic details about that related bill.
@@ -136,7 +136,7 @@ Unlike bills, amendments can be sponsored by either a **person** or a **committe
 Whether the amendment is sponsored by a "person" or a "committee".
 
 \* **sponsor_id**<br/>
-If the `sponsor_type` is "person", this will be that person's bioguide ID. If the `sponsor_type` is "committee", this will be that committee's ID (see the [committee docs](committees.html) for information on committee IDs).
+If the `sponsor_type` is "person", this will be that [legislator's](legislators.html) bioguide ID. If the `sponsor_type` is "committee", this will be that [committee's](committees.html) ID.
 
 **sponsor**<br/>
 If the `sponsor_type` is "person", some basic details about that person. If the `sponsor_type` is "committee", some basic details about that committee.

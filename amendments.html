@@ -70,7 +70,7 @@
   <div id="content">
     
     <h1>Amendments</h1>
-<p>Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> project.</p>
+<p>Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the <a href="https://github.com/unitedstates/congress">github.com/unitedstates</a> project. Feel free to <a href="https://github.com/unitedstates/congress/issues/new">open a ticket</a> with any bugs or suggestions.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
 <p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
 <pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
@@ -128,7 +128,7 @@ The date or time of the most recent official action on the amendment. Often, the
 </span></code></pre>
 <p>An amendment will relate to either a <strong>bill</strong> or a <strong>treaty</strong>. An amendment can either amend a bill or treaty directly, or it can amend an <strong>amendment</strong> that amends a bill.</p>
 <p>* <strong>amends_bill_id</strong><br/>
-If this amendment relates to a bill, this field is the ID of the related bill.</p>
+If this amendment relates to a <a href="bills.html">bill</a>, this field is the ID of the related bill.</p>
 <p><strong>amends_bill</strong><br/>
 If this amendment relates to a bill, some basic details about that related bill.</p>
 <p>* <strong>amends_treaty_id</strong><br/>
@@ -151,7 +151,7 @@ If this amendment amends an amendment, some basic details about that amended ame
 <p>* <strong>sponsor_type</strong><br/>
 Whether the amendment is sponsored by a &quot;person&quot; or a &quot;committee&quot;.</p>
 <p>* <strong>sponsor_id</strong><br/>
-If the <code>sponsor_type</code> is &quot;person&quot;, this will be that person&#39;s bioguide ID. If the <code>sponsor_type</code> is &quot;committee&quot;, this will be that committee&#39;s ID (see the <a href="committees.html">committee docs</a> for information on committee IDs).</p>
+If the <code>sponsor_type</code> is &quot;person&quot;, this will be that <a href="legislators.html">legislator&#39;s</a> bioguide ID. If the <code>sponsor_type</code> is &quot;committee&quot;, this will be that <a href="committees.html">committee&#39;s</a> ID.</p>
 <p><strong>sponsor</strong><br/>
 If the <code>sponsor_type</code> is &quot;person&quot;, some basic details about that person. If the <code>sponsor_type</code> is &quot;committee&quot;, some basic details about that committee.</p>
 <h3 id='fields/description-and-purpose'>Description and Purpose</h3 id='fields/description-and-purpose'>

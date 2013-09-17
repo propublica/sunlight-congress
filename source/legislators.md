@@ -1,6 +1,6 @@
 # Legislators
 
-Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators).
+Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators). Feel free to [open a ticket](https://github.com/unitedstates/congress-legislators/issues/new) with any bugs or suggestions.
 
 **Unique ID**: The **bioguide_id** will be present and unique for all members of Congress. It is an official ID, assigned by Congress, and is the most suitable for use as a unique ID.
 
@@ -16,7 +16,7 @@ http://congress.api.sunlightfoundation.com
 
 Find members of Congress by a `latitude` and `longitude`, or a `zip` code.
 
-There is **no support** for further operators, ordering, or partial responses. All you can do is filter by location.
+There is **no support** for further operators, ordering, or partial responses. **All you can do is filter by location.**
 
 At-large districts, which encompass an entire state, are assigned a district number of `0`.
 

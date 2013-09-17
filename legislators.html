@@ -78,14 +78,14 @@
   <div id="content">
     
     <h1>Legislators</h1>
-<p>Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>.</p>
+<p>Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at <a href="https://github.com/unitedstates/congress-legislators">github.com/unitedstates</a>. Feel free to <a href="https://github.com/unitedstates/congress-legislators/issues/new">open a ticket</a> with any bugs or suggestions.</p>
 <p><strong>Unique ID</strong>: The <strong>bioguide_id</strong> will be present and unique for all members of Congress. It is an official ID, assigned by Congress, and is the most suitable for use as a unique ID.</p>
 <h2 id='methods'>Methods</h2 id='methods'>
 <p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
 <pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
 <h3 id='methods/legislators-locate'>/legislators/locate</h3 id='methods/legislators-locate'>
 <p>Find members of Congress by a <code>latitude</code> and <code>longitude</code>, or a <code>zip</code> code.</p>
-<p>There is <strong>no support</strong> for further operators, ordering, or partial responses. All you can do is filter by location.</p>
+<p>There is <strong>no support</strong> for further operators, ordering, or partial responses. <strong>All you can do is filter by location.</strong></p>
 <p>At-large districts, which encompass an entire state, are assigned a district number of <code>0</code>.</p>
 <p><strong>By latitude/longitude</strong></p>
 <pre><code class="lang-text">/legislators/locate<span class="number">?l</span>atitude=<span class="number">42.96</span>&amp;longitude=-<span class="number">108.09</span></code></pre>

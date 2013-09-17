@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlight Congress API | Nominations</title>
+    
+    
+  <link rel="shortcut icon" type="image/ico" href="/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="documentup.css">
+  <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+</head>
+  <body><div class="sf-header"><div class="container"><a class="sf-logo" href="http://www.sunlightfoundation.com">Sunlight Foundation</a></div></div><div id="container">
+  <div id="nav">
+    
+      <div id="header">
+        <h1><a href="index.html" id="logo">Sunlight Congress API</a>
+      </div>
+    
+    <ul id="sections">
+      
+        <li>
+          <a href="#methods">Methods</a>
+          
+            <ul>
+              
+                <li>
+                  <a href="#methods/nominations">/nominations</a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+        <li>
+          <a href="#fields">Fields</a>
+          
+        </li>
+      
+        <li>
+          <a href="#action-history">Action history</a>
+          
+        </li>
+      
+    </ul>
+    
+    
+      <div class="extra twitter">
+        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=sunlightlabs&show_count=false"></iframe></div><div class="thanks">powered by <a href="http://documentup.com">DocumentUp</a></div>
+    
+  </div>
+  <div id="content">
+    
+    <h1>Nominations</h1>
+<p>Nominations made by the President and referred to the Senate for consideration. This data is taken from <a href="http://thomas.loc.gov/home/nomis.html">THOMAS.gov&#39;s nominations directory</a>, and goes back to 2009.</p>
+<p>Data is collected using the <a href="https://github.com/unitedstates/congress">unitedstates/congress</a> project. Feel free to <a href="https://github.com/unitedstates/congress/issues/new">open a ticket</a> with any bugs or suggestions.</p>
+<h2 id='methods'>Methods</h2 id='methods'>
+<p>All requests require a valid <a href="index.html#parameters/api-key">API key</a>, and use the domain:</p>
+<pre><code class="lang-text"><span class="label">http:</span>//congress<span class="preprocessor">.api</span><span class="preprocessor">.sunlightfoundation</span><span class="preprocessor">.com</span></code></pre>
+<h3 id='methods/nominations'>/nominations</h3 id='methods/nominations'>
+<p>Search and filter through presidential nominations in Congress. Filter by any <a href="#fields">fields below</a> that have a star next to them. All <a href="index.html#parameters/operators">standard operators</a> apply.</p>
+<p><strong>Recent nominations</strong></p>
+<pre><code class="lang-text">/nominations<span class="number">?o</span>rder=received_on</code></pre>
+<p><strong>Nominations before the Senate Armed Services Committee</strong></p>
+<pre><code class="lang-text">/nominations<span class="number">?c</span>ommittee_ids=<span class="constant">SSAS</span></code></pre>
+<p><strong>Nominees to the Privacy and Civil Liberties Oversight Board</strong></p>
+<pre><code class="lang-text">/nominations<span class="number">?o</span>rganization=<span class="constant">Privacy</span> <span class="keyword">and</span> <span class="constant">Civil</span> <span class="constant">Liberties</span> <span class="constant">Oversight</span> <span class="constant">Board</span></code></pre>
+<p><strong>Nominees named &#39;Petraeus&#39;</strong></p>
+<pre><code class="lang-text">/nominations?<span class="keyword">query</span>=<span class="variable">Petraeus</span></code></pre>
+<h2 id='fields'>Fields</h2 id='fields'>
+<p><strong>Many fields are not returned unless requested.</strong> You can request specific fields with the <code>fields</code> parameter. See the <a href="index.html#parameters/partial-responses">partial responses</a> documentation for more details.</p>
+<p>* = can be used as a filter</p>
+<pre><code class="lang-json">"<span class="attribute">nomination_id</span>": <span class="value"><span class="string">"PN1873-111"</span></span>,
+"<span class="attribute">congress</span>": <span class="value"><span class="number">111</span></span>,
+"<span class="attribute">number</span>": <span class="value"><span class="string">"PN1873"</span></span>,
+"<span class="attribute">received_on</span>": <span class="value"><span class="string">"2010-06-24"</span></span>,
+"<span class="attribute">last_action_at</span>": <span class="value"><span class="string">"2010-06-30"</span></span>,
+"<span class="attribute">organization</span>": <span class="value"><span class="string">"Army"</span></span>,
+"<span class="attribute">nominees</span>": <span class="value">[
+  {
+    "<span class="attribute">name</span>": <span class="value"><span class="string">"Gen. David H. Petraeus"</span></span>,
+    "<span class="attribute">position</span>": <span class="value"><span class="string">"General"</span></span>,
+    "<span class="attribute">state</span>": <span class="value"><span class="string">"PA"</span>
+  }</span>
+]</span>,
+"<span class="attribute">committee_ids</span>": <span class="value">[
+  <span class="string">"SSAS"</span>
+]
+</span></code></pre>
+<p>* <strong>nomination_id</strong></br>
+The unique identifier for this nomination, taken from the Library of Congress. Of the form &quot;PN[number]-[congress]&quot;.</p>
+<p>* <strong>congress</strong><br/>
+The Congress in which this nomination was presented.</p>
+<p>* <strong>number</strong><br/>
+The number of this nomination, taken from the Library of Congress. Can occasionally contain hyphens, e.g. &quot;PN64-01&quot;.</p>
+<p>* <strong>received_on</strong><br/>
+The date this nomination was received in the Senate.</p>
+<p>* <strong>last_action_at</strong><br/>
+The date this nomination last received action. If there are no official <code>actions</code>, then this field will fall back to the value of <code>received_on</code>.</p>
+<p>* <strong>organization</strong><br/>
+The organization the nominee would be appointed to, if confirmed.</p>
+<p>* <strong>committee_ids</strong><br/>
+An array of IDs of <a href="committees.html">committees</a> that the nomination has been referred to for consideration.</p>
+<h2 id='action-history'>Action history</h2 id='action-history'>
+<pre><code class="lang-json">"<span class="attribute">actions</span>": <span class="value">[
+  {
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-06-30"</span></span>,
+    "<span class="attribute">location</span>": <span class="value"><span class="string">"floor"</span></span>,
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"Considered by Senate pursuant to unanimous consent agreement of June 29, 2010."</span></span>,
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"action"</span>
+  }</span>,
+  {
+    "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-06-30"</span></span>,
+    "<span class="attribute">location</span>": <span class="value"><span class="string">"floor"</span></span>,
+    "<span class="attribute">text</span>": <span class="value"><span class="string">"Confirmed by the Senate by Yea-Nay Vote. 99 - 0. Record Vote Number: 203."</span></span>,
+    "<span class="attribute">type</span>": <span class="value"><span class="string">"action"</span>
+  }</span>
+]</span>,
+"<span class="attribute">last_action</span>": <span class="value">{
+  "<span class="attribute">acted_at</span>": <span class="value"><span class="string">"2010-06-30"</span></span>,
+  "<span class="attribute">location</span>": <span class="value"><span class="string">"floor"</span></span>,
+  "<span class="attribute">text</span>": <span class="value"><span class="string">"Confirmed by the Senate by Yea-Nay Vote. 99 - 0. Record Vote Number: 203."</span></span>,
+  "<span class="attribute">type</span>": <span class="value"><span class="string">"action"</span>
+}</span>
+</span></code></pre>
+<p><strong>actions.type</strong><br/>
+The type of action. At this time, the only value for nomination actions is &quot;action&quot;.</p>
+<p><strong>actions.location</strong><br/>
+Where the action occurred. Can be either &quot;committee&quot; or &quot;floor&quot;.</p>
+<p><strong>actions.acted_at</strong><br/>
+The date the action occurred.</p>
+<p><strong>actions.text</strong><br/>
+Text describing the action.</p>
+<p><strong>last_action</strong><br/>
+A convenience field containing only the most recent action object.</p>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22821126-30']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+</html>

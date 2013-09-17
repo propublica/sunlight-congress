@@ -74,7 +74,7 @@ If the hearing is in DC, the building and room number the hearing is in. If the 
 A description of the hearing.
 
 \* **bill_ids**<br/>
-The IDs of any bills mentioned by or associated with the hearing.
+The IDs of any [bills](bills.html) mentioned by or associated with the hearing.
 
 **url**<br/>
 (House only) A permalink to that hearing's description on that committee's official website.
@@ -98,4 +98,4 @@ The IDs of any bills mentioned by or associated with the hearing.
 }
 ```
 
-Basic details about the related committee will appear in the **committee** field.
+Basic details about the related [committee](committees.html) will appear in the **committee** field.
