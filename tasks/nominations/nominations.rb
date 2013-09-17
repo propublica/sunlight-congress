@@ -44,6 +44,7 @@ class Nominations
 
       attributes = {
         congress: congress.to_i,
+        number: number.to_s,
 
         nominees: doc["nominees"],
         organization: doc["organization"],
