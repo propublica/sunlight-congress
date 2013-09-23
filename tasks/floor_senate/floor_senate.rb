@@ -41,7 +41,7 @@ class FloorSenate
       next if ["senate floor proceedings", "today's senate floor log", "\302\240"].include?(item.text.strip.downcase)
       next if [/archived floor logs/i, /floor lof is for reference only/i].find {|r| item.text.strip =~ r}
 
-      if item['style'] =~ /text-align: center/i
+      if (item['style'] =~ /text-align: center/i) or (item['align'] == 'center')
         if Time.zone.parse(item.text)
           current_date = Utils.utc_parse(item.text).strftime "%Y-%m-%d"
           updates[current_date] ||= []
@@ -51,7 +51,7 @@ class FloorSenate
 
       else # item['align'] == 'left' or item['align'].nil?
         if current_date.nil?
-          warnings << {msg: "Unexpected HTML, got to a update without a date, skipping", text: item.text}
+          warnings << {msg: "Unexpected HTML, got to an update without a date, skipping", text: item.text}
           next
         end
 
