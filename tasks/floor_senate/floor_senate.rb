@@ -27,7 +27,7 @@ class FloorSenate
 
     unless container = doc.css("div.entry-content").first
       Report.warning self, "Can't locate title of the floor log, can't go on."
-      Utils.write "data/senate-floor-no-title.html", html
+      Utils.write "data/senate_floor/no-title-#{Time.now.to_i}.html", html
       return
     end
 
