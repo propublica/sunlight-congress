@@ -11,11 +11,11 @@ class Regulations
   #   article_type: limit documents to a particular article_type (rule, prorule, notice).
   #     does not apply to public inspection documents.
   #
-  #   public_inspection: 
+  #   public_inspection:
   #     if document_number is not given, fetch all current public inspection documents.
   #     if document_number is given, get the public_inspection version.
   #
-  #   year: 
+  #   year:
   #     if month is given, is combined with month to index that specific month.
   #     if month is not given, indexes entire year's regulations (12 calls, one per month)
   #   month:
@@ -28,7 +28,7 @@ class Regulations
   #
   #   limit: limit processing to N documents
   #
-  #   cache: 
+  #   cache:
   #     cache requests for detail JSON on individual documents
   #     will not cache search requests, is safe to turn on for syncing new documents
   #
@@ -36,7 +36,7 @@ class Regulations
   #     cache search requests, useful for debugging
   #
   #   skip_text: do not do full text processing (mongo only)
-  
+
   #  Hierarchy of regulatory documents:
   #    All documents:
   #      document_type: "article", "public_inspection"
@@ -54,34 +54,41 @@ class Regulations
       article_types = ["PRORULE", "RULE", "NOTICE"]
     end
 
+
+    warnings = []
+    missing_links = []
+    citation_warnings = []
+    batcher = [] # ES batcher
+
+
     # single regulation
     if options[:document_number]
       targets = [options[:document_number]]
 
     # load current day's public inspections
     elsif document_type == :public_inspection
-      targets = pi_docs_for options
-    
+      targets = pi_docs_for options, warnings
+
     # proposed and final regulations
     elsif document_type == :article
       targets = []
 
       article_types.each do |type|
-        
+
         # a whole month or year
         if options[:year]
           year = options[:year].to_i
           months = options[:month] ? [options[:month].to_i] : (1..12).to_a.reverse
-          
+
           months.each do |month|
 
             # break it up by week
             beginning = Time.parse("#{year}-#{month}-01")
 
             # 5 weeks, there will be inefficient overlap, oh well
-            5.times do |i| 
+            5.times do |i|
               ending = (beginning + 6.days) # 7 day window
-              targets += regulations_for type, beginning, ending, options
+              targets += regulations_for type, beginning, ending, options, warnings
               beginning += 7.days # advance counter by a week
             end
           end
@@ -91,7 +98,7 @@ class Regulations
           days = options[:days] ? options[:days].to_i : 7
           ending = Time.now.midnight # only yyyy-mm-dd is used, time of day doesn't matter
           beginning = ending - days.days
-          targets += regulations_for type, beginning, ending, options
+          targets += regulations_for type, beginning, ending, options, warnings
         end
 
       end
@@ -105,11 +112,6 @@ class Regulations
 
     count = 0
     search_count = 0
-
-    warnings = []
-    missing_links = []
-    citation_warnings = []
-    batcher = [] # ES batcher
 
     targets.each do |document_number|
 
@@ -135,7 +137,7 @@ class Regulations
         rule = Regulation.new document_number: document_number
       end
 
-      
+
       # common to public inspection documents and to articles
       attributes = {
         document_type: document_type.to_s,
@@ -157,9 +159,9 @@ class Regulations
       if stage = type_to_stage[details['type']]
         attributes[:article_type] = "regulation"
         attributes[:stage] = stage
-      
+
       else # notices
-        attributes[:article_type] = details['type'].downcase 
+        attributes[:article_type] = details['type'].downcase
       end
 
 
@@ -203,13 +205,13 @@ class Regulations
       count += 1
 
       next if options[:skip_text]
-      
+
       puts "[#{document_number}] Fetching full text..." if options[:debug]
 
       full_text = nil
 
       if document_type == :article
-        if details['body_html_url'] 
+        if details['body_html_url']
           full_text = text_for :article, document_number, :html, details['body_html_url'], options
 
           # take the opportunity to just download abstract, if it exists
@@ -239,7 +241,7 @@ class Regulations
         citation_warnings << {message: "Failed to extract citations from #{document_number}"}
         citation_ids = []
       end
-      
+
       # load in the part of the regulation from mongo that gets synced to ES
       fields = {}
       Regulation.basic_fields.each do |field|
@@ -257,7 +259,7 @@ class Regulations
       rule['citation_ids'] = citation_ids
       rule.save!
 
-      # for published docs, download the abstract and body html, 
+      # for published docs, download the abstract and body html,
       # save to disk, backup in S3 if asked
       if document_type != :public_inspection
         html_document! rule, warnings, options
@@ -272,7 +274,7 @@ class Regulations
     # back up all regulation html - would like to be more efficient...
     backup! options if options[:backup]
 
-    
+
     if warnings.any?
       Report.warning self, "#{warnings.size} warnings", warnings: warnings
     end
@@ -328,14 +330,14 @@ class Regulations
 
   # document numbers for current PI docs
 
-  def self.pi_docs_for(options)
+  def self.pi_docs_for(options, warnings)
     base_url = "http://api.federalregister.gov/v1/public-inspection-documents/current.json"
     base_url << "?fields[]=document_number&fields[]=type"
 
     puts "Fetching current public inspection documents..." if options[:debug]
 
     unless response = Utils.download(base_url, options.merge(json: true))
-      Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
+      warnings << {msg: "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url}
       return []
     end
 
@@ -368,7 +370,7 @@ class Regulations
 
   # document numbers for published regs in the given range
 
-  def self.regulations_for(type, beginning, ending, options)
+  def self.regulations_for(type, beginning, ending, options, warnings)
     base_url = "http://api.federalregister.gov/v1/articles.json"
     base_url << "?conditions[type]=#{type}"
     base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
@@ -377,14 +379,14 @@ class Regulations
     base_url << "&per_page=1000"
 
     puts "Fetching #{type} articles from #{beginning.strftime "%m/%d/%Y"} to #{ending.strftime "%m/%d/%Y"}..."
-    
+
     # the API serves a max of 1000 documents, no matter how it's paginated
     # fetch a page of 1000 documents
-    # - this should be enough to not miss anything if filtered by month and type, 
+    # - this should be enough to not miss anything if filtered by month and type,
     #   but if not, catch it
     # - addendum: NOTICE type articles are more voluminous, and must be filtered per day, or week
     #   2/13/2013 - 3/13/2013, for example: over 2,800 notices. (Wow.)
-    
+
     if options[:cache_lists]
       destination = list_cache :article, type, beginning, ending
     else
@@ -392,7 +394,7 @@ class Regulations
     end
 
     unless response = Utils.download(base_url, options.merge(destination: destination, json: true))
-      Report.warning self, "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url
+      warnings << {msg: "Error while polling FR.gov (#{base_url}), aborting for now", url: base_url}
       return []
     end
 
@@ -427,7 +429,7 @@ class Regulations
 
   def self.text_for(document_type, document_number, format, url, options)
     destination = destination_for document_type, document_number, format
-    
+
     unless Utils.download(url, options.merge(destination: destination))
       Report.warning self, "Error while polling FR.gov, aborting for now", url: url
       return nil
@@ -449,7 +451,7 @@ class Regulations
   def self.full_text_for(doc)
     return nil unless doc
 
-    strings = (doc/"//*/text()").map do |text| 
+    strings = (doc/"//*/text()").map do |text|
       text.inner_text.strip
     end.select {|text| text.present?}
 
