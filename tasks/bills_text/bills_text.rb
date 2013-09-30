@@ -45,7 +45,8 @@ class BillsText
         last_action: bill['last_action'],
         summary: bill['summary'],
         summary_short: bill['summary_short'],
-        keywords: bill['keywords']
+        keywords: bill['keywords'],
+        titles: bill['titles']
       )
 
       mongo_only = {}

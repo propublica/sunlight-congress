@@ -91,6 +91,8 @@ class Bills
         official_title: doc['official_title'],
         popular_title: doc['popular_title'],
 
+        titles: doc['titles'],
+
         keywords: doc['subjects'],
         summary: summary,
         summary_short: summary_short,
