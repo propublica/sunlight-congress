@@ -363,6 +363,9 @@ The date or time the action occurred. Always present.
 **actions.text**<br/>
 The official text that describes this action. Always present.
 
+**actions.committees**<br/>
+A list of subobjects containing `committee_id` and `name` fields for any committees referenced in an action. Will be missing if no committees are mentioned.
+
 **actions.references**<br/>
 A list of references to the Congressional Record that this action links to.
 
