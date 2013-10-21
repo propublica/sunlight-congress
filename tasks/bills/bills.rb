@@ -55,7 +55,7 @@ class Bills
       cosponsors, withdrawn, missing = cosponsors_for doc['cosponsors'], legislators
       missing_legislators += missing.map {|m| [bill_id, m]} if missing.any?
 
-      actions = actions_for doc['actions']
+      actions = actions_for doc['actions'], committee_cache
 
       summary = summary_for doc['summary']
       summary_short = short_summary_for summary
@@ -224,7 +224,7 @@ class Bills
   end
 
   # clean up on some fields in actions
-  def self.actions_for(actions)
+  def self.actions_for(actions, committee_cache)
     now = Time.now
 
     actions.map do |action|
@@ -251,10 +251,25 @@ class Bills
         end
       end
 
-      # not ready to commit to having these yet
+      committees = []
+      if committee_ids = action.delete('committees')
+        committee_ids.each do |committee_id|
+          if match = committee_match(committee_id, committee_cache)
+            committees << {
+              'committee_id' => committee_id,
+              'name' => match['name']
+            }
+          end
+        end
+      end
+      action['committees'] = committees if committees.any?
+
+      # these are old, unsupported forms of attaching committees to actions
       action.delete 'committee'
       action.delete 'subcommittee'
       action.delete 'in_committee'
+
+      # we don't use this one
       action.delete 'status'
 
       action
