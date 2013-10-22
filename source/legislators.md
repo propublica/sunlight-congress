@@ -141,6 +141,7 @@ The date a member's current term will end.
 ```json
 {
 "bioguide_id": "B000944",
+"ocd_id": "ocd-division/country:us/state:oh",
 "thomas_id": "136",
 "govtrack_id": "400050",
 "votesmart_id": "27018",
@@ -155,6 +156,9 @@ The date a member's current term will end.
 
 \* **bioguide_id**<br/>
 Identifier for this member in various Congressional sources. Originally taken from the [Congressional Biographical Directory](http://bioguide.congress.gov), but used in many places. If you're going to pick one ID as a Congressperson's unique ID, use this.
+
+\* **ocd_id**<br/>
+Identifier for this member across all countries and levels of government, as defined by [the Open Civic Data project](http://opencivicdata.org).
 
 \* **thomas_id**<br/>
 Identifier for this member as it appears on [THOMAS.gov](http://thomas.loc.gov) and [Congress.gov](http://congress.gov).
