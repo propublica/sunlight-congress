@@ -17,6 +17,7 @@ class Amendments
     missing_committees = []
     missing_people = []
     bad_amendments = []
+    committee_cache = {}
 
     batcher = [] # used to persist a batch indexing container
 
@@ -59,7 +60,7 @@ class Amendments
       introduced_on = doc['introduced_at']
       proposed_on = doc['proposed_at'] if doc['proposed_at']
 
-      actions = Bills.actions_for doc['actions']
+      actions = Bills.actions_for doc['actions'], committee_cache
 
       # if there's no actions, set the last action as the proposed or introduced date
       if actions.last

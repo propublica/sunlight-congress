@@ -14,6 +14,7 @@ class Nominations
     count = 0
     failures = []
     bad_committees = [] # mismatched committee names
+    committee_cache = {}
 
     unless File.exists?("data/unitedstates/congress/#{congress}/nominations")
       Report.failure self, "Data not available on disk for the requested Congress."
@@ -38,7 +39,7 @@ class Nominations
       path = "data/unitedstates/congress/#{congress}/nominations/#{number}/data.json"
       doc = Oj.load open(path)
 
-      actions = Bills.actions_for doc['actions']
+      actions = Bills.actions_for doc['actions'], committee_cache
       last_action = actions.any? ? actions.last : nil
       last_action_at = actions.any? ? actions.last['acted_at'] : received_on
 

@@ -316,6 +316,8 @@ class Bills
   end
 
   def self.committee_match(id, committee_cache)
+    committee_cache ||= {}
+
     unless committee_cache[id]
       if committee = Committee.where(committee_id: id).first
         committee_cache[id] = Utils.committee_for(committee)
