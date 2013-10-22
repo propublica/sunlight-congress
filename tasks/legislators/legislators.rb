@@ -59,6 +59,9 @@ class Legislators
         legislator.attributes = social_media_from social_media_cache[bioguide_id]
       end
 
+      # calculate OCD IDs on demand from other attributes
+      legislator['ocd_id'] = ocd_id_for legislator
+
       if legislator.save
         count += 1
       else
@@ -73,6 +76,35 @@ class Legislators
     Report.success self, "Processed #{count} legislators from unitedstates"
   end
 
+  def self.ocd_id_for(legislator)
+    prefix = "ocd-division/country:us"
+    state = legislator['state'].downcase
+    district = legislator['district']
+
+    # senators
+    if legislator.chamber == "senate"
+      "#{prefix}/state:#{state}"
+
+    elsif legislator.chamber == "house"
+      # dc delegate
+      if state == "dc"
+        "#{prefix}/district:dc"
+
+      # other non-state territories
+      elsif %w{as gu mp pr vi}.include?(state)
+        "#{prefix}/territory:#{state}"
+
+      # at-large normal reps
+      elsif district == 0
+        "#{prefix}/state:#{state}"
+
+      # remaining normal reps
+      elsif district > 0
+        "#{prefix}/state:#{state}/cd:#{district}"
+      end
+    end
+
+  end
 
   def self.attributes_from_united_states(us_legislator, current)
     # don't pick from calculated terms, used for reference only

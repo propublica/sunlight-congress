@@ -3,7 +3,7 @@ class Legislator
   publicly :queryable
 
   basic_fields  :bioguide_id, :thomas_id, :lis_id, :fec_ids,
-      :votesmart_id, :crp_id, :govtrack_id, :icpsr_id,
+      :votesmart_id, :crp_id, :govtrack_id, :icpsr_id, :ocd_id,
       :title, :first_name, :nickname, :middle_name, :last_name, :name_suffix,
       :other_names, :gender, :in_office, :senate_class, :birthday,
       :state, :state_name, :party, :chamber, :leadership_role, :district, :state_rank,
@@ -24,6 +24,7 @@ class Legislator
   index thomas_id: 1
   index votesmart_id: 1
   index crp_id: 1
+  index ocd_id: 1
   index lis_id: 1
   index icpsr_id: 1
   index fec_ids: 1
