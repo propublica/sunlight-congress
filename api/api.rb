@@ -85,6 +85,7 @@ module Api
         params[:order].split(",").map do |key|
           field, direction = key.split "__"
           direction ||= "desc"
+          field = "_score" if field == "score" # convenience for users
           [field, direction]
         end
       else
