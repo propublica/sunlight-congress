@@ -14,7 +14,7 @@ gem 'tzinfo', '0.3.23'
 gem 'ruby-hmac', '0.4.0'
 gem 'pony', '1.0.1'
 
-gem 'rake', '0.9.2.2'
+#gem 'rake'
 gem 'safe_yaml'
 
 group :development do
