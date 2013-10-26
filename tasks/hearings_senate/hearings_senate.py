@@ -29,7 +29,7 @@ def run(db, es, options = {}):
         if match:
           committee_id, subcommittee_id = match.groups()
         else:
-          committee_id, subcommitteE_id = full_id, None
+          committee_id, subcommittee_id = full_id, None
 
         if (subcommittee_id == "00") or (subcommittee_id == None):
           subcommittee_id = None
