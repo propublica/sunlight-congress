@@ -13,4 +13,4 @@ iso8601==0.1.4
 requests
 git+git://github.com/aparo/pyes.git
 ipython
-rfc3339
+strict-rfc3339

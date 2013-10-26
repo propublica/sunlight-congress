@@ -1,7 +1,7 @@
-import re 
+import re
 from pysrt import SubRipTime, SubRipItem, SubRipFile
 import json
-import rfc3339
+from utils import rfc3339
 import rtc_utils
 import urlparse
 import httplib2
@@ -24,8 +24,8 @@ AWS_SECRET_ACCESS_KEY = None
 BUCKET_NAME = 'assets.realtimecongress.org'
 
 def run(db, es, options = {}):
-    
-    
+
+
     if options['config'].has_key('s3'):
         global AWS_ACCESS_KEY_ID
         global AWS_SECRET_ACCESS_KEY
@@ -34,7 +34,7 @@ def run(db, es, options = {}):
 
     archive = False
     captions = False
-        
+
     if options.has_key('archive'): archive = options['archive']
     if options.has_key('captions'): captions = options['captions']
 
@@ -92,18 +92,18 @@ def get_captions(client_name, clip_id):
             j = False
 
         sub_count = 0
-        for item in j: 
+        for item in j:
             if item["type"] == "text":
                 cap = item["text"]
                 offset = round(float(item["time"]), 3)
-                captions.append({'time': offset, 'text': cap})        
+                captions.append({'time': offset, 'text': cap})
                 end = get_cap_end(j, sub_count)
                 if end:
                     subtitle = SubRipItem(index=sub_count, start=SubRipTime(seconds=offset), end=SubRipTime(seconds=end), text=cap)
                     subs.append(subtitle)
-           
+
             sub_count = sub_count + 1
-        
+
         try:
             subs.save(path=filename, encoding="utf-8")
         except IOError:
@@ -111,12 +111,12 @@ def get_captions(client_name, clip_id):
             t = p.wait()
 
             subs.save(path=filename, encoding="utf-8")
-            
+
         s3_url = push_to_s3(filename, '%s/%s.srt' % (client_name, clip_id))
         return (captions, s3_url)
     else:
         return ([], '')
-         
+
 def get_senate_clip_captions(captions, start, end):
 
     clip_captions = []
@@ -130,7 +130,7 @@ def get_senate_clip_captions(captions, start, end):
     cap_str = ""
     for cap in clip_captions:
         cap_str += cap['text'] + ' '
-        
+
     return cap_str
 
 def get_clips_for_senate(db, clip_id, congress, duration, year):
@@ -138,13 +138,13 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
     chamber = "senate"
     clip_segment = 5 * 60
     clip_number = (duration / clip_segment) + 1
- 
+
     clips = []
     bill_ids = []
     legislators = []
     legislator_ids = []
     roll_ids = []
-    
+
     caps = get_captions('floor.senate.gov', clip_id)
     offset = 0
     for clip_num in range(1, clip_number + 1):
@@ -165,8 +165,8 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
         legis, bio_ids = rtc_utils.extract_legislators(captions, chamber, db)
         b = rtc_utils.extract_bills(captions, congress)
         r = rtc_utils.extract_rolls(captions, chamber, year)
-            
-        if legis: 
+
+        if legis:
             c['legislator_names'] = legis
             events += 'Legislators mentioned in this clip: '
             for l in legis:
@@ -176,25 +176,25 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
                 if l != legislators[-1]:
                     events += '; '
 
-        if bio_ids: 
+        if bio_ids:
             c['legislator_ids'] = bio_ids
             for bi in bio_ids:
                 if bi not in legislator_ids:
                     legislator_ids.append(bi)
 
-        if r: 
+        if r:
             c['roll_ids'] = r
             for ro in r:
                 if ro not in roll_ids:
                     roll_ids.append(ro)
-        
-        if b: 
+
+        if b:
             c['bill_ids'] = b
             events += 'Bills mentioned in this clip: '
             for bill in b:
                 if bill not in bill_ids:
                     bill_ids.append(bill)
-                
+
                 bill_name = db['bills'].find_one({'bill_id':bill })
                 if  bill_name and bill_name.has_key('short_title') and bill_name['short_title'] and bill_name['short_title'] != '':
                     events += bill_name['short_title'] + '; '
@@ -205,11 +205,11 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
             events = "No description for clip number %s" % clip_num
 
         c['events'] = [events,]
-         
+
         clips.append(c)
 
         offset = offset + clip_segment
-    
+
     return (clips, bill_ids, legislators, legislator_ids, roll_ids)
 
 
@@ -222,7 +222,7 @@ def get_markers(db, client_name, clip_id, congress, chamber):
     legislators = []
     legislator_ids = []
     roll_ids = []
-    
+
     if markers:
         for m in markers:
             m_new = m['_source']
@@ -239,25 +239,25 @@ def get_markers(db, client_name, clip_id, congress, chamber):
             legis, bio_ids = rtc_utils.extract_legislators(c['events'][0], chamber, db)
             b = rtc_utils.extract_bills(c['events'][0], congress)
             r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
-            
-            if legis: 
+
+            if legis:
                 c['legislator_names'] = legis
                 for l in legis:
                     if l not in legislators:
                         legislators.append(l)
-            if bio_ids: 
+            if bio_ids:
                 c['legislator_ids'] = bio_ids
                 for bi in bio_ids:
                     if bi not in legislator_ids:
                         legislator_ids.append(bi)
 
-            if r: 
+            if r:
                 c['roll_ids'] = r
                 for ro in r:
                     if ro not in roll_ids:
                         roll_ids.append(ro)
-            
-            if b: 
+
+            if b:
                 c['bill_ids'] = b
                 for bill in b:
                     if bill not in bill_ids:
@@ -290,34 +290,34 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
     if not videos:
         db.warning("Granicus API appears to be down", {'errors': PARSING_ERRORS})
-        sys.exit()        
+        sys.exit()
 
     vcount = 0
     for vid in videos:
-        
+
         v = vid['_source']
 
         legislative_day = dateparse(v['datetime'])
 
         video_id = chamber + '-' + str(int(timey.mktime(legislative_day.timetuple())))
-        new_vid = db.get_or_initialize('videos', {'video_id': video_id}) 
-         
+        new_vid = db.get_or_initialize('videos', {'video_id': video_id})
+
         #initialize arrays and dicts so we don't have to worry about it later
         if not new_vid.has_key('clip_urls'): new_vid['clip_urls'] = {}
         if not new_vid.has_key('bill_ids'): new_vid['bill_ids'] = []
         if not new_vid.has_key('legislator_ids'): new_vid['legislator_ids'] = []
         if not new_vid.has_key('legislator_names'): new_vid['legislator_names'] = []
 
-        if not new_vid.has_key('created_at'): new_vid['created_at'] = datetime.now() 
+        if not new_vid.has_key('created_at'): new_vid['created_at'] = datetime.now()
         new_vid['updated_at'] = datetime.now()
         #video id, clips array, legislators array, bills array
-        
+
         new_vid = try_key(v, 'id', 'clip_id', new_vid)
         new_vid = try_key(v, 'duration', 'duration', new_vid)
         new_vid = try_key(v, 'datetime', 'published_at', new_vid)
 
         # normalize timestamp format to RFC3339 in UTC
-        new_vid['published_at'] = rfc3339.rfc3339(dateparse(new_vid['published_at']), utc=True)
+        new_vid['published_at'] = rfc3339(dateparse(new_vid['published_at']))
 
 
         new_vid['clip_urls'] = try_key(v, 'http', 'mp4', new_vid['clip_urls'])
@@ -339,12 +339,12 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         if captions:
             new_vid['captions'], new_vid['caption_srt_file'] = get_captions(client_name, new_vid['clip_id'])
-        
-        db['videos'].save(new_vid) 
+
+        db['videos'].save(new_vid)
         vcount += 1
 
         #index clip objects in elastic search
-        
+
         if captions and new_vid.has_key('clips') and new_vid['clips'] is not None and len(new_vid['clips']) > 0:
             for c in new_vid['clips']:
                 clip = {
@@ -362,7 +362,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                 clip = try_key(c, 'events', 'events', clip)
                 clip = try_key(c, 'bill_ids', 'bill_ids', clip)
                 clip = try_key(c, 'legislator_ids', 'legislator_ids', clip)
-                
+
                 if new_vid.has_key('caption_srt_file'):
                     clip['srt_link'] = new_vid['caption_srt_file'],
 
@@ -370,7 +370,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                     clip['captions'] = get_clip_captions(new_vid, c, c == new_vid['clips'][0] ) #pass a boolean if this is the first clip
 
                 resp = es.save(clip, 'clips', clip['id'])
-            
+
                 if resp['ok'] == False:
                     PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
         print "Successfully processed %s" % new_vid['clip_id']
@@ -395,19 +395,19 @@ def get_clip_captions(video, clip, first_clip):
     cap_str = ""
     for cap in captions:
         cap_str += cap['text'] + ' '
-        
+
     return cap_str
-     
+
 
 def query_api(db, api_url, data=None):
 
     h = httplib2.Http()
-    
+
     print "Making request %s" % api_url
     print "with data: %s" % data
 
     response, text = h.request(api_url, body=data)
-    
+
     if response.get('status') == '200':
         items = json.loads(text)['hits']['hits']
         return items
