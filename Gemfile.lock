@@ -33,7 +33,7 @@ GEM
     polyglot (0.3.3)
     pony (1.0.1)
       mail (> 2.0)
-    rack (1.4.1)
+    rack (1.5.2)
     rack-protection (1.5.1)
       rack
     raindrops (0.12.0)
@@ -73,7 +73,7 @@ DEPENDENCIES
   oj (= 1.3.0)
   paint
   pony (= 1.0.1)
-  rack (= 1.4.1)
+  rack
   rubberband (= 0.9.8)
   ruby-hmac (= 0.4.0)
   safe_yaml
