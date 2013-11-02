@@ -29,6 +29,19 @@
             "term_vector": "with_positions_offsets"
           }
         }
+      },
+
+      "ig_report": {
+        "properties": {
+          "report_id": {
+            "index":"not_analyzed",
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "term_vector": "with_positions_offsets"
+          }
+        }
       }
     }
   }
