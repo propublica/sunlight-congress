@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'nokogiri'
 require 'docsplit'
 
@@ -46,7 +44,7 @@ class GaoReports
     puts "Going to fetch #{gao_ids.size} GAO reports..." if options[:debug]
 
     gao_ids.each do |gao_id|
-      
+
       url = "http://gao.gov/api/id/#{gao_id}"
       cache = cache_path_for gao_id, "report.json"
       unless details = Utils.download(url, options.merge(destination: cache, json: true))
@@ -70,7 +68,7 @@ class GaoReports
       landing_url = details['url']
       text_url = details['text_url']
       pdf_url = details['pdf_url']
-      
+
       # seen a mixup - http://gao.gov/api/id/586393
       if pdf_url and (pdf_url =~ /\.txt$/)
         text_url = pdf_url
@@ -133,7 +131,7 @@ class GaoReports
 
         title: title,
         categories: categories,
-        
+
         url: (landing_url || pdf_url),
         source_url: pdf_url,
 
@@ -151,7 +149,7 @@ class GaoReports
       puts "[#{gao_id}] Saving report information..." if options[:debug]
       document = Document.find_or_initialize_by document_id: document_id
       document.attributes = attributes
-      
+
       # save to ElasticSearch if we got the text
       if full_text
         full_text = process_full_text full_text
@@ -210,17 +208,12 @@ class GaoReports
     "data/gao/#{gao_id}/#{filename}"
   end
 
+  # I should use sanitize or loofah for this
   def self.strip_tags(text)
     text = text.gsub(/<\/?(p|div)>/i, "\n\n").strip
-    # text.gsub! /<\/?h2>/, "*"
     text.gsub! /<[^>]+?>/, '' # don't yell at me
     text.gsub! /\n{3,}\s*/, "\n\n"
     text.strip
-    # doc = Nokogiri::HTML text
-    # (doc/"//*/text()").map do |text| 
-    #   puts text.inner_text
-    #   text.inner_text.strip
-    # end.select {|text| text.present?}.join " "
   end
 
   # collapse whitespace
