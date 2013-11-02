@@ -296,12 +296,12 @@ class BillsText
   end
 
   def self.citation_cache(congress, bill_id)
-    "data/citations/bills/#{congress}/#{bill_id}.json"
+    "data/citations/bills/#{congress}/#{bill_id}/citations.json"
   end
 
   # todo: (?) move this out of data/citation
   def self.text_cache(congress, bill_id)
-    "data/citations/bills/#{congress}/#{bill_id}.txt"
+    "data/citations/bills/#{congress}/#{bill_id}/bill.txt"
   end
 
   def self.html_cache(congress, bill_type, bill_version_id)
