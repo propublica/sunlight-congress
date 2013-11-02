@@ -69,7 +69,7 @@ class IgReports
               title: report_data['title'],
 
               published_on: report_data['published_on'],
-              posted_at: report_data['published_on'],
+              posted_at: Utils.utc_parse(report_data['published_on']),
 
               url: report_data['url'],
               source_url: report_data['url'],
