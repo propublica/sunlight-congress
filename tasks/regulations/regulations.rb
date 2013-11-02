@@ -482,7 +482,8 @@ class Regulations
   end
 
   def self.citation_cache(document_number)
-    destination_for "citation", document_number, "json"
+    yearish = document_number.split("-").first
+    "data/citations/regulations/#{yearish}/#{document_number}/citations.json"
   end
 
   def self.html_cache(document_number)

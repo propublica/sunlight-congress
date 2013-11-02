@@ -78,7 +78,7 @@ class IgReports
             }
 
             # extract citations
-            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(report), options)
+            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(agency, year, report_id), options)
               warnings << {message: "Failed to extract citations from #{document_id}"}
               attributes[:citation_ids] = []
             end
@@ -110,8 +110,8 @@ class IgReports
 
   end
 
-  def self.citation_cache(document)
-    "data/unitedstates/inspectors-general/#{document['agency']}/#{document['year']}/#{document['gao_id']}/citations.json"
+  def self.citation_cache(agency, year, report_id)
+    "data/citations/ig_reports/#{agency}/#{year}/#{report_id}/citations.json"
   end
 
 end

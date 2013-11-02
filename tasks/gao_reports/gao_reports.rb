@@ -154,7 +154,7 @@ class GaoReports
       if full_text
         full_text = process_full_text full_text
 
-        unless citation_ids = Utils.citations_for(document, full_text, cache_path_for(gao_id, "citation.json"), options)
+        unless citation_ids = Utils.citations_for(document, full_text, citation_cache(gao_id), options)
           warnings << {message: "Failed to extract citations from #{document_id}"}
           citation_ids = []
         end
@@ -206,6 +206,10 @@ class GaoReports
 
   def self.cache_path_for(gao_id, filename)
     "data/gao/#{gao_id}/#{filename}"
+  end
+
+  def self.citation_cache(gao_id)
+    "data/citations/gao_reports/#{gao_id}/citations.json"
   end
 
   # I should use sanitize or loofah for this
