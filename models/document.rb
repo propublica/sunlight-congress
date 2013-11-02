@@ -6,14 +6,14 @@ class Document
     :posted_at, :published_on,
     :title, :categories,
     :source_url, :url
-     
+
   search_fields :title, :categories, :text,
     "gao_report.description"
 
   cite_key :document_id
-  
 
-  
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
 
@@ -29,4 +29,9 @@ class Document
   index created_at: 1
 
   index "gao_report.gao_id" => 1
+  index "ig_report.report_id" => 1
+  index "ig_report.agency" => 1
+  index "ig_report.year" => 1
+  index "ig_report.type" => 1
+  index "ig_report.audit_id" => 1
 end
