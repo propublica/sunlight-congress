@@ -50,7 +50,7 @@ module Utils
       body = File.read destination
       hash = MultiJson.load body
     else
-      url = "http://#{Environment.config['citation']['hostname']}/citation/find.json"
+      url = "http://#{Environment.config['citation']['hostname']}/citation/find"
       puts "\tExtracting citations..." if options[:debug]
 
       curl = Curl.post url,
@@ -69,7 +69,7 @@ module Utils
 
     # index citations by ID: assumes they are unique even across types
     citations = {}
-    hash['results'].each do |result|
+    hash['results']['citations'].each do |result|
       id = result[result['type']]['id']
       citations[id] ||= []
       citations[id] << result
