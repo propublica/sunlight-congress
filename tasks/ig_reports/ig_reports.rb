@@ -96,18 +96,17 @@ class IgReports
           end
         end
       end
-
-      if failures.any?
-        Report.failure self, "Failed to process #{failures.size} reports", {failures: failures}
-      end
-
-      if warnings.any?
-        Report.warning self, "Failed to process text for #{warnings.size} reports", {warnings: warnings}
-      end
-
-      Report.success self, "Saved #{count} IG reports."
     end
 
+    if failures.any?
+      Report.failure self, "Failed to process #{failures.size} reports", {failures: failures}
+    end
+
+    if warnings.any?
+      Report.warning self, "Failed to process text for #{warnings.size} reports", {warnings: warnings}
+    end
+
+    Report.success self, "Saved #{count} IG reports."
   end
 
   def self.citation_cache(agency, year, report_id)
