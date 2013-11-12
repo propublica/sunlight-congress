@@ -12,7 +12,7 @@ We also provide Congress' daily work:
 
 * All introduced bills in the House and Senate, and what occurs to them (updated daily).
 * Full text search over bills, with powerful Lucene-based query syntax.
-* Real time notice of votes, floor activity, and committee hearings, and when bills are scheduled for debate.
+* Real time notice of votes, floor activity, committee hearings, and when bills are scheduled for debate.
 
 All data is served in JSON, and requires a Sunlight API key. An API key is [free to register](http://services.sunlightlabs.com/accounts/register/) and has no usage limits.
 
