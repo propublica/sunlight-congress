@@ -10,8 +10,8 @@ class IgReports
   # options:
   #   years: fetch specific years' reports. defaults to current year.
   #      comma-separate for multiple years, e.g. "2012,2013"
-  #   agencies: fetch specific agencies' reports. defaults to all.
-  #      comma-separate for multiple agencies, e.g. "usps,nsa"
+  #   inspectors: fetch specific IGs' reports. defaults to all.
+  #      comma-separate for multiple inspectors, e.g. "usps,nsa"
 
   def self.run(options = {})
     if options[:years].present?
@@ -20,10 +20,10 @@ class IgReports
       years = [Time.now.year]
     end
 
-    if options[:agencies].present?
-      agencies = options[:agencies].split(",").map &:strip
+    if options[:inspectors].present?
+      inspectors = options[:inspectors].split(",").map &:strip
     else
-      agencies = []
+      inspectors = []
     end
 
     unless File.exists?("data/unitedstates/inspectors-general")
@@ -37,22 +37,22 @@ class IgReports
     batcher = [] # used to persist a batch indexing container
 
     years.each do |year|
-      all_agencies = Dir.glob("data/unitedstates/inspectors-general/*").map {|path| File.basename path}
-      all_agencies = (all_agencies & agencies) if agencies.any?
-      all_agencies.each do |agency|
+      all_inspectors = Dir.glob("data/unitedstates/inspectors-general/*").map {|path| File.basename path}
+      all_inspectors = (all_inspectors & inspectors) if inspectors.any?
+      all_inspectors.each do |inspector|
 
-        report_ids = Dir.glob("data/unitedstates/inspectors-general/#{agency}/#{year}/*").map {|path| File.basename path}
+        report_ids = Dir.glob("data/unitedstates/inspectors-general/#{inspector}/#{year}/*").map {|path| File.basename path}
         report_ids.each do |report_id|
 
-          Dir.glob("data/unitedstates/inspectors-general/#{agency}/#{year}/#{report_id}") do |path|
-            document_id = "ig_report-#{agency}-#{year}-#{report_id}"
+          Dir.glob("data/unitedstates/inspectors-general/#{inspector}/#{year}/#{report_id}") do |path|
+            document_id = "ig_report-#{inspector}-#{year}-#{report_id}"
             report = Document.find_or_initialize_by document_id: document_id
 
             begin
               json = File.read "#{path}/report.json"
               text = File.read "#{path}/report.txt"
             rescue Exception => ex
-              failures << {msg: "Error reading JSON and text from disk.", agency: agency, year: agency, report_id: report_id}
+              failures << {msg: "Error reading JSON and text from disk.", inspector: inspector, year: year, report_id: report_id}
               next
             end
 
@@ -78,7 +78,7 @@ class IgReports
             }
 
             # extract citations
-            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(agency, year, report_id), options)
+            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(inspector, year, report_id), options)
               warnings << {message: "Failed to extract citations from #{document_id}"}
               attributes[:citation_ids] = []
             end
@@ -109,8 +109,8 @@ class IgReports
     Report.success self, "Saved #{count} IG reports."
   end
 
-  def self.citation_cache(agency, year, report_id)
-    "data/citations/ig_reports/#{agency}/#{year}/#{report_id}/citations.json"
+  def self.citation_cache(inspector, year, report_id)
+    "data/citations/ig_reports/#{inspector}/#{year}/#{report_id}/citations.json"
   end
 
 end

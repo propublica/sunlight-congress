@@ -34,4 +34,5 @@ class Document
   index "ig_report.year" => 1
   index "ig_report.type" => 1
   index "ig_report.audit_id" => 1
+  index "ig_report.inspector" => 1
 end
