@@ -105,7 +105,7 @@ class UpcomingHouse
     if a
       pdf_url = a['href']
       pdf_url
-      date_results = pdf_url.gsub(/%20[^\.]*\.pdf/i, '.pdf').scan(/\/([^\/]+)\.pdf$/i)
+      date_results = pdf_url.gsub(/(DAILY|WEEKLY)%20/, '').gsub(/%20[^\.]*\.pdf/i, '.pdf').scan(/\/([^\/]+)\.pdf$/i)
     end
 
     if date_results and date_results.any? and date_results.first.any?
