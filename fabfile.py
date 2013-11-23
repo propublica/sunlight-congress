@@ -50,7 +50,7 @@ def disable_crontab():
   run("cd %s && rake disable_crontab" % current_path)
 
 def start():
-  run("cd %s && unicorn -D -l %s/congress.sock -c unicorn.rb" % (current_path, shared_path))
+  run("cd %s && bundle exec unicorn -D -l %s/congress.sock -c unicorn.rb" % (current_path, shared_path))
 
 def stop():
   run("kill `cat %s/unicorn.pid`" % shared_path)
