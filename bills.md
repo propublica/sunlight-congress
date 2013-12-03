@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Bills
 
 Data on bills in Congress goes back to 2009, and comes from a mix of sources:

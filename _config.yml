@@ -1,0 +1,10 @@
+# jekyll-specific
+markdown: redcarpet
+exclude: ["README.md"]
+redcarpet:
+  extensions: ["no_intra_emphasis", "tables"]
+
+# site-specific
+google_analytics: "UA-22821126-30"
+name: "Sunlight Congress API"
+twitter: "sunlightlabs"

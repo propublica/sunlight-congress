@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Districts
 
 Find a congressional district for a given coordinate, or for a zip code. Congressional districts are calculated based on data from the [2010 Census](http://www.census.gov/rdo/data/).

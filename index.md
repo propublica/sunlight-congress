@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
 
 ## Features
@@ -31,40 +35,19 @@ http://congress.api.sunlightfoundation.com/[method]
 
 ### Methods
 
-<table>
-<tr>
-<td>[/legislators](legislators.html)</td>
-<td>Current legislators' names, IDs, biography, and social media.</td>
-</tr><tr>
-<td>[/legislators/locate](legislators.html)</td><td>Find representatives and senators for a `latitude`/`longitude` or `zip`.</td>
-</tr><tr>
-<td>[/districts/locate](districts.html)</td><td>Find congressional districts for a `latitude`/`longitude` or `zip`.</td>
-</tr><tr>
-<td>[/committees](committees.html)</td>
-<td>Current committees, subcommittees, and their membership.</td>
-</tr><tr>
-<td>[/bills](bills.html)</td>
-<td>Legislation in the House and Senate, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>[/bills/search](bills.html)</td><td>Full text search over legislation.</td>
-</tr><tr>
-<td>[/amendments](amendments.html)</td><td>Amendments in the House and Senate, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>[/nominations](nominations.html)</td><td>Presidential nominations before the Senate, back to 2009. Updated daily.</td>
-</tr><tr>
-<td>[/votes](votes.html)</td>
-<td>Roll call votes in Congress, back to 2009. Updated within minutes of votes.</td>
-</tr><tr>
-<td>[/floor_updates](floor_updates.html)</td>
-<td>To-the-minute updates from the floor of the House and Senate.</td>
-</tr><tr>
-<td>[/hearings](hearings.html)</td>
-<td>Committee hearings in Congress. Updated as hearings are announced.</td>
-</tr><tr>
-<td>[/upcoming_bills](upcoming_bills.html)</td>
-<td>Bills scheduled for debate in the future, as announced by party leadership.</td>
-</tr>
-</table>
+Path | Description
+|:------------------------------|-------------------------|
+[/legislators](legislators.html) | Current legislators' names, IDs, biography, and social media.
+[/legislators/locate](legislators.html) | Find representatives and senators for a `latitude`/`longitude` or `zip`.
+[/districts/locate](districts.html) | Find congressional districts for a `latitude`/`longitude` or `zip`.[/committees](committees.html) | Current committees, subcommittees, and their membership.
+[/bills](bills.html) | Legislation in the House and Senate, back to 2009. Updated daily.
+[/bills/search](bills.html) | Full text search over legislation.
+[/amendments](amendments.html) | Amendments in the House and Senate, back to 2009. Updated daily.
+[/nominations](nominations.html) | Presidential nominations before the Senate, back to 2009. Updated daily.
+[/votes](votes.html) | Roll call votes in Congress, back to 2009. Updated within minutes of votes.
+[/floor_updates](floor_updates.html) | To-the-minute updates from the floor of the House and Senate.
+[/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
+[/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
 
 ## Parameters
 
@@ -95,7 +78,6 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
 ```
 
 ```json
-{
 "results": [
   {
     "breakdown": {
@@ -123,7 +105,6 @@ To save on bandwidth, parsing time, and confusion, it's recommended to always sp
   }
   ...
 ]
-}
 ```
 
 ### Filtering

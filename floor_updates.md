@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Floor Updates
 
 Recent real time, to-the-minute updates from the House and Senate floor. House floor updates are sourced from XML at the [House Clerk](http://clerk.house.gov/floorsummary/floor.aspx), and Senate updates from the [Senate Periodical Press Gallery](http://www.senate.gov/galleries/pdcl/index.htm).

@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Amendments
 
 Data on amendments in Congress goes back to 2009, and comes from THOMAS.gov via scrapers at the [github.com/unitedstates](https://github.com/unitedstates/congress) project. Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.

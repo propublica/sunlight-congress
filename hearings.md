@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Hearings
 
 Committee hearings scheduled by the House and Senate. This data is taken from original [House](http://house.gov/legislative/) and [Senate](http://www.senate.gov/pagelayout/committees/b_three_sections_with_teasers/committee_hearings.htm) sources.

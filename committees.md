@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Committees
 
 Names, IDs, contact info, and memberships of committees and subcommittees in the House and Senate.

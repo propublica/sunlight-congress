@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Migrating
 
 This Congress API deprecates our previous [Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). The new Congress API keeps nearly all the data and features the old one offered.
@@ -54,7 +58,7 @@ The `count` and `page` fields are always present, explained in [Pagination](inde
 
 ### Requesting fields
 
-By default, not all fields are returned for most objects in the new Congress API. 
+By default, not all fields are returned for most objects in the new Congress API.
 
 For example, a legislator's `terms` field, which contains extensive data on that member's past terms, does not appear for a plain request to `/legislators`.
 
@@ -102,7 +106,7 @@ The following fields are new:
 * `thomas_id` - An official ID used by THOMAS.gov and Congress.gov for members present in those systems.
 * `term_start` - The start date of the member's current term.
 * `term_end` - The end date of the member's current term.
-* `terms` - An array of objects with data for each term. 
+* `terms` - An array of objects with data for each term.
 
 See the [documentation for legislators](legislators.html) for more information.
 
@@ -163,7 +167,7 @@ Use the `/legislators/locate` endpoint.
 
 ### legislators.allForZip
 
-Use the `/legislators/locate` endpoint. 
+Use the `/legislators/locate` endpoint.
 
 ```text
 # old API:

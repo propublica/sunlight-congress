@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Nominations
 
 Nominations made by the President and referred to the Senate for consideration. This data is taken from [THOMAS.gov's nominations directory](http://thomas.loc.gov/home/nomis.html), and goes back to 2009.
