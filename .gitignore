@@ -2,6 +2,7 @@
 /unicorn.rb
 /unicorn.pid
 /log
+*.log
 
 /config/config.yml
 /config/mongoid.yml

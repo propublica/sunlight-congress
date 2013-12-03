@@ -1,0 +1,9 @@
+worker_processes 1 # this should be >= nr_cpus
+pid "/path/to/unicorn.pid"
+
+working_directory "/path/to/congress"
+
+# in production, direct all logs to /dev/null
+# (this happens by default on daemonization anyway)
+stdout_path "/dev/null"
+stderr_path "/dev/null"
