@@ -242,8 +242,8 @@ helpers do
         extras[:zip] = params[:zip]
       elsif params[:latitude] and params[:longitude]
         method += ".latlng"
-        extras[:latitude] = params[:latitude]
-        extras[:longitude] = params[:longitude]
+        # Specifically do NOT store latitude and longitude.
+        # We promise this in our API documentation.
       end
     elsif method_type == "search"
       method += ".search"

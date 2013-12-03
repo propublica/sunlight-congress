@@ -29,7 +29,7 @@ end
 
 configure do
   enable :cross_origin
-  
+
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
   Searchable.configure_clients!
@@ -42,7 +42,7 @@ end
 
 # utilities for sending email
 class Email
-  
+
   def self.message(message)
     send_email message, message, config[:recipients][:admin]
   end
@@ -55,9 +55,9 @@ class Email
     if report['attached']['exception']
       body += "\n\n#{report.exception_message}"
     end
-    
+
     attrs = report.attributes.dup
-    
+
     [:status, :created_at, :updated_at, :_id, :message, :exception, :read, :source].each {|key| attrs.delete key.to_s}
 
     attrs['attached'].delete 'exception'
@@ -70,10 +70,10 @@ class Email
   # admin + any task-specific owners
   def self.email_recipients_for(report)
     task = report.source.underscore.to_sym
-    
+
     recipients = Environment.config[:recipients][:admin].dup
     if task_owners = Environment.config[:recipients][task]
-      recipients += task_owners 
+      recipients += task_owners
     end
     recipients.uniq
   end
@@ -81,8 +81,8 @@ class Email
   def self.send_email(subject, body, to)
     if Environment.config[:email][:from]
       Pony.mail Environment.config[:email].merge(
-        subject: subject, 
-        body: body, 
+        subject: subject,
+        body: body,
         to: to
       )
     else
