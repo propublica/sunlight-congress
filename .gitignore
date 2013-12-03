@@ -1,6 +1,7 @@
 /config.ru
 /unicorn.rb
 /unicorn.pid
+/log
 
 /config/config.yml
 /config/mongoid.yml
