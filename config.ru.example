@@ -24,7 +24,7 @@ require 'bundler/setup'
 # Thus, logging at the application-level is currently NOT desired.
 #
 #
-# logger = Logger.new("testing.log")
+# logger = Logger.new("/path/to/unicorn.log")
 # logger.instance_eval do
 #   def write(msg)
 #     # scrub latitude and longitude params from app-level logs
