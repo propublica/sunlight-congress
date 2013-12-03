@@ -39,7 +39,8 @@ Path | Description
 |:------------------------------|-------------------------|
 [/legislators](legislators.html) | Current legislators' names, IDs, biography, and social media.
 [/legislators/locate](legislators.html) | Find representatives and senators for a `latitude`/`longitude` or `zip`.
-[/districts/locate](districts.html) | Find congressional districts for a `latitude`/`longitude` or `zip`.[/committees](committees.html) | Current committees, subcommittees, and their membership.
+[/districts/locate](districts.html) | Find congressional districts for a `latitude`/`longitude` or `zip`.
+[/committees](committees.html) | Current committees, subcommittees, and their membership.
 [/bills](bills.html) | Legislation in the House and Senate, back to 2009. Updated daily.
 [/bills/search](bills.html) | Full text search over legislation.
 [/amendments](amendments.html) | Amendments in the House and Senate, back to 2009. Updated daily.
