@@ -35,7 +35,7 @@ module Queryable
 
   def self.regex_for(value)
     regex_value = value.to_s.dup
-    %w{+ ? . * ^ $ ( ) [ ] { } | \ }.each {|char| regex_value.gsub! char, "\\#{char}"}
+    regex_value = Regexp.escape regex_value
     /#{regex_value}/i
   end
 
