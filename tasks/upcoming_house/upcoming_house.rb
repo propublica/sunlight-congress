@@ -14,7 +14,7 @@ class UpcomingHouse
 
     page = {day: "daily", week: "weekly"}[range.to_sym]
     source_type = "house_#{page}"
-    url = "http://www.majorityleader.house.gov/floor/#{page}.html"
+    url = "http://majorityleader.gov/floor/#{page}.html"
 
     begin
       html = open(url).read
