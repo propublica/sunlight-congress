@@ -29,7 +29,7 @@ Before we can actually deploy this to the live site:
 
 Before being able to switch to Redcarpet:
 
-* **Automatic generation of TOC** is not supported in Redcarpet 2.x or 3.x, though the building blocks are present. You need to use an alternate renderer, `HTML_TOC`, which gives you the TOC block for you to place in yourself. Adding a special tag that automatically drops the TOC in for you could be done in either Redcarpet or Jekyll, but Redcarpet would make more sense. References: [example helper code](https://github.com/vmg/redcarpet/pull/186#issuecomment-22783188)
+* **Automatic generation of TOC** is not supported in Redcarpet 2.x or 3.x, though the building blocks are present. You need to use an alternate renderer, `HTML_TOC`, which gives you the TOC block for you to place in yourself. Adding a special tag that automatically drops the TOC in for you could be done in either Redcarpet or Jekyll, but Redcarpet would make more sense. References: [example helper code](https://github.com/vmg/redcarpet/pull/186#issuecomment-22783188), [my open ticket with redcarpet](https://github.com/vmg/redcarpet/issues/330)
 
 * Support for **Github-style descriptive TOC slugs** when using the `with_toc_data` option will arrive in Jekyll 2.x, when Jekyll drops support for Ruby 1.8.x and can embrace Redcarpet 3.x. Reference: [vmg/redcarpet#186](vmg/redcarpet#186)
 
