@@ -23,7 +23,7 @@ After a bit of [badgering](https://github.com/mojombo/jekyll/pull/1558#issuecomm
 
 Before we can actually deploy this to the live site:
 
-* **Github Pages needs to switch to Jekyll 1.4.** Awaiting announcement of this.
+* **Github Pages needs to switch to Jekyll 1.4.** Looks like it [might be done](https://github.com/github/pages-gem/commit/2b2e21895ba30015f6143ca34490b0ec873ac457).
 
 #### Redcarpet
 
@@ -38,4 +38,4 @@ Before being able to switch to Redcarpet:
 
 Before being able to switch to Kramdown:
 
-* Support for **Pygments syntax highlighting** in Kramdown core. @navarroj has created [krampygs](https://github.com/navarroj/krampygs/blob/master/krampygs.rb), a plugin which does this.
+* Support for **Pygments syntax highlighting** in Kramdown core. @navarroj has created [krampygs](https://github.com/navarroj/krampygs/blob/master/krampygs.rb), a plugin which does this. Kramdown core could offer support for this with a flag, or Jekyll could do it itself, [as it does for Redcarpet](https://github.com/mojombo/jekyll/blob/master/lib/jekyll/converters/markdown/redcarpet_parser.rb#L6-L23).
