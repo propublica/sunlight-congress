@@ -21,12 +21,13 @@ Maruku [has been EOL-ed](http://benhollis.net/blog/2013/10/20/maruku-is-obsolete
 
 After a bit of [badgering](https://github.com/mojombo/jekyll/pull/1558#issuecomment-29853283) on my part, [Jekyll 1.4 included](http://jekyllrb.com/news/2013/12/07/jekyll-1-4-0-released/) a lot of (other people's awesome) work to support bumping the included Maruku version to 0.7.0.
 
-Maruku 0.7.0 adds support for fenced code blocks with backticks (instead of just tildes). Unfortunately, Jekyll 1.4 also needs to add support for this option, as it takes a whitelist approach to Maruku options.
+Before being able to switch to Maruku:
 
-Before we can actually deploy this to the live site:
-
-* Jekyll needs to **allow the `fenced_code_blocks` option through**. I'm [working on a patch](https://github.com/konklone/jekyll/commit/14418f74ae743237bede319a8aef2196e48ce569#commitcomment-4805665) for this.
-* **Github Pages needs to switch to that patched Jekyll 1.4.**
+* Jekyll needs to **allow the `fenced_code_blocks` option through**. I've [submitted a patch](https://github.com/mojombo/jekyll/pull/1799) for this.
+* Maruku has a **bug where newlines wrap fenced code block internals**. I've [submitted a patch](https://github.com/bhollis/maruku/pull/112) that fixes this.
+* Maruku only supports internal Pygments highlighting for `{% highlight %}` tags, not fenced code blocks. I need to **figure out what highlighting can be done with fenced code blocks**.
+* **Jekyll needs to update** to support the final Maruku version.
+* **Github Pages needs to update** to the new version of Jekyll 1.4.x.
 
 #### Redcarpet
 
