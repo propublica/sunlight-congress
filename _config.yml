@@ -1,11 +1,11 @@
 # jekyll-specific
-markdown: redcarpet
-exclude: ["README.md"]
+markdown: maruku
+exclude: ["README.md", "todo.txt"]
 
 maruku:
   fenced_code_blocks: true
-redcarpet:
-  extensions: ["no_intra_emphasis", "tables", "with_toc_data"]
+# redcarpet:
+#   extensions: ["no_intra_emphasis", "tables", "with_toc_data"]
 
 # site-specific
 google_analytics: "UA-22821126-30"
