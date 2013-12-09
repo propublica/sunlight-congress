@@ -19,11 +19,14 @@ Maruku [has been EOL-ed](http://benhollis.net/blog/2013/10/20/maruku-is-obsolete
 
 #### Maruku
 
-After a bit of [badgering](https://github.com/mojombo/jekyll/pull/1558#issuecomment-29853283) on my part, [Jekyll 1.4 included](http://jekyllrb.com/news/2013/12/07/jekyll-1-4-0-released/) a lot of (other people's awesome) work to support bumping the included Maruku version to 0.7.0. This added support for fenced code blocks with backticks (instead of just tildes).
+After a bit of [badgering](https://github.com/mojombo/jekyll/pull/1558#issuecomment-29853283) on my part, [Jekyll 1.4 included](http://jekyllrb.com/news/2013/12/07/jekyll-1-4-0-released/) a lot of (other people's awesome) work to support bumping the included Maruku version to 0.7.0.
+
+Maruku 0.7.0 adds support for fenced code blocks with backticks (instead of just tildes). Unfortunately, Jekyll 1.4 also needs to add support for this option, as it takes a whitelist approach to Maruku options.
 
 Before we can actually deploy this to the live site:
 
-* **Github Pages needs to switch to Jekyll 1.4.** Looks like it [might be done](https://github.com/github/pages-gem/commit/2b2e21895ba30015f6143ca34490b0ec873ac457).
+* Jekyll needs to **allow the `fenced_code_blocks` option through**. I'm [working on a patch](https://github.com/konklone/jekyll/commit/14418f74ae743237bede319a8aef2196e48ce569#commitcomment-4805665) for this.
+* **Github Pages needs to switch to that patched Jekyll 1.4.**
 
 #### Redcarpet
 
