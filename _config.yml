@@ -1,9 +1,13 @@
 # jekyll-specific
-markdown: maruku
+markdown: kramdown
 exclude: ["README.md", "todo.txt"]
 
-maruku:
-  fenced_code_blocks: true
+pygments: true
+
+# maruku:
+#   fenced_code_blocks: true
+kramdown:
+  input: GFM
 # redcarpet:
 #   extensions: ["no_intra_emphasis", "tables", "with_toc_data"]
 

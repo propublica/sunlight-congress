@@ -10,7 +10,8 @@
 
   <link rel="shortcut icon" type="image/ico" href="assets/favicon.ico">
   <link rel="stylesheet" type="text/css" href="assets/documentup.css?{{ site.time | date: "%Y%m%j%H%M%S" }}" />
-  <link rel="stylesheet" type="text/css" href="assets/syntax.css?{{ site.time | date: "%Y%m%j%H%M%S" }}" />
+  <link rel="stylesheet" type="text/css" href="assets/syntax-tomorrow.css?{{ site.time | date: "%Y%m%j%H%M%S" }}" />
+
   <script type="text/javascript" src="//use.typekit.net/blp6kvr.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
@@ -59,6 +60,16 @@
   ga('create', '{{ site.google_analytics }}', 'sunlightlabs.github.io');
   ga('set', 'anonymizeIp', true);
   ga('send', 'pageview');
+</script>
+
+<!--
+  a hack until there is a better way, such as:
+    * some sort of plugin that allows HTML blocks to flow up to the layout
+    * a custom, our-layout-specific post-processing plugin that does this at generate-time
+    * our layout is reworked to allow the nav to be generated at the top of the file
+-->
+<script type="text/javascript">
+  document.getElementById("sections").innerHTML = document.getElementById("markdown-toc").innerHTML;
 </script>
 
 </body>

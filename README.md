@@ -1,3 +1,10 @@
+---
+layout: default
+---
+
+
+* placeholder
+{:toc}
 ## Docs for the Congress API
 
 We're using Github Pages for our [Sunlight Congress API documentation](http://sunlightlabs.github.io/congress/).
@@ -33,13 +40,14 @@ Before being able to switch to Maruku:
 
 Before being able to switch to Redcarpet:
 
-* **Automatic generation of TOC** is not supported in Redcarpet 2.x or 3.x, though the building blocks are present. You need to use an alternate renderer, `HTML_TOC`, which gives you the TOC block for you to place in yourself. Adding a special tag that automatically drops the TOC in for you could be done in either Redcarpet or Jekyll, but Redcarpet would make more sense. References: [example helper code](https://github.com/vmg/redcarpet/pull/186#issuecomment-22783188), [my open ticket with redcarpet](https://github.com/vmg/redcarpet/issues/330)
+* **Automatic generation of TOC** is not supported in Redcarpet 2.x or 3.x, though the building blocks are present. You need to use an alternate renderer, `HTML_TOC`, which gives you the TOC block for you to place in yourself. Adding a special tag that automatically drops the TOC in for you could be done in either Redcarpet or Jekyll. References: [example helper code](https://github.com/vmg/redcarpet/pull/186#issuecomment-22783188), [my open ticket with redcarpet](https://github.com/vmg/redcarpet/issues/330)
 
-* Support for **Github-style descriptive TOC slugs** when using the `with_toc_data` option will arrive in Jekyll 2.x, when Jekyll drops support for Ruby 1.8.x and can embrace Redcarpet 3.x. Reference: [vmg/redcarpet#186](vmg/redcarpet#186)
+* Bonus: support for **Github-style descriptive TOC slugs** when using the `with_toc_data` option will arrive in Jekyll 2.x, when Jekyll drops support for Ruby 1.8.x and can embrace Redcarpet 3.x. Reference: [vmg/redcarpet#186](vmg/redcarpet#186)
 
+* Bonus: using Rouge for highlighting seems simpler and nicer, and it has a [Redcarpet plugin](https://github.com/jayferd/rouge/blob/master/lib/rouge/plugins/redcarpet.rb).
 
 #### Kramdown
 
 Before being able to switch to Kramdown:
 
-* Support for **Pygments syntax highlighting** in Kramdown core. @navarroj has created [krampygs](https://github.com/navarroj/krampygs/blob/master/krampygs.rb), a plugin which does this. Kramdown core could offer support for this with a flag, or Jekyll could do it itself, [as it does for Redcarpet](https://github.com/mojombo/jekyll/blob/master/lib/jekyll/converters/markdown/redcarpet_parser.rb#L6-L23).
+* Support for **Pygments-style syntax highlighting** in Kramdown core. @navarroj has created [krampygs](https://github.com/navarroj/krampygs/blob/master/krampygs.rb), a plugin which does this. Kramdown core could offer support for this with a flag, or Jekyll could do it itself, [as it does for Redcarpet](https://github.com/mojombo/jekyll/blob/master/lib/jekyll/converters/markdown/redcarpet_parser.rb#L6-L23).  Also, Rouge may [add a Kramdown plugin](https://github.com/gettalong/kramdown/pull/68#issuecomment-30182991).
