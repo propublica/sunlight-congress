@@ -1,28 +1,9 @@
----
-layout: default
----
-
-
-* placeholder
-{:toc}
-## Docs for the Congress API
-
 We're using Github Pages for our [Sunlight Congress API documentation](http://sunlightlabs.github.io/congress/).
 
 For the last year, we've used [DocumentUp](http://documentup.com/)'s generator API, along with a compilation script. Every change required a re-run of the script, and for DocumentUp's API to be up and running.
 
 The site has now been converted to a Jekyll-based system. In doing so, it revealed a bunch of gaps and inconsistencies in the three primary Markdown parsers that Jekyll supports -- Maruku, Kramdown, and Redcarpet.
 
-
-### Markdown and Jekyll
-
-Currently, we are waiting for Github Pages to support Jekyll 1.4, so we can use Jekyll 1.4 + Maruku 0.7.0 for the combination of:
-
-* support for fenced code blocks with backticks (GFM-style)
-* automatic Pygments-based syntax-specific highlighting of said code blocks
-* automatic TOC generation
-
-Maruku [has been EOL-ed](http://benhollis.net/blog/2013/10/20/maruku-is-obsolete/) though, and it would be nice if we could switch to [Redcarpet](https://github.com/vmg/redcarpet) (what Github uses for its own Markdown rendering), or [Kramdown](https://github.com/gettalong/kramdown/) if necessary.
 
 #### Maruku
 
