@@ -115,7 +115,7 @@ def run(db, es, options = {}):
       db.success("Updated or created %s Senate committee hearings" % count)
 
 def committee_for(db, committee_id):
-  committee = db['committees'].find_one({'committee_id': committee_id}, fields=["committee_id", "name", "chamber"])
+  committee = db['committees'].find_one({'committee_id': committee_id}, fields=["committee_id", "name", "chamber", "url"])
   if committee:
     del committee['_id']
   return committee
