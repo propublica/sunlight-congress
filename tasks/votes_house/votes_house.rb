@@ -31,11 +31,19 @@ class VotesHouse
     if options[:number]
       to_get = [options[:number].to_i]
     else
+
       # count down from the top
       unless latest_roll = latest_roll_for(year, options)
         Report.failure self, "Failed to find the latest new roll on the clerk's page, can't go on."
         return
       end
+
+      # no rolls yet for the year
+      if latest_roll == 0
+        Report.note self, "Okay, no roll call votes yet for #{year}."
+        return
+      end
+
 
       if options[:year] # year implies archive
         from_roll = 1
@@ -244,7 +252,10 @@ class VotesHouse
     url = "http://clerk.house.gov/evs/#{year}/index.asp"
 
     puts "[#{year}] Fetching index page for year from House Clerk..." if options[:debug]
-    return nil unless doc = Utils.html_for(url)
+    return nil unless body = Utils.curl(url)
+    return nil unless doc = Nokogiri::HTML(body)
+
+    return 0 if body =~ /No roll call votes have been posted yet./i
 
     element = doc.css("tr td a").first
     return nil unless element and element.text.present?
