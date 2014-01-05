@@ -17,7 +17,9 @@ class FloorSenate
 
     html = nil
     begin
-      html = Utils.curl "http://www.periodicalpress.senate.gov/?break_cache=#{Time.now.to_i}"
+      url = "http://www.periodicalpress.senate.gov/"
+      url << "?break_cache=#{Time.now.to_i}" unless allow_cache?
+      html = Utils.curl url
     rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
       Report.warning self, "Network error on fetching the floor log, can't go on."
       return
@@ -135,6 +137,18 @@ class FloorSenate
 
   def self.extract_legislators(text)
     []
+  end
+
+  # Senate Periodical Press Gallery goes down from precisely 12am to 1am EST,
+  # but can be reached via their CDN/cache/whatever.
+  # so, allow caching from 11:55pm to 1:05am EST.
+  # also, this stinks, and this should be reported (done) and removed later.
+  def self.allow_cache?
+    hour = Time.zone.now.hour
+    minute = Time.zone.now.min
+    (hour == 0) or
+      (hour == 11 and minute > 5) or
+      (hour == 1 and minute < 5)
   end
 
   def self.clean_text(text)
