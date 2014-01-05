@@ -330,14 +330,6 @@ class VotesHouse
     end
   end
 
-  # def self.amendment_id_for(doc, bill_id)
-  #   if bill_id and (elem = doc.at("amendment-num"))
-  #     if result = Amendment.where(:bill_id => bill_id, :bill_sequence => elem.text.to_i).only(:amendment_id).first
-  #       result['amendment_id']
-  #     end
-  #   end
-  # end
-
   def self.zero_prefix(number)
     if number < 10
       "00#{number}"
