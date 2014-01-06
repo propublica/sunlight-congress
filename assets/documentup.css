@@ -527,6 +527,8 @@ h1 a{
     margin-top: 15px;
 }
 
+#nav #tryit {font-size: 90%; padding: 10px 0;}
+#nav #tryit a {display: inline;}
 
 #nav > *:last-child.scroll_effect{
     margin-bottom: 0;
