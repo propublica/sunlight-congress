@@ -372,6 +372,8 @@ We provide zip files of official photos of members of Congress, as taken from th
 * [Medium, 100x125](http://assets.sunlightfoundation.com/moc/100x125.zip)
 * [Large, 200x250](http://assets.sunlightfoundation.com/moc/200x250.zip)
 
+**Are we missing some photos?** It's easy (and welcome!) to [contribute and fill our gaps](https://github.com/sunlightlabs/congress/wiki/Contributing-Congressional-Photos).
+
 ### Core Information
 
 Core information for legislators, committees, and bills come from public domain scrapers and bulk data at [github.com/unitedstates](https://github.com/unitedstates/).
