@@ -17,7 +17,7 @@ This endpoint is future-looking only. Old data on bills scheduled in the past is
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 ### /upcoming_bills

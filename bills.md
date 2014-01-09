@@ -20,7 +20,7 @@ Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 ### /bills

@@ -21,14 +21,16 @@ This guide shows how to move from each method in the old API to the new API.
 The previous API root was `http://services.sunlightlabs.com/api/`. The new API root is:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 Both the previous API and the new API require your [Sunlight API key](http://services.sunlightlabs.com/accounts/register/), so an API method documented as `/legislators/locate` would be used as:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com/legislators/locate?apikey=[your_api_key]
+https://congress.api.sunlightfoundation.com/legislators/locate?apikey=[your_api_key]
 {% endhighlight %}
+
+Note that the new API uses encryption by default. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the new API.
 
 ### JSON only
 

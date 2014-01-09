@@ -17,7 +17,7 @@ This endpoint is future-looking. We don't automatically delete data on past hear
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 ### /hearings

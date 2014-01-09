@@ -17,7 +17,7 @@ For zip code lookup, we use [ZIP Code Tabulation Areas](http://www.census.gov/ge
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 ### /districts/locate

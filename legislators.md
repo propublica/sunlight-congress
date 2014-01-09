@@ -17,7 +17,7 @@ Data on members of Congress, dating back to 1789. All member information is sour
 All requests require a valid [API key](index.html#parameters/api-key), and use the domain:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com
+https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
 ### /legislators/locate
