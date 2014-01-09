@@ -32,10 +32,10 @@ We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum
 Calls to the Sunlight Congress API are of the form:
 
 {% highlight text %}
-http://congress.api.sunlightfoundation.com/[method]
+https://congress.api.sunlightfoundation.com/[method]
 {% endhighlight %}
 
-**SSL Support:** Use `https://` with any URL in the Congress API to turn on SSL encryption.
+Encryption is used by default, but if you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
 
 ### Methods
 
