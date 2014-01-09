@@ -388,7 +388,7 @@ If you've written a client library, please tweet at [@sunlightlabs](https://twit
 * Node: Matthew Chase Whittemore's [sunlight-congress-api](https://npmjs.org/package/sunlight-congress-api) (unofficial)
 * Ruby: Erik Michaels-Ober's [congress gem](http://rubygems.org/gems/congress) (unofficial)
 * PHP: lobostome's [FurryBear](https://github.com/lobostome/FurryBear) (unofficial)
-* Python: Coming soon.
+* Python: [python-sunlight](https://github.com/sunlightlabs/python-sunlight) ([docs](http://python-sunlight.rtfd.org/))
 
 ## Other
 
