@@ -179,6 +179,7 @@ class Legislators
       attributes[:senate_class] = last_term['class']
       attributes[:lis_id] = us_legislator['id']['lis'].to_s
       attributes[:state_rank] = last_term['state_rank']
+      attributes[:district] = nil
     elsif attributes[:chamber] == "house"
       attributes[:district] = last_term['district']
     end
