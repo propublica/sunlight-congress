@@ -11,7 +11,7 @@ You can use SSL Labs' testing tool to [check out how we measure up](https://www.
 
 Note that our lack of [HSTS](http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) support is intentional, as we do currently continue to support plain HTTP requests.
 
-### Suppressing latitude and longitude values
+### Suppressing user latitude/longitude in our logs
 
 Our `/legislators/locate` and `/districts/locate` endpoints return location-specific information on Congressional representation based on a latitude and longitude, or a zip code.
 
@@ -19,7 +19,13 @@ Congressional representation may not in and of itself be a particularly sensitiv
 
 Because of this, as of January 2014, we scrub any user-submitted latitude and longitude values from our nginx logs before they are written to disk. You can see the nginx instructions for this in:
 
-* [nginx.config](), where we define a log format that will write a custom rewritten request variable
+* [nginx.conf](), where we define a log format that will write a custom rewritten request variable
+
+* [proxy.rules](), where we enable that log format, and perform the regex find/replace on request lines containing latitude and longitude parameters (adapted from [this StackOverflow answer](http://stackoverflow.com/a/19430297/16075))
+
+The relevant lines are:
+
+At the `http` level:
 
 ```nginx
 log_format scrubbed '"$http_x_forwarded_for - $remote_user [$time_local]  '
@@ -27,7 +33,13 @@ log_format scrubbed '"$http_x_forwarded_for - $remote_user [$time_local]  '
     '"$http_referer" "$http_user_agent"';
 ```
 
-* [proxy.rules](), where we enable that log format, and perform the regex find/replace on request lines containing latitude and longitude parameters (adapted from [this StackOverflow answer](http://stackoverflow.com/a/19430297/16075))
+At the `server` level:
+
+```nginx
+access_log /projects/congress-api/congress/shared/log/congress-api_access.log scrubbed;
+```
+
+At the `location` level:
 
 ```nginx
 set $scrubbed_request $request;
