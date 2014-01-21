@@ -1,4 +1,4 @@
-The nginx configuration we use in production for the [Sunlight Congress API](http://sunlightlabs.github.io/congress/).
+The nginx configuration we use in production for the [Sunlight Congress API](http://sunlightlabs.github.io/congress/), spread across a few different files.
 
 
 ### Robust SSL support
@@ -20,6 +20,25 @@ Congressional representation may not in and of itself be a particularly sensitiv
 Because of this, as of January 2014, we scrub any user-submitted latitude and longitude values from our nginx logs before they are written to disk. You can see the nginx instructions for this in:
 
 * [nginx.config](), where we define a log format that will write a custom rewritten request variable
+
+```nginx
+log_format scrubbed '"$http_x_forwarded_for - $remote_user [$time_local]  '
+    '"$scrubbed_request" $status $body_bytes_sent '
+    '"$http_referer" "$http_user_agent"';
+```
+
 * [proxy.rules](), where we enable that log format, and perform the regex find/replace on request lines containing latitude and longitude parameters (adapted from [this StackOverflow answer](http://stackoverflow.com/a/19430297/16075))
 
+```nginx
+set $scrubbed_request $request;
+if ($scrubbed_request ~ (.*)latitude=[^&]*(.*)) {
+   set $scrubbed_request $1latitude=****$2;
+}
+if ($scrubbed_request ~ (.*)longitude=[^&]*(.*)) {
+   set $scrubbed_request $1longitude=****$2;
+}
+```
+
 Also, as of December 2013, we [do not store lat/lng data in our analytics database](https://github.com/sunlightlabs/congress/commit/872b0ee643da5d2ef28a0a77a9fc2187285c74d7#diff-1), and have some basic measures to [filter lat/lng out of application-level logging](https://github.com/sunlightlabs/congress/commit/00f3303a5fadce37259dbcb2e1c6973aaee88e79#diff-1) if it were ever turned on (which so far it has not been). As far as we're aware, latitude and longitude are not and should not be written to our servers' disks.
+
+**Note**: We do continue to record IP addresses in our nginx logs, for network administration purposes. User-submitted zip codes are also logged.
