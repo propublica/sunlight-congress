@@ -55,7 +55,7 @@ Path | Description
 
 ### Status endpoint
 
-If you wish to check the status of the API, visit the root:
+If you wish to check the status of the API, [visit the root](https://congress.api.sunlightfoundation.com) (no API key required):
 
 {% highlight bash %}
 https://congress.api.sunlightfoundation.com
