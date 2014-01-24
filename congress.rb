@@ -158,6 +158,17 @@ get(/(legislators|districts)\/locate\/?/) do
   json results
 end
 
+get '/' do
+  json({
+    status: 200,
+    message: "I live!",
+    documentation: "http://sunlightlabs.github.io/congress/",
+    code: "https://github.com/sunlightlabs/congress",
+    report_bugs: "https://github.com/sunlightlabs/congress/issues",
+    more_apis: "http://sunlightfoundation.com/api/"
+  })
+end
+
 
 # error handler and test
 get '/error' do
