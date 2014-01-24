@@ -53,6 +53,27 @@ Path | Description
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
 
+### Status endpoint
+
+If you wish to check the status of the API, visit the root:
+
+{% highlight bash %}
+https://congress.api.sunlightfoundation.com
+{% endhighlight %}
+
+If everything's up, you'll get a 200 and the following JSON:
+
+{% highlight json %}
+{
+  "status": 200,
+  "message": "I live!",
+  "documentation": "http://sunlightlabs.github.io/congress/",
+  "code": "https://github.com/sunlightlabs/congress",
+  "report_bugs": "https://github.com/sunlightlabs/congress/issues",
+  "more_apis": "http://sunlightfoundation.com/api/"
+}
+{% endhighlight %}
+
 ## Parameters
 
 ### API Key
