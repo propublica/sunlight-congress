@@ -24,6 +24,8 @@ https://congress.api.sunlightfoundation.com
 
 Find congressional districts by a `latitude` and `longitude`, or a `zip` code. There is no support for pagination, operators, ordering, or partial responses.
 
+**Please use encryption** (`https://`) for all requests to `/legislators/locate`.
+
 At-large districts, which encompass an entire state, are assigned a district number of `0`.
 
 **By latitude/longitude**
