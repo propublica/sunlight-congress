@@ -34,7 +34,7 @@ Calls to the Sunlight Congress API are of the form:
 https://congress.api.sunlightfoundation.com/[method]
 {% endhighlight %}
 
-Encryption is used by default, but if you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
+Encryption is used by default, and **[strongly recommended](http://sunlightfoundation.com/blog/2014/01/28/encrypting-our-congress-api-and-protecting-your-location/)**. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
 
 ### Methods
 
