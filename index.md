@@ -7,34 +7,23 @@ layout: default
 
 A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
 
-## Features
-
-Lots of features and data for members of Congress:
-
-* Look up legislators by location or by zip code.
+* Look up members of Congress by location or by zip code.
 * Official Twitter, YouTube, and Facebook accounts.
-* Committees and subcommittees in Congress, including memberships and rankings.
+* The daily work of Congress: bills, amendments, nominations.
+* The live activity of Congress: past and future votes, floor activity, hearings.
 
-We also provide Congress' daily work:
+All requests require a [Sunlight API key](http://services.sunlightlabs.com/accounts/register/). An API key is free, and has no limits or use restrictions.
 
-* All introduced bills in the House and Senate, and what occurs to them (updated daily).
-* Full text search over bills, with powerful Lucene-based query syntax.
-* Real time notice of votes, floor activity, committee hearings, and when bills are scheduled for debate.
-
-All data is served in JSON, and requires a Sunlight API key. An API key is [free to register](http://services.sunlightlabs.com/accounts/register/) and has no usage limits.
-
-We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss), and can be found on Twitter at [@sunlightlabs](http://twitter.com/sunlightlabs). Bugs and feature requests can be made on [Github Issues](https://github.com/sunlightlabs/congress/issues).
+We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss), and can be found on Twitter at [@sunlightlabs](https://twitter.com/sunlightlabs). Report bugs and request features on [Github Issues](https://github.com/sunlightlabs/congress/issues).
 
 
 ## Using the API
-
-Calls to the Sunlight Congress API are of the form:
 
 {% highlight text %}
 https://congress.api.sunlightfoundation.com/[method]
 {% endhighlight %}
 
-Encryption is used by default, and **[strongly recommended](http://sunlightfoundation.com/blog/2014/01/28/encrypting-our-congress-api-and-protecting-your-location/)**. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
+Encryption (`https://`) is used by default, and **[strongly recommended](http://sunlightfoundation.com/blog/2014/01/28/encrypting-our-congress-api-and-protecting-your-location/)**. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
 
 ### Methods
 
