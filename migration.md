@@ -30,7 +30,7 @@ Both the previous API and the new API require your [Sunlight API key](http://ser
 https://congress.api.sunlightfoundation.com/legislators/locate?apikey=[your_api_key]
 {% endhighlight %}
 
-Note that the new API uses encryption by default. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the new API.
+Note that the new API **uses encryption by default** (`https://`). If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the new API.
 
 ### JSON only
 
