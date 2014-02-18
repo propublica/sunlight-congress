@@ -9,7 +9,7 @@ require "./tasks/bills/bills"
 class Amendments
 
   def self.run(options)
-    congress = options[:congress]
+    congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
     count = 0
 
     missing_bills = []
@@ -176,7 +176,7 @@ class Amendments
       Report.failure self, "Failed to save #{bad_amendments.size} amendments.", {last_bad_amendment: bad_amendments.last}
     end
 
-    Report.success self, "Synced #{count} amendments for congress ##{congress} from GovTrack.us."
+    Report.success self, "Synced #{count} amendments for congress ##{congress} from unitedstates/congress."
   end
 
   # only amendments can be sponsored by committees
