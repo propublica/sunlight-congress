@@ -375,13 +375,15 @@ This is the data we use in our [/legislators/locate](legislators.html) and [/dis
 
 ### Legislator Photos
 
-We provide zip files of official photos of members of Congress, as taken from the [Congressional Pictorial Directory](http://www.gpo.gov/fdsys/browse/collection.action?collectionCode=GPO&browsePath=Congressional+Pictorial+Directory&isCollapsed=false&leafLevelBrowse=false&ycord=0). We offer them in 3 sizes, and the files are all named using the member's Bioguide ID.
+We help maintain a repository of public domain images of members of Congress, located at:
 
-* [Small, 40x50](http://assets.sunlightfoundation.com/moc/40x50.zip)
-* [Medium, 100x125](http://assets.sunlightfoundation.com/moc/100x125.zip)
-* [Large, 200x250](http://assets.sunlightfoundation.com/moc/200x250.zip)
+> [https://github.com/unitedstates/images](https://github.com/unitedstates/images)
 
-**Are we missing some photos?** It's easy (and welcome!) to [contribute and fill our gaps](https://github.com/sunlightlabs/congress/wiki/Contributing-Congressional-Photos).
+Images are collected primarily from the Government Printing Office's [Member Guide](http://memberguide.gpo.gov), and hosted at predictable URLs, using the member of Congress' Bioguide ID.
+
+See the [URL documentation](https://github.com/unitedstates/images#using-the-photos) for complete details.
+
+**Are we missing some photos?** By all means, [raise the issue](https://github.com/unitedstates/images/issues/new) and let us know - we [welcome contributions](https://github.com/unitedstates/images/blob/gh-pages/CONTRIBUTING.md)!
 
 ### Core Information
 
