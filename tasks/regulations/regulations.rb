@@ -137,6 +137,8 @@ class Regulations
         rule = Regulation.new document_number: document_number
       end
 
+      pdf_url = details['pdf_url']
+      pdf_url = nil if pdf_url == "missing.pdf"
 
       # common to public inspection documents and to articles
       attributes = {
@@ -147,7 +149,7 @@ class Regulations
         publication_date: details['publication_date'],
 
         url: details['html_url'],
-        pdf_url: details['pdf_url']
+        pdf_url: pdf_url
       }
 
       # maps FR document type to rule stage
