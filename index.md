@@ -152,12 +152,12 @@ The API supports 8 operators that can be combined with filters:
 * **lt** - the field is less than this value
 * **lte** - the field is less than or equal to this value
 * **not** - the field is not this value
-* **all** - the field is an array that contains all of these values (separated by "|")
-* **in** - the field is a string that is one of these values (separated by "|")
-* **nin** - the field is a string that is *not* one of these values (separated by "|")
-* **exists** - the field is both present and non-null (supply "true" or "false")
+* **all** - the field is an array that contains all of these values (separated by `|`)
+* **in** - the field is a string that is one of these values (separated by `|`)
+* **nin** - the field is a string that is *not* one of these values (separated by `|`)
+* **exists** - the field is both present and non-null (supply `true` or `false`)
 
-All operators are applied by adding two underscores ("__") after the field name. They cannot be combined.
+All operators are applied by adding two underscores (`__`) after the field name. They cannot be combined.
 
 **Senate votes that got more than 70 Yea votes**
 
