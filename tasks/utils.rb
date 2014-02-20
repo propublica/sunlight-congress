@@ -488,9 +488,17 @@ module Utils
     attributes = document.attributes.dup
     allowed_keys = fields.map {|f| f.to_s}
 
+    # add any parent fields of subfields to allowed_keys array
+    fields.each do |field|
+      allowed_keys << field.to_s.split(".")[0] if field.to_s["."]
+    end
+    allowed_keys = allowed_keys.uniq
+
     # for some reason, the 'sort' here causes more keys to get filtered out than without it
     # without the 'sort', it is broken. I do not know why.
-    attributes.keys.sort.each {|key| attributes.delete(key) unless allowed_keys.include?(key)}
+    attributes.keys.sort.each do |key|
+      attributes.delete(key) unless allowed_keys.include?(key)
+    end
 
     attributes
   end

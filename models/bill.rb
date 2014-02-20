@@ -8,7 +8,9 @@ class Bill
     :introduced_on, :history, :enacted_as,
     :last_action_at, :last_vote_at, :last_version_on,
     :last_version, :urls,
-    :cosponsors_count, :withdrawn_cosponsors_count
+    :cosponsors_count, :withdrawn_cosponsors_count,
+    "sponsor.first_name", "sponsor.last_name", "sponsor.middle_name",
+    "sponsor.nickname", "sponsor.name_suffix", "sponsor.title"
 
 
   search_fields :popular_title, :official_title, :short_title,
