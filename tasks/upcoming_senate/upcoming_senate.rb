@@ -97,7 +97,6 @@ class UpcomingSenate
               context: text
             }
             if bill = Utils.bill_for(bill_id)
-              puts bill['sponsor']
               upcoming_bills[legislative_day][bill_id][:bill] = bill
             end
           end
