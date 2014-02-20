@@ -50,18 +50,16 @@ class UpcomingSenate
       congress = Utils.congress_for_year legislative_date.year
 
 
-
-
       upcoming_bills[legislative_day] = {}
       text_pieces = []
       day_bill_ids = []
 
       lis = nil
-      if root = item_doc.at("/html/body/ul")
-        lis = root.xpath "li"
-      else
+      # if root = item_doc.at("/html/body/ul")
+      #   lis = root.xpath "li"
+      # else
         lis = item_doc.at("/html/body").element_children
-      end
+      # end
 
       lis.each_with_index do |li, i|
         text = li.text
