@@ -72,7 +72,7 @@ All requests to the Congress API require a Sunlight API key. An API key is [free
 API keys can be provided with a request through the query string:
 
 {% highlight text %}
-/bills?apikey=[your_api_key]
+/legislators?apikey=[your_api_key]
 {% endhighlight %}
 
 Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
