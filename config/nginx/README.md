@@ -5,7 +5,7 @@ The nginx configuration we use in production for the [Sunlight Congress API](htt
 
 We do our best to use SSL best practices in our Congress API, such as [perfect forward secrecy](https://www.eff.org/deeplinks/2013/08/pushing-perfect-forward-secrecy-important-web-privacy-protection).
 
-Our nginx SSL rules can be found in [congress-api.conf](config/nginx/congress-api.conf).
+Our nginx SSL rules can be found in [congress-api.conf](https://github.com/sunlightlabs/congress/blob/master/config/nginx/congress-api.conf).
 
 You can use SSL Labs' testing tool to [check out how we measure up](https://www.ssllabs.com/ssltest/analyze.html?d=congress.api.sunlightfoundation.com) any time.
 
