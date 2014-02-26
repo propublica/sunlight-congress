@@ -84,8 +84,8 @@
 # formally published regs and notices, last 2 days - takes <2m even without cache
 0,10,20,30,40,50 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations cache=1 days=2 backup=1
 
-# public inspection docs - also takes <2m even without cache
-5,15,25,35,45,55 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations cache=1 public_inspection=1
+# public inspection docs (don't use cache, PDF URLs get filled in later)
+5,15,25,35,45,55 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations public_inspection=1
 
 
 # leave the newline here
