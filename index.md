@@ -72,7 +72,7 @@ All requests to the Congress API require a Sunlight API key. An API key is [free
 API keys can be provided with a request through the query string:
 
 {% highlight text %}
-/bills?apikey=[your_api_key]
+/legislators?apikey=[your_api_key]
 {% endhighlight %}
 
 Or, by setting the key as the value of an `X-APIKEY` HTTP request header.
@@ -147,17 +147,17 @@ See the documentation for a specific data type to see what fields can be filtere
 
 The API supports 8 operators that can be combined with filters:
 
-**gt** - the field is greater than this value
-**gte** - the field is greater than or equal to this value
-**lt** - the field is less than this value
-**lte** - the field is less than or equal to this value
-**not** - the field is not this value
-**all** - the field is an array that contains all of these values (separated by "|")
-**in** - the field is a string that is one of these values (separated by "|")
-**nin** - the field is a string that is *not* one of these values (separated by "|")
-**exists** - the field is both present and non-null (supply "true" or "false")
+* **gt** - the field is greater than this value
+* **gte** - the field is greater than or equal to this value
+* **lt** - the field is less than this value
+* **lte** - the field is less than or equal to this value
+* **not** - the field is not this value
+* **all** - the field is an array that contains all of these values (separated by `|`)
+* **in** - the field is a string that is one of these values (separated by `|`)
+* **nin** - the field is a string that is *not* one of these values (separated by `|`)
+* **exists** - the field is both present and non-null (supply `true` or `false`)
 
-All operators are applied by adding two underscores ("__") after the field name. They cannot be combined.
+All operators are applied by adding two underscores (`__`) after the field name. They cannot be combined.
 
 **Senate votes that got more than 70 Yea votes**
 
