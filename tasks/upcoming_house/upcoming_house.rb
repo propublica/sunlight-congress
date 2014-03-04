@@ -58,6 +58,10 @@ class UpcomingHouse
     bill_ids = Utils.bill_ids_for element.text, congress
 
 
+    # clear out associations at /bill
+    Utils.flush_bill_upcoming! source_type
+
+
     # go through each bill ID, create or update entry.
     # update (overwrite) if we already have a record for:
     #   legislative_day

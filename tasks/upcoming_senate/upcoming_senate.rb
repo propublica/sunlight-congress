@@ -5,8 +5,6 @@ require 'nokogiri'
 class UpcomingSenate
 
   def self.run(options = {})
-    count = 0
-
     url = "http://democrats.senate.gov/floor/daily-summary/feed/"
 
     unless body = Utils.download(url)
@@ -17,8 +15,6 @@ class UpcomingSenate
     doc = Nokogiri::XML body
     doc.remove_namespaces!
 
-    # clear out Senate's upcoming records, this will replace them
-    Utils.flush_bill_upcoming! "senate_daily"
 
     bad_entries = []
     upcoming_bills = {}
@@ -85,46 +81,94 @@ class UpcomingSenate
             upcoming_bills[legislative_day][bill_id][:context] << text
           else
             upcoming_bills[legislative_day][bill_id] = {
-              bill_id: bill_id,
-              source_type: "senate_daily",
-
-              congress: congress,
-              chamber: "senate",
-              legislative_day: legislative_day,
-              range: "day",
               url: item.at("link").text,
-
-              context: text
+              context: text,
+              congress: congress
             }
-            if bill = Utils.bill_for(bill_id)
-              upcoming_bills[legislative_day][bill_id][:bill] = bill
-            end
           end
         end
       end
     end
 
+    # clear out associations at /bill
+    Utils.flush_bill_upcoming! "senate_daily"
+
     # create any accumulated upcoming bills
+    #
+    # go through each bill ID, create or update entry.
+    # update (overwrite) if we already have a record for:
+    #   legislative_day
+    #   range
+    #   chamber
+    #   bill_id
+    #
+    # update should ONLY update these fields:
+    #   bill
+    #
+    # source_type, congress, url - won't change
+    # context - this field is dumb, I don't care
+    #
+    # This should NEVER overwrite scheduled_at.
+    #
+
+    new_count = 0
+    updated_count = 0
+    upcoming_count = 0
+
     upcoming_bills.each do |legislative_day, bills|
-      puts "[#{legislative_day}] Storing #{bills.size} bill(s)..." if options[:debug]
+      puts "[#{legislative_day}] Found #{bills.size} bill(s)..." if options[:debug]
 
-      bills.each do |bill_id, bill|
-        upcoming = UpcomingBill.create! bill
+      bills.each do |bill_id, details|
+        upcoming = UpcomingBill.where(
+          legislative_day: legislative_day,
+          range: "day",
+          chamber: "senate",
+          bill_id: bill_id
+        ).first
 
-        # sync to bill object
-        if upcoming[:bill]
+        if upcoming.nil?
+          upcoming = UpcomingBill.new(
+            legislative_day: legislative_day,
+            range: "day",
+            chamber: "senate",
+            bill_id: bill_id,
+
+            # only set on create
+            scheduled_at: Time.now,
+
+            context: details[:context],
+
+            congress: details[:congress],
+            source_type: "senate_daily",
+            url: details[:url]
+          )
+        end
+
+        if upcoming.new_record?
+          puts "[#{bill_id}] Saving a new record..." if options[:debug]
+          new_count += 1
+        else
+          puts "[#{bill_id}] Updating an old record..." if options[:debug]
+          updated_count += 1
+        end
+
+        # update bill data, even if schedule already existed
+        if bill = Utils.bill_for(bill_id)
+          upcoming['bill'] = bill
           Utils.update_bill_upcoming! bill_id, upcoming
         end
 
-        count += 1
+
+        upcoming.save!
+        upcoming_count += 1
       end
 
     end
 
-    Report.success self, "Created or updated #{count} upcoming bills"
+    Report.success self, "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the Senate"
 
     if bad_entries.any?
-      Report.warning self, "#{bad_entries.size} expected date-less titles in feed", :bad_entries => bad_entries
+      Report.warning self, "#{bad_entries.size} expected date-less titles in feed", bad_entries: bad_entries
     end
 
   end

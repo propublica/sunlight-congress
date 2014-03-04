@@ -566,8 +566,8 @@ module Utils
     end
   end
 
+  # flushes mentions of upcoming schedulings on /bills
   def self.flush_bill_upcoming!(source_type)
-    UpcomingBill.where(source_type: source_type).delete_all
     Bill.where("upcoming.source_type" => source_type).each do |bill|
       bill['upcoming'] = (bill['upcoming'] || []).dup.select do |upcoming|
         upcoming['source_type'] != source_type
