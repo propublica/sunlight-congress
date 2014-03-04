@@ -56,6 +56,20 @@ module Api
         filters['current'] = [true, nil]
       end
 
+      # TEMPORARY special case:
+      # default to upcoming bills ahead of a week ago
+      # this will be killed when we've had a chance to update our docs,
+      # and give clients some time to update.
+      #
+      # allow it to be overridden
+      # this can be gotten rid of once we update our docs and apps
+      if model == UpcomingBill
+        unless filters['legislative_day']
+          today = (Time.zone.now - 7.days).midnight.strftime "%Y-%m-%d"
+          filters['legislative_day'] = [today, 'gte']
+        end
+      end
+
       filters
     end
 

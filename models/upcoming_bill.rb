@@ -2,19 +2,20 @@ class UpcomingBill
   include Api::Model
   publicly :queryable
 
-  basic_fields :bill_id, 
-    :range, :legislative_day, 
-    :chamber, :congress, 
+  basic_fields :bill_id,
+    :range, :legislative_day, :scheduled_at,
+    :chamber, :congress,
     :source_type, :url,
     :context # senate-only
 
 
   include Mongoid::Document
   include Mongoid::Timestamps
-  
+
   index chamber: 1
   index congress: 1
   index legislative_day: 1
+  index scheduled_at: 1
   index source_type: 1
   index bill_id: 1
   index range: 1

@@ -25,29 +25,15 @@ class UpcomingHouse
 
     doc = Nokogiri::HTML html
 
-    url, legislative_day = details_from(url, doc)
+    source_url, legislative_day = details_from(url, doc)
 
+    # we need a legislative day to anchor this around
     unless legislative_day
-      Report.warning self, "Couldn't find date in House Republican daily schedule page, in either PDF or header, can't go on", :url => url
+      Report.warning self, "Couldn't find date in House Republican daily schedule page, in either PDF or header, can't go on", url: url
       return
     end
 
-    year = legislative_day.split("-").first
-    congress = Utils.congress_for_year year
-
-    element = doc.css("div#news_text").first
-    unless element
-      Report.failure self, "Couldn't find the House majority leader daily schedule content node, can't go on"
-      return
-    end
-
-    bill_ids = Utils.bill_ids_for element.text, congress
-
-
-    # flush existing records for this source type
-    Utils.flush_bill_upcoming! source_type
-
-    # old-ness check must come after flush
+    # if the legislative day is in the past, never mind
     legislative_date = Utils.utc_parse legislative_day
     if (range == "week") and (legislative_date < 7.days.ago)
       puts "Weekly schedule's too old (#{legislative_day}), not storing anything"
@@ -58,32 +44,83 @@ class UpcomingHouse
     end
 
 
+    # grab the year and congress out of the date
+    year = legislative_day.split("-").first
+    congress = Utils.congress_for_year year
+
+    # grab all bill IDs mentioned in a giant blob of text
+    element = doc.css("div#news_text").first
+    unless element
+      Report.failure self, "Couldn't find the House majority leader daily schedule content node, can't go on"
+      return
+    end
+
+    bill_ids = Utils.bill_ids_for element.text, congress
+
+
+    # go through each bill ID, create or update entry.
+    # update (overwrite) if we already have a record for:
+    #   legislative_day
+    #   range
+    #   chamber
+    #   bill_id
+    #
+    # update should ONLY update these fields:
+    #   bill
+    #
+    # source_type, congress, url - won't change
+    #
+    # This should NEVER overwrite scheduled_at.
+    #
+    new_count = 0
+    updated_count = 0
     upcoming_count = 0
+
     bill_ids.each do |bill_id|
 
-      upcoming = UpcomingBill.new(
-        source_type: source_type,
+      upcoming = UpcomingBill.where(
         legislative_day: legislative_day,
         range: range,
-
-        bill_id: bill_id,
-
-        congress: congress,
         chamber: "house",
-        url: url
-      )
 
+        bill_id: bill_id
+      ).first
+
+      if upcoming.nil?
+        upcoming = UpcomingBill.new(
+          legislative_day: legislative_day,
+          range: range,
+          chamber: "house",
+          bill_id: bill_id,
+
+          # only set on create
+          scheduled_at: Time.now,
+
+          congress: congress,
+          source_type: source_type,
+          url: source_url
+        )
+      end
+
+      if upcoming.new_record?
+        puts "[#{bill_id}] Saving a new record..." if options[:debug]
+        new_count += 1
+      else
+        puts "[#{bill_id}] Updating an old record..." if options[:debug]
+        updated_count += 1
+      end
+
+      # update bill data, even if schedule already existed
       if bill = Utils.bill_for(bill_id)
         upcoming['bill'] = bill
         Utils.update_bill_upcoming! bill_id, upcoming
       end
 
       upcoming.save!
-
       upcoming_count += 1
     end
 
-    Report.success self, "Saved #{upcoming_count} upcoming bills for the House for #{legislative_day}"
+    Report.success self, "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
 
   end
 
@@ -95,6 +132,7 @@ class UpcomingHouse
   # If not, extract the date from the header, and use the original url as the permalink
   def self.details_from(url, doc)
     date = nil
+    source_url = nil
 
     # first preference is to get the date from the PDF URL
     links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
@@ -110,7 +148,7 @@ class UpcomingHouse
 
     if date_results and date_results.any? and date_results.first.any?
       date_text = date_results.first.first
-      url = pdf_url
+      source_url = pdf_url
 
       month, day, year = date_text.split "-"
       year = ("20" + year) if year.size == 2
@@ -132,7 +170,7 @@ class UpcomingHouse
 
     date = Utils.utc_parse(date_text).strftime "%Y-%m-%d"
 
-    [url, date]
+    [source_url, date]
   end
 
   def self.zero_prefix(number)
