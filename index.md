@@ -383,7 +383,7 @@ Images are collected primarily from the Government Printing Office's [Member Gui
 
 See the [URL documentation](https://github.com/unitedstates/images#using-the-photos) for complete details.
 
-**Are we missing some photos?** By all means, [raise the issue](https://github.com/unitedstates/images/issues/new) and let us know - we [welcome contributions](https://github.com/unitedstates/images/blob/gh-pages/CONTRIBUTING.md)!
+**Are we missing some photos?** [Raise the issue](https://github.com/unitedstates/images/issues/new) and let us know - we [welcome contributions](https://github.com/unitedstates/images/blob/gh-pages/CONTRIBUTING.md)!
 
 ### Core Information
 
