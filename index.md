@@ -377,7 +377,7 @@ This is the data we use in our [/legislators/locate](legislators.html) and [/dis
 
 We help maintain a repository of public domain images of members of Congress, located at:
 
-> [https://github.com/unitedstates/images](https://github.com/unitedstates/images)
+[https://github.com/unitedstates/images](https://github.com/unitedstates/images)
 
 Images are collected primarily from the Government Printing Office's [Member Guide](http://memberguide.gpo.gov), and hosted at predictable URLs, using the member of Congress' Bioguide ID.
 
