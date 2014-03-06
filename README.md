@@ -4,7 +4,24 @@ This is the code that powers the [Sunlight Foundation's Congress API](http://sun
 
 ### Overview
 
+The Congress API has two parts:
 
+* A light **front end**, written in Ruby using [Sinatra](http://www.sinatrarb.com).
+* A **back end** of data scraping and loading tasks. Most are written in Ruby, but Python tasks are also supported.
+
+The **front end** is essentially read-only. Its job is to translate an API call (the query string) into a single database query (usually to MongoDB), wrap the resulting JSON in a bit of pagination metadata, and return it to the user.
+
+Endpoints and behavior are determined by introspecting on the classes defined in `models/`. These classes are also expected to define database indexes where applicable.
+
+The front end tries to maintain as little model-specific logic as possible. There are a couple of exceptions made (like allowing disabling of pagination for `/legislators`) &mdash; but generally, adding a new endpoint is as simple as adding a model class.
+
+The **back end** is a set of tasks (scripts) whose job is to write data to the collections those models refer to. Most data is stored in [MongoDB](http://www.mongodb.org/), but some tasks will store additional data in [Elasticsearch](http://www.elasticsearch.org/), and some tasks may extract citations via a [citation](https://github.com/unitedstates/citation) server.
+
+We currently manage these tasks [via cron](https://github.com/sunlightlabs/congress/blob/master/config/cron/production.crontab). A small task runner wraps each script in order to ensure any "reports" created along the way get emailed to admins, to catch errors, and to parse command line options.
+
+While the front end and back end are mostly decoupled, many of them do use the definitions in `models/` to save data (via [Mongoid](https://github.com/mongoid/mongoid)) and to manage duplicating "basic" fields about objects onto other objects.
+
+The API **never performs joins** -- if data from one collection is expected to appear as a sub-field on another collection, it should be copied there during data loading.
 
 ### Setup - Dependencies
 
@@ -60,10 +77,11 @@ You can get started by just installing MongoDB.
 
 The Congress API depends on [MongoDB](http://www.mongodb.org/), a JSONic document store, for just about everything. MongoDB can be installed via [apt](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/), [homebrew](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/), or [manually](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-linux/).
 
-Some tasks that index full text will require [Elasticsearch](http://elasticsearch.org/), a JSONic full-text search engine based on Lucene. Elasticsearch can be installed [via apt](http://www.elasticsearch.org/blog/apt-and-yum-repositories/), or [manually](http://www.elasticsearch.org/overview/elkdownloads/).
+*Optional*. Some tasks that index full text will require [Elasticsearch](http://elasticsearch.org/), a JSONic full-text search engine based on Lucene. Elasticsearch can be installed [via apt](http://www.elasticsearch.org/blog/apt-and-yum-repositories/), or [manually](http://www.elasticsearch.org/overview/elkdownloads/).
 
-If you want citation parsing (optional), you'll need to install [citation](https://github.com/unitedstates/citation), a Node-based citation extractor. After installing Node, you can install it with `[sudo] npm -g install citation`, then run it via `cite-server` on port 3000.
+*Optional.* If you want citation parsing (optional), you'll need to install [citation](https://github.com/unitedstates/citation), a Node-based citation extractor. After installing Node, you can install it with `[sudo] npm -g install citation`, then run it via `cite-server` on port 3000.
 
+*Optional.* To perform location lookups, you'll need to point the API at an instance of [pentagon](https://github.com/sunlightlabs/pentagon), a boundary service. Sunlight uses an instance loaded with congressional districts and ZCTAs, so that we can look up legislators and districts by either `latitude`/`longitude` or `zip`.
 
 ### Starting the API
 
