@@ -79,7 +79,7 @@ The Congress API depends on [MongoDB](http://www.mongodb.org/), a JSONic documen
 
 *Optional*. Some tasks that index full text will require [Elasticsearch](http://elasticsearch.org/), a JSONic full-text search engine based on Lucene. Elasticsearch can be installed [via apt](http://www.elasticsearch.org/blog/apt-and-yum-repositories/), or [manually](http://www.elasticsearch.org/overview/elkdownloads/).
 
-*Optional.* If you want citation parsing (optional), you'll need to install [citation](https://github.com/unitedstates/citation), a Node-based citation extractor. After installing Node, you can install it with `[sudo] npm -g install citation`, then run it via `cite-server` on port 3000.
+*Optional.* If you want citation parsing, you'll need to install [citation](https://github.com/unitedstates/citation), a Node-based citation extractor. After installing Node, you can install it with `[sudo] npm -g install citation`, then run it via `cite-server` on port 3000.
 
 *Optional.* To perform location lookups, you'll need to point the API at an instance of [pentagon](https://github.com/sunlightlabs/pentagon), a boundary service. Sunlight uses an instance loaded with congressional districts and ZCTAs, so that we can look up legislators and districts by either `latitude`/`longitude` or `zip`.
 
