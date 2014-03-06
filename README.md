@@ -62,7 +62,7 @@ cp config/mongoid.yml.example config/mongoid.yml
 cp config.ru.example config.ru`
 ```
 
-You don't need to edit these to get started in development, the defaults should work fine.
+You **don't need to edit these** to get started in development, the defaults should work fine.
 
 In production, you may wish to turn on the API key requirement, and add SMTP server details so that mail can be sent to admins and task owners.
 
