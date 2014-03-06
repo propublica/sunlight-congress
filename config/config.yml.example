@@ -3,11 +3,21 @@ elastic_search:
   port: 9200
   index: congress
 
+# used to extract citations (https://github.com/unitedstates/citation)
+citation:
+  hostname: localhost:3000
+
 # location of a boundary server instance to lookup districts by lat/lng or zip
 location:
   host:
   zips: # path to district CSV to output
 
+
+# set to false in production!
+:debug:
+  :ignore_apikey: true
+
+# mail server details for sending stuff to administrators and task owners
 :email:
   :from:
   :via: :smtp
@@ -20,12 +30,14 @@ location:
     :domain:
     :enable_starttls_auto: false
 
+# task-specific email recipients
 :recipients:
   :admin:
     -
   # to send emails to owners of specific tasks:
   # :legislators:
   #   - email@example.com
+
 
 # used to back things up to S3
 s3:
@@ -34,12 +46,14 @@ s3:
   s3cmd: /usr/bin/s3cmd
   s3cfg: /home/USER/.s3cfg
 
-# where to back certain things up to:
+# where to back certain things up to in S3:
 backup:
-  legislators: "unitedstates.sunlightfoundation.com/legislators/"
-  bills: "unitedstates.sunlightfoundation.com/documents/bills/"
-  regulations: "unitedstates.sunlightfoundation.com/documents/"
+  legislators:
+  bills:
+  regulations:
 
-# used to extract citations (https://github.com/unitedstates/citation)
-citation:
-  hostname: localhost:3000
+
+# only used if privately integrating with Sunlight HQ
+:services:
+  :shared_secret:
+  :api_name: congress
