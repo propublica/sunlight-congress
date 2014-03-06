@@ -1,7 +1,7 @@
 elastic_search:
   host: localhost
   port: 9200
-  index: rtc
+  index: congress
 
 # location of a boundary server instance to lookup districts by lat/lng or zip
 location:
