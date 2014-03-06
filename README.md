@@ -137,3 +137,7 @@ The system will automatically file a `complete` report, with a record of how lon
 Similarly, if an exception is raised during a task, the system will catch it and file (and email) a `failure` report.
 
 Any task that encounters an error or something worth warning about should file a `warning` or `failure` report during operation. After a task completes, the system will examine the reports collection for any "unread" `warning` or `failure` reports, send emails for each one, and mark them as "read".
+
+### License
+
+This project is [licensed](LICENSE) under the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
