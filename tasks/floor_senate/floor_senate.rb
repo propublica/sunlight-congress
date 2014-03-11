@@ -142,7 +142,8 @@ class FloorSenate
   # Senate Periodical Press Gallery goes down from precisely 12am to 1am EST,
   # but can be reached via their CDN/cache/whatever.
   # so, allow caching from 11:55pm to 1:05am EST.
-  # also, this stinks, and this should be reported (done) and removed later.
+  # also, this stinks - the Senate does work at this hour sometimes! -
+  # and this should be reported (done) and removed later.
   def self.allow_cache?
     hour = Time.zone.now.hour
     minute = Time.zone.now.min
