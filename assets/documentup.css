@@ -90,7 +90,7 @@ a img {
 }
 body {
 	margin: 0;
-	background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_bg.jpg) center 48px repeat-x #FFFFFF;
+	background: url(sfapp/sfapp_bg.jpg) center 48px repeat-x #FFFFFF;
 	color: #3B3633;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 13px;
@@ -512,13 +512,13 @@ h1 a{
     font-size: 100%;
 }
 .sf-header {
-    background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_bg_header.jpg) center bottom repeat-x;
+    background: url(sfapp/sfapp_bg_header.jpg) center bottom repeat-x;
     background-color: rgb(234, 245, 240);
     height: 60px;
     margin-bottom: 50px;
 }
 .sf-header a.sf-logo {
-    background: url(http://assets.sunlightfoundation.com/sfapp/static/img/sfapp_logo.png) top right no-repeat;
+    background: url(sfapp/sfapp_logo.png) top right no-repeat;
     display: block;
     float: right;
     height: 40px;
