@@ -375,6 +375,8 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                     PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
         print "Successfully processed %s" % new_vid['clip_id']
 
+    es.connection.indices.refresh()
+
     db.success("Updated or created %s legislative days for %s video" % (client_name, vcount))
 
 def get_clip_captions(video, clip, first_clip):
