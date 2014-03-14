@@ -2,7 +2,7 @@ from BeautifulSoup import BeautifulStoneSoup
 import re
 import urllib2
 import datetime, time
-import rtc_utils
+import python_utils
 import HTMLParser
 
 
@@ -52,8 +52,8 @@ def run(db, es, options = {}):
         committee_url = meeting.committee['url']
 
         date_string = meeting.date.contents[0].strip()
-        occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=rtc_utils.EST())
-        congress = rtc_utils.current_congress(occurs_at.year)
+        occurs_at = datetime.datetime(*time.strptime(date_string, "%d-%b-%Y %I:%M %p")[0:6], tzinfo=python_utils.EST())
+        congress = python_utils.current_congress(occurs_at.year)
 
         document = None
         if meeting.document:
@@ -65,7 +65,7 @@ def run(db, es, options = {}):
         # content is double-escaped, e.g. &amp;quot;
         description = parser.unescape(parser.unescape(description))
 
-        bill_ids = rtc_utils.extract_bills(description, congress)
+        bill_ids = python_utils.extract_bills(description, congress)
 
 
         documents = db['hearings'].find({

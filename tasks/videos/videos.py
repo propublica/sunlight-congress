@@ -1,8 +1,8 @@
 import re
 from pysrt import SubRipTime, SubRipItem, SubRipFile
 import json
-from rtc_utils import rfc3339
-import rtc_utils
+from python_utils import rfc3339
+import python_utils
 import urlparse
 import httplib2
 from datetime import datetime, timedelta
@@ -162,9 +162,9 @@ def get_clips_for_senate(db, clip_id, congress, duration, year):
         events = ''
         captions = get_senate_clip_captions(caps, start, start + clip_segment)
 
-        legis, bio_ids = rtc_utils.extract_legislators(captions, chamber, db)
-        b = rtc_utils.extract_bills(captions, congress)
-        r = rtc_utils.extract_rolls(captions, chamber, year)
+        legis, bio_ids = python_utils.extract_legislators(captions, chamber, db)
+        b = python_utils.extract_bills(captions, congress)
+        r = python_utils.extract_rolls(captions, chamber, year)
 
         if legis:
             c['legislator_names'] = legis
@@ -236,9 +236,9 @@ def get_markers(db, client_name, clip_id, congress, chamber):
 
             year = dateparse(m_new['datetime']).year
 
-            legis, bio_ids = rtc_utils.extract_legislators(c['events'][0], chamber, db)
-            b = rtc_utils.extract_bills(c['events'][0], congress)
-            r = rtc_utils.extract_rolls(c['events'][0], chamber, year)
+            legis, bio_ids = python_utils.extract_legislators(c['events'][0], chamber, db)
+            b = python_utils.extract_bills(c['events'][0], congress)
+            r = python_utils.extract_rolls(c['events'][0], chamber, year)
 
             if legis:
                 c['legislator_names'] = legis
@@ -326,7 +326,7 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
 
         new_vid['legislative_day'] = legislative_day.strftime('%Y-%m-%d')
         new_vid['chamber'] = chamber
-        new_vid['congress'] =  rtc_utils.current_congress(legislative_day.year)
+        new_vid['congress'] =  python_utils.current_congress(legislative_day.year)
 
         if chamber == 'house':
             new_vid['clips'], new_vid['bill_ids'], new_vid['legislator_names'], new_vid['legislator_ids'], new_vid['roll_ids'] = get_markers(db, client_name, new_vid['clip_id'], new_vid['congress'], chamber)
