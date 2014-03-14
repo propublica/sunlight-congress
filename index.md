@@ -410,9 +410,14 @@ This Sunlight Congress API replaces and deprecates our [old Sunlight Congress AP
 
 We have prepared a [migration guide](migration.html) that shows how to move from each method in the old API to the new API.
 
+### Congress on IFTTT
+
+The Sunlight Foundation has an [IFTTT channel](https://ifttt.com/sunlightfoundation) that offers some "Triggers" based on events in Congress.
+
+Check out our [shared recipes](https://ifttt.com/p/sunlightfoundation) and our [favorite recipes](https://ifttt.com/p/sunlightfoundation#favorites) for some examples of how to make use of our congressional data with IFTTT.
+
 ### Planned Additions
 
-* All amendments to bills introduced in the House and Senate.
 * Draft legislation in the House, as posted to [docs.house.gov](http://docs.house.gov).
 * Reports by GAO, CBO, and Congressional committees.
 
