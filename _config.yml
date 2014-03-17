@@ -1,3 +1,6 @@
+# do not include protocol, just the domain
+enforce_ssl: sunlightlabs.github.io
+
 exclude: ["README.md", "todo.txt"]
 
 # markdown: kramdown + pygments, sigh
