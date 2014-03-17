@@ -6,10 +6,6 @@ markdown: kramdown
 kramdown:
   input: GFM
 
-# jekyll supports a few plugins now
-gems:
-- jekyll-redirect-from
-
 # site-specific
 google_analytics: "UA-22821126-30"
 name: "Sunlight Congress API"
