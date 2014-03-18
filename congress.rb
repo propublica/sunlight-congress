@@ -279,6 +279,7 @@ helpers do
 
       extras: extras,
 
+      protocol: request.env['HTTP_X_FORWARDED_PROTO'],
       user_agent: request.env['HTTP_USER_AGENT'],
       app_version: request.env['HTTP_X_APP_VERSION'],
       os_version: request.env['HTTP_X_OS_VERSION'],
