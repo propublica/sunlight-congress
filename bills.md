@@ -47,7 +47,7 @@ Filter through bills in Congress. Filter by any [fields below](#fields) that hav
 **Most recent private laws**
 
 {% highlight text %}
-/bills?enacted.law_type=private&order=history.enacted_at
+/bills?enacted_as.law_type=private&order=history.enacted_at
 {% endhighlight %}
 
 **Joint resolutions that received a vote in the House and Senate**
