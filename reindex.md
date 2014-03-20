@@ -1,9 +1,13 @@
-If database is really new:
+If Mongo database is really new:
 
 	rake create_indexes
 
+If Elasticsearch database is really new:
+
+	rake elasticsearch:init
+
 If lacking bill text:
-	
+
 	rake task:bills_bulk debug=1 year=2012 && rake task:bills_bulk debug=1 year=2011 && rake task:bills_bulk debug=1 year=2010 && rake task:bills_bulk debug=1 year=2009
 
 Non-ES:
@@ -16,15 +20,11 @@ Non-ES:
 
 ElasticSearch:
 
-	rake task:bills_text debug=1 congress=112 && rake task:bills_text debug=1 congress=111
+	rake task:bills_text debug=1 congress=113 && rake task:bills_text debug=1 congress=112 && rake task:bills_text debug=1 congress=111
 
-	rake task:regulations cache=1 debug=1 year=2012 && rake task:regulations debug=1 cache=1 year=2011 && rake task:regulations debug=1 cache=1 year=2010 && rake task:regulations debug=1 year=2009 cache=1
+	rake task:regulations cache=1 debug=1 year=2014 && rake task:regulations cache=1 debug=1 year=2013 && rake task:regulations cache=1 debug=1 year=2012 && rake task:regulations debug=1 cache=1 year=2011 && rake task:regulations debug=1 cache=1 year=2010 && rake task:regulations debug=1 year=2009 cache=1
 
-	rake task:gao_reports cache=1 debug=1 year=2012 && rake task:gao_reports cache=1 debug=1 year=2011 && rake task:gao_reports cache=1 debug=1 year=2010 && rake task:gao_reports cache=1 debug=1 year=2009
-
-	rake task:votes_house year=2012 cache=1 debug=1 && rake task:votes_house year=2011 cache=1 debug=1 && rake task:votes_house year=2010 cache=1 debug=1 && rake task:votes_house year=2009 debug=1 cache=1
-
-	rake task:votes_senate year=2012 cache=1 debug=1 && rake task:votes_senate year=2011 cache=1 debug=1 && rake task:votes_senate year=2010 cache=1 debug=1 && rake task:votes_senate year=2009 debug=1 cache=1
+	rake task:gao_reports cache=1 debug=1 year=2014 && rake task:gao_reports cache=1 debug=1 year=2013 && rake task:gao_reports cache=1 debug=1 year=2012 && rake task:gao_reports cache=1 debug=1 year=2011 && rake task:gao_reports cache=1 debug=1 year=2010 && rake task:gao_reports cache=1 debug=1 year=2009
 
 	rake task:videos archive=True captions=True && rake task:videos archive=True captions=True senate=True
 
