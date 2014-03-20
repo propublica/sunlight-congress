@@ -361,7 +361,7 @@ class Bills
   end
 
   def self.govtrack_url(congress, type, number)
-    "http://www.govtrack.us/congress/bills/#{congress}/#{type}#{number}"
+    "https://www.govtrack.us/congress/bills/#{congress}/#{type}#{number}"
   end
 
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
