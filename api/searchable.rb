@@ -73,7 +73,7 @@ module Searchable
       else
         {
           query: {
-            text: {
+            match: {
               field.to_s => {
                 query: value,
                 type: "phrase"
@@ -109,7 +109,7 @@ module Searchable
       else
         {
           query: {
-            text: {
+            match: {
               field.to_s => {
                 query: value.iso8601,
                 type: "phrase"
