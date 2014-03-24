@@ -293,7 +293,7 @@ module Searchable
     elsif query
       query_filter = {query: query}
     elsif filter
-      query_filter = {filter: filter}
+      query_filter = {post_filter: filter}
     else
       # uh oh?
     end
