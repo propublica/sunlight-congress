@@ -3,7 +3,7 @@ module Searchable
   def self.query_for(query_string, params, search_fields)
     return unless query_string.present?
 
-    conditions = {
+    {
       query_string: {
         query: query_string,
         default_operator: "AND",
@@ -246,12 +246,15 @@ module Searchable
     from = pagination[:per_page] * (pagination[:page]-1)
     size = pagination[:per_page]
 
+    # construct final query/filter pair
     query_filter = {}
 
+    # if there's a custom filter, use that as the base query
     if profiles and query
 
       profile = profiles.first
 
+      # the query is the custom filter scoring
       query_filter[:query] = {
         custom_filters_score: {
           query: {
@@ -269,10 +272,13 @@ module Searchable
         fields: query[:query_string][:fields]
       }
 
+      # and include any further filter on it
       if filter
         query_filter[:query][:filter] = filter
       end
 
+    # if no custom filter, and we have both a query and a filter,
+    # use a "filtered query"
     elsif query and filter
       query_filter = {
         query: {
@@ -282,6 +288,8 @@ module Searchable
           }
         }
       }
+
+    # otherwise (just a query, or just a filter) pass that on
     elsif query
       query_filter = {query: query}
     elsif filter
@@ -297,7 +305,7 @@ module Searchable
     [
       {
         sort: sort,
-        fields: fields
+        _source: fields
       }.merge(query_filter).merge(other),
 
       # mapping and pagination info has to go into the second hash
@@ -319,7 +327,7 @@ module Searchable
       search[:highlight] = hit.highlight
     end
 
-    hit.fields.each do |key, value|
+    hit['_source'].each do |key, value|
       break_out attributes, key.split('.'), value
     end
 
