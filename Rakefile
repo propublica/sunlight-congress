@@ -188,7 +188,7 @@ namespace :elasticsearch do
     host = Environment.config['elastic_search']['host']
     port = Environment.config['elastic_search']['port']
     index = Environment.config['elastic_search']['index']
-    index_url = "http://#{host}:#{port}/#{index}/"
+    index_url = "http://#{host}:#{port}/#{index}"
 
     command = "curl -XPUT '#{index_url}'"
     puts "running: #{command}"
@@ -200,7 +200,7 @@ namespace :elasticsearch do
 
     mappings.each do |mapping|
       if force
-        command = "curl -XDELETE '#{index_url}/#{mapping}/_mapping'"
+        command = "curl -XDELETE '#{index_url}/_mapping/#{mapping}/'"
         puts "running: #{command}"
         system command
         puts
@@ -209,7 +209,7 @@ namespace :elasticsearch do
         puts
       end
 
-      command = "curl -XPUT '#{index_url}/#{mapping}/_mapping' -d @config/mappings/#{mapping}.json"
+      command = "curl -XPUT '#{index_url}/_mapping/#{mapping}' -d @config/mappings/#{mapping}.json"
       puts "running: #{command}"
       system command
       puts
