@@ -384,9 +384,6 @@ def get_videos(db, es, client_name, chamber, archive=False, captions=False):
                     clip['captions'] = get_clip_captions(new_vid, c, c == new_vid['clips'][0] ) #pass a boolean if this is the first clip
 
                 resp = es.save(clip, 'clips', clip['id'])
-
-                if resp['ok'] == False:
-                    PARSING_ERRORS.append('Could not successfully save to elasticsearch - video_id: %s' % resp['_id'])
         print "Successfully processed %s" % new_vid['clip_id']
 
     es.connection.indices.refresh()
