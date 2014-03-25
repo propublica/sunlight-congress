@@ -189,14 +189,14 @@ You can use the `query` parameter to match a text fragment against any of legisl
 
 We **no longer support** "fuzzy search" of legislator names. The given `query` must match or be contained in one of the fields exactly.
 
-**Any legislators whose name somehow matches "smi"**
+**Any legislators who has a name field matching "smith"**
 
 {% highlight text %}
 # old API:
-/legislators.search?name=smi
+/legislators.search?name=smith
 
 # new API:
-/legislators?query=smi
+/legislators?query=smith
 {% endhighlight %}
 
 ## Districts
