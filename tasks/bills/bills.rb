@@ -351,13 +351,12 @@ class Bills
     {
       congress: congress_gov_url(congress, type, number),
       govtrack: govtrack_url(congress, type, number),
-      opencongress: opencongress_url(congress, type, number)
+      opencongress: opencongress_url(bill_id)
     }
   end
 
-  def self.opencongress_url(congress, type, number)
-    id = "#{congress}-#{govtrack_type type}#{number}"
-    "http://www.opencongress.org/bill/#{id}/show"
+  def self.opencongress_url(bill_id)
+    "http://www.opencongress.org/bill/#{bill_id}"
   end
 
   def self.govtrack_url(congress, type, number)
@@ -367,19 +366,6 @@ class Bills
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
   def self.congress_gov_url(congress, type, number)
     "http://beta.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
-  end
-
-  def self.govtrack_type(bill_type)
-    {
-      "hr" => "h",
-      "hres" => "hr",
-      "hjres" => "hj",
-      "hconres" => "hc",
-      "s" => "s",
-      "sres" => "sr",
-      "sjres" => "sj",
-      "sconres" => "sc"
-    }[bill_type]
   end
 
   def self.congress_gov_type(bill_type)
