@@ -15,7 +15,7 @@
 
 
 # legislators and committees from unitedstates
-0 3 * * *  /projects/congress-api/congress/shared/cron/task.sh legislators && /projects/congress-api/congress/shared/cron/task.sh legislators_bulk && /projects/congress-api/congress/shared/cron/task.sh committees
+0 3 * * *  /projects/congress-api/congress/shared/cron/task.sh legislators && /projects/congress-api/congress/shared/cron/task.sh legislators_bulk backup=1 && /projects/congress-api/congress/shared/cron/task.sh committees
 
 
 
