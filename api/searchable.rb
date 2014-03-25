@@ -167,7 +167,7 @@ module Searchable
     request = request_for models, query, filter, fields, order, pagination, profiles, other
     mapping = mapping_for models
 
-    begin
+    # begin
       start = Time.now
       results = @explain_client.search request[0], request[1]
       elapsed = Time.now - start
@@ -186,13 +186,13 @@ module Searchable
         request: last_request,
         response: last_response
       }
-    rescue ElasticSearch::RequestError => exc
-      {
-        request: request,
-        mapping: mapping,
-        error: error_from(exc)
-      }
-    end
+    # rescue ElasticSearch::RequestError => exc
+    #   {
+    #     request: request,
+    #     mapping: mapping,
+    #     error: error_from(exc)
+    #   }
+    # end
   end
 
   # remove the status code from the beginning and parse it as JSON
@@ -351,24 +351,23 @@ module Searchable
 
   def self.configure_clients!
     http_host = "http://#{Environment.config['elastic_search']['host']}:#{Environment.config['elastic_search']['port']}"
-    options = {
-      index: Environment.config['elastic_search']['index'],
-      auto_discovery: false
-    }
+    # options = {
+    #   index: Environment.config['elastic_search']['index'],
+    #   auto_discovery: false
+    # }
 
-    @search_client = ElasticSearch.new(http_host, options) do |conn|
-      conn.adapter Faraday.default_adapter
-    end
+    @new_client = Elasticsearch::Client.new host: http_host
 
-    Faraday.register_middleware :response, explain_logger: ExplainLogger
-    @explain_client = ElasticSearch.new(http_host, options) do |conn|
-      conn.response :explain_logger
-      conn.adapter Faraday.default_adapter
-    end
+    # Faraday.register_middleware :response, explain_logger: ExplainLogger
+    # @explain_client = ElasticSearch.new(http_host, options) do |conn|
+    #   conn.response :explain_logger
+    #   conn.adapter Faraday.default_adapter
+    # end
   end
 
   # referenced by loading tasks
-  def self.client; @search_client; end
+  def self.client; @new_client; end
+  def self.index; Environment.config['elastic_search']['index']; end
 
   class ExplainLogger < Faraday::Response::Middleware
     def self.last_request; @@last_request; end

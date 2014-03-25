@@ -1,8 +1,11 @@
 require 'oj'
 require 'mongoid'
 require 'tzinfo'
-require 'rubberband'
 require 'pony'
+
+# elasticsearch gem uses typhoeus for keepalive http
+require 'typhoeus/adapters/faraday'
+require 'elasticsearch'
 
 require 'sinatra'
 require 'sinatra/cross_origin'
