@@ -359,8 +359,8 @@ module Searchable
 
     @search_client = Elasticsearch::Client.new host
 
-    # complicated dance to override Faraday adapter to funnel
-    # requests and responses through ExplainLogger
+    # complicated dance to override Faraday adapter to funnel requests
+    # and responses through the ExplainLogger, for use in explain mode
     Faraday.register_middleware :response, explain_logger: ExplainLogger
     faraday_configuration = lambda do |f|
       f.response :explain_logger
