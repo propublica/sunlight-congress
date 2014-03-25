@@ -133,27 +133,31 @@ module Searchable
     models.map {|m| m.search_fields.map {|field| field.to_s}}.flatten.uniq
   end
 
-  def self.raw_results_for(models, query, filter, fields, order, pagination, profiles, other)
-    request = request_for models, query, filter, fields, order, pagination, profiles, other
-    if other[:explain]
-      @explain_client.search request[0], request[1]
-    else
-      @search_client.search request[0], request[1]
-    end
-  end
-
   def self.documents_for(query_string, fields, raw_results)
-    raw_results.hits.map {|hit| attributes_for query_string, hit, fields}
+    raw_results['hits']['hits'].map {|hit| attributes_for query_string, hit, fields}
   end
 
   def self.mapping_for(models)
-    models.map {|m| m.to_s.underscore.pluralize}.join ","
+    models.map {|model| model.to_s.underscore.pluralize}.join ","
   end
 
-  def self.results_for(raw_results, documents, pagination)
+  def self.search_for(query_string, models, query, filter, fields, order, pagination, profiles, other)
+    request = request_for models, query, filter, fields, order, pagination, profiles, other
+
+    begin
+      results = @search_client.search request
+    rescue Exception => exc
+      return {
+        request: full_request,
+        error: exception.message
+      }
+    end
+
+    documents = Searchable.documents_for query_string, fields, results
+
     {
       results: documents,
-      count: raw_results.total_entries,
+      count: results['hits']['total'],
       page: {
         count: documents.size,
         per_page: pagination[:per_page],
@@ -163,41 +167,32 @@ module Searchable
   end
 
   def self.explain_for(query_string, models, query, filter, fields, order, pagination, profiles, other)
-    # could get moved up to api handler
     request = request_for models, query, filter, fields, order, pagination, profiles, other
-    mapping = mapping_for models
 
-    # begin
+    begin
       start = Time.now
-      results = @explain_client.search request[0], request[1]
+      results = @explain_client.search request
       elapsed = Time.now - start
-
-      # subject to a race condition here, need to think of a better solution than a class variable
-      # but in practice, the explain mode is not going to be used in production, only debugging
-      # so the chance of an actual race is low.
-      last_request = ExplainLogger.last_request
-      last_response = ExplainLogger.last_response
-
-      {
-        query: query_string,
-        mapping: mapping,
-        count: results.total_entries,
-        elapsed: elapsed,
-        request: last_request,
-        response: last_response
+    rescue Exception => exc
+      return {
+        request: full_request,
+        error: exception.message
       }
-    # rescue ElasticSearch::RequestError => exc
-    #   {
-    #     request: request,
-    #     mapping: mapping,
-    #     error: error_from(exc)
-    #   }
-    # end
-  end
+    end
 
-  # remove the status code from the beginning and parse it as JSON
-  def self.error_from(exception)
-    JSON.parse exception.message.sub(/^\(\d+\)\s*/, '')
+    # subject to a race condition here, need to think of a better solution than a class variable
+    # but in practice, the explain mode is not going to be used in production, only debugging
+    # so the chance of an actual race is low.
+    last_request = nil # ExplainLogger.last_request
+    last_response = nil # ExplainLogger.last_response
+
+    {
+      query: query_string,
+      count: results['hits']['total'],
+      elapsed: elapsed,
+      request: last_request,
+      response: last_response
+    }
   end
 
   def self.other_options_for(params, search_fields)
@@ -302,29 +297,29 @@ module Searchable
       {field => direction}
     end
 
-    [
-      {
-        sort: sort,
-        _source: fields
-      }.merge(query_filter).merge(other),
+    body = {
+      from: from,
+      size: size,
 
-      # mapping and pagination info has to go into the second hash
-      {
-        type: mapping_for(models),
-        from: from,
-        size: size
-      }
-    ]
+      sort: sort,
+      _source: fields
+    }.merge(query_filter).merge(other)
+
+    {
+      index: Searchable.index,
+      type: mapping_for(models),
+      body: body
+    }
   end
 
   def self.attributes_for(query_string, hit, fields)
     attributes = {}
-    search = {score: hit._score, type: hit._type.singularize}
+    search = {score: hit['_score'], type: hit['_type'].singularize}
 
-    hit.fields ||= {}
+    hit['fields'] ||= {}
 
-    if hit.highlight
-      search[:highlight] = hit.highlight
+    if hit['highlight']
+      search[:highlight] = hit['highlight']
     end
 
     hit['_source'].each do |key, value|
@@ -351,12 +346,8 @@ module Searchable
 
   def self.configure_clients!
     http_host = "http://#{Environment.config['elastic_search']['host']}:#{Environment.config['elastic_search']['port']}"
-    # options = {
-    #   index: Environment.config['elastic_search']['index'],
-    #   auto_discovery: false
-    # }
-
-    @new_client = Elasticsearch::Client.new host: http_host
+    @search_client = Elasticsearch::Client.new host: http_host
+    @explain_client = Elasticsearch::Client.new host: http_host
 
     # Faraday.register_middleware :response, explain_logger: ExplainLogger
     # @explain_client = ElasticSearch.new(http_host, options) do |conn|
@@ -366,7 +357,7 @@ module Searchable
   end
 
   # referenced by loading tasks
-  def self.client; @new_client; end
+  def self.client; @search_client; end
   def self.index; Environment.config['elastic_search']['index']; end
 
   class ExplainLogger < Faraday::Response::Middleware

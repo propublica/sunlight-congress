@@ -65,17 +65,12 @@ get searchable_route do
   filter = Searchable.filter_for filters
   other = Searchable.other_options_for params, search_fields
 
-  begin
-    if params[:explain] == 'true'
-      results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, profiles, other
-    else
-      raw_results = Searchable.raw_results_for models, query, filter, fields, order, pagination, profiles, other
-      documents = Searchable.documents_for query_string, fields, raw_results
-      documents = Citable.add_to models, documents, params
-      results = Searchable.results_for raw_results, documents, pagination
-    end
-  rescue ElasticSearch::RequestError => exc
-    results = Searchable.error_from exc
+
+  if params[:explain] == 'true'
+    results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, profiles, other
+  else
+    results = Searchable.search_for query_string, models, query, filter, fields, order, pagination, profiles, other
+    results[:results] = Citable.add_to models, results[:results], params
   end
 
   hit! "search", format
