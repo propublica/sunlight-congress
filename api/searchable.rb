@@ -148,8 +148,7 @@ module Searchable
       results = @search_client.search request
     rescue Exception => exc
       return {
-        request: full_request,
-        error: exception.message
+        error: exception_to_hash(exc)
       }
     end
 
@@ -175,16 +174,16 @@ module Searchable
       elapsed = Time.now - start
     rescue Exception => exc
       return {
-        request: full_request,
-        error: exception.message
+        error: exception_to_hash(exc),
+        request: request
       }
     end
 
     # subject to a race condition here, need to think of a better solution than a class variable
     # but in practice, the explain mode is not going to be used in production, only debugging
     # so the chance of an actual race is low.
-    last_request = nil # ExplainLogger.last_request
-    last_response = nil # ExplainLogger.last_response
+    last_request = ExplainLogger.last_request
+    last_response = ExplainLogger.last_response
 
     {
       query: query_string,
@@ -192,6 +191,14 @@ module Searchable
       elapsed: elapsed,
       request: last_request,
       response: last_response
+    }
+  end
+
+  def self.exception_to_hash(exception)
+    {
+      'backtrace' => exception.backtrace,
+      'message' => exception.message,
+      'type' => exception.class.to_s
     }
   end
 
@@ -345,15 +352,27 @@ module Searchable
   end
 
   def self.configure_clients!
-    http_host = "http://#{Environment.config['elastic_search']['host']}:#{Environment.config['elastic_search']['port']}"
-    @search_client = Elasticsearch::Client.new host: http_host
-    @explain_client = Elasticsearch::Client.new host: http_host
+    host = {
+      host: Environment.config['elastic_search']['host'],
+      port: Environment.config['elastic_search']['port']
+    }
 
-    # Faraday.register_middleware :response, explain_logger: ExplainLogger
-    # @explain_client = ElasticSearch.new(http_host, options) do |conn|
-    #   conn.response :explain_logger
-    #   conn.adapter Faraday.default_adapter
-    # end
+    @search_client = Elasticsearch::Client.new host
+
+    # complicated dance to override Faraday adapter to funnel
+    # requests and responses through ExplainLogger
+    Faraday.register_middleware :response, explain_logger: ExplainLogger
+    faraday_configuration = lambda do |f|
+      f.response :explain_logger
+      f.adapter Faraday.default_adapter
+    end
+    faraday_client = Elasticsearch::Transport::Transport::HTTP::Faraday.new(
+      hosts: [host],
+      &faraday_configuration
+    )
+
+    @explain_client = Elasticsearch::Client.new
+    @explain_client.transport = faraday_client
   end
 
   # referenced by loading tasks
