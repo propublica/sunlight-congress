@@ -2,7 +2,7 @@ If Mongo database is really new:
 
 	rake create_indexes
 
-If Elasticsearch database is really new:
+If elasticsearch database is really new:
 
 	rake elasticsearch:init
 
@@ -18,7 +18,7 @@ Non-ES:
 
 	rake task:bills debug=1 congress=112 && rake task:bills debug=1 congress=112
 
-ElasticSearch:
+elasticsearch:
 
 	rake task:bills_text debug=1 congress=113 && rake task:bills_text debug=1 congress=112 && rake task:bills_text debug=1 congress=111
 
