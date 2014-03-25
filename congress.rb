@@ -32,7 +32,7 @@ get queryable_route do
     criteria = Queryable.criteria_for model, conditions, fields, order, pagination
     documents = Queryable.documents_for model, criteria, fields
     results = Queryable.results_for criteria, documents, pagination
-    results[:results] = Citable.add_to model, results[:results], params
+    results[:results] = Citable.add_to(model, results[:results], params) if results[:results]
   end
 
   hit! "query", format
@@ -70,7 +70,7 @@ get searchable_route do
     results = Searchable.explain_for query_string, models, query, filter, fields, order, pagination, profiles, other
   else
     results = Searchable.search_for query_string, models, query, filter, fields, order, pagination, profiles, other
-    results[:results] = Citable.add_to models, results[:results], params
+    results[:results] = Citable.add_to(models, results[:results], params) if results[:results]
   end
 
   hit! "search", format

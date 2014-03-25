@@ -146,6 +146,7 @@ module Searchable
 
     begin
       results = @search_client.search request
+      raise Exception.new "oh no!"
     rescue Exception => exc
       return {
         error: exception_to_hash(exc)
@@ -172,6 +173,7 @@ module Searchable
       start = Time.now
       results = @explain_client.search request
       elapsed = Time.now - start
+      raise Exception.new "oh no!"
     rescue Exception => exc
       return {
         error: exception_to_hash(exc),
