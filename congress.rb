@@ -31,8 +31,8 @@ get queryable_route do
   else
     criteria = Queryable.criteria_for model, conditions, fields, order, pagination
     documents = Queryable.documents_for model, criteria, fields
-    documents = Citable.add_to model, documents, params
     results = Queryable.results_for criteria, documents, pagination
+    results[:results] = Citable.add_to model, results[:results], params
   end
 
   hit! "query", format
