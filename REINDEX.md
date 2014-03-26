@@ -22,9 +22,9 @@ elasticsearch:
 
 	rake task:bills_text debug=1 congress=113 && rake task:bills_text debug=1 congress=112 && rake task:bills_text debug=1 congress=111
 
-	rake task:regulations cache=1 debug=1 year=2014 && rake task:regulations cache=1 debug=1 year=2013 && rake task:regulations cache=1 debug=1 year=2012 && rake task:regulations debug=1 cache=1 year=2011 && rake task:regulations debug=1 cache=1 year=2010 && rake task:regulations debug=1 year=2009 cache=1
+	rake task:regulations cache=1 debug=1 year=2014 && rake task:regulations cache=1 debug=1 year=2013 && rake task:regulations cache=1 debug=1 year=2012 && rake task:regulations debug=1 cache=1 year=2011
 
-	rake task:gao_reports cache=1 debug=1 year=2014 && rake task:gao_reports cache=1 debug=1 year=2013 && rake task:gao_reports cache=1 debug=1 year=2012 && rake task:gao_reports cache=1 debug=1 year=2011 && rake task:gao_reports cache=1 debug=1 year=2010 && rake task:gao_reports cache=1 debug=1 year=2009
+	rake task:gao_reports cache=1 debug=1 year=2014 && rake task:gao_reports cache=1 debug=1 year=2013 && rake task:gao_reports cache=1 debug=1 year=2012 && rake task:gao_reports cache=1 debug=1 year=2011
 
 	rake task:videos archive=True captions=True && rake task:videos archive=True captions=True senate=True
 
