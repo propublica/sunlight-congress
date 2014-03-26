@@ -24,7 +24,7 @@ We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum
 https://congress.api.sunlightfoundation.com/[method]
 {% endhighlight %}
 
-Encryption (`https://`) is used by default, and **[strongly recommended](http://sunlightfoundation.com/blog/2014/01/28/encrypting-our-congress-api-and-protecting-your-location/)**. If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the Congress API.
+Encryption (`https://`) is used by default, and **[strongly recommended](http://sunlightfoundation.com/blog/2014/01/28/encrypting-our-congress-api-and-protecting-your-location/)**.
 
 ### Methods
 
