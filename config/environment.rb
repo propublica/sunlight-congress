@@ -35,7 +35,10 @@ configure do
 
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
-  Searchable.configure_clients!
+  Searchable.client = Elasticsearch::Client.new hosts: [{
+    host: Environment.config['elastic_search']['host'],
+    port: Environment.config['elastic_search']['port']
+  }]
 
   Time::DATE_FORMATS.merge!(default: Proc.new {|t| t.xmlschema})
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"

@@ -1,5 +1,11 @@
 module Searchable
 
+
+  # convenience, referenced from tasks/utils.rb as well
+  def self.client; @client; end
+  def self.client=(client); @client = client; end
+  def self.index; Environment.config['elastic_search']['index']; end
+
   def self.query_for(query_string, params, search_fields)
     return unless query_string.present?
 
@@ -145,7 +151,7 @@ module Searchable
     request = request_for models, query, filter, fields, order, pagination, profiles, other
 
     begin
-      results = @search_client.search request
+      results = client.search request
     rescue Exception => exc
       return {
         error: exception_to_hash(exc)
@@ -170,7 +176,7 @@ module Searchable
 
     begin
       start = Time.now
-      results = @explain_client.search request
+      response = client.search request
       elapsed = Time.now - start
     rescue Exception => exc
       return {
@@ -178,19 +184,12 @@ module Searchable
         request: request
       }
     end
-
-    # subject to a race condition here, need to think of a better solution than a class variable
-    # but in practice, the explain mode is not going to be used in production, only debugging
-    # so the chance of an actual race is low.
-    last_request = ExplainLogger.last_request
-    last_response = ExplainLogger.last_response
-
     {
       query: query_string,
-      count: results['hits']['total'],
+      count: response['hits']['total'],
       elapsed: elapsed,
-      request: last_request,
-      response: last_response
+      request: request,
+      response: response
     }
   end
 
@@ -348,54 +347,6 @@ module Searchable
       break_out hash[first], rest, final_value
     else
       hash[keys.first] = final_value
-    end
-  end
-
-  def self.configure_clients!
-    host = {
-      host: Environment.config['elastic_search']['host'],
-      port: Environment.config['elastic_search']['port']
-    }
-
-    @search_client = Elasticsearch::Client.new hosts: [host]
-
-    # complicated dance to override Faraday adapter to funnel requests
-    # and responses through the ExplainLogger, for use in explain mode
-    Faraday.register_middleware :response, explain_logger: ExplainLogger
-    faraday_configuration = lambda do |f|
-      f.response :explain_logger
-      f.adapter Faraday.default_adapter
-    end
-    faraday_client = Elasticsearch::Transport::Transport::HTTP::Faraday.new(
-      hosts: [host],
-      &faraday_configuration
-    )
-
-    @explain_client = Elasticsearch::Client.new
-    @explain_client.transport = faraday_client
-  end
-
-  # referenced by loading tasks
-  def self.client; @search_client; end
-  def self.index; Environment.config['elastic_search']['index']; end
-
-  class ExplainLogger < Faraday::Response::Middleware
-    def self.last_request; @@last_request; end
-    def self.last_response; @@last_response; end
-
-    def call(env)
-      @@last_request = {
-        body: env[:body] ? ::Oj::load(env[:body]) : nil,
-        url: env[:url].to_s
-      }
-      super
-    end
-
-    def on_complete(env)
-      @@last_response = {
-        body: env[:body] ? ::Oj::load(env[:body]) : nil,
-        url: env[:url].to_s
-      }
     end
   end
 
