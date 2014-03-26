@@ -24,7 +24,7 @@ The previous API root was `http://services.sunlightlabs.com/api/`. The new API r
 https://congress.api.sunlightfoundation.com
 {% endhighlight %}
 
-Note that the new API **uses encryption by default** (`https://`). If you can't use SSL, you can disable SSL encryption by using plain `http://` with any URL in the new API.
+Note that the new API **uses encryption by default** (`https://`).
 
 Both the previous API and the new API require your [Sunlight API key](http://services.sunlightlabs.com/accounts/register/), so an API method documented as `/legislators/locate` would be used as:
 
