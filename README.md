@@ -156,6 +156,60 @@ Similarly, if an exception is raised during a task, the system will catch it and
 
 Any task that encounters an error or something worth warning about should file a `warning` or `failure` report during operation. After a task completes, the system will examine the reports collection for any "unread" `warning` or `failure` reports, send emails for each one, and mark them as "read".
 
+### Undocumented features
+
+This API has some endpoints and features that are not included in the public documentation, but are used in Sunlight tools.
+
+#### Endpoints
+
+`/regulations` - Material published in [the Federal Register](https://www.federalregister.gov/) since 2009. Currently used in [Scout](https://scout.sunlightfoundation.com).
+`/documents` - Reports from the [Government Accountability Office](http://gao.gov), and various [inspectors general](https://github.com/unitedstates/inspectors-general) since 2009. Currently used in [Scout](https://scout.sunlightfoundation.com).
+`/videos` - Information on videos from the [House floor](http://houselive.gov/) and [Senate floor](http://floor.senate.gov/), synced through the [Granicus](http://www.granicus.com/) API. Currently used in Sunlight's [Roku apps](http://sunlightfoundation.com/tools/roku/).
+
+#### Citation detection
+
+As bills, regulations, and documents are indexed into the system, they are first run through a [citation extractor](https://github.com/unitedstates/citation) over HTTP.
+
+Extracted citation data is stored locally, in Mongo, in a `citations` collection, using the `Citation` model. Excerpts of surrounding context are also stored then, at index-time.
+
+The API accepts a `citing` parameter, of one or more (pipe-delimited) citation IDs, in the format produced by [unitedstates/citation](https://github.com/unitedstates/citation). Passing `citing` adds a filter (to either Mongo or Elasticsearch-based endpoints) of `citation_ids__all`, which limits results to only documents for which all given citation IDs were detected at index-time.
+
+If a `citing.details` parameter is passed with a value of `true`, then every returned result will trigger a quick database lookup for those associated citations for that document, and citation details (including the surrounding match context) will be added to that document as a `citation` field.
+
+For example, a search for:
+
+```
+/bills?citing=usc/5/552&citing.details=true&per_page=1&fields=bill_id
+```
+
+Might return something like:
+
+```json
+{
+  "results": [
+    {
+      "bill_id": "s2141-113",
+      "citations": [
+        {
+          "type": "usc",
+          "match": "section 552(b) of title 5",
+          "index": 8624,
+          "excerpt": "disclosure pursuant to section 1905 of title 18, United States Code, section 552(b) of title 5, United States Code, or section 301(j) of this Act.",
+          "usc": {
+            "title": "5",
+            "section": "552",
+            "subsections": [],
+            "id": "usc/5/552",
+            "section_id": "usc/5/552"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+
 ### License
 
 This project is [licensed](LICENSE) under the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
