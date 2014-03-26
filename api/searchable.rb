@@ -357,7 +357,7 @@ module Searchable
       port: Environment.config['elastic_search']['port']
     }
 
-    @search_client = Elasticsearch::Client.new host
+    @search_client = Elasticsearch::Client.new hosts: [host]
 
     # complicated dance to override Faraday adapter to funnel requests
     # and responses through the ExplainLogger, for use in explain mode
