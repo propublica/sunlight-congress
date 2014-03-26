@@ -8,7 +8,7 @@ layout: default
 
 # Migrating
 
-This Congress API deprecates our previous [Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). The new Congress API keeps nearly all the data and features the old one offered.
+This Congress API deprecates our [previous Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). The new Congress API keeps nearly all the data and features the old one offered.
 
 We will keep our previous Congress API running until the end of the 113th Congress. Users are advised to upgrade to our new Congress API as soon as possible.
 
