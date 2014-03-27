@@ -2,17 +2,17 @@ source 'https://rubygems.org'
 
 gem 'sinatra', '~> 1.0'
 gem 'sinatra-cross_origin'
-gem 'rack'
+gem 'rack', '~> 1.0'
 
 gem 'oj', '~> 1.0' # for serialization
 gem 'yajl-ruby', '~> 1.1' # for parsing
 
-gem "mongoid", '3.0.14'
+gem "mongoid", '~> 3.0'
 gem 'typhoeus' # used only in elasticsearch gem
 gem 'elasticsearch', '~> 1.0'
 
-gem 'tzinfo', '~> 0.3'
-gem 'ruby-hmac', '~> 0.4'
+gem 'tzinfo'
+gem 'ruby-hmac'
 gem 'pony', '~> 1.0'
 
 gem 'safe_yaml'
