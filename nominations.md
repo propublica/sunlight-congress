@@ -75,7 +75,7 @@ Search and filter through presidential nominations in Congress. Filter by any [f
 }
 {% endhighlight %}
 
-\* **nomination_id**</br>
+\* **nomination_id**
 The unique identifier for this nomination, taken from the Library of Congress. Of the form "PN[number]-[congress]".
 
 \* **congress**
