@@ -45,15 +45,15 @@ GEM
     pony (1.0.1)
       mail (> 2.0)
     rack (1.5.2)
-    rack-protection (1.5.1)
+    rack-protection (1.5.2)
       rack
     raindrops (0.12.0)
     ruby-hmac (0.4.0)
     safe_yaml (0.9.7)
-    sinatra (1.3.3)
-      rack (~> 1.3, >= 1.3.6)
-      rack-protection (~> 1.2)
-      tilt (~> 1.3, >= 1.3.3)
+    sinatra (1.4.4)
+      rack (~> 1.4)
+      rack-protection (~> 1.4)
+      tilt (~> 1.3, >= 1.3.4)
     sinatra-cross_origin (0.2.0)
     tilt (1.4.1)
     treetop (1.4.15)
@@ -81,17 +81,17 @@ DEPENDENCIES
   elasticsearch (~> 1.0)
   mongoid (= 3.0.14)
   nokogiri (= 1.5.5)
-  oj (= 1.3.0)
+  oj (~> 1.0)
   paint
-  pony (= 1.0.1)
+  pony (~> 1.0)
   rack
-  ruby-hmac (= 0.4.0)
+  ruby-hmac (~> 0.4)
   safe_yaml
-  sinatra (= 1.3.3)
+  sinatra (~> 1.0)
   sinatra-cross_origin
   typhoeus
-  tzinfo (= 0.3.23)
+  tzinfo (~> 0.3)
   unicorn
   us-documents
   wirb
-  yajl-ruby (= 1.1.0)
+  yajl-ruby (~> 1.1)
