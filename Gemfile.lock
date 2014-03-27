@@ -8,8 +8,8 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     builder (3.0.4)
-    curb (0.8.1)
-    docsplit (0.6.3)
+    curb (0.8.5)
+    docsplit (0.7.4)
     elasticsearch (1.0.1)
       elasticsearch-api (= 1.0.1)
       elasticsearch-transport (= 1.0.1)
@@ -29,6 +29,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
+    mini_portile (0.5.3)
     mongoid (3.1.6)
       activemodel (~> 3.2)
       moped (~> 1.4)
@@ -37,7 +38,8 @@ GEM
     moped (1.5.2)
     multi_json (1.9.2)
     multipart-post (2.0.0)
-    nokogiri (1.5.5)
+    nokogiri (1.6.1)
+      mini_portile (~> 0.5.0)
     oj (1.4.7)
     origin (1.1.0)
     paint (0.8.7)
@@ -76,11 +78,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  curb (= 0.8.1)
-  docsplit (= 0.6.3)
+  curb (~> 0.8)
+  docsplit (~> 0.6)
   elasticsearch (~> 1.0)
   mongoid (~> 3.0)
-  nokogiri (= 1.5.5)
+  nokogiri (~> 1.5)
   oj (~> 1.0)
   paint
   pony (~> 1.0)
