@@ -8,8 +8,8 @@ gem 'oj', '~> 1.0' # for serialization
 gem 'yajl-ruby', '~> 1.1' # for parsing
 
 gem "mongoid", '~> 3.0'
-gem 'typhoeus' # used only in elasticsearch gem
 gem 'elasticsearch', '~> 1.0'
+gem 'typhoeus' # used only in elasticsearch gem
 
 gem 'tzinfo'
 gem 'ruby-hmac'
