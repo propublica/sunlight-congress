@@ -166,7 +166,7 @@ get '/' do
   json(result.merge(
     status: 200,
     message: "I live!",
-    documentation: "http://sunlightlabs.github.io/congress/",
+    documentation: "https://sunlightlabs.github.io/congress/",
     code: "https://github.com/sunlightlabs/congress",
     report_bugs: "https://github.com/sunlightlabs/congress/issues",
     more_apis: "http://sunlightfoundation.com/api/"
