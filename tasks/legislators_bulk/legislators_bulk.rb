@@ -3,7 +3,7 @@ require 'csv'
 class LegislatorsBulk
 
   # generate a backwards compatible version of legislators.csv,
-  # that can replace the manually curated one in sunlightlabs/apidata 
+  # that can replace the manually curated one in sunlightlabs/apidata
   # and be loaded into the old Sunlight Labs Congress API
 
   def self.run(options = {})
@@ -11,7 +11,7 @@ class LegislatorsBulk
 
     old_csv = "misc/old-legislators.csv"
     new_csv = "data/sunlight/legislators.csv"
-    
+
     count = 0
 
     # start with all current members
@@ -36,11 +36,11 @@ class LegislatorsBulk
 
     CSV.open(new_csv, "w") do |csv|
       csv << %w{
-        title firstname middlename lastname name_suffix nickname 
-        party state district in_office gender 
-        phone fax website webform congress_office 
+        title firstname middlename lastname name_suffix nickname
+        party state district in_office gender
+        phone fax website webform congress_office
         bioguide_id votesmart_id fec_id govtrack_id crp_id twitter_id
-        congresspedia_url youtube_url facebook_id 
+        congresspedia_url youtube_url facebook_id
         official_rss senate_class birthdate
       }
 
@@ -52,21 +52,14 @@ class LegislatorsBulk
         row = [
           legislator['title'],
           legislator['first_name'],
-
-          # let old middle names temporarily override new ones
-          ((old_legislator and old_legislator[2].present?) ? old_legislator[2] : legislator['middle_name']),
-
+          legislator['middle_name'],
           legislator['last_name'],
-
-          # let old name suffixes temporarily override new ones
-          ((old_legislator and old_legislator[4].present?) ? old_legislator[4] : legislator['name_suffix']),
-
-          # let old nicknames temporarily override new ones
-          ((old_legislator and old_legislator[5].present?) ? old_legislator[5] : legislator['nickname']),
+          legislator['name_suffix'],
+          legislator['nickname'],
 
           legislator['party'],
           legislator['state'],
-          
+
           # for senators, copies old designations, adds Jr to new ones
           district_for(legislator, old_legislator),
 
@@ -84,13 +77,13 @@ class LegislatorsBulk
           legislator['govtrack_id'],
           legislator['crp_id'],
           legislator['twitter_id'],
-  
-          # congresspedia url from old spreadsheet          
+
+          # congresspedia url from old spreadsheet
           old_legislators[legislator.bioguide_id] ? old_legislator[22] : nil,
-          
+
           youtube_for(legislator),
           legislator['facebook_id'],
-          
+
           nil, # rss is gone
 
           (legislator['senate_class'] ? ("I" * legislator['senate_class']) : nil),
