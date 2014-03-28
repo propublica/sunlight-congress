@@ -1,5 +1,7 @@
 import time
 from fabric.api import run, execute, env
+from fabric.colors import red, green, blue
+from fabric.operations import local
 
 environment = "production"
 
@@ -11,9 +13,12 @@ repo = "git://github.com/sunlightlabs/congress.git"
 
 home = "/projects/congress-api"
 shared_path = "%s/congress/shared" % home
-version_path = "%s/congress/versions/%s" % (home, time.strftime("%Y%m%d%H%M%S"))
+versions_path = "%s/congress/versions" % home
+version_path = "%s/%s" % (versions_path, time.strftime("%Y%m%d%H%M%S"))
 current_path = "%s/congress/current" % home
 
+# how many old releases to be kept at deploy-time
+keep = 10
 
 ## can be run only as part of deploy
 
@@ -37,9 +42,16 @@ def create_indexes():
 def make_current():
   run('rm -f %s && ln -s %s %s' % (current_path, version_path, current_path))
 
-# TODO...
-def prune_releases():
-  pass
+def cleanup():
+  versions = run("ls -x %s" % versions_path).split()
+  # destroy all but the most recent X
+  destroy = versions[:-keep]
+
+  for version in destroy:
+    # print red("Deleting") + (" version %s!" % version)
+    command = "rm -rf %s/%s" % (versions_path, version)
+    run(command)
+
 
 ## can be run on their own
 
@@ -71,6 +83,7 @@ def deploy():
   execute(set_crontab)
   execute(stop)
   execute(start)
+  execute(cleanup)
 
 def deploy_cold():
   execute(checkout)
