@@ -273,9 +273,6 @@ class Regulations
     # index any leftover docs
     Utils.es_flush! 'regulations', batcher
 
-    # back up all regulation html - would like to be more efficient...
-    backup! options if options[:backup]
-
 
     if warnings.any?
       Report.warning self, "#{warnings.size} warnings", warnings: warnings
@@ -323,8 +320,28 @@ class Regulations
       warnings << {message: "Error while processing HTML for #{document['document_number']}", exception: ex.message, name: ex.class.to_s}
     end
 
-    # cache the html on disk
-    Utils.write html_cache(document['document_number']), html
+    document_number = document['document_number']
+
+    html_local = html_cache document_number
+    html_remote = html_remote document_number
+    html_backed = html_local + ".backed"
+
+    Utils.write html_local, html
+    puts "[#{document_number}] Wrote HTML to disk."
+
+    if options[:backup]
+      if !File.exists?(html_backed)
+        Utils.write html_backed, Time.now.to_i.to_s
+        Utils.backup! :regulations,
+          html_local, html_remote,
+          silent: !options[:debug]
+        puts "[#{document_number}] Uploaded HTML to S3."
+      else
+        puts "[#{document_number}] Already uploaded to S3."
+      end
+    end
+
+
 
     true
   end
@@ -494,14 +511,7 @@ class Regulations
 
   # bucket is set as unitedstates/documents, put into "federal_register/article"
   def self.html_remote(document_number)
-    "#{document_number}.htm"
-  end
-
-  # whole corpus, sigh
-  def self.backup!(options)
-    Utils.backup!(:regulations, "data/unitedstates/documents/federal_register/article/", "federal_register/article", {
-      sync: true, silent: !options[:debug]
-    })
+    "federal_register/article/#{document_number}.htm"
   end
 
   def self.noon_utc_for(timestamp)

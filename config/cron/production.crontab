@@ -38,7 +38,7 @@
 */30 * * * * /projects/congress-api/congress/shared/cron/task.sh bills_bulk
 
 # re-index text a few times, GPO releases in bursts
-31 10,14,17 * * * /projects/congress-api/congress/shared/cron/task.sh bills_text
+31 10,14,17 * * * /projects/congress-api/congress/shared/cron/task.sh bills_text backup=1
 
 # popular bill names, check once an hour
 10 * * * * /projects/congress-api/congress/shared/cron/task.sh bills_nicknames
@@ -82,7 +82,7 @@
 
 
 # formally published regs and notices, last 2 days - takes <2m even without cache
-10,30,50 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations cache=1 days=2
+10,30,50 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations cache=1 days=2 backup=1
 
 # public inspection docs (don't use cache, PDF URLs get filled in later)
 15,35,55 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations public_inspection=1
