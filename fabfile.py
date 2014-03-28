@@ -48,7 +48,6 @@ def cleanup():
   destroy = versions[:-keep]
 
   for version in destroy:
-    # print red("Deleting") + (" version %s!" % version)
     command = "rm -rf %s/%s" % (versions_path, version)
     run(command)
 
@@ -70,9 +69,9 @@ def stop():
   run("kill `cat %s/unicorn.pid`" % shared_path)
 
 def restart():
-  execute(stop)
-  execute(start)
-  # run("kill -USR2 `cat %s/unicorn.pid`" % shared_path)
+  # execute(stop)
+  # execute(start)
+  run("kill -USR2 `cat %s/unicorn.pid`" % shared_path)
 
 def deploy():
   execute(checkout)
@@ -81,8 +80,7 @@ def deploy():
   execute(create_indexes)
   execute(make_current)
   execute(set_crontab)
-  execute(stop)
-  execute(start)
+  execute(restart)
   execute(cleanup)
 
 def deploy_cold():
