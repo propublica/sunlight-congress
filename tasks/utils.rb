@@ -607,12 +607,12 @@ module Utils
     destination = destination[0..-2] if destination[-1..-1] == "/"
 
     # sync means that source and destination are directories
-    if options[:sync]
-      command = "#{s3cmd} --config=#{s3cfg} sync -P #{source}/ #{location}/#{destination}/"
+    # if options[:sync]
+    #   command = "#{s3cmd} --config=#{s3cfg} sync -P #{source}/ #{location}/#{destination}/"
     # otherwise, assume it's a single file, just put
-    else
+    # else
       command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
-    end
+    # end
 
     if options[:silent]
       command << " > /dev/null"

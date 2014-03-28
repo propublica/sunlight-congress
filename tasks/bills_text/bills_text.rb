@@ -201,9 +201,26 @@ class BillsText
         begin
           last_version_html = UnitedStates::Documents::Bills.process File.read(last_version_xml)
 
-          # cache the html on disk
-          last_version_local = html_cache(congress, type, bill_version_id)
+          # cache the html on disk if needed, and if we're backing up to s3
+          last_version_local = html_cache congress, type, bill_version_id
+          last_version_remote = html_remote congress, type, bill_version_id
+          last_version_backed = last_version_local + ".backed"
+
           Utils.write last_version_local, last_version_html
+          puts "[#{bill_id}] Wrote HTML to disk."
+
+          if options[:backup]
+            if !File.exists?(last_version_backed)
+              Utils.write last_version_backed, Time.now.to_i.to_s
+              Utils.backup! :bills,
+                last_version_local, last_version_remote,
+                silent: !options[:debug]
+              puts "[#{bill_id}] Uploaded HTML to S3."
+            else
+              puts "[#{bill_id}] Already uploaded to S3."
+            end
+          end
+
         rescue
           warnings << {message: "Error while processing XML->HTML for #{bill_version_id}"}
         end
@@ -216,11 +233,6 @@ class BillsText
 
     # index any leftover docs
     Utils.es_flush! 'bills', batcher
-
-    # sync extracted HTML to S3
-    if options[:backup]
-      backup_congress! congress, options
-    end
 
     if warnings.any?
       Report.warning self, "Warnings found while parsing bill text and metadata", warnings: warnings
@@ -311,12 +323,6 @@ class BillsText
   # bucket is set as unitedstates/documents/bills
   def self.html_remote(congress, bill_type, bill_version_id)
     "#{congress}/#{bill_type}/#{bill_version_id}.htm"
-  end
-
-  def self.backup_congress!(congress, options)
-    Utils.backup!(:bills, "data/unitedstates/documents/bills/#{congress}", "#{congress}", {
-      sync: true, silent: !options[:debug]
-    })
   end
 
 end
