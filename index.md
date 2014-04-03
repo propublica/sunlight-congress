@@ -139,7 +139,7 @@ The API will automatically treat numbers as numbers, and "true" and "false" as b
 To force the API to treat a value as a string, use quotes:
 
 {% highlight text %}
-/legislators?thomas_id="136"
+/legislators?thomas_id="01501"
 {% endhighlight %}
 
 See the documentation for a specific data type to see what fields can be filtered on.
