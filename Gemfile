@@ -7,7 +7,7 @@ gem 'rack', '~> 1.0'
 gem 'oj', '~> 1.0' # for serialization
 gem 'yajl-ruby', '~> 1.1' # for parsing
 
-gem "mongoid", '~> 3.0'
+gem "mongoid", '~> 3.1'
 gem 'elasticsearch', '~> 1.0'
 gem 'typhoeus' # used only in elasticsearch gem
 
