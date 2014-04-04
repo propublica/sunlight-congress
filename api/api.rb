@@ -116,7 +116,7 @@ module Api
         value == "true"
       elsif value =~ /^\d+$/
         value.to_i
-      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/)
+      elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z$/)
         Time.zone.parse(value).utc rescue nil
       else # use quotes to force a value to be a string
         value.tr "\"", ""
