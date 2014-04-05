@@ -417,13 +417,6 @@ The Sunlight Foundation has an [IFTTT channel](https://ifttt.com/sunlightfoundat
 
 Check out our [shared recipes](https://ifttt.com/p/sunlightfoundation) and our [favorite recipes](https://ifttt.com/p/sunlightfoundation#favorites) for some examples of how to make use of our congressional data with IFTTT.
 
-### Planned Additions
-
-* Draft legislation in the House, as posted to [docs.house.gov](http://docs.house.gov).
-* Reports by GAO, CBO, and Congressional committees.
-
-To suggest new data and features, open a ticket on [Github Issues](https://github.com/sunlightlabs/congress/issues).
-
 ### More APIs
 
 If the Sunlight Congress API doesn't have what you're looking for, check out other Congress APIs:
