@@ -10,7 +10,7 @@ layout: default
 
 This Congress API deprecates our [previous Congress API](http://services.sunlightlabs.com/docs/Sunlight_Congress_API/). The new Congress API keeps nearly all the data and features the old one offered.
 
-We will keep our previous Congress API running until the end of the 113th Congress &mdash; **January 5, 2013**. Users are advised to upgrade to our new Congress API as soon as possible.
+We will keep our previous Congress API running until the end of the 113th Congress &mdash; **January 5, 2015*. Users are advised to upgrade to our new Congress API as soon as possible.
 
 This guide shows how to move from each method in the old API to the new API.
 
