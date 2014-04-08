@@ -43,6 +43,9 @@ configure do
   Time::DATE_FORMATS.merge!(default: Proc.new {|t| t.xmlschema})
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
   Oj.default_options = {mode: :compat, time_format: :ruby}
+
+  # suppresses warning
+  I18n.enforce_available_locales = false
 end
 
 
