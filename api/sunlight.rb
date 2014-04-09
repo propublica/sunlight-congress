@@ -20,5 +20,6 @@ post '/analytics/replicate_key/:key/' do
     key.save!
   rescue Exception => ex
     Email.report Report.exception("SunlightServices", "Error replicating key.", ex, {key: key.attributes.dup})
+    halt 500
   end
 end
