@@ -34,6 +34,12 @@ Filter through committees in the House and Senate. Filter by any [fields below](
 /committees?member_ids=L000551
 {% endhighlight %}
 
+**All members of a particular committee**
+
+{% highlight text %}
+/committees?committee_id=SSAP&fields=members
+{% endhighlight %}
+
 **Joint committees, excluding subcommittees**
 
 {% highlight text %}
