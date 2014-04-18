@@ -14,7 +14,7 @@ class VotesSenate
   #   force: if archiving, force it to re-download existing files.
   #   congress: archive an entire congress' worth of votes (defaults to latest 20)
   #   session: archive a specific session within a congress (typically, 1 or 2)
-  #   roll_id: only download a specific roll call vote. Ignores other options.
+  #   roll_id: only download a specific roll call vote (Senate only). Ignores other options.
   #   limit: only download a certain number of votes (stop short, useful for testing/development)
   #   skip_text: don't search index related text
 
@@ -166,7 +166,7 @@ class VotesSenate
     end
 
     if missing_bill_ids.any?
-      Report.warning self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", missing_bill_ids: missing_bill_ids
+      Report.note self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", missing_bill_ids: missing_bill_ids
     end
 
     if missing_nomination_ids.any?
@@ -174,7 +174,7 @@ class VotesSenate
     end
 
     if missing_amendment_ids.any?
-      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
+      Report.note self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
     end
 
     Report.success self, "Successfully synced #{count} Senate roll call votes from the #{congress}th Congress"

@@ -11,6 +11,7 @@ class VotesHouse
   # already downloaded files (to support resuming).
   #
   # options:
+  #   roll_id: get a particular roll ID (house only)
   #   force: if archiving, force it to re-download existing files.
   #   year: archive an entire year of data. 'current' for current year (defaults to latest 20)
   #   number: only download a specific roll call vote number for the given year. Ignores other options, except for year.
@@ -18,6 +19,14 @@ class VotesHouse
   #   skip_text: don't search index related text
 
   def self.run(options = {})
+
+    # roll_id is a short hand for year + number
+    if options[:roll_id].present?
+      chamber, number, year = Utils.split_roll_id options[:roll_id]
+      options[:number] = number
+      options[:year] = year
+    end
+
     year = if options[:year].nil? or (options[:year] == 'current')
       Utils.current_legislative_year
     else
@@ -99,7 +108,7 @@ class VotesHouse
 
       voter_ids, voters = votes_for doc, legislators, missing_bioguide_ids
       roll_type = doc.at("vote-question").inner_text
-      question = question_for doc, roll_type, bill_type, bill_number
+      question = roll_type.dup
 
       if vacated = vacated_for(doc)
         puts "[#{roll_id}] VACATED vote detected"
@@ -173,7 +182,7 @@ class VotesHouse
     end
 
     if missing_amendment_ids.any?
-      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {missing_amendment_ids: missing_amendment_ids}
+      Report.note self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {missing_amendment_ids: missing_amendment_ids}
     end
 
     Report.success self, "Successfully synced #{count} House roll call votes for #{year}"
@@ -347,20 +356,5 @@ class VotesHouse
     datestamp = doc.at("action-date").inner_text
     timestamp = doc.at("action-time").inner_text
     Utils.utc_parse "#{datestamp} #{timestamp}"
-  end
-
-  def self.question_for(doc, roll_type, bill_type, bill_number)
-    question = roll_type.dup
-    desc = doc.at("vote-desc").inner_text
-
-    if bill_type and bill_number
-      question << " -- " + Utils.format_bill_code(bill_type, bill_number)
-    end
-
-    if desc.present?
-      question << " -- " + desc
-    end
-
-    question
   end
 end
