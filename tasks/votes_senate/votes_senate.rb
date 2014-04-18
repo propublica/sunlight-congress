@@ -64,7 +64,7 @@ class VotesSenate
     missing_legislators = []
     missing_bill_ids = []
     missing_nomination_ids = []
-    # missing_amendment_ids = []
+    missing_amendment_ids = []
 
     # will be referenced by LIS ID as a cache built up as we parse through votes
     legislators = {}
@@ -130,16 +130,16 @@ class VotesSenate
       end
 
       # for now, only bother with amendments on bills
-      # if bill_id and amendment_id
-      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-      #     vote.attributes = {
-      #       :amendment_id => amendment_id,
-      #       :amendment => Utils.amendment_for(amendment)
-      #     }
-      #   else
-      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-      #   end
-      # end
+      if bill_id and amendment_id
+        if amendment = Utils.amendment_for(amendment_id)
+          vote.attributes = {
+            amendment_id: amendment_id,
+            amendment: amendment
+          }
+        else
+          missing_amendment_ids << {roll_id: roll_id, amendment_id: amendment_id}
+        end
+      end
 
       if nomination_id
         if nomination = Utils.nomination_for(nomination_id)
@@ -173,9 +173,9 @@ class VotesSenate
       Report.warning self, "Found #{missing_nomination_ids.size} missing nomination_id's while processing votes.", missing_nomination_ids: missing_nomination_ids
     end
 
-    # if missing_amendment_ids.any?
-    #   Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
-    # end
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", missing_amendment_ids: missing_amendment_ids
+    end
 
     Report.success self, "Successfully synced #{count} Senate roll call votes from the #{congress}th Congress"
   end
@@ -314,11 +314,13 @@ class VotesSenate
     end
   end
 
+  # use new amdt ID format -
+  # [s|h]amdt[number]-[congress]
   def self.amendment_id_for(doc, congress)
     elem = doc.at 'amendment_number'
     if elem and elem.text.present?
       number = elem.text.gsub(/[^\d]/, '').to_i
-      "s#{number}-#{congress}"
+      "samdt#{number}-#{congress}"
     else
       nil
     end

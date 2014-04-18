@@ -65,7 +65,7 @@ class VotesHouse
     download_failures = []
     missing_bioguide_ids = []
     missing_bill_ids = []
-    # missing_amendment_ids = []
+    missing_amendment_ids = []
 
     legislators = {}
     Legislator.only(Legislator.basic_fields).all.each do |legislator|
@@ -96,7 +96,6 @@ class VotesHouse
 
       bill_type, bill_number = bill_code_for doc
       bill_id = (bill_type and bill_number) ? "#{bill_type}#{bill_number}-#{congress}" : nil
-      # amendment_id = amendment_id_for doc, bill_id
 
       voter_ids, voters = votes_for doc, legislators, missing_bioguide_ids
       roll_type = doc.at("vote-question").inner_text
@@ -140,16 +139,20 @@ class VotesHouse
         end
       end
 
-      # if amendment_id
-      #   if amendment = Amendment.where(:amendment_id => amendment_id).only(Amendment.basic_fields).first
-      #     vote.attributes = {
-      #       :amendment_id => amendment_id,
-      #       :amendment => Utils.amendment_for(amendment)
-      #     }
-      #   else
-      #     missing_amendment_ids << {:roll_id => roll_id, :amendment_id => amendment_id}
-      #   end
-      # end
+      house_number = doc.at("amendment-num") ? doc.at("amendment-num").inner_text.to_i : nil
+
+      # have to do an amendment lookup based on bill/number
+      # even to figure out the ID.
+      if house_number and bill_id
+        if amendment = Amendment.where(amends_bill_id: bill_id, house_number: house_number).first
+          vote.attributes = {
+            amendment_id: amendment.amendment_id,
+            amendment: Utils.amendment_for(amendment)
+          }
+        else
+          missing_amendment_ids << {roll_id: roll_id, bill_id: bill_id, house_number: house_number}
+        end
+      end
 
       vote.save!
 
@@ -169,9 +172,9 @@ class VotesHouse
       Report.note self, "Found #{missing_bill_ids.size} missing bill_id's while processing votes.", {missing_bill_ids: missing_bill_ids}
     end
 
-    # if missing_amendment_ids.any?
-    #   Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {missing_amendment_ids: missing_amendment_ids}
-    # end
+    if missing_amendment_ids.any?
+      Report.warning self, "Found #{missing_amendment_ids.size} missing amendment_id's while processing votes.", {missing_amendment_ids: missing_amendment_ids}
+    end
 
     Report.success self, "Successfully synced #{count} House roll call votes for #{year}"
   end
