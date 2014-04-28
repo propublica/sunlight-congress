@@ -5,7 +5,7 @@ task :environment do
 end
 
 desc "Load a fake api key into the db"
-task :api_key => :environment do
+task api_key: :environment do
   key = ENV['key'] || "development"
   email = ENV['email'] || "#{key}@example.com"
 
@@ -18,7 +18,7 @@ task :api_key => :environment do
 end
 
 desc "Run through each model and create all indexes"
-task :create_indexes => :environment do
+task create_indexes: :environment do
   begin
     Mongoid.models.each do |model|
       model.create_indexes
@@ -31,7 +31,7 @@ task :create_indexes => :environment do
 end
 
 desc "Set the crontab in place for this environment"
-task :set_crontab => :environment do
+task set_crontab: :environment do
   environment = ENV['environment']
   current_path = ENV['current_path']
 
@@ -49,7 +49,7 @@ task :set_crontab => :environment do
 end
 
 desc "Disable/clear the crontab for this environment"
-task :disable_crontab => :environment do
+task disable_crontab: :environment do
   if system("echo | crontab")
     puts "Successfully disabled crontab."
   else
@@ -124,7 +124,7 @@ end
 namespace :analytics do
 
   desc "Send analytics to the central API analytics department."
-  task :report => :environment do
+  task report: :environment do
     begin
 
       # default to yesterday
