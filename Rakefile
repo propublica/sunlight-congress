@@ -171,7 +171,7 @@ end
 
 namespace :elasticsearch do
   desc "Initialize ES mapping schemas"
-  task :init => :environment do
+  task init: :environment do
     single = ENV['mapping'] || ENV['only'] || nil
     force = ENV['force'] || ENV['delete'] || false
 
