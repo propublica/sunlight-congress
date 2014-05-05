@@ -13,4 +13,12 @@ class BasicTest < Test::Unit::TestCase
     assert_match /report_bugs/, last_response.body
   end
 
+  def test_mongo
+
+  end
+
+  def test_elasticsearch
+    # Searchable.client
+  end
+
 end

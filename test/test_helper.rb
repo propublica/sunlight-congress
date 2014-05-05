@@ -7,7 +7,6 @@ require 'bundler/setup'
 require 'rack/test'
 
 require './congress'
-require './test/factories'
 require 'timecop'
 
 set :environment, :test
@@ -24,6 +23,10 @@ module TestHelper
 
     def teardown
       Mongoid.models.each &:delete_all
+
+      # clear the ES index
+      # Searchable.client.indices.delete index: Searchable.index
+
       Timecop.return
     end
 
