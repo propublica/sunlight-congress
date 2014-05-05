@@ -19,12 +19,19 @@ module TestHelper
 
     def setup
       Timecop.freeze
+
+      # initialize Elasticsearch test index
+      if Searchable.client.indices.exists(index: Searchable.index)
+        Searchable.client.indices.delete index: Searchable.index
+      end
+
+      Searchable.client.indices.create index: Searchable.index
     end
 
     def teardown
       Mongoid.models.each &:delete_all
 
-      # clear the ES index
+      # clear Elasticsearch test index
       # Searchable.client.indices.delete index: Searchable.index
 
       Timecop.return
@@ -47,6 +54,10 @@ module TestHelper
 
     def assert_response(status, message = nil)
       assert_equal status, last_response.status, (message || last_response.body)
+    end
+
+    def assert_json
+      assert_match /application\/json/, last_response.headers['Content-Type']
     end
 
     def assert_redirect(path)

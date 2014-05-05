@@ -4,7 +4,13 @@ module Searchable
   # convenience, referenced from tasks/utils.rb as well
   def self.client; @client; end
   def self.client=(client); @client = client; end
-  def self.index; Environment.config['elastic_search']['index']; end
+  def self.index
+    if Sinatra::Application.test?
+      Environment.config['elastic_search']['test_index']
+    else
+      Environment.config['elastic_search']['index']
+    end
+  end
 
   def self.query_for(query_string, params, search_fields)
     return unless query_string.present?

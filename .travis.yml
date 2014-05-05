@@ -2,7 +2,9 @@ language: ruby
 rvm:
   - 2.1.1
 
-services: mongodb
+services:
+  - mongodb
+  - elasticsearch
 
 bundler_args: --local
 
