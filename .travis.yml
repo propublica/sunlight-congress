@@ -1,0 +1,22 @@
+language: ruby
+rvm:
+  - 2.1.1
+
+services: mongodb
+
+bundler_args: --local
+
+before_script:
+  - cp config/config.yml.example config/config.yml
+  - cp config/mongoid.yml.example config/mongoid.yml
+
+notifications:
+  email:
+    recipients:
+      - eric@sunlightfoundation.com
+    on_success: change
+    on_failure: change
+
+branches:
+  only:
+    - master

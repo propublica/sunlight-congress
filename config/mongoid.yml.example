@@ -4,3 +4,9 @@ development:
       database: congress
       hosts:
         - "localhost:27017"
+test:
+  sessions:
+    default:
+      database: congress-test
+      hosts:
+        - "localhost:27017"

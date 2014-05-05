@@ -23,6 +23,12 @@ group :development do
   gem 'unicorn'
 end
 
+group :test do
+  gem 'rack-test'
+  gem 'timecop', '~> 0.7'
+  gem 'factory_girl'
+end
+
 gem 'curb', '~> 0.8'
 gem 'nokogiri', '~> 1.5'
 gem 'docsplit', '~> 0.6'
