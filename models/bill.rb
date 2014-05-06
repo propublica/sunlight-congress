@@ -23,7 +23,7 @@ class Bill
           exists: {
             field: :introduced_on
           }
-        }
+        },
         gauss: {
           introduced_on: {
             scale: '365d'

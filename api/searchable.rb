@@ -273,7 +273,7 @@ module Searchable
               fields: profile[:fields]
             }
           }
-        }
+        },
         fields: query[:query_string][:fields]
       }
 

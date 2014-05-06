@@ -178,7 +178,7 @@ module Api
       def basic_fields(*fields); fields.any? ? @basic_fields = fields : @basic_fields; end
       def search_fields(*fields); fields.any? ? @search_fields = fields : @search_fields; end
       def search_profiles; @search_profiles; end
-      def search_profile(name, fields: [], filters: []); @search_profiles ||= {}; @search_profiles[name] = {:fields => fields, :filters => filters}; end
+      def search_profile(name, fields: [], functions: []); @search_profiles ||= {}; @search_profiles[name] = {:fields => fields, :functions => functions}; end
       def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
     end
     def self.included(base)
