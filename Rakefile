@@ -179,7 +179,8 @@ namespace :elasticsearch do
 
     host = Environment.config['elastic_search']['host']
     port = Environment.config['elastic_search']['port']
-    index = Environment.config['elastic_search']['index']
+    index = Searchable.index
+
     index_url = "http://#{host}:#{port}/#{index}"
 
     command = "curl -XPUT '#{index_url}'"
