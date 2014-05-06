@@ -377,7 +377,7 @@ class Regulations
 
     response['results'].map do |article|
       # the current.json endpoint can't also be filtered by type, so we'll filter client-side
-      if ["proposed rule", "rule"].include?(article['type'].downcase)
+      if ["notice", "proposed rule", "rule"].include?(article['type'].downcase)
         article['document_number']
       else
         puts "Skipping non-rule PI doc..." if options[:debug]
