@@ -233,7 +233,7 @@ class Regulations
       end
 
       unless full_text
-        # warning will have been filed
+        warnings << {message: "Error while polling FR.gov, aborting for now", url: url}
         puts "[#{document_number}] No full text to index, moving on..."
         next
       end
@@ -450,7 +450,7 @@ class Regulations
     destination = destination_for document_type, document_number, format
 
     unless Utils.download(url, options.merge(destination: destination))
-      Report.warning self, "Error while polling FR.gov, aborting for now", url: url
+      # caller will file warning
       return nil
     end
 
