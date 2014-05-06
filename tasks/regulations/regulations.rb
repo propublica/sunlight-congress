@@ -350,7 +350,7 @@ class Regulations
   # document numbers for current PI docs
 
   def self.pi_docs_for(options, warnings)
-    base_url = "http://api.federalregister.gov/v1/public-inspection-documents/current.json"
+    base_url = "https://www.federalregister.gov/api/v1/public-inspection-documents/current.json"
     base_url << "?fields[]=document_number&fields[]=type"
 
     puts "Fetching current public inspection documents..." if options[:debug]
@@ -390,7 +390,7 @@ class Regulations
   # document numbers for published regs in the given range
 
   def self.regulations_for(type, beginning, ending, options, warnings)
-    base_url = "http://api.federalregister.gov/v1/articles.json"
+    base_url = "https://www.federalregister.gov/api/v1/articles.json"
     base_url << "?conditions[type]=#{type}"
     base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
     base_url << "&conditions[publication_date][gte]=#{beginning.strftime "%m/%d/%Y"}"
@@ -486,7 +486,7 @@ class Regulations
 
   def self.details_url_for(document_type, document_number)
     endpoint = {article: "articles", public_inspection: "public-inspection-documents"}[document_type]
-    "http://api.federalregister.gov/v1/#{endpoint}/#{document_number}.json"
+    "https://www.federalregister.gov/api/v1/#{endpoint}/#{document_number}.json"
   end
 
   def self.destination_for(document_type, document_number, format)
