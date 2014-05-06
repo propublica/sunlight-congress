@@ -211,3 +211,15 @@ namespace :elasticsearch do
     end
   end
 end
+
+
+# sanity test suite
+
+task default: 'tests:all'
+require 'rake/testtask'
+namespace :tests do
+  Rake::TestTask.new(:all) do |t|
+    t.libs << "test"
+    t.test_files = FileList['test/**/*_test.rb']
+  end
+end

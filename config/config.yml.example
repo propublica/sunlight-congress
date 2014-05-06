@@ -2,6 +2,7 @@ elastic_search:
   host: localhost
   port: 9200
   index: congress
+  test_index: congress-test
 
 # used to extract citations (https://github.com/unitedstates/citation)
 citation:
