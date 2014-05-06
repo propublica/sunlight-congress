@@ -42,7 +42,10 @@ class BasicTest < Test::Unit::TestCase
   def test_elasticsearch_custom_score
     Utils.es_store! "bills", "hr1492-113", {
       bill_id: "hr1492-113",
-      short_title: "Columbus Sailed the Ocean Blue"
+      short_title: "Columbus Sailed the Ocean Blue",
+
+      # this search profile needs this field, or it'll error
+      introduced_on: "2014-03-01"
     }
     Searchable.client.indices.refresh
 
