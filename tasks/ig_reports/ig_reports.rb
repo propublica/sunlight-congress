@@ -8,16 +8,19 @@ class IgReports
   # Defaults to the current year's reports.
   #
   # options:
-  #   years: fetch specific years' reports. defaults to current year.
-  #      comma-separate for multiple years, e.g. "2012,2013"
+  #   since: fetch since a specific year.
+  #   year: fetch a specific year's reports.
   #   inspectors: fetch specific IGs' reports. defaults to all.
   #      comma-separate for multiple inspectors, e.g. "usps,nsa"
 
   def self.run(options = {})
-    if options[:years].present?
-      years = options[:years].split(",").map(&:strip).map &:strip
+    current_year = Time.now.year
+    if options[:year].present?
+      years = [options[:year].to_i]
+    elsif options[:since].present?
+      years = (options[:since].to_i..current_year).to_a
     else
-      years = [Time.now.year]
+      years = [current_year]
     end
 
     if options[:inspectors].present?
