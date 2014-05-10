@@ -48,9 +48,13 @@ class IgReports
             document_id = "ig_report-#{inspector}-#{year}-#{report_id}"
             report = Document.find_or_initialize_by document_id: document_id
 
+            text = nil
             begin
               json = File.read "#{path}/report.json"
-              text = File.read "#{path}/report.txt"
+
+              if File.exist?("#{path}/report.txt")
+                text = File.read "#{path}/report.txt"
+              end
             rescue Exception => ex
               failures << {msg: "Error reading JSON and text from disk.", inspector: inspector, year: year, report_id: report_id}
               next
@@ -77,15 +81,17 @@ class IgReports
               ig_report: report_data
             }
 
-            # extract citations
-            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(inspector, year, report_id), options)
-              warnings << {message: "Failed to extract citations from #{document_id}"}
-              attributes[:citation_ids] = []
-            end
+            # if we have full text, extract citations and index in ES
+            if text
+              unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(inspector, year, report_id), options)
+                warnings << {message: "Failed to extract citations from #{document_id}"}
+                attributes[:citation_ids] = []
+              end
 
-            # index document and text in ElasticSearch
-            es_document = attributes.merge(text: text)
-            Utils.es_batch! 'documents', document_id, es_document, batcher, options
+              # index document and text in ElasticSearch
+              es_document = attributes.merge(text: text)
+              Utils.es_batch! 'documents', document_id, es_document, batcher, options
+            end
 
             # index document in MongoDB
             report.attributes = attributes
