@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'nokogiri'
-
-class HearingsHouse
+class HearingsHouseLinks
 
   # options:
   #   month: specific month to get hearings for (form: YYYY-MM)
@@ -10,46 +8,124 @@ class HearingsHouse
 
   def self.run(options = {})
     count = 0
-    
     bad_committee_lookups = []
     warnings = []
+    meeting_type_codes = {"HHRG"=> "Hearing", "HMKP"=> "Markup", "HMTG"=> "Meeting"}
+    # read file
+    path = "data/unitedstates/congress"
+    house_json = File.read "#{path}/committee_meetings_house.json"
 
-    # if a specific date, do just that date
-    if options[:date]
-      count += hearings_for_day options[:date], bad_committee_lookups, options, warnings
-    else
+    house_data = Oj.load house_json
+    house_data.each do |hearing_data|
+      if (hearing_data != nil)
+        bill_ids = hearing_data["bills"]
+        chamber = hearing_data["chamber"]
+        committee_id = hearing_data["committee"]
+        subcommittee_suffix = hearing_data["subcommittee"]
+        congress = hearing_data["congress"]
+        # used in govtrack
+        guid = hearing_data["guid"]
+        house_event_id = hearing_data["house_event_id"]
+        hearing_type_code = hearing_data["house_meeting_type"]
+        occurs_at = hearing_data["occurs_at"]
+        room = hearing_data["room"]
+        title = hearing_data["topic"]
+        hearing_url = hearing_data["url"]
 
-      # if a specific month is given (form "YYYY-MM")
-      if options[:month]
-        months = [options[:month].split("-").map(&:to_i)] 
-      
+        if options[:date]
+          occurs_day = Date.parse(occurs_at)
+          date_check = Date.parse(options[:date])
+          unless date_check == occurs_day
+            next
+          end
+        end
 
-      # otherwise, default to this month and next month
-      else
-        this_year = Time.now.year
-        this_month = Time.now.month
+        if options[:month]
+          date_array = options[:month].split("-")
+          month_check = date_array[1]
+          year_check = date_array[0]
+          month = hearing_data["occurs_at"][5,2]
+          year = hearing_data["occurs_at"][0,4]
+          unless month_check == month && year_check == year
+            next
+          end
+        end
 
-        if this_month == 12
-          next_year = this_year + 1
-          next_month = 1
+        if !hearing_url
+          hearing_url = "http://docs.house.gov/Committee/Calendar/ByEvent.aspx?EventID=" + house_event_id
+        end
+
+        unless committee = Committee.where(committee_id: committee_id).first
+          puts "Couldn't find committee by name #{committee_id}"
+          bad_committee_lookups << {name: committee_name, url: hearing_url, date: occurs_at}
+          next
+        end
+
+        unless hearing_type = meeting_type_codes[hearing_type_code]
+          puts "Couldn't find meeting code #{hearing_type_code}"
+          warnings << {name: hearing_type_code, url: hearing_url, date: occurs_at}
+          hearing_type = "Other"
+        end
+        
+        if subcommittee_suffix
+          subcommittee_id = committee_id + subcommittee_suffix
+          unless subcommittee = Committee.where(committee_id: subcommittee_id).first
+            puts "Couldn't find subcommittee by name #{subcommittee_id}"
+            bad_committee_lookups << {name: subcommittee_id, url: hearing_url, date: occurs_at}
+          end
+        end
+
+        if room
+          if (room == "TBA") 
+            dc = true
+          elsif (room =~ /(HOB|SOB|Office Building|Hart|Dirksen|Russell|Cannon|Longworth|Rayburn|Capitol)/)
+            room = room_for(room)
+            dc = true
+          else
+            dc = false
+          end
         else
-          next_year = this_year
-          next_month = this_month + 1
+          dc = false
         end
 
-        months = [[this_year, this_month], [next_year, next_month]]
-      end
-
-      months.each do |year, month|
-        puts "Fetching dates for #{year}-#{zero_prefix month}..."
-        dates = days_for year, month
-
-        dates.each do |datestamp|
-          count += hearings_for_day datestamp, bad_committee_lookups, options, warnings
+        ### look for event ID, chamber house
+        hearing = Hearing.find_or_initialize_by house_hearing_id: house_event_id
+        
+        if hearing.new_record?
+          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Creating " if options[:debug] 
+        else
+          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Updating " if options[:debug] 
         end
+        
+        hearing.attributes = {
+          chamber: chamber, 
+          committee_id: committee_id,
+          congress: congress,
+          occurs_at: occurs_at,
+          room: room,
+          description: title,
+          dc: dc,
+          committee: Utils.committee_for(committee),
+          bill_ids: bill_ids,
+          # only from House right now
+          url: hearing_url,
+          hearing_type: hearing_type,
+          house_hearing_id: house_event_id,
+        }
+        
+  #### trying out subcommittee
+        if subcommittee
+          hearing[:subcommittee_id] = subcommittee_id
+          hearing[:subcommittee] = Utils.committee_for(subcommittee)
+          ## add warnings if lookup fails
+        end
+        
+  ### add hearing info here
+        hearing.save!
+        count += 1
       end
     end
-
+    
     if bad_committee_lookups.any?
       Report.warning self, "#{bad_committee_lookups.size} bad committee lookups", bad_committee_lookups: bad_committee_lookups
     end
@@ -61,177 +137,16 @@ class HearingsHouse
     Report.success self, "Updated or created #{count} committee hearings for the House."
   end
 
-  def self.hearings_for_day(datestamp, bad_committee_lookups, options, warnings)
-    puts "Fetching hearings for #{datestamp}..."
-
-    url = "http://house.gov/legislative/date/#{datestamp}"
-    unless body = Utils.curl(url)
-      warnings << {message: "Couldn't load day listing for #{datestamp} on House.gov committee hearings", url: url}
-      return 0
-    end
-
-    # body = body.encode("ASCII-8BIT", :invalid => :replace, :undef => :replace)
-
-    year, month, day = datestamp.split("-")
-
-    count = 0
-
-    doc = Nokogiri::HTML body
-    headers = doc.css("#contentMain h3")
-    bodies = doc.css("#contentMain p")
-
-    # each h3 is a hearing/whatever name, the p has the details
-    while headers.any?
-      h3 = headers.shift
-      body = bodies.shift
-
-      header = h3.inner_text.strip
-      hearing_type, title = split_header header
-      title = remove_smart_characters title
-      hearing_url = h3.at("a")['href']
-
-      committee_name = body.at("a").inner_text.strip
-      unless committee = committee_for(committee_name)
-        puts "Couldn't find committee by name #{committee_name}" if options[:debug]
-        bad_committee_lookups << {name: committee_name, url: url, date: datestamp}
-        next
-      end
-      committee_id = committee.committee_id
-
-      chamber = committee['chamber']
-
-      # split up the body text into pieces
-      body_text = body.inner_text.strip
-
-      # treat as ASCII, just ditch or collapse special characters
-      body_text = body_text.encode("ASCII-8BIT", :invalid => :replace, :undef => :replace)
-
-      top_line, bottom_line = body_text.split(/\s*\n\s*/).map &:strip
-      top_pieces = top_line.split(/\s+\|\s+/).map &:strip
-      bottom_pieces = bottom_line.split(/\s+\|\s+/).map &:strip
-      
-      # first piece is reliably the time
-      time_of_day = top_pieces.first
-      occurs_at = Time.zone.parse("#{datestamp} #{time_of_day}").utc
-
-      # second piece is the room, may not be there
-      room = room_for(top_pieces[1]) || "TBA"
-      if (room == "TBA") or (room =~ /(HOB|SOB|Office Building|Hart|Dirksen|Russell|Cannon|Longworth|Rayburn|Capitol)/)
-        dc = true
-      else
-        dc = false
-      end
-
-      # first piece of bottom is the host, but we extracted that more reliably already
-      # second piece of bottom is the subcommittee name, or "Full Committee"
-
-      # if bottom_pieces[1] and (bottom_pieces[1] =~ /subcommittee[^s]/i)
-      #   unless subcommittee_id = subcommittee_for(bottom_pieces[1])
-      #     bad_committee_lookups << bottom_pieces[1]
-      #   end
-      # else
-      #   subcommittee_id = nil
-      # end
-
-      # use occurs_at to determine proper session
-      legislative_year = Utils.current_legislative_year occurs_at
-      congress = Utils.congress_for_year legislative_year
-
-      bill_ids = Utils.bill_ids_for title, congress
-
-      hearing = Hearing.where(
-        chamber: chamber, 
-        committee_id: committee_id, 
-        "$or" => [{occurs_at: occurs_at}, {description: title}]
-      ).first || Hearing.new(chamber: chamber, committee_id: committee_id)
-
-      if hearing.new_record?
-        puts "Creating new committee hearing for #{committee_id} at #{occurs_at}..." if options[:debug]
-      end
-
-      hearing.attributes = {
-        congress: congress,
-        occurs_at: occurs_at,
-        room: room,
-        description: title,
-        dc: dc,
-
-        committee: Utils.committee_for(committee),
-
-        bill_ids: bill_ids,
-
-        # only from House right now
-        url: hearing_url,
-        hearing_type: hearing_type
-      }
-
-      # if subcommittee_id
-      #   hearing[:subcommittee_id] = subcommittee_id
-      # end
-
-      hearing.save!
-      count += 1
-    end
-
-    count
-  end
-
-  def self.committee_for(committee_name)
-    # ignore case
-    name = (committee_name !~ /^(?:House|Joint) /) ? "House #{committee_name}" : committee_name
-    Committee.where(name: /^#{name}$/i).first
-  end
-
-  def self.subcommittee_for(subcommittee_name)
-    subcommittee_name = subcommittee_name.gsub /^Subcommittee (on )?/i, ''
-    subcommittee_name = subcommittee_name.gsub "&", "and"
-    
-    # known House mistake
-    subcommittee_name = subcommittee_name.gsub "Oceans and Insular Affairs", "Oceans, and Insular Affairs"
-
-    subcommittee = Committee.where(name: /^#{subcommittee_name}$/i).first
-    subcommittee ? subcommittee.committee_id : nil
-  end
-
-  def self.room_for(room)
-    return nil unless room
-    room.sub(/House Office Building/i, "HOB").sub("Washington DC", "").strip
-  end
-
-  def self.split_header(header)
-    bits = header.split(": ")
-    type = bits.shift
-    [type, bits.join(": ")]
-  end
-
-  def self.zero_prefix(month)
-    if month < 10
-      "0#{month}"
+  def self.room_for(room_raw)
+    if (room_raw =~ /(RHOB|LHOB|CHOB|Capitol)/) && room_raw != nil
+      room = room_raw.sub("RHOB", "Rayburn HOB")
+      room = room.sub("LHOB", "Longworth HOB")
+      room = room.sub("CHOB", "Cannon HOB")
+      room = room + ", Washington, D.C. 20515"
     else
-      month.to_s
+      room = room_raw
     end
+    return room
   end
-
-  def self.days_for(year, month)
-    url = "http://house.gov/legislative/date/#{year}-#{zero_prefix month}-01"
-    unless body = Utils.curl(url)
-      Report.warning self, "Couldn't load month listing for #{year}-#{month} on House.gov committee hearings", url: url
-      return []
-    end
-
-    doc = Nokogiri::HTML body
-    links = doc.css("div.calendar table.calendar td a")
-    links.map do |link|
-      link['href'].split("/").last
-    end
-  end
-
-  def self.remove_smart_characters(text)
-    text.
-      gsub("\342\200\231", "'").
-      gsub("\302\240", " ").
-      gsub("\342\200\234", "\"").
-      gsub("\342\200\235", "\"")
-  end
-
 end
+
