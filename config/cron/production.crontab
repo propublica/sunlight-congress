@@ -78,7 +78,7 @@
 */19 * * * * /projects/congress-api/congress/shared/cron/task.sh gao_reports rate_limit=1
 
 # IG reports, once an hour
-4 * * * * /projects/congress-api/congress/shared/cron/us-sync-igs.sh && /projects/congress-api/congress/shared/cron/task.sh ig_reports
+4 * * * * /projects/congress-api/congress/shared/cron/us-sync-igs.sh && /projects/congress-api/congress/shared/cron/task.sh ig_reports since=2009
 
 
 # formally published regs and notices, last 2 days - takes <2m even without cache

@@ -233,7 +233,7 @@ class Regulations
       end
 
       unless full_text
-        # warning will have been filed
+        warnings << {message: "Error while polling FR.gov, aborting for now", url: url}
         puts "[#{document_number}] No full text to index, moving on..."
         next
       end
@@ -350,7 +350,7 @@ class Regulations
   # document numbers for current PI docs
 
   def self.pi_docs_for(options, warnings)
-    base_url = "http://api.federalregister.gov/v1/public-inspection-documents/current.json"
+    base_url = "https://www.federalregister.gov/api/v1/public-inspection-documents/current.json"
     base_url << "?fields[]=document_number&fields[]=type"
 
     puts "Fetching current public inspection documents..." if options[:debug]
@@ -377,7 +377,7 @@ class Regulations
 
     response['results'].map do |article|
       # the current.json endpoint can't also be filtered by type, so we'll filter client-side
-      if ["proposed rule", "rule"].include?(article['type'].downcase)
+      if ["notice", "proposed rule", "rule"].include?(article['type'].downcase)
         article['document_number']
       else
         puts "Skipping non-rule PI doc..." if options[:debug]
@@ -390,7 +390,7 @@ class Regulations
   # document numbers for published regs in the given range
 
   def self.regulations_for(type, beginning, ending, options, warnings)
-    base_url = "http://api.federalregister.gov/v1/articles.json"
+    base_url = "https://www.federalregister.gov/api/v1/articles.json"
     base_url << "?conditions[type]=#{type}"
     base_url << "&conditions[publication_date][lte]=#{ending.strftime "%m/%d/%Y"}"
     base_url << "&conditions[publication_date][gte]=#{beginning.strftime "%m/%d/%Y"}"
@@ -450,7 +450,7 @@ class Regulations
     destination = destination_for document_type, document_number, format
 
     unless Utils.download(url, options.merge(destination: destination))
-      Report.warning self, "Error while polling FR.gov, aborting for now", url: url
+      # caller will file warning
       return nil
     end
 
@@ -486,7 +486,7 @@ class Regulations
 
   def self.details_url_for(document_type, document_number)
     endpoint = {article: "articles", public_inspection: "public-inspection-documents"}[document_type]
-    "http://api.federalregister.gov/v1/#{endpoint}/#{document_number}.json"
+    "https://www.federalregister.gov/api/v1/#{endpoint}/#{document_number}.json"
   end
 
   def self.destination_for(document_type, document_number, format)

@@ -8,16 +8,19 @@ class IgReports
   # Defaults to the current year's reports.
   #
   # options:
-  #   years: fetch specific years' reports. defaults to current year.
-  #      comma-separate for multiple years, e.g. "2012,2013"
+  #   since: fetch since a specific year.
+  #   year: fetch a specific year's reports.
   #   inspectors: fetch specific IGs' reports. defaults to all.
   #      comma-separate for multiple inspectors, e.g. "usps,nsa"
 
   def self.run(options = {})
-    if options[:years].present?
-      years = options[:years].split(",").map(&:strip).map &:strip
+    current_year = Time.now.year
+    if options[:year].present?
+      years = [options[:year].to_i]
+    elsif options[:since].present?
+      years = (options[:since].to_i..current_year).to_a
     else
-      years = [Time.now.year]
+      years = [current_year]
     end
 
     if options[:inspectors].present?
@@ -48,9 +51,13 @@ class IgReports
             document_id = "ig_report-#{inspector}-#{year}-#{report_id}"
             report = Document.find_or_initialize_by document_id: document_id
 
+            text = nil
             begin
               json = File.read "#{path}/report.json"
-              text = File.read "#{path}/report.txt"
+
+              if File.exist?("#{path}/report.txt")
+                text = File.read "#{path}/report.txt"
+              end
             rescue Exception => ex
               failures << {msg: "Error reading JSON and text from disk.", inspector: inspector, year: year, report_id: report_id}
               next
@@ -77,15 +84,17 @@ class IgReports
               ig_report: report_data
             }
 
-            # extract citations
-            unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(inspector, year, report_id), options)
-              warnings << {message: "Failed to extract citations from #{document_id}"}
-              attributes[:citation_ids] = []
-            end
+            # if we have full text, extract citations and index in ES
+            if text
+              unless attributes[:citation_ids] = Utils.citations_for(report, text, citation_cache(inspector, year, report_id), options)
+                warnings << {message: "Failed to extract citations from #{document_id}"}
+                attributes[:citation_ids] = []
+              end
 
-            # index document and text in ElasticSearch
-            es_document = attributes.merge(text: text)
-            Utils.es_batch! 'documents', document_id, es_document, batcher, options
+              # index document and text in ElasticSearch
+              es_document = attributes.merge(text: text)
+              Utils.es_batch! 'documents', document_id, es_document, batcher, options
+            end
 
             # index document in MongoDB
             report.attributes = attributes

@@ -12,20 +12,23 @@ class Bill
     "sponsor.first_name", "sponsor.last_name", "sponsor.middle_name",
     "sponsor.nickname", "sponsor.name_suffix", "sponsor.title"
 
-
   search_fields :popular_title, :official_title, :short_title,
     :nicknames, :summary, :keywords, :text
 
   search_profile :title_summary_recency,
     fields: [:nicknames, :short_title, :summary],
-    filters: [
+    functions: [
       {
         filter: {
           exists: {
             field: :introduced_on
           }
         },
-        script: "(0.08 / ((3.16*pow(10,-11)) * abs(now - doc['introduced_on'].date.getMillis()) + 0.05)) + 1.0"
+        gauss: {
+          introduced_on: {
+            scale: '365d'
+          }
+        }
       }
     ]
 

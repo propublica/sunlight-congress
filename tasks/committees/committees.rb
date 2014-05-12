@@ -4,7 +4,7 @@ class Committees
   #   cache: don't redownload the YAML files
   #   congress: congress of Congress, for purpose of caring about
   #     whether we have membership data or not
-  
+
   def self.run(options = {})
     congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
 
@@ -21,7 +21,7 @@ class Committees
 
     # fresh start
     Committee.delete_all
-    
+
     puts "Loading in YAML files..." if options[:debug]
 
     # committees that have ever had a bill referred to them, past and present
@@ -32,10 +32,10 @@ class Committees
 
     # all current committee memberships
     memberships = YAML.load open("data/unitedstates/congress-legislators/committee-membership-current.yaml")
-  
-    legislator_cache = {}    
+
+    legislator_cache = {}
     bad_committees = []
-    
+
     # *current* committees for which we lack members
     missing_members = []
 
@@ -47,16 +47,16 @@ class Committees
       current = current_committees.include?(us_committee)
 
       committee = Committee.find_or_initialize_by committee_id: committee_id
-      
+
       committee.attributes = attributes_for us_committee
       committee[:current] = current
-      
+
       subcommittees = []
       (us_committee['subcommittees'] || []).each do |us_subcommittee|
         subcommittee_id = us_subcommittee['thomas_id']
         full_id = [committee_id, subcommittee_id].join ""
         puts "[#{committee_id}][#{subcommittee_id}] Processing..." if options[:debug]
-        
+
         subcommittee = Committee.find_or_initialize_by committee_id: full_id
 
         # basic attributes
@@ -77,7 +77,7 @@ class Committees
       end
 
       committee.attributes = {subcommittees: subcommittees}
-      
+
       committee.save!
     end
 
@@ -102,12 +102,12 @@ class Committees
     if missing_members.any?
       Report.warning self, "Missing members for #{missing_members.size} current committees", missing_members: missing_members
     end
-    
+
     count = Committee.where(subcommittee: false).count
     sub_count = Committee.where(subcommittee: true).count
     Report.success self, "Processed #{count} committees and #{sub_count} subcommittees"
   end
-  
+
   def self.attributes_for(us_committee, parent_committee = nil)
     attributes = {
       name: us_committee['name']
@@ -118,7 +118,7 @@ class Committees
       if us_committee.has_key?(field)
         attributes[field.to_sym] = us_committee[field]
       end
-    end    
+    end
 
     if (us_committee['type'] == 'house') and us_committee['address']
       attributes[:office] = us_committee['address'].split("; ").first
@@ -136,7 +136,7 @@ class Committees
       attributes[:chamber] = us_committee['type']
       attributes[:subcommittee] = false
     end
-    
+
     attributes
   end
 
@@ -149,7 +149,16 @@ class Committees
     end
 
     members = memberships[committee_id].map do |member|
-      legislator_cache[member['bioguide']] ||= Utils.legislator_for(Legislator.where(bioguide_id: member['bioguide']).first)
+
+      unless legislator_cache[member['bioguide']]
+        legislator = Legislator.where(bioguide_id: member['bioguide']).first
+        if legislator
+          legislator_cache[member['bioguide']] = Utils.legislator_for(legislator)
+        else
+          return nil
+        end
+      end
+
       {
         side: member['party'],
         rank: member['rank'],

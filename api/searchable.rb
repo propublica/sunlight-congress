@@ -263,18 +263,16 @@ module Searchable
 
       # the query is the custom filter scoring
       query_filter[:query] = {
-        custom_filters_score: {
+        function_score: {
+          score_mode: 'multiply',
+          functions: profile[:functions],
           query: {
             multi_match: {
               query: query[:query_string][:query],
               use_dis_max: true,
               fields: profile[:fields]
             }
-          },
-          params: {
-            now: Time.now.to_i * 1000
-          },
-          filters: profile[:filters]
+          }
         },
         fields: query[:query_string][:fields]
       }

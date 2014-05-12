@@ -25,7 +25,13 @@ The API **never performs joins** -- if data from one collection is expected to a
 
 ### Setup - Dependencies
 
-Install Ruby dependencies with Bundler:
+If you don't have [Bundler](http://rubygems.org/gems/bundler), install it:
+
+```bash
+gem install bundler
+```
+
+Then use Bundler to install the Ruby dependencies:
 
 ```bash
 bundle install --local
