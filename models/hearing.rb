@@ -6,7 +6,7 @@ class Hearing
     :congress, :chamber, :occurs_at, :dc,
     :room, :description, :url, 
     :bill_ids, 
-    :hearing_type # house only for now
+    :hearing_type, :hearing_id # house only for now
   
   search_fields :description
 
