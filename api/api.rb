@@ -84,6 +84,9 @@ module Api
         params[:fields].split ','
       end
 
+      # ignore fields passing $ signs, can crash Mongo
+      fields.reject! {|f| f["$"]}
+
       # don't allow fetching of full text through API
       fields.delete 'text'
 
