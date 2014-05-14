@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class HearingsHouseLinks
+class HearingsHouse
 
   # options:
   #   month: specific month to get hearings for (form: YYYY-MM)
@@ -146,7 +146,6 @@ class HearingsHouseLinks
     else
       room = room_raw
     end
-    return room
   end
 end
 
