@@ -120,7 +120,6 @@ class HearingsHouse
           ## add warnings if lookup fails
         end
         
-  ### add hearing info here
         hearing.save!
         count += 1
       end
@@ -146,6 +145,7 @@ class HearingsHouse
     else
       room = room_raw
     end
+    room
   end
 end
 
