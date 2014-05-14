@@ -40,6 +40,8 @@ configure do
     port: Environment.config['elastic_search']['port']
   }]
 
+  # Sets the app's time zone to Eastern time, and sets
+  # how all Times will be serialized to JSON
   Time::DATE_FORMATS.merge!(default: Proc.new {|t| t.xmlschema})
   Time.zone = ActiveSupport::TimeZone.find_tzinfo "America/New_York"
   Oj.default_options = {mode: :compat, time_format: :ruby}
