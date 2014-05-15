@@ -63,20 +63,20 @@ helpers do
       item << description
     end
 
-    if url = rss_field_for(object, model, params, :url)
+    if url = rss_field_for(object, model, params, :link)
       link = Ox::Element.new 'link'
       link << url
       item << link
     end
 
-    if id = rss_field_for(object, model, params, :id)
+    if id = rss_field_for(object, model, params, :guid)
       guid = Ox::Element.new 'guid'
       guid[:isPermaLink] = "false"
       guid << id
       item << guid
     end
 
-    if date = rss_field_for(object, model, params, :date)
+    if date = rss_field_for(object, model, params, :pubDate)
       pubdate = Ox::Element.new 'pubDate'
       if !date.is_a?(Time)
         date = Time.zone.parse(date)
@@ -93,11 +93,11 @@ helpers do
     return nil unless mapped
 
     levels = mapped.split "."
-    rss_field_from object, levels
+    deep_field_from object, levels
   end
 
   # recursive object parsing, don't bother with arrays
-  def rss_field_from(object, levels)
+  def deep_field_from(object, levels)
     # we should never see an array
     return nil if object.is_a?(Array)
 
@@ -113,7 +113,7 @@ helpers do
     # go one level down
     else
       return nil unless next_level = levels.first
-      rss_field_from object[next_level], levels[1..-1]
+      deep_field_from object[next_level], levels[1..-1]
     end
   end
 

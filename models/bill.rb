@@ -37,9 +37,9 @@ class Bill
 
   # experimental: RSS support
   rss title: "official_title",
-      id: "bill_id",
-      url: "urls.congress",
-      date: "introduced_on",
+      guid: "bill_id",
+      link: "urls.congress",
+      pubDate: "introduced_on",
       description: "summary"
 
 

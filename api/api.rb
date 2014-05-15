@@ -173,6 +173,10 @@ module Api
         "format",
         "search.profile",
 
+        # RSS
+        "rss.title", "rss.description",
+        "rss.pubDate", "rss.guid", "rss.link",
+
         # Sinatra-specific
         "captures", "splat"
       ]
