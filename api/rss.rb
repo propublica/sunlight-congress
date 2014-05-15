@@ -73,14 +73,13 @@ helpers do
     guid << rss_field_for(object, model, params, :guid)
     item << guid
 
-    if date = rss_field_for(object, model, params, :pubDate)
-      pubdate = Ox::Element.new 'pubDate'
-      if !date.is_a?(Time)
-        date = Time.zone.parse(date)
-      end
-      pubdate << date.rfc2822
-      item << pubdate
+    date = rss_field_for(object, model, params, :pubDate)
+    pubdate = Ox::Element.new 'pubDate'
+    if !date.is_a?(Time)
+      date = Time.zone.parse(date)
     end
+    pubdate << (date ? date.rfc2822 : "(missing)")
+    item << pubdate
 
     item
   end
