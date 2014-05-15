@@ -164,7 +164,7 @@ helpers do
       if object.is_a?(Hash)
         nil
       else
-        object
+        object.to_s
       end
 
     # go one level down
