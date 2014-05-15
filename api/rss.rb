@@ -6,6 +6,10 @@ helpers do
 
   # wow, XML is truly an awful thing
   def rss(results, models, params)
+    # only work for models that have been configured for RSS
+    model = models.is_a?(Array) ? models.first : models
+    halt 404 unless model.rss
+
     response['Content-Type'] = 'application/rss+xml; charset=utf-8'
 
     doc = Ox::Document.new version: "1.0", encoding: "utf-8"
@@ -35,7 +39,7 @@ helpers do
     atom_link[:type] = "application/rss+xml"
     channel << atom_link
 
-    model = models.is_a?(Array) ? models.first : models
+
     results[:results].each do |result|
       channel << rss_item(result, model, params)
     end
