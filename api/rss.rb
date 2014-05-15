@@ -56,30 +56,22 @@ helpers do
   def rss_item(object, model, params)
     item = Ox::Element.new "item"
 
-    if t = rss_field_for(object, model, params, :title)
-      title = Ox::Element.new "title"
-      title << t
-      item << title
-    end
+    title = Ox::Element.new "title"
+    title << rss_field_for(object, model, params, :title)
+    item << title
 
-    if desc = rss_field_for(object, model, params, :description)
-      description = Ox::Element.new "description"
-      description << Ox::CData.new(desc)
-      item << description
-    end
+    description = Ox::Element.new "description"
+    description << Ox::CData.new(rss_field_for(object, model, params, :description))
+    item << description
 
-    if url = rss_field_for(object, model, params, :link)
-      link = Ox::Element.new 'link'
-      link << url
-      item << link
-    end
+    link = Ox::Element.new 'link'
+    link << rss_field_for(object, model, params, :link)
+    item << link
 
-    if id = rss_field_for(object, model, params, :guid)
-      guid = Ox::Element.new 'guid'
-      guid[:isPermaLink] = "false"
-      guid << id
-      item << guid
-    end
+    guid = Ox::Element.new 'guid'
+    guid[:isPermaLink] = "false"
+    guid << rss_field_for(object, model, params, :guid)
+    item << guid
 
     if date = rss_field_for(object, model, params, :pubDate)
       pubdate = Ox::Element.new 'pubDate'
@@ -154,6 +146,7 @@ helpers do
   end
 
   # recursive object parsing, don't bother with arrays
+  # MUST return a string (even a blank one, nil.to_s)
   def rss_field_from(object, levels)
     # we should never see an array
     return nil if object.is_a?(Array)
@@ -163,6 +156,8 @@ helpers do
       # we didn't get to the bottom
       if object.is_a?(Hash)
         nil
+      elsif object.nil?
+        "(missing)"
       else
         object.to_s
       end
