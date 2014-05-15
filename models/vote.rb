@@ -11,6 +11,14 @@ class Vote
     :source, :url
 
 
+  # experimental: RSS support
+  rss title: "question",
+      guid: "roll_id",
+      link: "url",
+      pubDate: "voted_at",
+      description: "result"
+
+
   # MongoDB behavior
 
   include Mongoid::Document

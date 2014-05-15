@@ -1,4 +1,4 @@
-# helpers purely to implement experimental RSS functionality
+# Experimental: RSS functionality
 
 require 'ox'
 
@@ -48,7 +48,7 @@ helpers do
     rss << channel
     doc << rss
 
-    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + Ox.dump(doc)
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>#{Ox.dump(doc)}"
   end
 
   # model defines defaults for all 5, can also be overridden

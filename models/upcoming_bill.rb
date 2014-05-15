@@ -9,6 +9,14 @@ class UpcomingBill
     :context # senate-only
 
 
+  # experimental: RSS support
+  rss title: "legislative_day",
+      guid: "url", # not actually unique
+      link: "url",
+      pubDate: "scheduled_at",
+      description: "bill_id"
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
 

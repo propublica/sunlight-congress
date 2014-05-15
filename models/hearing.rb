@@ -11,6 +11,14 @@ class Hearing
   search_fields :description
 
 
+  # todo before enabling:
+  # * no URLs yet for senate hearings
+  # * no IDs yet for house or senate (house_event_id is coming)
+  # rss title: "description",
+  #     guid: "hearing_id", # doesn't exist
+  #     link: "url",
+  #     pubDate: "occurs_at",
+  #     description: "description"
 
   include Mongoid::Document
   include Mongoid::Timestamps
