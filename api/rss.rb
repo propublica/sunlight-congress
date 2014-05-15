@@ -134,7 +134,7 @@ helpers do
 
     if date = rss_field_for(object, model, params, :pubDate)
       if !date.is_a?(Time)
-        date = Time.zone.parse(date)
+        date = Time.zone.parse(date).utc
       end
       item['pubDate'] = date
     end
