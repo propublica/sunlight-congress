@@ -250,3 +250,15 @@ The number of members who cast [vote], where [vote] is a valid vote as defined a
 
 \* **breakdown.party.[party].[vote]**
 The number of members of [party] who cast [vote], where [party] is one of "D", "R", or "I", and [vote] is a valid vote as defined above.
+
+### RSS
+
+If [experimental RSS support](/#rss-support-experimental) is enabled, the following field->RSS mapping will be used by default:
+
+RSS field | Result field
+|:--------------|-------------------|
+`<title>` | `question`
+`<description>` | `result`
+`<link>` | `url`
+`<guid>` | `roll_id`
+`<pubDate>` | `voted_at`

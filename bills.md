@@ -673,3 +673,15 @@ Whether the law is a public or private law. Most laws are public laws; private l
 
 \* **enacted_as.number**
 The number the law was assigned.
+
+### RSS
+
+If [experimental RSS support](/#rss-support-experimental) is enabled, the following field->RSS mapping will be used by default:
+
+RSS field | Result field
+|:--------------|-------------------|
+`<title>` | `official_title`
+`<description>` | `summary`
+`<link>` | `urls.congress`
+`<guid>` | `bill_id`
+`<pubDate>` | `introduced_on`

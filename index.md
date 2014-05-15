@@ -296,6 +296,63 @@ Add an `explain=true` parameter to any API request to return a JSON response wit
 
 This is a convenience for debugging, not a "supported" API feature. Don't make automatic requests with explain mode turned on.
 
+### RSS support (experimental)
+
+Some endpoints support [RSS](https://en.wikipedia.org/wiki/RSS) output, in an XML format. This support is **experimental**, could change, and may have bugs. An API key is still required.
+
+Enable RSS by passing `format=rss`, like so:
+
+{% highlight text %}
+/bills?format=rss
+{% endhighlight %}
+
+The `<item>` fields in the response will look something like:
+
+{% highlight xml %}
+<item>
+  <title>Establishing the budget for the United States Government for fiscal year 2015...</title>
+  <description>
+    <![CDATA[Sets forth the congressional budget for the federal government for FY2015...]]>
+  </description>
+  <link>http://beta.congress.gov/bill/113th/house-concurrent-resolution/96</link>
+  <guid isPermaLink="false">hconres96-113</guid>
+  <pubDate>Fri, 04 Apr 2014 00:00:00 -0400</pubDate>
+</item>
+{% endhighlight %}
+
+The following endpoints support RSS:
+
+* [/bills](bills.html#rss) and [/bills/search](bills.html#rss)
+* [/votes](votes.html#rss)
+* [/upcoming_bills](upcoming_bills.html#rss)
+
+RSS output is, by the spec's design, limited to a small subset of generic fields. You will only get RSS' most basic fields:
+
+* `<title>`
+* `<description>`
+* `<pubDate>`
+* `<guid>`
+* `<link>`
+
+Each endpoint defines the best default database fields it can map to those RSS fields. See each supported endpoint's documentation for what fields are RSS-mapped by default.
+
+However, you can override those defaults with `rss.[field]` parameters that point to the field you'd like to be mapped instead.
+
+For example, `/bills` maps bills' `introduced_on` field to RSS' `<pubDate>` field on output. You can override that with:
+
+{% highlight text %}
+/bills?format=rss&order=history.enacted_at&rss.pubDate=history.enacted_at
+{% endhighlight %}
+
+That will populate `<pubDate>` with the contents of `history.enacted_at` for each bill.
+
+Some notes:
+
+* `<pubDate>` will always attempt to parse the field and produce a date.
+* `<description>` will always wrap its value in a `CDATA` block, as in the above example.
+* If a field is missing or is `null`, the value populated in RSS will be `"(missing)"`.
+* Though you can specify subfields, like `history.enacted_at`, with the dot operator, support in RSS output is limited to direct subkeys. In other words, there can be *no arrays* in the subfield path.
+
 ## Full text search
 
 Endpoints ending with `/search` that are given a `query` parameter perform full text search. These queries can use some advanced operators. Queries are interpreted as *keywords* (use quotes to form phrases).

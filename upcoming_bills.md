@@ -109,3 +109,15 @@ The ID of the [bill](bills.html) that is being scheduled.
 
 **bill**
 Some basic fields about the [bill](bills.html) that is being scheduled.
+
+### RSS
+
+If [experimental RSS support](/#rss-support-experimental) is enabled, the following field->RSS mapping will be used by default:
+
+RSS field | Result field
+|:--------------|-------------------|
+`<title>` | `legislative_day`
+`<description>` | `bill_id`
+`<link>` | `url`
+`<guid>` | `url`
+`<pubDate>` | `scheduled_at`
