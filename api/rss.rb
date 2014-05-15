@@ -102,7 +102,8 @@ helpers do
     results['@channel'] = {
       'title' => "Sunlight Congress API Results",
       'description' => "Customized RSS results for the people and work of Congress, by the Sunlight Foundation.",
-      'link' => "https://sunlightlabs.github.io/congress"
+      'link' => "https://sunlightlabs.github.io/congress",
+      'items' => 'results'
     }
 
     results[:results].each do |result|
