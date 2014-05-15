@@ -42,6 +42,7 @@ GEM
       mini_portile (~> 0.5.0)
     oj (1.4.7)
     origin (1.1.0)
+    ox (2.1.1)
     paint (0.8.7)
     polyglot (0.3.4)
     pony (1.8)
@@ -88,6 +89,7 @@ DEPENDENCIES
   mongoid (~> 3.1)
   nokogiri (~> 1.5)
   oj (~> 1.0)
+  ox (~> 2.0)
   paint
   pony (~> 1.0)
   rack (~> 1.0)

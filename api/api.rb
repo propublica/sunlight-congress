@@ -90,8 +90,15 @@ module Api
       # don't allow fetching of full text through API
       fields.delete 'text'
 
+      # some fields are needed for post-processing
       models.each do |model|
+        # unique ID used for citation lookup
         fields << model.cite_key.to_s if model.cite_key
+
+        # fields used to map to RSS
+        if (params[:format] =~ /rss/) and model.rss
+          fields << model.rss.values
+        end
       end
 
       fields.uniq
@@ -183,6 +190,7 @@ module Api
       def search_profiles; @search_profiles; end
       def search_profile(name, fields: [], functions: []); @search_profiles ||= {}; @search_profiles[name] = {fields: fields, functions: functions}; end
       def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
+      def rss(fields = nil); fields ? @rss = fields : @rss; end
     end
     def self.included(base)
       base.extend ClassMethods
