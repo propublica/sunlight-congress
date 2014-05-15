@@ -35,6 +35,13 @@ class Bill
   cite_key :bill_id
 
 
+  # experimental: RSS support
+  rss title: "official_title",
+      guid: "bill_id",
+      link: "urls.congress",
+      pubDate: "introduced_on",
+      description: "summary"
+
 
   include Mongoid::Document
   include Mongoid::Timestamps

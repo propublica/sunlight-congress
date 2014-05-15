@@ -1,21 +1,28 @@
 class Regulation
   include Api::Model
   publicly :queryable, :searchable
-  
-  basic_fields :document_type, :document_number, 
+
+  basic_fields :document_type, :document_number,
     :title, :stage, :article_type,
-    :agency_names, :agency_ids, :docket_ids, 
+    :agency_names, :agency_ids, :docket_ids,
     :url, :pdf_url,
-    :publication_date, :posted_at, 
+    :publication_date, :posted_at,
 
     # only for proposed/final regulations
     :abstract, :effective_on, :rins, :comments_close_on
-  
+
   search_fields :title, :abstract, :text
 
   cite_key :document_number
 
-  
+  # experimental: RSS support
+  rss title: "title",
+      guid: "document_number",
+      link: "url",
+      pubDate: "posted_at",
+      description: "abstract" # won't be there for PI docs
+
+
   include Mongoid::Document
   include Mongoid::Timestamps
 

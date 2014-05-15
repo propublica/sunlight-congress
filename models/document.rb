@@ -13,6 +13,14 @@ class Document
   cite_key :document_id
 
 
+  # experimental: RSS support
+  rss title: "title",
+      guid: "document_id",
+      link: "url",
+      pubDate: "published_on",
+      # todo: it'd be nice to have a top-level description field
+      description: "title"
+
 
   include Mongoid::Document
   include Mongoid::Timestamps

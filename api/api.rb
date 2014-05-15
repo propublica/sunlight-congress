@@ -90,8 +90,19 @@ module Api
       # don't allow fetching of full text through API
       fields.delete 'text'
 
+      # some fields are needed for post-processing
       models.each do |model|
+        # unique ID used for citation lookup
         fields << model.cite_key.to_s if model.cite_key
+
+        # fields used to map to RSS
+        if (params[:format] =~ /rss/) and model.rss
+          rss_fields = model.rss.keys.map do |field|
+            params["rss.#{field}"] || model.rss[field]
+          end.compact
+
+          fields << rss_fields
+        end
       end
 
       fields.uniq
@@ -166,6 +177,10 @@ module Api
         "format",
         "search.profile",
 
+        # RSS
+        "rss.title", "rss.description",
+        "rss.pubDate", "rss.guid", "rss.link",
+
         # Sinatra-specific
         "captures", "splat"
       ]
@@ -183,6 +198,7 @@ module Api
       def search_profiles; @search_profiles; end
       def search_profile(name, fields: [], functions: []); @search_profiles ||= {}; @search_profiles[name] = {fields: fields, functions: functions}; end
       def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
+      def rss(fields = nil); fields ? @rss = fields : @rss; end
     end
     def self.included(base)
       base.extend ClassMethods

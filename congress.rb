@@ -2,6 +2,7 @@
 
 require './config/environment'
 require './api/sunlight'
+require './api/rss'
 
 include Api::Routes
 helpers Api::Helpers
@@ -39,6 +40,10 @@ get queryable_route do
 
   if format == 'json'
     json results
+  elsif format == 'rss'
+    rss results, model, params
+  elsif format == 'rss-json'
+    jss results, model, params
   elsif format == 'xml'
     xml results
   end
@@ -77,6 +82,10 @@ get searchable_route do
 
   if format == 'json'
     json results
+  elsif format == 'rss'
+    rss results, models, params
+  elsif format == 'rss-json'
+    jss results, model, params
   elsif format == 'xml'
     xml results
   end

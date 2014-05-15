@@ -60,6 +60,11 @@ module TestHelper
       assert_match /application\/json/, last_response.headers['Content-Type']
     end
 
+    def assert_xml
+      assert_match /xml/, last_response.headers['Content-Type']
+    end
+
+
     def assert_redirect(path)
       assert_response 302
       assert_equal path, redirect_path
