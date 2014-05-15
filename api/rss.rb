@@ -4,7 +4,7 @@ require 'ox'
 
 helpers do
 
-  # wow, XML is truly an awful thing
+  # wildly standardized RSS XML model
   def rss(results, models, params)
     # only work for models that have been configured for RSS
     model = models.is_a?(Array) ? models.first : models
@@ -12,6 +12,7 @@ helpers do
 
     response['Content-Type'] = 'application/rss+xml; charset=utf-8'
 
+    # wow, XML is truly an awful thing
     doc = Ox::Document.new version: "1.0", encoding: "utf-8"
 
     # doc info
@@ -92,16 +93,67 @@ helpers do
     item
   end
 
+  # wildly unstandardized JSON RSS model
+  def jss(results, models, params)
+    # only work for models that have been configured for RSS
+    model = models.is_a?(Array) ? models.first : models
+    halt 404 unless model.rss
+
+    results['@channel'] = {
+      'title' => "Sunlight Congress API Results",
+      'description' => "Customized RSS results for the people and work of Congress, by the Sunlight Foundation.",
+      'link' => "https://sunlightlabs.github.io/congress"
+    }
+
+    results[:results].each do |result|
+      result['@item'] = jss_item result, model, params
+    end
+
+    json results
+  end
+
+  def jss_item(object, model, params)
+    item = {}
+
+    if t = rss_field_for(object, model, params, :title)
+      item['title'] = t
+    end
+
+    if desc = rss_field_for(object, model, params, :description)
+      item['description'] = desc
+    end
+
+    if url = rss_field_for(object, model, params, :link)
+      item['link'] = url
+    end
+
+    if id = rss_field_for(object, model, params, :guid)
+      item['guid'] = id
+    end
+
+    if date = rss_field_for(object, model, params, :pubDate)
+      if !date.is_a?(Time)
+        date = Time.zone.parse(date)
+      end
+      item['pubDate'] = date
+    end
+
+    item
+  end
+
+
+  # get the right value for a given RSS field
+
   def rss_field_for(object, model, params, field)
     mapped = params["rss.#{field}"] || model.rss[field]
     return nil unless mapped
 
     levels = mapped.split "."
-    deep_field_from object, levels
+    rss_field_from object, levels
   end
 
   # recursive object parsing, don't bother with arrays
-  def deep_field_from(object, levels)
+  def rss_field_from(object, levels)
     # we should never see an array
     return nil if object.is_a?(Array)
 
@@ -117,7 +169,7 @@ helpers do
     # go one level down
     else
       return nil unless next_level = levels.first
-      deep_field_from object[next_level], levels[1..-1]
+      rss_field_from object[next_level], levels[1..-1]
     end
   end
 

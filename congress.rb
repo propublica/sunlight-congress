@@ -42,6 +42,8 @@ get queryable_route do
     json results
   elsif format == 'rss'
     rss results, model, params
+  elsif format == 'rss-json'
+    jss results, model, params
   elsif format == 'xml'
     xml results
   end
@@ -82,6 +84,8 @@ get searchable_route do
     json results
   elsif format == 'rss'
     rss results, models, params
+  elsif format == 'rss-json'
+    jss results, model, params
   elsif format == 'xml'
     xml results
   end

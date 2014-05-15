@@ -97,7 +97,11 @@ module Api
 
         # fields used to map to RSS
         if (params[:format] =~ /rss/) and model.rss
-          fields << model.rss.values
+          rss_fields = model.rss.keys.map do |field|
+            params["rss.#{field}"] || model.rss[field]
+          end.compact
+
+          fields << rss_fields
         end
       end
 
