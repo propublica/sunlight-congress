@@ -97,7 +97,7 @@ def run_task(name)
   Report.unread.where(source: task_name).all.each do |report|
     puts report
     puts report.exception_message if report.exception?
-    Email.report report if report.failure? or report.warning? or report.note?
+    Email.report report if report.failure? or report.warning?
     report.mark_read!
   end
 
