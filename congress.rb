@@ -98,7 +98,7 @@ end
 get(/(legislators|districts)\/locate\/?/) do
   check_key!
 
-  error 500, "Provide a 'zip', or a 'latitude' and 'longitude'." unless params[:zip] or (params[:latitude] and params[:longitude])
+  error 400, "Provide a 'zip', or a 'latitude' and 'longitude'." unless params[:zip] or (params[:latitude] and params[:longitude])
 
   begin
     if params[:zip]
