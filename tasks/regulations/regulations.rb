@@ -60,7 +60,6 @@ class Regulations
     citation_warnings = []
     batcher = [] # ES batcher
 
-
     # single regulation
     if options[:document_number]
       targets = [options[:document_number]]
@@ -105,7 +104,6 @@ class Regulations
     end
 
     targets = targets.uniq # 5-week window may cause dupes
-
     if options[:limit]
       targets = targets.first options[:limit].to_i
     end
@@ -123,6 +121,8 @@ class Regulations
         warnings << {message: "Error while polling FR.gov for article details at #{url}, skipping article", url: url}
         next
       end
+
+      next if details["filed_at"].nil?
 
       rule = Regulation.find_or_initialize_by document_number: document_number
 

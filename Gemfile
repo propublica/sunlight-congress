@@ -23,6 +23,11 @@ group :development do
   gem 'wirb'
   gem 'paint'
   gem 'unicorn'
+  gem 'pry'
+  gem 'pry-nav'
+  gem 'pry-stack_explorer'
+  gem 'pry-rescue'
+  gem 'pry-debugger'
 end
 
 group :test do

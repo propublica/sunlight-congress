@@ -80,6 +80,8 @@ module Api
 
       fields = if params[:fields].blank?
         models.map {|model| model.basic_fields.map {|field| field.to_s}}.flatten
+      elsif params[:fields].is_a?(Array)
+        params[:fields]
       else
         params[:fields].split ','
       end
