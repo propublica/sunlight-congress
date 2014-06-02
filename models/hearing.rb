@@ -5,7 +5,7 @@ class Hearing
   basic_fields :committee_id, :subcommittee_id,
     :congress, :chamber, :occurs_at, :dc,
     :room, :description, :url,
-    :bill_ids,
+    :bill_ids, :witness_info, :meeting_documents,
     :hearing_type, :house_hearing_id # house only for now
 
   search_fields :description

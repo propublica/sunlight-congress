@@ -31,6 +31,8 @@ class HearingsHouse
         room = hearing_data["room"]
         title = hearing_data["topic"]
         hearing_url = hearing_data["url"]
+        witness_info = hearing_data["witness_info"]
+        meeting_documents = hearing_data["meeting_documents"]
 
         if options[:date]
           occurs_day = Date.parse(occurs_at)
@@ -121,7 +123,15 @@ class HearingsHouse
           hearing[:subcommittee] = Utils.committee_for(subcommittee)
           ## add warnings if lookup fails
         end
-        
+
+        if witness_info
+          hearing[:witness_info] = witness_info
+        end
+
+        if meeting_documents
+          hearing[:meeting_documents] = meeting_documents
+        end
+
         hearing.save!
         count += 1
       end
