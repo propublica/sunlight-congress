@@ -18,7 +18,7 @@ class HearingsHouse
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
       if (hearing_data != nil)
-        bill_ids = hearing_data["bills"]
+        bill_ids = hearing_data["bill_ids"]
         chamber = hearing_data["chamber"]
         committee_id = hearing_data["committee"]
         subcommittee_suffix = hearing_data["subcommittee"]
@@ -31,7 +31,7 @@ class HearingsHouse
         room = hearing_data["room"]
         title = hearing_data["topic"]
         hearing_url = hearing_data["url"]
-        witness_info = hearing_data["witness_info"]
+        witnesses = hearing_data["witnesses"]
         meeting_documents = hearing_data["meeting_documents"]
 
         if options[:date]
@@ -124,8 +124,8 @@ class HearingsHouse
           ## add warnings if lookup fails
         end
 
-        if witness_info
-          hearing[:witness_info] = witness_info
+        if witnesses
+          hearing[:witnesses] = witnesses
         end
 
         if meeting_documents
