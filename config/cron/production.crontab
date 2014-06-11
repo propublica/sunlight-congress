@@ -61,15 +61,15 @@
 
 
 # floor updates
-*/1 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_senate
+*/2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_senate
 */2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_house
 
-# having issues downloading xml, contacted House will try to connect again tomorrow
-# committee hearings
-# */14 * * * * /projects/congress-api/congress/shared/cron/task.sh hearings_senate
 
-# New committee hearings using unitedstates scraper
-* */4 * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house
+# Senate committee hearings
+*/14 * * * * /projects/congress-api/congress/shared/cron/task.sh hearings_senate
+
+# New committee hearings using unitedstates scraper - House
+1 */3 * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house
 
 
 # upcoming leadership information
