@@ -1,14 +1,19 @@
-# encoding: utf-8 
+# encoding: utf-8
 require 'us-documents'
+
+# options:
+#   meeting_id: only process a particular meeting ID, skip all others
 
 class CongressionalDocuments
   def self.run(options = {})
     # Uses @unitedstates house hearing scraper documents to get hearing documents
-    # Planning to get additional documents from FDsys and perhaps Senate Committees 
+    # Planning to get additional documents from FDsys and perhaps Senate Committees
 
     # meeting documents
     path = "data/unitedstates/congress"
     house_json = File.read "#{path}/committee_meetings_house.json"
+
+    count = 1
 
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
@@ -18,8 +23,13 @@ class CongressionalDocuments
           next #skip records without documents
         end
 
-        chamber = hearing_data["chamber"]
         house_event_id = hearing_data["house_event_id"]
+        puts "[#{house_event_id}] Found in hearings JSON..." if options[:debug]
+        next if options[:meeting_id] and (options[:meeting_id] != house_event_id.to_s)
+        puts "[#{house_event_id}] Processing..."
+
+        chamber = hearing_data["chamber"]
+
         hearing_type_code = hearing_data["house_meeting_type"]
         hearing_title = hearing_data["topic"]
 
@@ -28,14 +38,14 @@ class CongressionalDocuments
         meeting_documents = hearing_data["meeting_documents"]
 
         if (meeting_documents != nil)
-          hearing_data["meeting_documents"].each do |hearing_doc| 
+          hearing_data["meeting_documents"].each do |hearing_doc|
             if (hearing_doc["publish_date"] != nil)
               hearing_datetime = Time.zone.parse(hearing_doc["publish_date"]).utc
             else
               hearing_datetime = nil
             end
             text = nil
-            urls = Array.new 
+            urls = Array.new
             if hearing_doc["urls"]
               url_base = File.basename(hearing_doc["urls"][0]["url"])
               urls = []
@@ -57,13 +67,13 @@ class CongressionalDocuments
             else
               # sometimes there is no url
               next
-            end 
-  
+            end
+
             check_and_save(url_base, house_event_id)
-            
+
             id = "house-#{house_event_id}-#{url_base}"
 
-            document = { 
+            document = {
               document_id: id,
               # document_type: '_report',
               document_type_name: "#{chamber} committee document",
@@ -95,14 +105,14 @@ class CongressionalDocuments
           end
         end
 
-        if (witnesses != nil) 
-          hearing_data["witnesses"].each do |witness| 
+        if (witnesses != nil)
+          hearing_data["witnesses"].each do |witness|
 
 
             witness["documents"].each do |witness_doc|
               urls = []
               url_base = File.basename(witness_doc["urls"][0]["url"])
-              
+
               witness_doc["urls"].each do |u|
                 if u["file_found"] == true
                   url = {}
@@ -136,7 +146,7 @@ class CongressionalDocuments
 
               id = "house-#{house_event_id}-#{url_base}"
 
-              document = { 
+              document = {
                 document_id: id,
                 # document_type: '_report',
                 document_type_name: "#{chamber} witness document",
@@ -171,15 +181,18 @@ class CongressionalDocuments
               Utils.es_store! collection, id, document
 
             end
-          end 
+          end
         end
     end
+
+    Report.success self, "Processed #{count} House meetings."
   end
+
   def self.check_and_save(file_name, house_event_id)
     folder = house_event_id / 100
-    destination = "meetings/house/#{folder}/#{house_event_id}/#{file_name}"  
+    destination = "meetings/house/#{folder}/#{house_event_id}/#{file_name}"
     source = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{file_name}"
-    # make local file and 
+
     last_version_backed = source + ".backed"
     if !File.exists?(last_version_backed)
       Utils.write last_version_backed, Time.now.to_i.to_s
