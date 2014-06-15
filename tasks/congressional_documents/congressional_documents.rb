@@ -13,7 +13,8 @@ class CongressionalDocuments
     path = "data/unitedstates/congress"
     house_json = File.read "#{path}/committee_meetings_house.json"
 
-    count = 0
+    meeting_count = 0
+    document_count = 0
 
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
@@ -100,7 +101,7 @@ class CongressionalDocuments
             # save to elastic search
             collection = "congressional_documents"
             Utils.es_store! collection, id, document
-            count += 1
+            document_count += 1
           end
         end
       end
@@ -185,7 +186,7 @@ class CongressionalDocuments
       end
     end
 
-    Report.success self, "Processed #{count} House meetings."
+    Report.success self, "Processed #{document_count} House documents."
   end
 
   def self.check_and_save(file_name, house_event_id)
