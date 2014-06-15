@@ -19,7 +19,9 @@ class CongressionalDocuments
 
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
+      # todo: turn this into 'next if hearing_data == nil' and remove block
       if (hearing_data != nil)
+
         if (hearing_data["meeting_documents"] == nil && hearing_data["witnesses"] == nil)
           puts "no doc information"
           next #skip records without documents
