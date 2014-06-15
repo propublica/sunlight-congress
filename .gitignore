@@ -1,3 +1,9 @@
 _site
 todo.txt
 /*.rb
+/.bundle
+/data
+/config
+*.pyc
+/logs
+/config.ru
