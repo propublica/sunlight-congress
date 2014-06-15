@@ -13,7 +13,7 @@ class CongressionalDocuments
     path = "data/unitedstates/congress"
     house_json = File.read "#{path}/committee_meetings_house.json"
 
-    count = 1
+    count = 0
 
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
@@ -100,89 +100,89 @@ class CongressionalDocuments
             # save to elastic search
             collection = "congressional_documents"
             Utils.es_store! collection, id, document
-
-            end
+            count += 1
           end
         end
+      end
 
-        if (witnesses != nil)
-          hearing_data["witnesses"].each do |witness|
+      if (witnesses != nil)
+        hearing_data["witnesses"].each do |witness|
 
 
-            witness["documents"].each do |witness_doc|
-              urls = []
-              url_base = File.basename(witness_doc["urls"][0]["url"])
+          witness["documents"].each do |witness_doc|
+            urls = []
+            url_base = File.basename(witness_doc["urls"][0]["url"])
 
-              witness_doc["urls"].each do |u|
-                if u["file_found"] == true
-                  url = {}
-                  url["url"] = u["url"]
-                  url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
-                  urls.push(url)
-                  # add link to our link
-                else
-                  text = nil
-                end
-              end
-
-              if (witness_doc["publish_date"] != nil)
-                hearing_datetime = Time.zone.parse(witness_doc["publish_date"]).utc
+            witness_doc["urls"].each do |u|
+              if u["file_found"] == true
+                url = {}
+                url["url"] = u["url"]
+                url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
+                urls.push(url)
+                # add link to our link
               else
-                hearing_datetime = nil
+                text = nil
               end
-
-              # extract text
-              text_name = url_base.sub ".pdf", ".txt"
-              folder = house_event_id / 100
-              text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
-              if File.exists?(text_file)
-                text = File.read text_file
-              else
-                puts "no text file found"
-              end
-
-              # save
-              check_and_save(url_base, house_event_id)
-
-              id = "house-#{house_event_id}-#{url_base}"
-
-              document = {
-                document_id: id,
-                # document_type: '_report',
-                document_type_name: "#{chamber} witness document",
-                # hearing information
-                chamber: chamber,
-                committee_id: hearing_data["committee"],
-                subcommittee_suffix: hearing_data["subcommittee"],
-                congress: hearing_data["congress"],
-                house_event_id: house_event_id,
-                hearing_type_code: hearing_type_code,
-                hearing_title: hearing_title,
-                # witness information
-                witness_first: witness["first_name"],
-                witness_last: witness["last_name"],
-                witness_middle: witness["middle_name"],
-                witness_organization: witness["organization"],
-                witness_position: witness["position"],
-                witness_type: witness["witness_type"],
-                # doc information
-                description: witness_doc["description"],
-                type: witness_doc["type"],
-                type_name: witness_doc["type_name"],
-                type_name: witness_doc["type_name"],
-                bioguide_id: witness_doc["bioguide_id"],
-                publish_date: hearing_datetime,
-                urls: urls,
-                text: text,
-              }
-
-              # save to elastic search
-              collection = "congressional_documents"
-              Utils.es_store! collection, id, document
-
             end
+
+            if (witness_doc["publish_date"] != nil)
+              hearing_datetime = Time.zone.parse(witness_doc["publish_date"]).utc
+            else
+              hearing_datetime = nil
+            end
+
+            # extract text
+            text_name = url_base.sub ".pdf", ".txt"
+            folder = house_event_id / 100
+            text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
+            if File.exists?(text_file)
+              text = File.read text_file
+            else
+              puts "no text file found"
+            end
+
+            # save
+            check_and_save(url_base, house_event_id)
+
+            id = "house-#{house_event_id}-#{url_base}"
+
+            document = {
+              document_id: id,
+              # document_type: '_report',
+              document_type_name: "#{chamber} witness document",
+              # hearing information
+              chamber: chamber,
+              committee_id: hearing_data["committee"],
+              subcommittee_suffix: hearing_data["subcommittee"],
+              congress: hearing_data["congress"],
+              house_event_id: house_event_id,
+              hearing_type_code: hearing_type_code,
+              hearing_title: hearing_title,
+              # witness information
+              witness_first: witness["first_name"],
+              witness_last: witness["last_name"],
+              witness_middle: witness["middle_name"],
+              witness_organization: witness["organization"],
+              witness_position: witness["position"],
+              witness_type: witness["witness_type"],
+              # doc information
+              description: witness_doc["description"],
+              type: witness_doc["type"],
+              type_name: witness_doc["type_name"],
+              type_name: witness_doc["type_name"],
+              bioguide_id: witness_doc["bioguide_id"],
+              publish_date: hearing_datetime,
+              urls: urls,
+              text: text,
+            }
+
+            # save to elastic search
+            collection = "congressional_documents"
+            Utils.es_store! collection, id, document
+
           end
         end
+      end
     end
 
     Report.success self, "Processed #{count} House meetings."
