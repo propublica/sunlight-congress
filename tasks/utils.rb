@@ -613,7 +613,9 @@ module Utils
     # else
       command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
     # end
-
+    puts
+    puts command
+    puts
     if options[:silent]
       command << " > /dev/null"
     end

@@ -175,16 +175,16 @@ class CongressionalDocuments
         end
     end
   end
-  def self.check_and_save(base_name, house_event_id)
+  def self.check_and_save(file_name, house_event_id)
     folder = house_event_id / 100
-    location = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}"  
-    source = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{base_name}"
+    destination = "meetings/house/#{folder}/#{house_event_id}/#{file_name}"  
+    source = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{file_name}"
     # make local file and 
     last_version_backed = source + ".backed"
     if !File.exists?(last_version_backed)
       Utils.write last_version_backed, Time.now.to_i.to_s
       #def self.backup!(bucket, source, destination, options = {})
-      Utils.backup!(location, source, base_name)
+      Utils.backup!("congressional_documents", source, destination)
       puts "[#{source}] Uploaded HTML to S3."
     else
       puts "[#{source}] Already uploaded to S3."
