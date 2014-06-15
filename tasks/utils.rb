@@ -611,7 +611,7 @@ module Utils
     #   command = "#{s3cmd} --config=#{s3cfg} sync -P #{source}/ #{location}/#{destination}/"
     # otherwise, assume it's a single file, just put
     # else
-      command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
+      command = "#{s3cmd} --config=#{s3cfg} put -P \"#{source}\" \"#{location}/#{destination}\""
     # end
 
     if options[:silent]
