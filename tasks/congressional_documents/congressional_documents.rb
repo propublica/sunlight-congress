@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: utf-8 
 require 'us-documents'
 
 class CongressionalDocuments
@@ -57,9 +57,9 @@ class CongressionalDocuments
             else
               # sometimes there is no url
               next
-            end
-
-            check_and_save(base_name, house_event_id)
+            end 
+  
+            check_and_save(url_base, house_event_id)
             
             id = "house-#{house_event_id}-#{url_base}"
 
@@ -132,7 +132,7 @@ class CongressionalDocuments
               end
 
               # save
-              check_and_save(base_name, house_event_id)
+              check_and_save(url_base, house_event_id)
 
               id = "house-#{house_event_id}-#{url_base}"
 
