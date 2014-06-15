@@ -15,7 +15,7 @@ A live JSON API for the people and work of Congress, provided by the [Sunlight F
 
 All requests require a [Sunlight API key](http://services.sunlightlabs.com/accounts/register/). An API key is free, and has no limits or use restrictions.
 
-We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss), and can be found on Twitter at [@sunlightlabs](https://twitter.com/sunlightlabs). Report bugs and request features on [Github Issues](https://github.com/sunlightlabs/congress/issues).
+We have an [API mailing list](https://groups.google.com/forum/?fromgroups#!forum/sunlightlabs-api-discuss), and can be found on Twitter at [@sunlightlabs](https://twitter.com/sunlightlabs). Report bugs and request features on [GitHub Issues](https://github.com/sunlightlabs/congress/issues).
 
 
 ## Using the API
