@@ -612,6 +612,7 @@ module Utils
     # otherwise, assume it's a single file, just put
     # else
       command = "#{s3cmd} --config=#{s3cfg} put -P #{source} #{location}/#{destination}"
+      print command
     # end
 
     if options[:silent]

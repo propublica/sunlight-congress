@@ -29,7 +29,6 @@ class CongressionalDocuments
 
         if (meeting_documents != nil)
           hearing_data["meeting_documents"].each do |hearing_doc| 
-
             if (hearing_doc["publish_date"] != nil)
               hearing_datetime = Time.zone.parse(hearing_doc["publish_date"]).utc
             else
@@ -48,7 +47,8 @@ class CongressionalDocuments
                 if u["file_found"] == true
                   # extract text
                   text_name = url_base.sub ".pdf", ".txt"
-                  text_file = "data/unitedstates/congress/committee/meetings/house/#{house_event_id}/#{text_name}"
+                  folder = house_event_id / 100
+                  text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
                   text = File.read text_file
                 else
                   text = nil
@@ -58,9 +58,11 @@ class CongressionalDocuments
               # sometimes there is no url
               next
             end
+
+            check_and_save(base_name, house_event_id)
             
             id = "house-#{house_event_id}-#{url_base}"
-            puts text
+
             document = { 
               document_id: id,
               # document_type: '_report',
@@ -121,8 +123,16 @@ class CongressionalDocuments
 
               # extract text
               text_name = url_base.sub ".pdf", ".txt"
-              text_file = "data/unitedstates/congress/committee/meetings/house/#{house_event_id}/#{text_name}"
-              text = File.read text_file
+              folder = house_event_id / 100
+              text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
+              if File.exists?(text_file)
+                text = File.read text_file
+              else
+                puts "no text file found"
+              end
+
+              # save
+              check_and_save(base_name, house_event_id)
 
               id = "house-#{house_event_id}-#{url_base}"
 
@@ -164,6 +174,20 @@ class CongressionalDocuments
           end 
         end
     end
-    # add boto r sync the folders
+  end
+  def self.check_and_save(base_name, house_event_id)
+    folder = house_event_id / 100
+    location = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}"  
+    source = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{base_name}"
+    # make local file and 
+    last_version_backed = source + ".backed"
+    if !File.exists?(last_version_backed)
+      Utils.write last_version_backed, Time.now.to_i.to_s
+      #def self.backup!(bucket, source, destination, options = {})
+      Utils.backup!(location, source, base_name)
+      puts "[#{source}] Uploaded HTML to S3."
+    else
+      puts "[#{source}] Already uploaded to S3."
+    end
   end
 end
