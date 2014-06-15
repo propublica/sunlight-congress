@@ -3,6 +3,7 @@ require 'us-documents'
 
 # options:
 #   meeting_id: only process a particular meeting ID, skip all others
+#   force: always backup each document (ignore .backed file)
 
 class CongressionalDocuments
   def self.run(options = {})
@@ -70,7 +71,7 @@ class CongressionalDocuments
               next
             end
 
-            check_and_save(url_base, house_event_id)
+            check_and_save(url_base, house_event_id, options)
 
             id = "house-#{house_event_id}-#{url_base}"
 
@@ -143,7 +144,7 @@ class CongressionalDocuments
             end
 
             # save
-            check_and_save(url_base, house_event_id)
+            check_and_save(url_base, house_event_id, options)
 
             id = "house-#{house_event_id}-#{url_base}"
 
@@ -189,13 +190,13 @@ class CongressionalDocuments
     Report.success self, "Processed #{document_count} House documents."
   end
 
-  def self.check_and_save(file_name, house_event_id)
+  def self.check_and_save(file_name, house_event_id, options)
     folder = house_event_id / 100
     destination = "meetings/house/#{folder}/#{house_event_id}/#{file_name}"
     source = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{file_name}"
 
     last_version_backed = source + ".backed"
-    if !File.exists?(last_version_backed)
+    if options[:force] or !File.exists?(last_version_backed)
       Utils.write last_version_backed, Time.now.to_i.to_s
       #def self.backup!(bucket, source, destination, options = {})
       Utils.backup!("congressional_documents", source, destination)
