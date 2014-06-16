@@ -31,75 +31,78 @@ class CongressionalDocuments
       witnesses = hearing_data["witnesses"]
       meeting_documents = hearing_data["meeting_documents"]
       hearing_datetime = Time.zone.parse(hearing_data["occurs_at"]).utc
-      
-      next if (meeting_documents == nil)
-      hearing_data["meeting_documents"].each do |hearing_doc|
-        hearing_doc["published_on"] = Time.zone.parse(hearing_doc["published_on"]).utc
-        if (hearing_doc["published_on"] == nil)
-          hearing_doc["published_on"] = hearing_datetime
-        end
-        text = nil
-        urls = Array.new
-        
-        next if not hearing_doc["urls"] # no urls to download
-        url_base = File.basename(hearing_doc["urls"][0]["url"])
-        urls = []
-        hearing_doc["urls"].each do |u|
-          url = {}
-          url["url"] = u["url"]
-          url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
-          urls.push(url)
-          if u["file_found"] == true
-            # extract text
-            text_name = url_base.sub ".pdf", ".txt"
-            folder = house_event_id / 100
-            text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
-            text = File.read text_file
-          else
-            text = nil
-          end # file found
-        end #each url
 
-        check_and_save(url_base, house_event_id, options)
+      if (meeting_documents != nil)
+        hearing_data["meeting_documents"].each do |hearing_doc|
+          hearing_doc["published_on"] = Time.zone.parse(hearing_doc["published_on"]).utc
+          if (hearing_doc["published_on"] == nil)
+            hearing_doc["published_on"] = hearing_datetime
+          end
+          text = nil
+          urls = Array.new
+          
+          next if not hearing_doc["urls"] # no urls to download
+          url_base = File.basename(hearing_doc["urls"][0]["url"])
+          urls = []
+          hearing_doc["urls"].each do |u|
+            url = {}
+            url["url"] = u["url"]
+            url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
+            urls.push(url)
+            if u["file_found"] == true
+              # extract text
+              text_name = url_base.sub ".pdf", ".txt"
+              folder = house_event_id / 100
+              text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
+              text = File.read text_file
+            else
+              text = nil
+            end # file found
+          end #each url
 
-        id = "house-#{house_event_id}-#{url_base}"
+          check_and_save(url_base, house_event_id, options)
 
-        document = {
-          document_id: id,
-          # document_type: '_report',
-          document_type_name: "#{chamber} committee document",
-          # hearing information
-          chamber: chamber,
-          committee_id: hearing_data["committee"],
-          subcommittee_suffix: hearing_data["subcommittee"],
-          congress: hearing_data["congress"],
-          house_event_id: hearing_data["house_event_id"],
-          hearing_type_code: hearing_data["house_meeting_type"],
-          hearing_title: hearing_data["topic"],
-          # document information
-          bill_id: hearing_doc["bill_id"],
-          description: hearing_doc["description"],
-          type: hearing_doc["type"],
-          type_name: hearing_doc["type_name"],
-          version_code: hearing_doc["version_code"],
-          bioguide_id: hearing_doc["bioguide_id"],
-          occurs_at: hearing_datetime,
-          urls: urls,
-          text: text,
-        }
+          id = "house-#{house_event_id}-#{url_base}"
 
-        # save to elastic search
-        collection = "congressional_documents"
-        Utils.es_store! collection, id, document
-        document_count += 1
-      end # end of meeting doc loop
+          document = {
+            document_id: id,
+            # document_type: '_report',
+            document_type_name: "#{chamber} committee document",
+            # hearing information
+            chamber: chamber,
+            committee_id: hearing_data["committee"],
+            subcommittee_suffix: hearing_data["subcommittee"],
+            congress: hearing_data["congress"],
+            house_event_id: hearing_data["house_event_id"],
+            hearing_type_code: hearing_data["house_meeting_type"],
+            hearing_title: hearing_data["topic"],
+            # document information
+            bill_id: hearing_doc["bill_id"],
+            description: hearing_doc["description"],
+            type: hearing_doc["type"],
+            type_name: hearing_doc["type_name"],
+            version_code: hearing_doc["version_code"],
+            bioguide_id: hearing_doc["bioguide_id"],
+            occurs_at: hearing_datetime,
+            urls: urls,
+            text: text,
+          }
 
+          # save to elastic search
+          collection = "congressional_documents"
+          Utils.es_store! collection, id, document
+          document_count += 1
+        end # end of meeting doc loop
+      end
+      next if hearing_data["witnesses"] == nil
       hearing_data["witnesses"].each do |witness|
+        next if hearing_data["witnesses"]== nil
         witness["documents"].each do |witness_doc|
           urls = []
           url_base = File.basename(witness_doc["urls"][0]["url"])
 
           witness_doc["urls"].each do |u|
+
             if u["file_found"] == true
               url = {}
               url["url"] = u["url"]
