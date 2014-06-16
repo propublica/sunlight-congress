@@ -5,7 +5,7 @@ class CongressionalDocument
 
   basic_fields :id, :document_type_name, :chamber,
             :committee_id, :congress, :house_event_id,
-            :hearing_title, :bill_id, :description, 
+            :hearing_title, :bill_id, :description, :occurs_at,
             :version_code, :bioguide_id, :published_on, :urls
 
   search_fields  :hearing_title, :text

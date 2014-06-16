@@ -5,20 +5,19 @@ require 'us-documents'
 #   meeting_id: only process a particular meeting ID, skip all others
 #   force: always backup each document (ignore .backed file)
 
-class CongressionalDocuments
-  def self.run(options = {})
     # Uses @unitedstates house hearing scraper documents to get hearing documents
     # Planning to get additional documents from FDsys and perhaps Senate Committees
 
-    # meeting documents
+class CongressionalDocuments
+  def self.run(options = {})
     meeting_count = 0
     document_count = 0
     path = "data/unitedstates/congress"
     house_json = File.read "#{path}/committee_meetings_house.json"
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
+      # skip if no data or documents
       next if hearing_data == nil
-      # skip if no documents in meeting
       next if (hearing_data["meeting_documents"] == nil && hearing_data["witnesses"] == nil)
       house_event_id = hearing_data["house_event_id"]
       puts "[#{house_event_id}] Found in hearings JSON..." if options[:debug]
@@ -31,12 +30,13 @@ class CongressionalDocuments
       # extract docs from witness and meeting document
       witnesses = hearing_data["witnesses"]
       meeting_documents = hearing_data["meeting_documents"]
-
+      hearing_datetime = Time.zone.parse(hearing_data["occurs_at"]).utc
+      
       next if (meeting_documents == nil)
       hearing_data["meeting_documents"].each do |hearing_doc|
         hearing_doc["published_on"] = Time.zone.parse(hearing_doc["published_on"]).utc
         if (hearing_doc["published_on"] == nil)
-          hearing_datetime = Time.zone.parse(hearing_doc["occurs_at"]).utc
+          hearing_doc["published_on"] = hearing_datetime
         end
         text = nil
         urls = Array.new
@@ -83,7 +83,7 @@ class CongressionalDocuments
           type_name: hearing_doc["type_name"],
           version_code: hearing_doc["version_code"],
           bioguide_id: hearing_doc["bioguide_id"],
-          published_on: hearing_datetime,
+          occurs_at: hearing_datetime,
           urls: urls,
           text: text,
         }
@@ -111,10 +111,9 @@ class CongressionalDocuments
             end
           end
 
-          if (witness_doc["publish_date"] != nil)
-            hearing_datetime = Time.zone.parse(witness_doc["publish_date"]).utc
-          else
-            hearing_datetime = nil
+          witness_doc["published_on"] = Time.zone.parse(witness_doc["published_on"]).utc
+          if (witness_doc["published_on"] == nil)
+            witness_doc["published_on"] = hearing_datetime
           end
 
           # extract text
@@ -157,7 +156,7 @@ class CongressionalDocuments
             type_name: witness_doc["type_name"],
             type_name: witness_doc["type_name"],
             bioguide_id: witness_doc["bioguide_id"],
-            published_on: hearing_datetime,
+            occurs_at: hearing_datetime,
             urls: urls,
             text: text,
           }
