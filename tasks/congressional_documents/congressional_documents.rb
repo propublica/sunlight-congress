@@ -34,9 +34,10 @@ class CongressionalDocuments
 
       if (meeting_documents != nil)
         hearing_data["meeting_documents"].each do |hearing_doc|
-          hearing_doc["published_on"] = Time.zone.parse(hearing_doc["published_on"]).utc
-          if (hearing_doc["published_on"] == nil)
-            hearing_doc["published_on"] = hearing_datetime
+          published_on = Time.zone.parse(hearing_doc["published_on"]).utc
+          if (published_on == nil)
+            published_on = hearing_datetime
+            puts published_on
           end
           text = nil
           urls = Array.new
@@ -47,7 +48,6 @@ class CongressionalDocuments
           hearing_doc["urls"].each do |u|
             url = {}
             url["url"] = u["url"]
-            url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
             urls.push(url)
             if u["file_found"] == true
               # extract text
@@ -55,10 +55,12 @@ class CongressionalDocuments
               folder = house_event_id / 100
               text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
               text = File.read text_file
+              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}" 
             else
               text = nil
             end # file found
           end #each url
+
 
           check_and_save(url_base, house_event_id, options)
 
@@ -77,6 +79,7 @@ class CongressionalDocuments
             hearing_type_code: hearing_data["house_meeting_type"],
             hearing_title: hearing_data["topic"],
             # document information
+            published_on: published_on,
             bill_id: hearing_doc["bill_id"],
             description: hearing_doc["description"],
             type: hearing_doc["type"],
@@ -102,11 +105,11 @@ class CongressionalDocuments
           url_base = File.basename(witness_doc["urls"][0]["url"])
 
           witness_doc["urls"].each do |u|
-
+            url = {}
+            url["url"] = u["url"]
             if u["file_found"] == true
-              url = {}
-              url["url"] = u["url"]
-              url["permalink"] = "placeholder" #{}"unitedstates/congress/committee/meetings/house/#{url_base}"
+              folder = house_event_id / 100
+              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}" 
               urls.push(url)
               # add link to our link
             else
@@ -114,9 +117,9 @@ class CongressionalDocuments
             end
           end
 
-          witness_doc["published_on"] = Time.zone.parse(witness_doc["published_on"]).utc
-          if (witness_doc["published_on"] == nil)
-            witness_doc["published_on"] = hearing_datetime
+          published_on = Time.zone.parse(witness_doc["published_on"]).utc
+          if (published_on == nil)
+            published_on = hearing_datetime
           end
 
           # extract text
@@ -154,6 +157,7 @@ class CongressionalDocuments
             witness_position: witness["position"],
             witness_type: witness["witness_type"],
             # doc information
+            published_on: published_on,
             description: witness_doc["description"],
             type: witness_doc["type"],
             type_name: witness_doc["type_name"],
