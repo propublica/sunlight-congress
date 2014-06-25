@@ -34,11 +34,9 @@ class CongressionalDocuments
 
       if (meeting_documents != nil)
         hearing_data["meeting_documents"].each do |hearing_doc|
-          puts house_event_id
           published_on = Time.zone.parse(hearing_doc["published_on"]).utc
           if (published_on == nil)
             published_on = hearing_datetime
-            puts published_on
           end
           text = nil
           urls = Array.new
@@ -88,11 +86,12 @@ class CongressionalDocuments
           document = {
             document_id: id,
             # document_type: '_report',
-            document_type_name: "#{chamber} committee document",
+            document_type_name: hearing_data['document_type_name'] || "House Committee Document",
             # hearing information
             chamber: chamber,
             committee_id: hearing_data["committee"],
             subcommittee_suffix: hearing_data["subcommittee"],
+            committee_names: hearing_data["committee_names"],
             congress: hearing_data["congress"],
             house_event_id: hearing_data["house_event_id"],
             hearing_type_code: hearing_data["house_meeting_type"],
@@ -153,28 +152,26 @@ class CongressionalDocuments
               text_preview = text
             else
               text_preview = text_list[0...150].join(' ')
-              puts text_preview
             end
             # save
             check_and_save(url_base, house_event_id, options)
           else
-            puts "no text file found"
             text = nil
             text_preview = nil
           end
 
           extn = File.extname url_base
           url_base_name = File.basename url_base, extn
-          puts url_base_name
 
           id = "house-#{house_event_id}-#{url_base}"
 
           document = {
             document_id: id,
             # document_type: '_report',
-            document_type_name: "#{chamber} witness document",
+            document_type_name:  hearing_data['document_type_name']|| "House Witness Document",
             # hearing information
             chamber: chamber,
+            committee_names: hearing_data["committee_names"],
             committee_id: hearing_data["committee"],
             subcommittee_suffix: hearing_data["subcommittee"],
             congress: hearing_data["congress"],
