@@ -34,6 +34,7 @@ class CongressionalDocuments
 
       if (meeting_documents != nil)
         hearing_data["meeting_documents"].each do |hearing_doc|
+          puts house_event_id
           published_on = Time.zone.parse(hearing_doc["published_on"]).utc
           if (published_on == nil)
             published_on = hearing_datetime
@@ -41,8 +42,16 @@ class CongressionalDocuments
           end
           text = nil
           urls = Array.new
-          
-          next if not hearing_doc["urls"] # no urls to download
+          # no urls for that document, skipping to next document
+
+          if not hearing_doc["urls"] 
+            print "SKIP"
+            next
+          end
+
+          puts hearing_doc["urls"]
+          puts house_event_id
+
           url_base = File.basename(hearing_doc["urls"][0]["url"])
           urls = []
           hearing_doc["urls"].each do |u|
@@ -55,16 +64,26 @@ class CongressionalDocuments
               folder = house_event_id / 100
               text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
               text = File.read text_file
-              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}" 
+              text_list = text.split(' ')
+              if text_list.count < 150
+                text_preview = text
+              else
+                text_preview = text_list[0...150].join(' ')
+              end
+              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}"
+              check_and_save(url_base, house_event_id, options) 
             else
               text = nil
+              text_preview = nil
+              puts text_preview
             end # file found
           end #each url
 
+          extn = File.extname url_base
+          url_base_name = File.basename url_base, extn
+          puts url_base_name
 
-          check_and_save(url_base, house_event_id, options)
-
-          id = "house-#{house_event_id}-#{url_base}"
+          id = "house-#{house_event_id}-#{url_base_name}"
 
           document = {
             document_id: id,
@@ -99,11 +118,15 @@ class CongressionalDocuments
       end
       next if hearing_data["witnesses"] == nil
       hearing_data["witnesses"].each do |witness|
-        next if hearing_data["witnesses"]== nil
+        # no witnesses and meeting docs are already loaded, skipping to next meeting
+        next if hearing_data["witnesses"]== nil 
+        # no documents for a particular witness, skipping witness
+        redo if (defined?(witness["documents"])).nil?
         witness["documents"].each do |witness_doc|
+          # no url for the partuclar document, skipping doc
+          next if (defined?(witness_doc["urls"][0]["url"])).nil?
           urls = []
           url_base = File.basename(witness_doc["urls"][0]["url"])
-
           witness_doc["urls"].each do |u|
             url = {}
             url["url"] = u["url"]
@@ -111,9 +134,6 @@ class CongressionalDocuments
               folder = house_event_id / 100
               url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}" 
               urls.push(url)
-              # add link to our link
-            else
-              text = nil
             end
           end
 
@@ -128,12 +148,24 @@ class CongressionalDocuments
           text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
           if File.exists?(text_file)
             text = File.read text_file
+            text_list = text.split(' ')
+            if text_list.count < 150
+              text_preview = text
+            else
+              text_preview = text_list[0...150].join(' ')
+              puts text_preview
+            end
+            # save
+            check_and_save(url_base, house_event_id, options)
           else
             puts "no text file found"
+            text = nil
+            text_preview = nil
           end
 
-          # save
-          check_and_save(url_base, house_event_id, options)
+          extn = File.extname url_base
+          url_base_name = File.basename url_base, extn
+          puts url_base_name
 
           id = "house-#{house_event_id}-#{url_base}"
 
@@ -166,11 +198,13 @@ class CongressionalDocuments
             occurs_at: hearing_datetime,
             urls: urls,
             text: text,
+            text_preview: text_preview,
           }
 
           # save to elastic search
           collection = "congressional_documents"
           Utils.es_store! collection, id, document
+          
         end # loop through witness doc
       end # loop through witness
     end # loop through hearing
