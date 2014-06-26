@@ -3,7 +3,7 @@ class CongressionalDocument
   # just using elasticsearch
   publicly :searchable
 
-  basic_fields :id, :document_type_name, :chamber, :committee,
+  basic_fields :id, :document_type_name, :chamber, :committee, :committee_names,
             :committee_id, :congress, :house_event_id, :text_preview,
             :hearing_title, :bill_id, :description, :occurs_at,
             :version_code, :bioguide_id, :published_on, :urls,

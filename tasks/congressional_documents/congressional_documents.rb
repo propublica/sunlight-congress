@@ -10,6 +10,7 @@ require 'us-documents'
 
 class CongressionalDocuments
   def self.run(options = {})
+    amazon_bucket = "http://unitedstates.sunlightfoundation.com/congress/committee/meetings/house"
     meeting_count = 0
     document_count = 0
     path = "data/unitedstates/congress"
@@ -68,7 +69,7 @@ class CongressionalDocuments
               else
                 text_preview = text_list[0...150].join(' ')
               end
-              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}"
+              url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
               check_and_save(url_base, house_event_id, options) 
             else
               puts "Oh noes!!!!!!!!!!!!!!!!!!!"
@@ -84,7 +85,7 @@ class CongressionalDocuments
           document = {
             document_id: id,
             # document_type: '_report',
-            document_type_name: hearing_data['document_type_name'] || "House Committee Document",
+            document_type_name: hearing_data['document_type_name'],
             # hearing information
             chamber: chamber,
             committee_id: hearing_data["committee"],
@@ -130,7 +131,7 @@ class CongressionalDocuments
             url["url"] = u["url"]
             if u["file_found"] == true
               folder = house_event_id / 100
-              url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}" 
+              url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}" 
               urls.push(url)
             end
           end
@@ -161,12 +162,12 @@ class CongressionalDocuments
           extn = File.extname url_base
           url_base_name = File.basename url_base, extn
 
-          id = "house-#{house_event_id}-#{url_base}"
-
+          id = "house-#{house_event_id}-#{url_base_name}"
+          
           document = {
             document_id: id,
             # document_type: '_report',
-            document_type_name:  hearing_data['document_type_name']|| "House Witness Document",
+            document_type_name:  hearing_data['document_type_name'],
             # hearing information
             chamber: chamber,
             committee_names: hearing_data["committee_names"],
@@ -198,8 +199,7 @@ class CongressionalDocuments
 
           # save to elastic search
           collection = "congressional_documents"
-          Utils.es_store! collection, id, document
-          
+          Utils.es_store! collection, id, document      
         end # loop through witness doc
       end # loop through witness
     end # loop through hearing
