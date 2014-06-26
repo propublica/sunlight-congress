@@ -38,7 +38,6 @@ class CongressionalDocuments
           if (published_on == nil)
             published_on = hearing_datetime
           end
-          text = nil
           urls = Array.new
           # no urls for that document, skipping to next document
 
@@ -47,15 +46,16 @@ class CongressionalDocuments
             next
           end
 
-          puts hearing_doc["urls"]
-          puts house_event_id
-
           url_base = File.basename(hearing_doc["urls"][0]["url"])
           urls = []
+          text = nil
+          text_preview = nil
           hearing_doc["urls"].each do |u|
             url = {}
             url["url"] = u["url"]
             urls.push(url)
+
+
             if u["file_found"] == true
               # extract text
               text_name = url_base.sub ".pdf", ".txt"
@@ -71,15 +71,13 @@ class CongressionalDocuments
               url["permalink"] = "http://unitedstates.sunlightfoundation.com/#{folder}/#{house_event_id}/#{url_base}"
               check_and_save(url_base, house_event_id, options) 
             else
-              text = nil
-              text_preview = nil
-              puts text_preview
+              puts "Oh noes!!!!!!!!!!!!!!!!!!!"
+              puts url["url"]
             end # file found
           end #each url
 
           extn = File.extname url_base
           url_base_name = File.basename url_base, extn
-          puts url_base_name
 
           id = "house-#{house_event_id}-#{url_base_name}"
 
@@ -107,6 +105,7 @@ class CongressionalDocuments
             occurs_at: hearing_datetime,
             urls: urls,
             text: text,
+            text_preview: text_preview,
           }
 
           # save to elastic search
@@ -145,6 +144,8 @@ class CongressionalDocuments
           text_name = url_base.sub ".pdf", ".txt"
           folder = house_event_id / 100
           text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
+          text = nil
+          text_preview = nil
           if File.exists?(text_file)
             text = File.read text_file
             text_list = text.split(' ')
@@ -155,9 +156,6 @@ class CongressionalDocuments
             end
             # save
             check_and_save(url_base, house_event_id, options)
-          else
-            text = nil
-            text_preview = nil
           end
 
           extn = File.extname url_base
