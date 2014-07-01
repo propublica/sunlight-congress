@@ -56,7 +56,6 @@ class CongressionalDocuments
             url["url"] = u["url"]
             urls.push(url)
 
-
             if u["file_found"] == true
               # extract text
               text_name = url_base.sub ".pdf", ".txt"
@@ -69,9 +68,12 @@ class CongressionalDocuments
               else
                 text_preview = text_list[0...150].join(' ')
               end
+              text_preview.gsub! (/\.{3,}/), '   '
+              text_preview.gsub! (/_{3,}/), '\n'
               url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
               check_and_save(url_base, house_event_id, options) 
             else
+              # debug
               puts "Oh noes!!!!!!!!!!!!!!!!!!!"
               puts url["url"]
             end # file found
@@ -155,6 +157,8 @@ class CongressionalDocuments
             else
               text_preview = text_list[0...150].join(' ')
             end
+            text_preview.gsub! (/\.{3,}/), '   '
+            text_preview.gsub! (/_{3,}/), '\n'
             # save
             check_and_save(url_base, house_event_id, options)
           end
