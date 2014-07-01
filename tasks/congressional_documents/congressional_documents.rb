@@ -189,6 +189,7 @@ class CongressionalDocuments
             witness_position: witness["position"],
             witness_type: witness["witness_type"],
             # doc information
+            document_id: id,
             published_on: published_on,
             description: witness_doc["description"],
             type: witness_doc["type"],
