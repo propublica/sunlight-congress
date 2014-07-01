@@ -183,6 +183,8 @@ class Legislators
     elsif attributes[:chamber] == "house"
       attributes[:district] = last_term['district']
     end
+    
+    attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
 
     attributes
   end
@@ -294,5 +296,15 @@ class Legislators
       "WY" => "Wyoming"
     }
   end
-
+  def self.create_oc_email website, chamber
+    return nil if website == nil
+    pattern = /^(?:www[.])?([-a-z0-9]+)[.](house|senate)[.]gov$/i
+    url = URI.parse(website)
+    return nil if url.host.nil?
+    match = pattern.match(url.host.downcase)
+    return nil if match.nil?
+    nameish, chamber = match.captures
+    prefix = (chamber.downcase == 'senate') ? 'Sen' : 'Rep'
+    return "#{prefix.capitalize}.#{nameish.capitalize}@opencongress.org"   
+  end
 end
