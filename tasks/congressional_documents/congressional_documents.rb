@@ -23,7 +23,7 @@ class CongressionalDocuments
       house_event_id = hearing_data["house_event_id"]
       puts "[#{house_event_id}] Found in hearings JSON..." if options[:debug]
       next if options[:meeting_id] and (options[:meeting_id] != house_event_id.to_s)
-      puts "[#{house_event_id}] Processing..."
+      #puts "[#{house_event_id}] Processing..."
 
       chamber = hearing_data["chamber"]
       hearing_type_code = hearing_data["house_meeting_type"]
@@ -35,15 +35,15 @@ class CongressionalDocuments
 
       if (meeting_documents != nil)
         hearing_data["meeting_documents"].each do |hearing_doc|
-          published_on = Time.zone.parse(hearing_doc["published_on"]).utc
-          if (published_on == nil)
-            published_on = hearing_datetime
+          published_at = Time.zone.parse(hearing_doc["published_on"]).utc
+          if (published_at == nil)
+            published_at = hearing_datetime
           end
           urls = Array.new
           # no urls for that document, skipping to next document
 
           if not hearing_doc["urls"] 
-            print "SKIP"
+            puts "SKIP"
             next
           end
 
@@ -61,23 +61,32 @@ class CongressionalDocuments
               text_name = url_base.sub ".pdf", ".txt"
               folder = house_event_id / 100
               text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
+              
               text = File.read text_file
-              text_list = text.split(' ')
+              text_preview = text
+              text_preview.gsub! (/\.{3,}/), '   '
+              text_preview.gsub! (/_{3,}/), '\n'
+              text_preview.gsub! (/\\f/), ' '
+              text_list = text_preview.split(' ')
               if text_list.count < 150
-                text_preview = text
+                text_preview = text_preview
               else
                 text_preview = text_list[0...150].join(' ')
               end
-              text_preview.gsub! (/\.{3,}/), '   '
-              text_preview.gsub! (/_{3,}/), '\n'
+
+              if text_preview == ''
+                text_preview == nil
+              end
+
               url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
               check_and_save(url_base, house_event_id, options) 
-            else
-              # debug
-              puts "Oh noes!!!!!!!!!!!!!!!!!!!"
-              puts url["url"]
             end # file found
           end #each url
+
+          doc_type = hearing_data['document_type_name']
+          if doc_type == nil
+            doc_type = 'other'
+          end
 
           extn = File.extname url_base
           url_base_name = File.basename url_base, extn
@@ -86,8 +95,7 @@ class CongressionalDocuments
 
           document = {
             document_id: id,
-            # document_type: '_report',
-            document_type_name: hearing_data['document_type_name'],
+            document_type: doc_type,
             # hearing information
             chamber: chamber,
             committee_id: hearing_data["committee"],
@@ -98,7 +106,7 @@ class CongressionalDocuments
             hearing_type_code: hearing_data["house_meeting_type"],
             hearing_title: hearing_data["topic"],
             # document information
-            published_on: published_on,
+            published_at: published_at,
             bill_id: hearing_doc["bill_id"],
             description: hearing_doc["description"],
             type: hearing_doc["type"],
@@ -138,9 +146,9 @@ class CongressionalDocuments
             end
           end
 
-          published_on = Time.zone.parse(witness_doc["published_on"]).utc
-          if (published_on == nil)
-            published_on = hearing_datetime
+          published_at = Time.zone.parse(witness_doc["published_on"]).utc
+          if (published_at == nil)
+            published_at = hearing_datetime
           end
 
           # extract text
@@ -151,14 +159,21 @@ class CongressionalDocuments
           text_preview = nil
           if File.exists?(text_file)
             text = File.read text_file
-            text_list = text.split(' ')
+
+            text_preview = text
+            text_preview.gsub! (/\.{3,}/), '   '
+            text_preview.gsub! (/_{3,}/), '\n'
+            text_preview.gsub! (/\\f/), ' '
+            text_list = text_preview.split(' ')
             if text_list.count < 150
-              text_preview = text
+              text_preview = text_preview
             else
               text_preview = text_list[0...150].join(' ')
             end
-            text_preview.gsub! (/\.{3,}/), '   '
-            text_preview.gsub! (/_{3,}/), '\n'
+
+            if text_preview == ''
+              text_preview == nil
+            end
             # save
             check_and_save(url_base, house_event_id, options)
           end
@@ -167,6 +182,15 @@ class CongressionalDocuments
           url_base_name = File.basename url_base, extn
 
           id = "house-#{house_event_id}-#{url_base_name}"
+
+          witness_info = {
+            first_name: witness["first_name"],
+            last_name: witness["last_name"],
+            middle_name: witness["middle_name"],
+            organization: witness["organization"],
+            position: witness["position"],
+            witness_type: witness["witness_type"],
+          }
           
           document = {
             document_id: id,
@@ -182,15 +206,9 @@ class CongressionalDocuments
             hearing_type_code: hearing_type_code,
             hearing_title: hearing_title,
             # witness information
-            witness_first: witness["first_name"],
-            witness_last: witness["last_name"],
-            witness_middle: witness["middle_name"],
-            witness_organization: witness["organization"],
-            witness_position: witness["position"],
-            witness_type: witness["witness_type"],
+            witness: witness_info,
             # doc information
-            document_id: id,
-            published_on: published_on,
+            published_at: published_at,
             description: witness_doc["description"],
             type: witness_doc["type"],
             type_name: witness_doc["type_name"],

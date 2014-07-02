@@ -116,7 +116,7 @@ class HearingsHouse
           url: hearing_url,
           hearing_type: hearing_type,
           house_hearing_id: house_event_id,
-          hearing_id: hearing_id,
+          hearing_id: hearing_id
         }
         
         if subcommittee
@@ -140,7 +140,7 @@ class HearingsHouse
               witness["documents"].each do |document|
                 doc = {}
                 doc["description"] = document["description"]
-                doc["published_on"] = document["published_on"]
+                doc["published_at"] = Time.zone.parse(document["published_on"]).utc
                 doc["type"] = document["type_name"]
                 # there doesn't seem to be more than one url, if there is it will show up in the documents section
                 url = document["urls"][0]["url"]
@@ -166,7 +166,7 @@ class HearingsHouse
           hearing_data["meeting_documents"].each do |document|
             doc = {}
             doc["description"] = document["description"]
-            doc["published_on"] = document["published_on"]
+            doc["published_at"] = Time.zone.parse(document["published_on"]).utc
             doc["type"] = document["type_name"]
             doc["version_code"] = document["version_code"]
             doc["bioguide_id"] = document["bioguide_id"]
