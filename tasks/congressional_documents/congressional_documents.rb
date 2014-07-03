@@ -83,9 +83,9 @@ class CongressionalDocuments
             end # file found
           end #each url
 
-          doc_type = hearing_data['document_type_name']
+          doc_type = hearing_data['type_name']
           if doc_type == nil
-            doc_type = 'other'
+            doc_type = 'Other'
           end
 
           extn = File.extname url_base
@@ -109,8 +109,7 @@ class CongressionalDocuments
             published_at: published_at,
             bill_id: hearing_doc["bill_id"],
             description: hearing_doc["description"],
-            type: hearing_doc["type"],
-            type_name: hearing_doc["type_name"],
+            type: doc_type,
             version_code: hearing_doc["version_code"],
             bioguide_id: hearing_doc["bioguide_id"],
             occurs_at: hearing_datetime,
@@ -149,6 +148,11 @@ class CongressionalDocuments
           published_at = Time.zone.parse(witness_doc["published_on"]).utc
           if (published_at == nil)
             published_at = hearing_datetime
+          end
+
+          doc_type = hearing_data['type_name']
+          if doc_type == nil
+            doc_type = 'Other'
           end
 
           # extract text
@@ -210,9 +214,7 @@ class CongressionalDocuments
             # doc information
             published_at: published_at,
             description: witness_doc["description"],
-            type: witness_doc["type"],
-            type_name: witness_doc["type_name"],
-            type_name: witness_doc["type_name"],
+            type: doc_type,
             bioguide_id: witness_doc["bioguide_id"],
             occurs_at: hearing_datetime,
             urls: urls,
