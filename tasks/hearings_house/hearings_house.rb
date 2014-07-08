@@ -94,7 +94,7 @@ class HearingsHouse
         end
 
         ### look for event ID, chamber house
-        hearing = Hearing.find_or_initialize_by house_hearing_id: house_event_id
+        hearing = Hearing.find_or_initialize_by house_event_id: house_event_id
         
         if hearing.new_record?
           puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Creating " if options[:debug] 
@@ -115,7 +115,7 @@ class HearingsHouse
           # only from House right now
           url: hearing_url,
           hearing_type: hearing_type,
-          house_hearing_id: house_event_id,
+          house_event_id: house_event_id,
           hearing_id: hearing_id
         }
         

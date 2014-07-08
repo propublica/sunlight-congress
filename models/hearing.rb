@@ -6,7 +6,7 @@ class Hearing
     :congress, :chamber, :occurs_at, :dc,
     :room, :description, :url,
     :bill_ids, :witnesses, :meeting_documents,
-    :hearing_type, :house_hearing_id, :hearing_id
+    :hearing_type, :house_event_id, :hearing_id
 
   search_fields :description
 
