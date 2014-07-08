@@ -65,7 +65,7 @@
 */2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_house
 
 
-# committee hearings
+# Senate committee hearings
 */14 * * * * /projects/congress-api/congress/shared/cron/task.sh hearings_senate
 
 # New committee hearings using unitedstates scraper
