@@ -61,7 +61,7 @@
 
 
 # floor updates
-*/1 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_senate
+*/2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_senate
 */2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_house
 
 
@@ -69,7 +69,7 @@
 */14 * * * * /projects/congress-api/congress/shared/cron/task.sh hearings_senate
 
 # New committee hearings using unitedstates scraper
-*/16 * * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house
+1 */3 * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house && /projects/congress-api/congress/shared/cron/task.sh congressional_documents
 
 
 # upcoming leadership information
