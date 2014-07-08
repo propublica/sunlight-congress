@@ -184,7 +184,11 @@ class Legislators
       attributes[:district] = last_term['district']
     end
     
-    attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
+    if current == true
+      attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
+    else
+      attributes[:oc_email] = nil
+    end
 
     attributes
   end
