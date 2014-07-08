@@ -4,6 +4,7 @@ import urllib2
 import datetime, time
 import python_utils
 import HTMLParser
+import hashlib
 
 
 def run(db, es, options = {}):
@@ -67,6 +68,12 @@ def run(db, es, options = {}):
 
         bill_ids = python_utils.extract_bills(description, congress)
 
+        if subcommittee_id == None:
+          sub = '00'
+        else:
+          sub = str(subcommittee_id)
+        id_string = (date_string + str(committee_id) + sub).encode("utf-8")
+        hearing_id = hashlib.md5(id_string).hexdigest()
 
         documents = db['hearings'].find({
           'chamber': chamber,
@@ -85,7 +92,8 @@ def run(db, es, options = {}):
         else:
           hearing = {
             'chamber': chamber,
-            'committee_id': committee_id
+            'committee_id': committee_id,
+            'hearing_id': hearing_id
           }
 
           hearing['created_at'] = datetime.datetime.now()

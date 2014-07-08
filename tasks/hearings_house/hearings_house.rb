@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'digest/md5'
 
 class HearingsHouse
 
@@ -7,6 +8,7 @@ class HearingsHouse
   #   date: specific date to get hearings for (form: YYYY-MM-DD)
 
   def self.run(options = {})
+    amazon_bucket = "http://unitedstates.sunlightfoundation.com/congress/committee/meetings/house"
     count = 0
     bad_committee_lookups = []
     warnings = []
@@ -18,7 +20,7 @@ class HearingsHouse
     house_data = Oj.load house_json
     house_data.each do |hearing_data|
       if (hearing_data != nil)
-        bill_ids = hearing_data["bills"]
+        bill_ids = hearing_data["bill_ids"]
         chamber = hearing_data["chamber"]
         committee_id = hearing_data["committee"]
         subcommittee_suffix = hearing_data["subcommittee"]
@@ -26,6 +28,7 @@ class HearingsHouse
         # used in govtrack
         guid = hearing_data["guid"]
         house_event_id = hearing_data["house_event_id"]
+        hearing_id = Digest::MD5.hexdigest(house_event_id.to_s)
         hearing_type_code = hearing_data["house_meeting_type"]
         occurs_at = hearing_data["occurs_at"]
         room = hearing_data["room"]
@@ -91,7 +94,7 @@ class HearingsHouse
         end
 
         ### look for event ID, chamber house
-        hearing = Hearing.find_or_initialize_by house_hearing_id: house_event_id
+        hearing = Hearing.find_or_initialize_by house_event_id: house_event_id
         
         if hearing.new_record?
           puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Creating " if options[:debug] 
@@ -112,16 +115,78 @@ class HearingsHouse
           # only from House right now
           url: hearing_url,
           hearing_type: hearing_type,
-          house_hearing_id: house_event_id,
+          house_event_id: house_event_id,
+          hearing_id: hearing_id
         }
         
-  #### trying out subcommittee
         if subcommittee
           hearing[:subcommittee_id] = subcommittee_id
           hearing[:subcommittee] = Utils.committee_for(subcommittee)
-          ## add warnings if lookup fails
         end
-        
+
+        # don't need to show all the document infomation from the scraper and makes it less nested
+        if hearing_data["witnesses"]
+          witnesses =[]
+          hearing_data["witnesses"].each do |witness|
+            w = {}
+            w["first_name"] = witness["first_name"]
+            w["last_name"] = witness["last_name"]
+            w["middle_name"] = witness["middle_name"]
+            w["organization"] = witness["organization"]
+            w["position"] = witness["position"]
+            w["witness_type"] = witness["witness_type"]
+            if witness["documents"]
+              documents = []
+              witness["documents"].each do |document|
+                doc = {}
+                doc["description"] = document["description"]
+                doc["published_at"] = Time.zone.parse(document["published_on"]).utc
+                doc["type"] = document["type_name"]
+                # there doesn't seem to be more than one url, if there is it will show up in the documents section
+                url = document["urls"][0]["url"]
+                doc["url"] = url
+                if document["urls"][0]["file_found"] == true
+                  folder = house_event_id / 100
+                  file_name = File.basename(url)
+                  permalink = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{file_name}"
+                  doc["permalink"] = permalink
+                end
+                documents.push(doc)
+              end
+              w["documents"] = documents
+
+            end
+            witnesses.push(w)
+          end
+          hearing[:witnesses] = witnesses
+        end
+
+        if hearing_data["meeting_documents"]
+          meeting_documents = []
+          hearing_data["meeting_documents"].each do |document|
+            doc = {}
+            doc["description"] = document["description"]
+            doc["published_at"] = Time.zone.parse(document["published_on"]).utc
+            doc["type"] = document["type_name"]
+            doc["version_code"] = document["version_code"]
+            doc["bioguide_id"] = document["bioguide_id"]
+            doc["bill_id"] = document["bill_id"]
+            # there doesn't seem to be more than one url, if there is it will show up in the documents section
+            if document["urls"]
+              url = document["urls"][0]["url"]
+              doc["url"] = url
+              if document["urls"][0]["file_found"] == true
+                folder = house_event_id / 100
+                file_name = File.basename(url)
+                permalink = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{file_name}"
+                doc["permalink"] = permalink
+              end
+            end
+            meeting_documents.push(doc)
+          end
+          hearing[:meeting_documents] = meeting_documents
+        end
+
         hearing.save!
         count += 1
       end

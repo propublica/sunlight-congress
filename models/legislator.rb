@@ -8,7 +8,7 @@ class Legislator
       :other_names, :gender, :in_office, :senate_class, :birthday,
       :state, :state_name, :party, :chamber, :leadership_role, :district, :state_rank,
       :phone, :fax, :office, :website, :contact_form,
-      :twitter_id, :facebook_id, :youtube_id,
+      :twitter_id, :facebook_id, :youtube_id, :oc_email,
       :term_start, :term_end
 
   search_fields :first_name, :last_name, :middle_name, :nickname, "other_names.last"
