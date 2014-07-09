@@ -143,13 +143,15 @@ class HearingsHouse
                 doc["published_at"] = Time.zone.parse(document["published_on"]).utc
                 doc["type"] = document["type_name"]
                 # there doesn't seem to be more than one url, if there is it will show up in the documents section
-                url = document["urls"][0]["url"]
-                doc["url"] = url
-                if document["urls"][0]["file_found"] == true
-                  folder = house_event_id / 100
-                  file_name = File.basename(url)
-                  permalink = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{file_name}"
-                  doc["permalink"] = permalink
+                if document["urls"]
+                  url = document["urls"][0]["url"]
+                  doc["url"] = url
+                  if document["urls"][0]["file_found"] == true
+                    folder = house_event_id / 100
+                    file_name = File.basename(url)
+                    permalink = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{file_name}"
+                    doc["permalink"] = permalink
+                  end
                 end
                 documents.push(doc)
               end

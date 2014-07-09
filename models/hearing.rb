@@ -4,8 +4,7 @@ class Hearing
 
   basic_fields :committee_id, :subcommittee_id,
     :congress, :chamber, :occurs_at, :dc,
-    :room, :description, :url,
-    :bill_ids, :witnesses, :meeting_documents,
+    :room, :description, :url, :bill_ids, 
     :hearing_type, :house_event_id, :hearing_id
 
   search_fields :description
