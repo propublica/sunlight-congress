@@ -143,7 +143,8 @@ class HearingsHouse
                 doc["published_at"] = Time.zone.parse(document["published_on"]).utc
                 doc["type"] = document["type_name"]
                 # there doesn't seem to be more than one url, if there is it will show up in the documents section
-                if document["urls"]
+                if document["urls"] != []
+                  print document["urls"]
                   url = document["urls"][0]["url"]
                   doc["url"] = url
                   if document["urls"][0]["file_found"] == true
