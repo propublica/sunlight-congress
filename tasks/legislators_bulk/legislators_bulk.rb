@@ -68,6 +68,7 @@ class LegislatorsBulk
           legislator['phone'],
           legislator['fax'],
           legislator['website'],
+          legislator['oc_email'],
           legislator['contact_form'],
           legislator['office'],
 
