@@ -45,7 +45,7 @@ class GaoReports
 
     gao_ids.each do |gao_id|
 
-      url = "http://gao.gov/api/id/#{gao_id}"
+      url = "http://www.gao.gov/api/id/#{gao_id}"
       cache = cache_path_for gao_id, "report.json"
       unless details = Utils.download(url, options.merge(destination: cache, json: true))
         failures << {gao_id: gao_id, url: url, message: "Couldn't download JSON of report"}
