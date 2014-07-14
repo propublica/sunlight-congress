@@ -41,7 +41,7 @@ class LegislatorsBulk
         phone fax website webform congress_office
         bioguide_id votesmart_id fec_id govtrack_id crp_id twitter_id
         congresspedia_url youtube_url facebook_id
-        official_rss senate_class birthdate
+        official_rss senate_class birthdate oc_email
       }
 
       eligible.each do |legislator|
@@ -88,7 +88,9 @@ class LegislatorsBulk
 
           (legislator['senate_class'] ? ("I" * legislator['senate_class']) : nil),
           legislator['birthday'],
+          legislator['oc_email'],
         ]
+        print row
 
         csv << row
 
