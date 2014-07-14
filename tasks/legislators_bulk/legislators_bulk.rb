@@ -41,7 +41,7 @@ class LegislatorsBulk
         phone fax website webform congress_office
         bioguide_id votesmart_id fec_id govtrack_id crp_id twitter_id
         congresspedia_url youtube_url facebook_id
-        official_rss senate_class birthdate
+        official_rss senate_class birthdate oc_email
       }
 
       eligible.each do |legislator|
@@ -68,7 +68,6 @@ class LegislatorsBulk
           legislator['phone'],
           legislator['fax'],
           legislator['website'],
-         # legislator['oc_email'],
           legislator['contact_form'],
           legislator['office'],
 
@@ -88,7 +87,8 @@ class LegislatorsBulk
           nil, # rss is gone
 
           (legislator['senate_class'] ? ("I" * legislator['senate_class']) : nil),
-          legislator['birthday']
+          legislator['birthday'],
+          legislator['oc_email'],
         ]
 
         csv << row
