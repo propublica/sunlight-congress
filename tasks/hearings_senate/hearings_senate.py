@@ -72,6 +72,8 @@ def run(db, es, options = {}):
           sub = '00'
         else:
           sub = str(subcommittee_id)
+        # making sure the ids are more reproducable
+        date_string = occurs_at.strftime("%d-%b-%Y %I:%M %p")
         id_string = (date_string + str(committee_id) + sub).encode("utf-8")
         hearing_id = hashlib.md5(id_string).hexdigest()
 
