@@ -90,7 +90,7 @@ class LegislatorsBulk
           legislator['birthday'],
           legislator['oc_email'],
         ]
-        print row
+        puts row
 
         csv << row
 
