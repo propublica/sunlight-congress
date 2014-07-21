@@ -132,6 +132,7 @@ class HearingsHouse
             w["first_name"] = witness["first_name"]
             w["last_name"] = witness["last_name"]
             w["middle_name"] = witness["middle_name"]
+            w["honorific"] = witness["honorific"]
             w["organization"] = witness["organization"]
             w["position"] = witness["position"]
             w["witness_type"] = witness["witness_type"]
