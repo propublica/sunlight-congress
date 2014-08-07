@@ -7,6 +7,8 @@
 # generate unitedstates/congress-legislators social media leads once a night
 27 13 * * *   /projects/congress-api/congress/shared/cron/social-media-leads.sh
 
+# upcoming bills for the house - us and then a congress task
+*/17 * * * *    /projects/congress-api/congress/shared/cron/us-sync-upcoming-house-floor.sh
 
 ############# congress API tasks #########################
 
@@ -31,7 +33,6 @@
 # re-download bills and amendments once a day, don't use --fast mode
 11 11 * * * /projects/congress-api/congress/shared/cron/us-sync-bills-all.sh
 41 12 * * * /projects/congress-api/congress/shared/cron/us-sync-amendments-all.sh
-
 
 
 # bill text from GPO, every half hour for the 113th
@@ -62,7 +63,8 @@
 
 # floor updates
 */2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_senate
-*/2 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_house
+# loads information from the us house floor scraper
+*/1 * * * *  /projects/congress-api/congress/shared/cron/task.sh floor_house
 
 
 # Senate committee hearings
@@ -74,16 +76,14 @@
 
 # upcoming leadership information
 */13 * * * * /projects/congress-api/congress/shared/cron/task.sh upcoming_senate
-*/17 * * * * /projects/congress-api/congress/shared/cron/task.sh upcoming_house
-
+# upcoming house is with us jobs above
 
 
 # GAO reports (full text) - add 1s between requests
 */19 * * * * /projects/congress-api/congress/shared/cron/task.sh gao_reports rate_limit=1
 
-# IG reports, once an hour
-4 * * * * /projects/congress-api/congress/shared/cron/us-sync-igs.sh && /projects/congress-api/congress/shared/cron/task.sh ig_reports since=2009
-
+# IG reports, once every 5 hours
+4 */5 * * * /projects/congress-api/congress/shared/cron/us-sync-igs.sh && /projects/congress-api/congress/shared/cron/task.sh ig_reports since=2009
 
 # formally published regs and notices, last 2 days - takes <2m even without cache
 10,30,50 * * * * /projects/congress-api/congress/shared/cron/task.sh regulations cache=1 days=2 backup=1
