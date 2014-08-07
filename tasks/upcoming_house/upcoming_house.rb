@@ -1,177 +1,146 @@
+require 'date'
 require 'open-uri'
 require 'nokogiri'
 
 class UpcomingHouse
-# not anymore
-  # options:
-  #
-  #   range: "day" or "week" (default)
+  # options, will look for current week unless prompted to do otherwise
+  # pass in a date of the week you want as YYYY-MM-DD
+
+  # gets data from unitedstates/congress/upcomming_house_floor
 
   def self.run(options = {})
     total_count = 0
-
-    range = options[:range] || "week"
-
-    page = {day: "daily", week: "weekly"}[range.to_sym]
-    source_type = "house_#{page}"
-    url = "http://www.majorityleader.gov/floor/"
-
-    begin
-      html = open(url).read
-    rescue Timeout::Error, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH
-      Report.warning self, "Network error on fetching House Republican daily schedule at- #{url}, can't go on.", :url => url
-      return
-    end
-
-    doc = Nokogiri::HTML html
-
-    source_url, legislative_day = details_from(url, doc)
-
-    # we need a legislative day to anchor this around
-    unless legislative_day
-      Report.warning self, "Couldn't find date in House Republican daily schedule page, #{url}, can't go on", url: url
-      return
-    end
-
-    # if the legislative day is in the past, never mind
-    legislative_date = Utils.utc_parse legislative_day
-    if (range == "week") and (legislative_date < 7.days.ago)
-      puts "Weekly schedule's too old (#{legislative_day}), not storing anything"
-      return
-    elsif (range == "day") and (legislative_date < 1.day.ago)
-      puts "Daily schedule's too old (#{legislative_day}), not storing anything"
-      return
-    end
-
-
-    # grab the year and congress out of the date
-    year = legislative_day.split("-").first
-    congress = Utils.congress_for_year year
-
-    # grab all bill IDs 
-    if page == 'weekly'
-      element = doc.css("div#weekly").first
-    else
-      element = doc.css("div#daily").first
-    end
-
-    unless element
-      Report.failure self, "Couldn't find the House majority leader daily schedule content node, can't go on"
-      return
-    end
-
-    bill_ids = Utils.bill_ids_for element.text, congress
-
-    # clear out associations at /bill
-    Utils.flush_bill_upcoming! source_type
-
-
-    # go through each bill ID, create or update entry.
-    # update (overwrite) if we already have a record for:
-    #   legislative_day
-    #   range
-    #   chamber
-    #   bill_id
-    #
-    # update should ONLY update these fields:
-    #   bill
-    #
-    # source_type, congress, url - won't change
-    #
-    # This should NEVER overwrite scheduled_at.
-    #
     new_count = 0
     updated_count = 0
     upcoming_count = 0
 
-    bill_ids.each do |bill_id|
-
-      upcoming = UpcomingBill.where(
-        legislative_day: legislative_day,
-        range: range,
-        chamber: "house",
-
-        bill_id: bill_id
-      ).first
-
-      if upcoming.nil?
-        upcoming = UpcomingBill.new(
-          legislative_day: legislative_day,
-          range: range,
-          chamber: "house",
-          bill_id: bill_id,
-
-          # only set on create
-          scheduled_at: Time.now,
-
-          congress: congress,
-          source_type: source_type,
-          url: source_url
-        )
-      end
-
-      if upcoming.new_record?
-        puts "[#{bill_id}] Saving a new record..." if options[:debug]
-        new_count += 1
-      else
-        puts "[#{bill_id}] Updating an old record..." if options[:debug]
-        updated_count += 1
-      end
-
-      # update bill data, even if schedule already existed
-      if bill = Utils.bill_for(bill_id)
-        upcoming['bill'] = bill
-        Utils.update_bill_upcoming! bill_id, upcoming
-      end
-
-      upcoming.save!
-      upcoming_count += 1
+    if options[:week]
+      legislative_day = Date.parse(options[:week])
+    else
+      legislative_day = Date.today()
+    end  
+    
+    mon = find_last_monday(legislative_day)
+    week = mon.strftime('%Y%m%d')
+    
+    path = "data/unitedstates/congress"
+    if not File.file?("#{path}/upcoming_house_floor/#{week}.json")
+      puts "Weekly schedule not scraped by unitedstates/congress/upcomming_house_floor for week of #{mon}"
+      return
     end
 
+    upcoming_house_json = File.read("#{path}/upcoming_house_floor/#{week}.json")
+    upcoming_house_data = Oj.load upcoming_house_json
+
+    congress = upcoming_house_data['congress']
+    legislative_day = upcoming_house_data['week_of']
+
+    bills = upcoming_house_data['upcoming']
+
+    bills.each do |bill|
+      # check for valad bills
+      bill_id = bill['bill_id']
+      draft_bill_id = bill['draft_bill_id']
+      bill_check =  Utils.bill_ids_for(bill_id, congress)
+
+      scheduled_at = bill['added_at']
+      discription = bill['description']
+      concideration = bill['concideration']
+      floor_id = bill['floor_item_id']
+      bill['files'].each do |file|
+        if file['format'] = 'pdf'
+          url = file['url']
+        elsif file['format'] = 'xml'
+          xml_url = file['url']
+        end
+
+        # I think I don't still need this? ----
+        # clear out associations at /bill
+        # Utils.flush_bill_upcoming! source_type
+
+      #go through each bill ID, create or update entry.
+      # update (overwrite) if we already have a record for:
+      #   legislative_day
+      #   range
+      #   chamber
+      #   bill_id
+      
+      # update should ONLY update these fields:
+      #   bill
+      
+      # source_type, congress, url - won't change
+      
+      #This should NEVER overwrite scheduled_at.
+      
+
+        upcoming = UpcomingBill.where(
+          legislative_day: legislative_day,
+          range: "week",
+          chamber: "house",
+          
+          bill_id: bill_id,
+          # now tracking draft bills too
+          draft_bill_id: draft_bill_id,
+
+        ).first
+
+        if upcoming.nil?
+          upcoming = UpcomingBill.new(
+            legislative_day: legislative_day,
+            range: "week",
+            chamber: "house",
+            bill_id: bill_id,
+            draft_bill_id: draft_bill_id,
+
+            # only set on create
+            scheduled_at: Time.now,
+
+            congress: congress,
+            source_type: "house_docs",
+            url: "http://docs.house.gov/floor/Default.aspx?date=#{legislative_day}",
+            
+            bill_url: url,
+            discription: discription,
+            concideration: concideration,
+            floor_id: floor_id,
+
+          )
+        end
+
+        if upcoming.new_record?
+          puts "[#{bill_id}] Saving a new record..." if options[:debug]
+          new_count += 1
+        else
+          puts "[#{bill_id}] Updating an old record..." if options[:debug]
+          updated_count += 1
+        end
+
+        # update bill data, even if schedule already existed
+        if bill = Utils.bill_for(bill_id)
+          upcoming['bill'] = bill
+          Utils.update_bill_upcoming! bill_id, upcoming
+        end
+
+        upcoming.save!
+        upcoming_count += 1
+      end
+    end
     Report.success self, "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
 
   end
 
   # should work for both daily and weekly house notices
-  # http://majorityleader.gov/floor/#daily.html
-  # http://majorityleader.gov/floor/#weekly.html
+  # http://www.majorityleader.gov/floor/
   #
-  # If the PDF link is valid, and has a date in it, then use that date, and use it as the permalink
-  # If not, extract the date from the header, and use the original url as the permalink
+  
   def self.details_from(url, doc)
     # Do I still need this?
     source_url = nil
 
     daily_section = doc.css('div#daily')
+    puts daily_section
     date_text = daily_section.css('h5.post-title')[0].text
     date = Utils.utc_parse(date_text).strftime "%Y-%m-%d"
-
-### none of this works anymore
-    # first preference is to get the date from the PDF URL
-    # links = (doc / :a).select {|x| x.text =~ /printable pdf/i}
-    # a = links.first
-    # if a
-    #   pdf_url = a['href']
-    #   pdf_url
-    #   date_results = pdf_url.gsub(/(DAILY|WEEKLY)%20/, '').gsub(/%20[^\.]*\.pdf/i, '.pdf').scan(/\/([^\/]+)\.pdf$/i)
-    # end
-
-    # if date_results and date_results.any? and date_results.first.any?
-    #   date_text = date_results.first.first
-    #   source_url = pdf_url
-
-    #   month, day, year = date_text.split "-"
-    #   year = ("20" + year) if year.size == 2
-    #   date_text = [year, month, day].join "-"
-
-    # # but if the PDF URL is messed up, try to get it from the header
-    # else
-    #   begin
-    #     date_text = doc.css("#news_text").first.css("b").first.text
-    #   rescue ArgumentError
-    #     date = nil
-    #   end
-    # end
 
     month, day, year = date.split "-"
     year = ("20" + year) if year.size == 2
@@ -181,6 +150,7 @@ class UpcomingHouse
     if (year.to_i != Time.zone.now.year) and (Utils.utc_parse(date) < 6.months.ago)
       date_text.gsub! year, (year.to_i + 1).to_s
     end
+    
     # I don't think source_urls is going to be used
     [source_url, date]
   end
@@ -191,6 +161,25 @@ class UpcomingHouse
     else
       number
     end
+  end
+
+  def self.find_last_monday(date)
+    if date.monday?
+      mon = date
+    elsif date.tuesday?
+      mon = date - 1
+    elsif date.wednesday?
+      mon = date - 2
+    elsif date.thursday?
+      mon = date - 3
+    elsif date.friday?
+      mon = date - 4
+    elsif date.saturday?
+      mon = date - 5
+    elsif date.sunday?
+      mon = date - 6
+    end
+    return mon
   end
 
 end
