@@ -1,13 +1,17 @@
 require 'congress'
+require './config/environment'
+
+
 Congress.key='sunlight9'
 
 all = []
-1.upto(6) do |page|
+1.upto(47) do |page|
   results = Congress.hearings(:page => page, :per_page => 50, :chamber => 'house', :congress => 113, :order => 'occurs_at__asc', :house_hearing_id__exists => true).results
   all.concat results
 end
-fl = File.new('./hearings_with_ids', 'w+')
+fl = File.new('./hearings_with_ids.json', 'w+')
 fl.write(JSON.dump(all))
+fl.close
 
 
 dupes = []
@@ -24,5 +28,14 @@ fl.write(JSON.dump(dupes))
 
 dupes = JSON.parse(File.read('./hearing_dupes.json')).map{|d| d['results']}.flatten
 dupe_ids = dupes.map{|d| d['_id']}
-fl = File.new('./hearing_dupe_ids.json', 'w+')
-fl.write(JSON.dump(dupe_ids))
+# fl = File.new('./hearing_dupe_ids.json', 'w+')
+# fl.write(JSON.dump(dupe_ids))
+
+dupe_ids.each do |id|
+	dupe = Hearing.find _id: id
+	puts dupe
+	#dupe.delete
+end
+        
+
+

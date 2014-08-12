@@ -56,7 +56,7 @@ class CongressionalDocuments
             url["url"] = u["url"]
             urls.push(url)
 
-            if u["file_found"] == true
+            if u["file_found"] == true and url_base.include? ".pdf"
               # extract text
               text_name = url_base.sub ".pdf", ".txt"
               folder = house_event_id / 100
