@@ -28,6 +28,7 @@ group :development do
   gem 'pry-stack_explorer'
   gem 'pry-rescue'
   gem 'pry-debugger'
+  gem 'congress' 
 end
 
 group :test do
