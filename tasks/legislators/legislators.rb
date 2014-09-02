@@ -1,5 +1,6 @@
-class Legislators
+require 'csv'
 
+class Legislators
   # options:
   #   cache: don't re-download unitedstates data
   #   current: limit to current legislators only
@@ -17,7 +18,26 @@ class Legislators
         Report.failure self, "Couldn't clone legislator data from unitedstates."
         return false
       end
-      puts
+    end
+
+    #politwoops download
+    twoops_dict = {}
+    begin
+      puts "downloading twoops"
+      twoops = Utils.download "http://politwoops.sunlightfoundation.com/users.csv"
+      CSV.parse(twoops) do |line|
+        if line[13] != nil and line[13] != ''
+          if twoops_dict.has_key? line[13] and (line[5] == "campaign")
+            twoops_dict[line[13]].push line[0]
+          elsif line[5] == "campaign"
+            twoops_dict[line[13]]= [line[0]]
+          end
+        end
+      end
+      puts "twoops downloaded"
+    rescue
+      puts "problem with twoops"
+      Report.warning self, "Politwoops info did not download"
     end
 
     puts "Loading in YAML files..." if options[:debug]
@@ -52,7 +72,7 @@ class Legislators
       puts "[#{bioguide_id}] Processing #{current ? "active" : "inactive"} legislator from unitedstates..." if options[:debug]
 
       legislator = Legislator.find_or_initialize_by bioguide_id: bioguide_id
-      legislator.attributes = attributes_from_united_states us_legislator, current
+      legislator.attributes = attributes_from_united_states us_legislator, current, twoops_dict
 
       # append social media if present
       if social_media_cache[bioguide_id]
@@ -106,7 +126,7 @@ class Legislators
 
   end
 
-  def self.attributes_from_united_states(us_legislator, current)
+  def self.attributes_from_united_states(us_legislator, current, twoops_dict)
     # don't pick from calculated terms, used for reference only
     last_term = us_legislator['terms'].last
 
@@ -117,7 +137,7 @@ class Legislators
       in_office: current,
 
       thomas_id: us_legislator['id']['thomas'].to_s,
-      govtrack_id: us_legislator['id']['govtrack'].to_s,
+      govtrack_id: us_legislator['id']['govtrack'].to_i,
       crp_id: us_legislator['id']['opensecrets'].to_s,
       fec_ids: us_legislator['id']['fec'],
 
@@ -183,9 +203,18 @@ class Legislators
     elsif attributes[:chamber] == "house"
       attributes[:district] = last_term['district']
     end
-    
+
     if current == true
+      # create open congress email address
       attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
+      # create 
+      if twoops_dict.has_key? us_legislator['id']['bioguide']
+        campaign_twitter = []
+        twoops_dict[us_legislator['id']['bioguide']].each do |handle|
+          campaign_twitter.push handle
+        end
+        attributes[:campaign_twitter] = campaign_twitter 
+      end 
     else
       attributes[:oc_email] = nil
     end
