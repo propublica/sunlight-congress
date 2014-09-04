@@ -5,7 +5,7 @@ layout: default
 
 * placeholder
 {:toc}
-s
+
 # Documents
 
 This project covers a wide range of documents including Government Acountability Office (GAO) Reports and Inspectors General Reports. These govenment oversight documents investigate misconduct and waste as well as acess programs for agencies or programs. 
@@ -82,6 +82,7 @@ gao_report: {
 },
 ```
 ### Fields for ig_report
+
 ***inspector_url***
 The url to the inspector that created the report. Inspectors are located withing their respective departments.
 

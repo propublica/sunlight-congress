@@ -5,7 +5,7 @@ layout: default
 
 * placeholder
 {:toc}
-s
+
 # Congressional Documents
 
 Currently, this project covers recent documents in the [House Committee Repository](http://docs.house.gov/Committee/Committees.aspx).  
