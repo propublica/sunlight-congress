@@ -239,7 +239,7 @@ class Legislators
       attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
       # create 
       if twoops_dict.has_key? us_legislator['id']['bioguide']
-        campaign_twitter_id = []
+        campaign_twitter_ids = []
         twoops_dict[us_legislator['id']['bioguide']].each do |handle|
           campaign_twitter.push handle
         end
