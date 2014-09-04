@@ -131,23 +131,34 @@ class Legislators
     # massage terms array a bit, remove some top-level fields
     terms = terms_for us_legislator
 
+    # an array of name combinations for the legislator  
     full_names = []
     first_name = us_legislator['name']['first']
     last_name = us_legislator['name']['last']
     nickname = us_legislator['name']['nickname']
     middle_name = us_legislator['name']['middle']
     suffix = us_legislator['name']['suffix']
-    if first_name != nil
-      full_names.push "#{first_name} #{last_name}"
-      if middle_name != nil
-        full_names.push "#{first_name} #{middle_name} #{last_name}"
-      end
-      if suffix != nil
-        full_names.push "#{first_name} #{last_name} #{suffix}"
-      end
+
+    full_names.push "#{first_name} #{last_name}"
+    full_names.push "#{terms.last['title']}. #{first_name} #{last_name}"
+    if middle_name != nil
+      full_names.push "#{first_name} #{middle_name} #{last_name}"
+    else
+      full_names.push nil
     end
+
+    if suffix != nil
+      full_names.push "#{first_name} #{last_name} #{suffix}"
+    else
+      full_names.push nil
+    end
+    
     if nickname != nil
       full_names.push "#{nickname} #{last_name}"
+      full_names.push "#{terms.last['title']}. #{nickname} #{last_name} "
+    else
+      full_names.push nil
+      full_names.push nil
     end
 
 
@@ -159,7 +170,7 @@ class Legislators
       crp_id: us_legislator['id']['opensecrets'].to_s,
       fec_ids: us_legislator['id']['fec'],
 
-      full_names: full_names,
+      aliases: full_names,
       first_name: us_legislator['name']['first'],
       nickname: us_legislator['name']['nickname'],
       last_name: us_legislator['name']['last'],

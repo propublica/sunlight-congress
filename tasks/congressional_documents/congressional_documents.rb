@@ -61,25 +61,26 @@ class CongressionalDocuments
               text_name = url_base.sub ".pdf", ".txt"
               folder = house_event_id / 100
               text_file = "data/unitedstates/congress/committee/meetings/house/#{folder}/#{house_event_id}/#{text_name}"
-              
-              text = File.read text_file
-              text_preview = text
-              text_preview.gsub! (/\.{3,}/), '   '
-              text_preview.gsub! (/_{3,}/), '\n'
-              text_preview.gsub! (/\\f/), ' '
-              text_list = text_preview.split(' ')
-              if text_list.count < 150
-                text_preview = text_preview
-              else
-                text_preview = text_list[0...150].join(' ')
-              end
+              if File.exists?(text_file)
+                text = File.read text_file
+                text_preview = text
+                text_preview.gsub! (/\.{3,}/), '   '
+                text_preview.gsub! (/_{3,}/), '\n'
+                text_preview.gsub! (/\\f/), ' '
+                text_list = text_preview.split(' ')
+                if text_list.count < 150
+                  text_preview = text_preview
+                else
+                  text_preview = text_list[0...150].join(' ')
+                end
 
-              if text_preview == ''
-                text_preview == nil
-              end
+                if text_preview == ''
+                  text_preview == nil
+                end
 
-              url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
-              check_and_save(url_base, house_event_id, options) 
+                url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
+                check_and_save(url_base, house_event_id, options) 
+              end # bad files
             end # file found
           end #each url
 
@@ -163,11 +164,16 @@ class CongressionalDocuments
           text_preview = nil
           if File.exists?(text_file)
             text = File.read text_file
+            begin
+              # weeds out some poorly formatted files
+              text.gsub! (/\.{3,}/), '   '
+              text.gsub! (/_{3,}/), '\n'
+              text.gsub! (/\\f/), ' '
+            rescue
+              text = ''
+            end
 
-            text_preview = text
-            text_preview.gsub! (/\.{3,}/), '   '
-            text_preview.gsub! (/_{3,}/), '\n'
-            text_preview.gsub! (/\\f/), ' '
+            text_preview = text            
             text_list = text_preview.split(' ')
             if text_list.count < 150
               text_preview = text_preview
@@ -221,7 +227,6 @@ class CongressionalDocuments
             text: text,
             text_preview: text_preview,
           }
-
           # save to elastic search
           collection = "congressional_documents"
           Utils.es_store! collection, id, document      
