@@ -6,7 +6,7 @@ redirect_from: /not-index
 * placeholder
 {:toc}
 
-A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
+A live JSON API for the people and work of Congress, provided by the [Sunlight Foundationn](http://sunlightfoundation.com).
 
 * Look up members of Congress by location or by zip code.
 * Official Twitter, YouTube, and Facebook accounts.
@@ -43,7 +43,7 @@ Path | Description
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
 [/congressional_documents/search](congressional_documents.html) | Congressional Documents including House Witness Documents and House Committee reports.
-[/documents/search](documents.html) | Oversight Documents including Government Acountability Office Reports and Inspectors General Reports.
+[/documents/search](documents.html) | Oversight Documents including Government Accountability Office Reports and Inspectors General Reports.
 
 ### Status endpoint
 

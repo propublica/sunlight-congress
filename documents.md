@@ -8,9 +8,9 @@ layout: default
 
 # Documents
 
-This project covers a wide range of documents including Government Acountability Office (GAO) Reports and Inspectors General Reports. These govenment oversight documents investigate misconduct and waste as well as acess programs for agencies or programs. 
+This project covers a wide range of documents including Government Accountability Office (GAO) Reports and Inspectors General Reports. These government oversight documents investigate misconduct and waste as well as access programs for agencies or programs. 
 
-The Inspectors General data is fueled by an amazing voulenteer effort that is part of the [@unitedstates](http://theunitedstates.io/) project. These voulenteers built scrapers for all 65 US federal inspectors. Check the [inspectors-general](https://github.com/unitedstates/inspectors-general) repo to see the scrapers that are currently running or, learn how to contribute to the project. Feel free to [open a ticket](https://github.com/unitedstates/inspectors-general/issues/new) with any bugs or suggestions.
+The Inspectors General data is fueled by an amazing volunteer effort that is part of the [@unitedstates](http://theunitedstates.io/) project. These volunteers built scrapers for all 65 US federal inspectors. Check the [inspectors-general](https://github.com/unitedstates/inspectors-general) repo to see the scrapers that are currently running or, learn how to contribute to the project. Feel free to [open a ticket](https://github.com/unitedstates/inspectors-general/issues/new) with any bugs or suggestions.
 
 GAO reports come from the GAO's API
 
@@ -25,7 +25,7 @@ https://congress.api.sunlightfoundation.com
 
 ### /documents/search
 
-This provides full-text search for oversight documents. (See the /congressional-documents methoid for congressional documents)[congressiona_documents.md].
+This provides full-text search for oversight documents. (See the /congressional-documents method for congressional documents)[congressiona_documents.md].
 
 ***document_type***
 This includes gao_reports 
@@ -40,13 +40,13 @@ Release date of the document
 Date the document was published
 
 ***title***
-Title of the doucment
+Title of the document
 
 ***categories***
-Kind of document as assigend by the GAO.
+Kind of document as assigned by the GAO.
 
 ***url***
-Landing page for the docuemnt or link to the document if no landing page.
+Landing page for the document or link to the document if no landing page.
 
 ***source_url***
 The document's url.
@@ -60,16 +60,16 @@ Identifier for the document used in the web address on the GAO website.
 GAO report number.
 
 ***supplement_url***
-URL for supplemental inforamtion.
+URL for supplemental information.
 
 ***youtube_id***
 Youtube id if one is associated with the document.
 
 ***links***
-Additional liks related to the document.
+Additional links related to the document.
 
 ***description***
-discription of the document
+description of the document
 
 ```
 gao_report: {
@@ -99,7 +99,7 @@ Shortened agency name of the agency that produced the report.
 Full agency name.
 
 ***type***
-General category that idendifies it the file is a report, audit, etc.
+General category that identifies it the file is a report, audit, etc.
 
 ***url***
 The report's URL.

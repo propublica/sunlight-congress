@@ -219,7 +219,7 @@ The member's middle name, if they have one.
 A name suffix, if the member uses one. For example, "Jr." or "III".
 
 \* **aliases**
-An array of common names combinations for a Congressperson if a combiniation does not exist, the result will be null and the index will be consistant. 
+An array of common names combinations for a Congressperson if a combination does not exist, the result will be null and the index will be consistent. 
 
 {% highlight json %}
 [
@@ -246,10 +246,10 @@ An array of common names combinations for a Congressperson if a combiniation doe
 {% endhighlight %}
 
 **phone**
-Phone number of the members's DC office.
+Phone number of the member's DC office.
 
 **fax**
-Fax number of the members's DC office.
+Fax number of the member's DC office.
 
 **office**
 Office number for the member's DC office.

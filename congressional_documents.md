@@ -8,7 +8,7 @@ layout: default
 
 # Congressional Documents
 
-Currently, this project covers recent documents in the [House Committee Repository](http://docs.house.gov/Committee/Committees.aspx).  
+Currently, this project covers recent documents in the [House Committee Repositoryy](http://docs.house.gov/Committee/Committees.aspx).  
 
 The information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress). Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
 
@@ -50,7 +50,7 @@ Session of Congress.
 Unique id for each hearing, assigned by the House.
 
 **hearing_type_code**
-This discribes if the meeting is a markup, meeting, hearing
+This describes if the meeting is a markup, meeting, hearing
 
 **hearing_title**
 Title of the hearing associated with the document.
@@ -62,10 +62,10 @@ Date and time of publication.
 Bill ID associated with the document. 
 
 **description**
-Discription of the hearing.
+Description of the hearing.
 
 **version_code**
-The short-code for what stage the version of the bill is at. See [GPO](http://www.gpo.gov/help/about_congressional_bills.htm) for explinations for the version code.
+The short-code for what stage the version of the bill is at. See [GPO](http://www.gpo.gov/help/about_congressional_bills.htm) for explanations for the version code.
 
 **bioguide_id**
 Unique identifier for a member of congress if they are associated with the document.
