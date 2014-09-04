@@ -42,6 +42,8 @@ Path | Description
 [/floor_updates](floor_updates.html) | To-the-minute updates from the floor of the House and Senate.
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
+[/congressional_documents/search](congressional_documents.html) | Congressional Documents including House Witness Documents and House Committee reports.
+[/documents/search](documents.html) | Oversight Documents including Government Acountability Office Reports and Inspectors General Reports.
 
 ### Status endpoint
 

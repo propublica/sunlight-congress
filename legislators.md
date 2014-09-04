@@ -218,6 +218,21 @@ The member's middle name, if they have one.
 \* **name_suffix**
 A name suffix, if the member uses one. For example, "Jr." or "III".
 
+\* **aliases**
+An array of common names combinations for a Congressperson if a combiniation does not exist, the result will be null and the index will be consistant. 
+
+{% highlight json %}
+[
+  first_name last_name,
+  title. first_name last_name,
+  first_name middle last_name,
+  first_name last_name suffix,
+  nickname last_name,
+  title. nick_name last_name,
+]
+{% endhighlight %}
+
+
 ### Contact info
 
 {% highlight json %}
@@ -247,15 +262,24 @@ URL to their official contact form.
 
 ### Social Media
 
+Social media accounts for members of congress. 
+
+\* **twitter_id**
+This is the offical government account of a member of congress. This data comes from the [@unitedstates](https://github.com/unitedstates/congress-legislators) project.
+
+\* **campaign_twitter_ids**
+This is an array of twitter accounts of a congressperson's campaign. This comes from Sunlight's Politwoops project. If you think you have uncovered a new account, email us at <twoops@sunlightfoundation.com>.
+
 {% highlight json %}
 {
   "twitter_id": "SenSherrodBrown",
+  "campaign_twitter_ids": ["SherrodBrown",]
   "youtube_id": "SherrodBrownOhio",
   "facebook_id": "109453899081640"
 }
 {% endhighlight %}
 
-Social media account data is sourced from the [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) project on Github. If you spot any missing or incorrect accounts, please [file a ticket](https://github.com/unitedstates/congress-legislators/issues) or [open a pull request](https://github.com/unitedstates/congress-legislators/pulls)!
+Most social media account data is sourced from the [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) project on Github. If you spot any missing or incorrect accounts, please [file a ticket](https://github.com/unitedstates/congress-legislators/issues) or [open a pull request](https://github.com/unitedstates/congress-legislators/pulls)!
 
 **twitter_id**
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
