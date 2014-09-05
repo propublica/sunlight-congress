@@ -6,7 +6,7 @@ redirect_from: /not-index
 * placeholder
 {:toc}
 
-A live JSON API for the people and work of Congress, provided by the [Sunlight Foundationn](http://sunlightfoundation.com).
+A live JSON API for the people and work of Congress, provided by the [Sunlight Foundation](http://sunlightfoundation.com).
 
 * Look up members of Congress by location or by zip code.
 * Official Twitter, YouTube, and Facebook accounts.
