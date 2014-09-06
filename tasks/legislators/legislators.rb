@@ -241,9 +241,9 @@ class Legislators
       if twoops_dict.has_key? us_legislator['id']['bioguide']
         campaign_twitter_ids = []
         twoops_dict[us_legislator['id']['bioguide']].each do |handle|
-          campaign_twitter.push handle
+          campaign_twitter_ids.push handle
         end
-        attributes[:campaign_twitter] = campaign_twitter 
+        attributes[:campaign_twitter_ids] = campaign_twitter_ids 
       end 
     else
       attributes[:oc_email] = nil
