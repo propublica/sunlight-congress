@@ -57,7 +57,7 @@ class HearingsHouse
         occurs_at = Time.zone.parse(occurs_at).utc
 
         if !hearing_url
-          hearing_url = "http://docs.house.gov/Committee/Calendar/ByEvent.aspx?EventID=" + house_event_id
+          hearing_url = "http://docs.house.gov/Committee/Calendar/ByEvent.aspx?EventID=" + house_event_id.to_s
         end
 
         unless committee = Committee.where(committee_id: committee_id).first
