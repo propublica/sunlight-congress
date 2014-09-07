@@ -65,8 +65,8 @@ class CongressionalDocuments
                 text = File.read text_file
                 text_preview = text
                 text_preview.gsub! (/\.{3,}/), '   '
-                text_preview.gsub! (/_{3,}/), '\n'
-                text_preview.gsub! (/\\f/), ' '
+                text_preview.gsub! (/_{3,}/), ' '
+                text_preview.gsub! (/\\f/), ''
                 text_list = text_preview.split(' ')
                 if text_list.count < 150
                   text_preview = text_preview
@@ -166,10 +166,11 @@ class CongressionalDocuments
             text = File.read text_file
             begin
               # weeds out some poorly formatted files
-              text.gsub! (/\.{3,}/), '   '
-              text.gsub! (/_{3,}/), '\n'
+              text.gsub! (/\.{3,}/), ' '
+              text.gsub! (/_{3,}/), ' '
               text.gsub! (/\\f/), ' '
             rescue
+              print "Problem"
               text = ''
             end
 
@@ -186,6 +187,8 @@ class CongressionalDocuments
             end
             # save
             check_and_save(url_base, house_event_id, options)
+          else
+            print "no file"
           end
 
           extn = File.extname url_base

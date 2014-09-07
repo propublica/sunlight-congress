@@ -6,8 +6,17 @@ url = "http://congress.api.sunlightfoundation.com/congressional_documents/search
 data = []
 
 def call_congress_api(page):
+  url = "http://congress.api.sunlightfoundation.com/congressional_documents/search?"
+  
+  query_params = {
+        'apikey': "sunlight9",
+        'per_page': 50,
+        'fields': "document_id,document_type,chamber,committee_id,subcommittee_suffix,committee_names,congress,house_event_id,hearing_type_code,hearing_title,document_type_name,published_at,bill_id,description,type,version_code,bioguide_id,occurs_at,urls,witness",
+        'page': page,
+  }
   endpoint = url
-  response = requests.get(endpoint)
+
+  response = requests.get(endpoint, params=query_params)
 
   response_url = response.url
   # debug
@@ -16,10 +25,14 @@ def call_congress_api(page):
 
 def read_response(resp):
   for r in resp["results"]:
+      if r['urls'] == []:
+            print r['document_id']
+            continue
+
+
       if r['occurs_at'] == None:
             print r, "NO occurs_at"
       item = {}
-      # item['bill_ids']= [r['bill_id']],
       item['chamber']= r['chamber']
       item['committee']= r['committee_id']
       item['committee_names']= r['committee_names']
@@ -27,8 +40,7 @@ def read_response(resp):
       item['house_event_id']= r['house_event_id']
       item['subcommittee']= r['subcommittee_suffix']
       item['occurs_at']= r['occurs_at']
-
-      
+      item['topic'] = r['hearing_title']
 
       doc = [{
             "description": r['description'],
@@ -86,7 +98,7 @@ def read_response(resp):
     
 
 page = 1
-total_pages = 50#208
+total_pages = 417#208
 # retrieve witness information
 while page <= total_pages:
   resp = call_congress_api(page)
