@@ -1,102 +1,98 @@
 {
-	"congress": {
-		"mappings": {
-			"congressional_documents": {
-				"properties": {
-					"bill_id": {
-					"type": "string"
-					},
-					"bioguide_id": {
-					"type": "string"
-					},
-					"chamber": {
-					"type": "string"
-					},
-					"committee_id": {
-					"type": "string"
-					},
-					"committee_names": {
-					"type": "string"
-					},
-					"congress": {
-					"type": "long"
-					},
-					"description": {
-					"type": "string"
-					},
-					"document_id": {
-					"type": "string"
-					},
-					"document_type": {
-					"type": "string"
-					},
-					"hearing_title": {
-					"type": "string"
-					},
-					"hearing_type_code": {
-					"type": "string"
-					},
-					"house_event_id": {
-					"type": "long"
-					},
-					"occurs_at": {
-					"type": "date",
-					"format": "dateOptionalTime"
-					},
-					"published_at": {
-					"type": "date",
-					"format": "dateOptionalTime"
-					},
-					"subcommittee_suffix": {
-					"type": "string"
-					},
-					"text": {
-					"type": "string",
-					"term_vector": "with_positions_offsets"
-					},
-					"text_preview": {
-					"type": "string"
-					},
-					"type": {
-					"type": "string"
-					},
-					"urls": {
-					"properties": {
-					"permalink": {
-					"type": "string"
-					},
-					"url": {
-					"type": "string"
-					}
-					}
-					},
-					"version_code": {
-					"type": "string"
-					},
-					"witness": {
-					"properties": {
-					"first_name": {
-					"type": "string"
-					},
-					"last_name": {
-					"type": "string"
-					},
-					"middle_name": {
-					"type": "string"
-					},
-					"organization": {
-					"type": "string"
-					},
-					"position": {
-					"type": "string"
-					},
-					"witness_type": {
-					"type": "string"
-					}
-					}
-					}
-				}
-			}
-		}
-	}
+  "congressional_documents": {
+    "properties": {
+      "bill_id": {
+        "type": "string"
+      },
+      "bioguide_id": {
+        "type": "string"
+      },
+      "chamber": {
+        "type": "string"
+      },
+      "committee_id": {
+        "type": "string"
+      },
+      "committee_names": {
+        "type": "string"
+      },
+      "congress": {
+        "type": "long"
+      },
+      "description": {
+        "type": "string"
+      },
+      "document_id": {
+        "type": "string"
+      },
+      "document_type": {
+        "type": "string"
+      },
+      "hearing_title": {
+        "type": "string"
+      },
+      "hearing_type_code": {
+        "type": "string"
+      },
+      "house_event_id": {
+        "type": "long"
+      },
+      "occurs_at": {
+        "type": "date",
+        "format": "dateOptionalTime"
+      },
+      "published_at": {
+        "type": "date",
+        "format": "dateOptionalTime"
+      },
+      "subcommittee_suffix": {
+        "type": "string"
+      },
+      "text": {
+        "type": "string",
+        "term_vector": "with_positions_offsets"
+      },
+      "text_preview": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      },
+      "urls": {
+        "properties": {
+          "permalink": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "version_code": {
+        "type": "string"
+      },
+      "witness": {
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "middle_name": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "witness_type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }
