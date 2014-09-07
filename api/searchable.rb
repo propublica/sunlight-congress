@@ -269,7 +269,7 @@ module Searchable
           query: {
             multi_match: {
               query: query[:query_string][:query],
-              use_dis_max: true,
+              type: "best_fields",
               fields: profile[:fields]
             }
           }
