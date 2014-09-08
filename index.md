@@ -42,6 +42,8 @@ Path | Description
 [/floor_updates](floor_updates.html) | To-the-minute updates from the floor of the House and Senate.
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
+[/congressional_documents/search](congressional_documents.html) | Congressional documents including House witness documents and House committee reports.
+[/documents/search](documents.html) | Oversight documents including Government Accountability Office reports and Inspectors General reports.
 
 
 ### Status endpoint
@@ -277,7 +279,7 @@ myCallback({
 
 ### Basic search
 
-Provide a `query` parameter to return results the API thinks best match your query. Queries are interpreted as *phrases*.
+Provide a `query` parameter to return results the API thinks match your query best. Queries are interpreted as *phrases*.
 
 **Senate hearings matching "environment"**
 
@@ -366,8 +368,8 @@ Endpoints ending with `/search` that are given a `query` parameter perform full 
 
 Operators allowed:
 
-* Wildcards: Use `*` as a wildcard within words (e.g. `nanotech*`). Cannot be used within phrases.
-* Adjacency: Append `~` and a number to a phrase to allow the words to come within X words of each other. (e.g. `"transparency accountability"~5`)
+* Wildcards: use `*` as a wildcard within words (e.g. `nanotech*`). Cannot be used within phrases.
+* Adjacency: append `~` and a number to a phrase to allow the words to come within X words of each other. (e.g. `"transparency accountability"~5`)
 
 **Bills matching "freedom of information" and words starting with "accountab"**
 
@@ -406,7 +408,7 @@ By default, highlighting is performed with the `<em>` and `</em>` tags. Control 
 /bills/search?query=immigration&highlight=true&highlight.tags=,
 {% endhighlight %}
 
-Control the size of highlighted excerpts with the `highlight.size` parameter. (Note: This doesn't always work; the database makes a best attempt.) The default `highlight.size` is 200.
+Control the size of highlighted excerpts with the `highlight.size` parameter. (Note: this doesn't always work; the database makes a best attempt.) The default `highlight.size` is 200.
 
 **Bills matching "drugs", with larger excerpts**
 
@@ -471,7 +473,7 @@ We have prepared a [migration guide](migration.html) that shows how to move from
 
 ### Congress on IFTTT
 
-The Sunlight Foundation has an [IFTTT channel](https://ifttt.com/sunlightfoundation) that offers some "Triggers" based on events in Congress.
+The Sunlight Foundation has an [IFTTT channel](https://ifttt.com/sunlightfoundation) that offers some "triggers" based on events in Congress.
 
 Check out our [shared recipes](https://ifttt.com/p/sunlightfoundation) and our [favorite recipes](https://ifttt.com/p/sunlightfoundation#favorites) for some examples of how to make use of our congressional data with IFTTT.
 

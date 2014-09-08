@@ -8,9 +8,9 @@ layout: default
 
 # Documents
 
-This project covers a wide range of documents including Government Accountability Office (GAO) Reports and Inspectors General Reports. These government oversight documents investigate misconduct and waste as well as access programs for agencies or programs. 
+This project covers a wide range of documents including Government Accountability Office (GAO) Reports and Inspector General Reports. These government oversight documents investigate misconduct, waste and programs. 
 
-The Inspectors General data is fueled by an amazing volunteer effort that is part of the [@unitedstates](http://theunitedstates.io/) project. These volunteers built scrapers for all 65 US federal inspectors. Check the [inspectors-general](https://github.com/unitedstates/inspectors-general) repo to see the scrapers that are currently running or, learn how to contribute to the project. Feel free to [open a ticket](https://github.com/unitedstates/inspectors-general/issues/new) with any bugs or suggestions.
+The Inspector General data is fueled by an amazing volunteer effort that is part of the [@unitedstates](http://theunitedstates.io/) project. These volunteers built scrapers for all 65 US federal inspectors. Check the [inspectors-general](https://github.com/unitedstates/inspectors-general) repo to see the scrapers that are currently running or, learn how to contribute to the project. Feel free to [open a ticket](https://github.com/unitedstates/inspectors-general/issues/new) with any bugs or suggestions.
 
 GAO reports come from the GAO's API
 
@@ -25,7 +25,7 @@ https://congress.api.sunlightfoundation.com
 
 ### /documents/search
 
-This provides full-text search for oversight documents. (See the /congressional-documents method for congressional documents)[congressiona_documents.md].
+This provides full-text search for oversight documents. [See the /congressional-documents method for congressional documents](congressiona_documents.md).
 
 ***document_type***
 This includes gao_reports 
@@ -69,7 +69,7 @@ Youtube id if one is associated with the document.
 Additional links related to the document.
 
 ***description***
-description of the document
+Description of the document
 
 ```
 gao_report: {
@@ -84,28 +84,28 @@ gao_report: {
 ### Fields for ig_report
 
 ***inspector_url***
-The url to the inspector that created the report. Inspectors are located withing their respective departments.
+The url of the Inspector General that created the report. Inspector Generals are located withing their respective departments.
 
 ***pdf***
-Meta data from the PDF. Including, modification_date, creation_date, author and page_count.
+Metadata from the PDF. Including modification_date, creation_date, author and page_count.
 
 ***published_on***
 Document's publication date.
 
 ***agency***
-Shortened agency name of the agency that produced the report.
+Shortened name of the agency that produced the report.
 
 ***agency_name***
 Full agency name.
 
 ***type***
-General category that identifies it the file is a report, audit, etc.
+General category that identifies the file as a report, audit, etc.
 
 ***url***
 The report's URL.
 
 ***file_type***
-File type of the document, most reports are pdf. 
+File type of the document, most reports are PDF. 
 
 ***title***
 The title of the report.

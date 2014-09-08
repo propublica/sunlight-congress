@@ -1,4 +1,4 @@
----
+s---
 layout: default
 ---
 
@@ -10,7 +10,7 @@ layout: default
 
 Data on members of Congress, dating back to 1789. All member information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress-legislators). Feel free to [open a ticket](https://github.com/unitedstates/congress-legislators/issues/new) with any bugs or suggestions.
 
-**Unique ID**: The **bioguide_id** will be present and unique for all members of Congress. It is an official ID, assigned by Congress, and is the most suitable for use as a unique ID.
+**Unique ID**: the **bioguide_id** will be present and unique for all members of Congress. It is an official ID, assigned by Congress, and is the most suitable for use as a unique ID.
 
 ## Methods
 
@@ -262,10 +262,10 @@ URL to their official contact form.
 
 ### Social Media
 
-Social media accounts for members of congress. 
+Social media accounts for members of Congress. 
 
 \* **twitter_id**
-This is the offical government account of a member of congress. This data comes from the [@unitedstates](https://github.com/unitedstates/congress-legislators) project.
+This is the offical government account of a member of Congress. This data comes from the [@unitedstates](https://github.com/unitedstates/congress-legislators) project.
 
 \* **campaign_twitter_ids**
 This is an array of twitter accounts of a congressperson's campaign. This comes from Sunlight's Politwoops project. If you think you have uncovered a new account, email us at <twoops@sunlightfoundation.com>.
@@ -279,7 +279,7 @@ This is an array of twitter accounts of a congressperson's campaign. This comes 
 }
 {% endhighlight %}
 
-Most social media account data is sourced from the [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) project on Github. If you spot any missing or incorrect accounts, please [file a ticket](https://github.com/unitedstates/congress-legislators/issues) or [open a pull request](https://github.com/unitedstates/congress-legislators/pulls)!
+Most social media account data is sourced from the [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) project on GitHub. If you spot any missing or incorrect accounts, please [file a ticket](https://github.com/unitedstates/congress-legislators/issues) or [open a pull request](https://github.com/unitedstates/congress-legislators/pulls)!
 
 **twitter_id**
 The Twitter *username* for a member's official legislative account. This field does not contain the handles of campaign accounts.
@@ -288,7 +288,7 @@ The Twitter *username* for a member's official legislative account. This field d
 The YouTube *username or channel* for a member's official legislative account. This field does not contain the handles of campaign accounts. A few legislators use YouTube "channels" instead of regular accounts. These channels will be of the form `channel/[id]`.
 
 **facebook_id**
-The Facebook *username or ID* for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook Page or a user account.
+The Facebook *username or ID* for a member's official legislative Facebook presence. ID numbers and usernames can be used interchangeably in Facebook's URLs and APIs. The referenced account may be either a Facebook page or a user account.
 
 All social media account values can be turned into URLs by preceding them with the domain name of the service in question:
 
