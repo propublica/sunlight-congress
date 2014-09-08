@@ -268,18 +268,24 @@ module Searchable
           functions: profile[:functions],
           query: {
             multi_match: {
+              type: "phrase",
+              fields: profile[:fields],
               query: query[:query_string][:query],
-              use_dis_max: true,
-              fields: profile[:fields]
             }
           }
-        },
-        fields: query[:query_string][:fields]
+        }
       }
 
       # and include any further filter on it
       if filter
-        query_filter[:query][:filter] = filter
+        query_filter = {
+          query: {
+            filtered: {
+              query: query_filter[:query],
+              filter: filter
+            }
+          }
+        }
       end
 
     # if no custom filter, and we have both a query and a filter,
