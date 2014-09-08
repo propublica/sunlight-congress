@@ -73,8 +73,7 @@
 # Scrape House committee hearings using unitedstates scraper
 # Update hearings data
 # Update congressional documents
-# turning off just for now
-###1 */3 * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house &&  /projects/congress-api/congress/shared/cron/task.sh congressional_documents
+1 */3 * * * /projects/congress-api/congress/shared/cron/us-sync-meetings.sh && /projects/congress-api/congress/shared/cron/task.sh hearings_house &&  /projects/congress-api/congress/shared/cron/task.sh congressional_documents
 
 # upcoming leadership information
 */13 * * * * /projects/congress-api/congress/shared/cron/task.sh upcoming_senate
