@@ -43,7 +43,7 @@ Path | Description
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
 [/congressional_documents/search](congressional_documents.html) | Congressional documents including House witness documents and House committee reports.
-[/documents/search](documents.html) | Oversight documents including Government Accountability Office reports and Inspectors General reports.
+[/documents/search](documents.html) | Oversight documents including Government Accountability Office reports and Inspectors General reports. 
 
 
 ### Status endpoint
