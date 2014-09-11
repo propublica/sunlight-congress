@@ -193,15 +193,13 @@ class VotesSenate
 
   # find the latest roll call number listed on the Senate roll call vote page for a given year
   def self.rolls_for(congress, session, options = {})
-    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.htm"
+    url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.xml"
+    puts "[#{congress}-#{session}] Fetching xml index page for #{url} from Senate website..." if options[:debug]
+    
+    return nil unless doc = Utils.xml_for(url)
+    latest = doc.xpath("//vote_number")[0].text.to_i
+    return nil unless latest != nil
 
-    puts "[#{congress}-#{session}] Fetching index page for #{url} from Senate website..." if options[:debug]
-    return nil unless doc = Utils.html_for(url)
-
-    element = doc.css("td.contenttext td.contenttext a").first
-    return nil unless element and element.text.present?
-
-    latest = element.text.to_i
     if latest > 0
       (1..latest).map do |number|
         roll_id_for number, congress, session
