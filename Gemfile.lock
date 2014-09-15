@@ -98,6 +98,9 @@ GEM
       hashie (~> 2.0.0)
     ruby-hmac (0.4.0)
     safe_yaml (1.0.1)
+    sentry-raven (0.10.1)
+      faraday (>= 0.7.6)
+      uuidtools
     sinatra (1.4.4)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -118,6 +121,7 @@ GEM
       raindrops (~> 0.7)
     us-documents (0.3.0)
       nokogiri
+    uuidtools (2.1.5)
     wirb (1.0.3)
       paint (~> 0.8)
     yajl-ruby (1.2.0)
@@ -146,6 +150,7 @@ DEPENDENCIES
   rake
   ruby-hmac
   safe_yaml
+  sentry-raven
   sinatra (~> 1.0)
   sinatra-cross_origin
   timecop (~> 0.7)

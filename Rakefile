@@ -25,6 +25,7 @@ task create_indexes: :environment do
       puts "Created indexes for #{model}"
     end
   rescue Exception => exception
+    Raven.capture_exception exception
     Email.report Report.exception("Indexes", "Exception creating indexes", exception)
     puts "Error creating indexes, emailed report."
   end
@@ -43,6 +44,7 @@ task set_crontab: :environment do
   if system("cat #{current_path}/config/cron/#{environment}.crontab | crontab")
     puts "Successfully overwrote crontab."
   else
+    Raven.capture_message "Crontab overwriting failed on deploy."
     Email.message "Crontab overwriting failed on deploy."
     puts "Unsuccessful in overwriting crontab, emailed report."
   end
@@ -53,6 +55,7 @@ task disable_crontab: :environment do
   if system("echo | crontab")
     puts "Successfully disabled crontab."
   else
+    Raven.capture_message "Somehow failed at disabling crontab."
     Email.message "Somehow failed at disabling crontab."
     puts "Unsuccessful (somehow) at disabling crontab, emailed report."
   end
@@ -87,9 +90,9 @@ def run_task(name)
     if ENV['raise']
       raise ex
     else
+      Raven.capture_exception(ex, :tags => {task_name: task_name})
       Report.exception task_name, "Exception running #{name}", ex, {elapsed: (Time.now - start)}
     end
-
   else
     Report.complete task_name, "Completed running #{name}", {elapsed: (Time.now - start)}
   end
@@ -97,6 +100,9 @@ def run_task(name)
   Report.unread.where(source: task_name).all.each do |report|
     puts report
     puts report.exception_message if report.exception?
+    Raven.capture_message report.exception_message, tags: {
+      task_name: report.source
+    }
     Email.report report if report.failure? or report.warning?
     report.mark_read!
   end
@@ -150,6 +156,7 @@ namespace :analytics do
           rescue Exception => exception
             report = Report.exception 'Analytics', "Exception filing a report", exception
             puts report
+            Raven.capture_message "Exception filing a report"
             Email.report report
           end
         end
@@ -163,8 +170,8 @@ namespace :analytics do
     rescue Exception => exception
       report = Report.exception 'Analytics', "Exception reporting analytics", exception
       puts report
+      Raven.capture_exception exception
       Email.report report
-
     end
   end
 end

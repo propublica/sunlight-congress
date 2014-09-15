@@ -19,6 +19,7 @@ require './api/citable'
 require './api/location'
 require './tasks/utils'
 Dir.glob('models/*.rb').each {|f| load f}
+require 'raven'
 
 class Environment
   def self.config

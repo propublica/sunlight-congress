@@ -189,7 +189,7 @@ get '/error' do
 end
 
 error do
-  exception = env['sinatra.error']
+  Raven.capture_exception(env['sinatra.error'])
   name = exception.class.name
   message = exception.message
 
