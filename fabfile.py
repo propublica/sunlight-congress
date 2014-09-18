@@ -26,11 +26,12 @@ def checkout():
   run('git clone -q -b %s %s %s' % (branch, repo, version_path))
 
 def links():
-  run("ln -s %s/config.yml %s/config/config.yml" % (shared_path, version_path))
-  run("ln -s %s/mongoid.yml %s/config/mongoid.yml" % (shared_path, version_path))
-  run("ln -s %s/config.ru %s/config.ru" % (shared_path, version_path))
-  run("ln -s %s/unicorn.rb %s/unicorn.rb" % (shared_path, version_path))
-  run("ln -s %s/data %s/data" % (home, version_path))
+  run("ln -sf %s/config.yml %s/config/config.yml" % (shared_path, version_path))
+  run("ln -sf %s/mongoid.yml %s/config/mongoid.yml" % (shared_path, version_path))
+  run("ln -sf %s/config.ru %s/config.ru" % (shared_path, version_path))
+  run("ln -sf %s/unicorn.rb %s/unicorn.rb" % (shared_path, version_path))
+  run("ln -sf %s/cron %s/config/cron/scripts" % (shared_path, version_path))  
+  run("ln -sf %s/data %s/data" % (home, version_path))
 
 def dependencies():
   run("cd %s && bundle install --local" % version_path)
