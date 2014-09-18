@@ -12,4 +12,4 @@ source $HOME/.virtualenvs/congress/bin/activate
 cd $HOME/congress/current
 
 # load data from scraper into the api
-rake:upcoming_house
+rake task:upcoming_house
