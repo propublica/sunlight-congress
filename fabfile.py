@@ -30,7 +30,7 @@ def links():
   run("ln -sf %s/mongoid.yml %s/config/mongoid.yml" % (shared_path, version_path))
   run("ln -sf %s/config.ru %s/config.ru" % (shared_path, version_path))
   run("ln -sf %s/unicorn.rb %s/unicorn.rb" % (shared_path, version_path))
-  run("ln -sf %s/cron %s/config/cron/scripts" % (shared_path, version_path))  
+  run("ln -sf %s/config/cron/scripts %s/cron" % (version_path, shared_path))  
   run("ln -sf %s/data %s/data" % (home, version_path))
 
 def dependencies():
