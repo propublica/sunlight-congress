@@ -17,7 +17,7 @@ The front end tries to maintain as little model-specific logic as possible. Ther
 
 The **back end** is a set of tasks (scripts) whose job is to write data to the collections those models refer to. Most data is stored in [MongoDB](http://www.mongodb.org/), but some tasks will store additional data in [Elasticsearch](http://www.elasticsearch.org/), and some tasks may extract citations via a [citation](https://github.com/unitedstates/citation) server.
 
-We currently manage these tasks [via cron](https://github.com/sunlightlabs/congress/blob/master/config/cron/production.crontab). A small task runner wraps each script in order to ensure any "reports" created along the way get emailed to admins, to catch errors, and to parse command line options.
+We currently manage these tasks via  [cron](https://github.com/sunlightlabs/congress/blob/master/config/cron/production.crontab). A small task runner wraps each script in order to ensure any "reports" created along the way get emailed to admins, to catch errors, and to parse command line options.
 
 While the front end and back end are mostly decoupled, many of them do use the definitions in `models/` to save data (via [Mongoid](https://github.com/mongoid/mongoid)) and to manage duplicating "basic" fields about objects onto other objects.
 
