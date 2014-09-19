@@ -125,11 +125,13 @@ clone_repo() {
 
 make_symlinks() {
   echo "Making symlinks..."
-  ln -s ${SHARED_PATH}/config.yml ${VERSION_PATH}/config/config.yml
-  ln -s ${SHARED_PATH}/mongoid.yml ${VERSION_PATH}/config/mongoid.yml
-  ln -s ${SHARED_PATH}/config.ru ${VERSION_PATH}/config.ru
-  ln -s ${SHARED_PATH}/unicorn.rb ${VERSION_PATH}/unicorn.rb
-  ln -s ${HOME}/data ${VERSION_PATH}/data
+  ln -sf ${SHARED_PATH}/config.yml ${VERSION_PATH}/config/config.yml
+  ln -sf ${SHARED_PATH}/mongoid.yml ${VERSION_PATH}/config/mongoid.yml
+  ln -sf ${SHARED_PATH}/config.ru ${VERSION_PATH}/config.ru
+  ln -sf ${SHARED_PATH}/unicorn.rb ${VERSION_PATH}/unicorn.rb
+  ln -sf ${SHARED_PATH}/unicorn.rb ${VERSION_PATH}/unicorn.rb
+  ln -sf ${HOME}/data ${VERSION_PATH}/data
+  ln -sf ${VERSION_PATH}/config/cron/scripts ${SHARED_PATH}/cron
 }
 
 install_dependencies() {
