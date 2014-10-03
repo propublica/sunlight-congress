@@ -119,6 +119,9 @@ module Utils
     body = begin
       curl = Curl::Easy.new url
       curl.follow_location = true # follow redirects
+      unless url.match(/^https:\/\/www.federalregister.gov/).nil?
+        curl.ssl_verify_peer = false
+      end
       curl.perform
     rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
       Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError,
@@ -168,6 +171,9 @@ module Utils
       body = begin
         curl = Curl::Easy.new url
         curl.follow_location = true # follow redirects
+        unless url.match(/^https:\/\/www.federalregister.gov/).nil?
+          curl.ssl_verify_peer = false
+        end
         curl.headers["User-Agent"] = "sunlight-congress-api / curl"
         curl.perform
       rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
