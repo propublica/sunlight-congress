@@ -135,6 +135,8 @@ class FloorSenate
     [] # unsure how to do this, they never use the roll number that I can see!
   end
 
+  # TODO: Only to support Chamber=Senate here in  congress / tasks / floor_senate / floor_senate.rb
+  # See also: congress / tasks / python_utils.py
   def self.extract_legislators(text)
     []
   end

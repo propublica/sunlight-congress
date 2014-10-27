@@ -66,6 +66,8 @@ def extract_bills(text, congress):
 
   return bill_ids
 
+# Only supports Chamber=House here in  congress / tasks / python_utils.py
+# See also:  congress / tasks / floor_senate / floor_senate.rb
 def extract_legislators(text, chamber, db):
   legislator_names = []
   bioguide_ids = []
