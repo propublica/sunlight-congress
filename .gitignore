@@ -7,6 +7,8 @@
 /config/config.yml
 /config/mongoid.yml
 
+*.sublime-project
+
 /data
 
 *.pyc
