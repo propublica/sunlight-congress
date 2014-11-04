@@ -8,7 +8,7 @@
 /config/mongoid.yml
 
 *.sublime-project
-
+.vagrant/*
 /data
 
 *.pyc
