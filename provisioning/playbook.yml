@@ -1,0 +1,14 @@
+---
+- hosts: web
+  sudo: yes
+  tasks:
+    - name: update package version/dependency info
+      apt: update_cache=yes cache_valid_time=3600
+    - name: install packages
+      apt: pkg={{item}} state=installed
+      with_items: 
+      - git
+    #- name: clone unitedstates/congress
+    #  git: repo=https://github.com/unitedstates/congress.git
+    #       dest=/srv/checkout
+ 
