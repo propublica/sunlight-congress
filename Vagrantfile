@@ -13,7 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     web.vm.box = "ubuntu/trusty64"
     web.vm.provision "ansible" do |ansible|
       ansible.playbook = "provisioning/playbook.yml"
-      ansible.verbose = "v"
+      ansible.verbose = "vvvv"
     end
   end
   

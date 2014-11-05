@@ -2,13 +2,37 @@
 - hosts: web
   sudo: yes
   tasks:
+    - name: create users
+      user: name=congress-api comment="Congress API"
     - name: update package version/dependency info
       apt: update_cache=yes cache_valid_time=3600
     - name: install packages
       apt: pkg={{item}} state=installed
       with_items: 
       - git
-    #- name: clone unitedstates/congress
-    #  git: repo=https://github.com/unitedstates/congress.git
-    #       dest=/srv/checkout
- 
+- hosts: web
+  sudo: yes
+  sudo_user: congress-api    
+  tasks:
+    - name: clone congress
+      git: repo=https://github.com/sunlightlabs/congress.git
+           dest=~/congress
+    - name: clone unitedstates/citation
+      git: repo=https://github.com/unitedstates/citation.git
+           dest=~/unitedstates/citation
+    - name: clone unitedstates/congress
+      git: repo=https://github.com/unitedstates/congress.git
+           dest=~/unitedstates/congress
+    - name: clone unitedstates/congress-legislators
+      git: repo=https://github.com/unitedstates/congress-legislators.git
+           dest=~/unitedstates/congress-legislators
+    - name: clone unitedstates/glossary
+      git: repo=https://github.com/unitedstates/glossary.git
+           dest=~/unitedstates/glossary
+    - name: clone unitedstates/inspectors-general
+      git: repo=https://github.com/unitedstates/inspectors-general.git
+           dest=~/unitedstates/inspectors-general
+    - name: clone unitedstates/us-sync
+      git: repo=https://github.com/unitedstates/us-sync.git
+           dest=~/unitedstates/us-sync
+
