@@ -10,13 +10,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   config.vm.define "web" do |web|
+    web.vm.hostname = "web"
     web.vm.box = "ubuntu/trusty64"
-    web.vm.provision "ansible" do |ansible|
-      ansible.playbook = "provisioning/playbook.yml"
-      ansible.verbose = "vvvv"
-    end
+    web.vm.network "private_network", ip: "192.168.33.10"
+  end
+
+  config.vm.define "mongo" do |mongo|
+    mongo.vm.hostname = "mongo"
+    mongo.vm.box = "ubuntu/trusty64"
+    mongo.vm.network "private_network", ip: "192.168.33.11"
   end
   
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.inventory_path = "provisioning/ansible_hosts"
+    ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
+    ansible.verbose = "vvvv"
+  end
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.

@@ -1,5 +1,5 @@
 ---
-- hosts: web
+- hosts: webservers
   sudo: yes
   tasks:
     - name: create users
@@ -10,7 +10,8 @@
       apt: pkg={{item}} state=installed
       with_items: 
       - git
-- hosts: web
+      - poppler-data
+- hosts: webservers
   sudo: yes
   sudo_user: congress-api    
   tasks:
@@ -35,4 +36,24 @@
     - name: clone unitedstates/us-sync
       git: repo=https://github.com/unitedstates/us-sync.git
            dest=~/unitedstates/us-sync
-
+- hosts: mongoservers
+  sudo: yes
+  tasks: 
+    - name: import package management public key
+      apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=7F0CEB10
+    - name: add MongoDB to apt sources
+      apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' state=present
+    - name: update packages
+      apt: update_cache=yes cache_valid_time=3600
+    - name: install mongo
+      apt: pkg={{item}} state=installed
+      with_items:
+        - mongodb-org=2.6.1
+        - mongodb-org-server=2.6.1
+        - mongodb-org-shell=2.6.1
+        - mongodb-org-mongos=2.6.1
+        - mongodb-org-tools=2.6.1
+    - name: start mongod
+      service: name=mongod state=restarted
+    - name: check mongo logs
+      command: cat /var/log/mongodb/mongod.log
