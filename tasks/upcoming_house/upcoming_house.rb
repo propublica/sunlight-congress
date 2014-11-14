@@ -126,7 +126,6 @@ class UpcomingHouse
       end
     end
     Report.success self, "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
-    Email.message "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
   end
 
   # should work for both daily and weekly house notices
