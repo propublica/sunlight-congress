@@ -9,7 +9,7 @@ class UpcomingBill
     # senate-only
     :context,
     # house-only
-    :discription, :concideration, :floor_id, :bill_url
+    :description, :consideration, :floor_id, :bill_url
 
 
   # experimental: RSS support

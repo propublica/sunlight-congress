@@ -44,8 +44,8 @@ class UpcomingHouse
       bill_check =  Utils.bill_ids_for(bill_id, congress)
 
       scheduled_at = bill['added_at']
-      discription = bill['description']
-      concideration = bill['concideration']
+      description = bill['description']
+      consideration = bill['consideration']
       floor_id = bill['floor_item_id']
       bill['files'].each do |file|
         if file['format'] = 'pdf'
@@ -100,8 +100,8 @@ class UpcomingHouse
             url: "http://docs.house.gov/floor/Default.aspx?date=#{legislative_day}",
             
             bill_url: url,
-            discription: discription,
-            concideration: concideration,
+            description: description,
+            consideration: consideration,
             floor_id: floor_id,
 
           )
@@ -126,7 +126,7 @@ class UpcomingHouse
       end
     end
     Report.success self, "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
-
+    Email.message "Saved #{upcoming_count} upcoming bills (#{new_count} new, #{updated_count} updated) for the House for #{legislative_day}"
   end
 
   # should work for both daily and weekly house notices
