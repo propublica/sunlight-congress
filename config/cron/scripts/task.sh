@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 . $HOME/.bashrc 
 source $HOME/.virtualenvs/congress/bin/activate
 cd $HOME/congress/current 
