@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cd $HOME/unitedstates/inspectors-general
 source $HOME/.virtualenvs/inspectors/bin/activate
 
