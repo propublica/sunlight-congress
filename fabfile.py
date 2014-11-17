@@ -1,5 +1,5 @@
 import time
-from fabric.api import run, execute, env
+from fabric.api import run, execute, env, sudo
 from fabric.colors import red, green, blue
 from fabric.operations import local
 
@@ -64,14 +64,14 @@ def disable_crontab():
 # the -D flag is important, as it will default unicorn-level logging to /dev/null
 # unless overridden in unicorn.rb. (which we do not intend to do.)
 def start():
-  run("sudo %s/bin/restart_sudo.sh" % home)
-  
+  execute(restart)
+
 def stop():
   #run("sudo stop congress")
   run("kill `cat %s/unicorn.pid`" % shared_path)
 
 def restart():
-  run("sudo %s/bin/restart_sudo.sh" % home)
+  sudo("%s/bin/restart-sudo.sh" % home, shell=False)
   # run("kill -USR2 `cat %s/unicorn.pid`" % shared_path)
 
 def deploy():
