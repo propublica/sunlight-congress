@@ -61,8 +61,6 @@ def set_crontab():
 def disable_crontab():
   run("cd %s && rake disable_crontab" % current_path)
 
-# the -D flag is important, as it will default unicorn-level logging to /dev/null
-# unless overridden in unicorn.rb. (which we do not intend to do.)
 def start():
   execute(restart)
 
