@@ -64,14 +64,14 @@ def disable_crontab():
 # the -D flag is important, as it will default unicorn-level logging to /dev/null
 # unless overridden in unicorn.rb. (which we do not intend to do.)
 def start():
-  run("cd %s && bundle exec unicorn -D -l %s/congress.sock -c unicorn.rb" % (current_path, shared_path))
-
+  run("sudo %s/bin/restart_sudo.sh" % home)
+  
 def stop():
+  #run("sudo stop congress")
   run("kill `cat %s/unicorn.pid`" % shared_path)
 
 def restart():
-  execute(stop)
-  execute(start)
+  run("sudo %s/bin/restart_sudo.sh" % home)
   # run("kill -USR2 `cat %s/unicorn.pid`" % shared_path)
 
 def deploy():
