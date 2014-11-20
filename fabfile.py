@@ -28,6 +28,7 @@ def checkout():
 def links():
   run("ln -sf %s/config.yml %s/config/config.yml" % (shared_path, version_path))
   run("ln -sf %s/mongoid.yml %s/config/mongoid.yml" % (shared_path, version_path))
+  run("ln -sf %s/newrelic.yml %s/config/newrelic.yml" % (shared_path, version_path))
   run("ln -sf %s/config.ru %s/config.ru" % (shared_path, version_path))
   run("ln -sf %s/unicorn.rb %s/unicorn.rb" % (shared_path, version_path))
   run("ln -sf %s/config/cron/scripts/* %s/cron" % (version_path, shared_path))  

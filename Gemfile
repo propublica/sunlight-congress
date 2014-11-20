@@ -19,6 +19,8 @@ gem 'pony', '~> 1.0'
 
 gem 'safe_yaml'
 
+gem 'newrelic_rpm'
+
 group :development do
   gem 'wirb'
   gem 'paint'

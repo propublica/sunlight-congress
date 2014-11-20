@@ -63,6 +63,7 @@ GEM
     moped (1.5.2)
     multi_json (1.9.2)
     multipart-post (2.0.0)
+    newrelic_rpm (3.9.7.266)
     nokogiri (1.6.1)
       mini_portile (~> 0.5.0)
     oj (1.4.7)
@@ -131,6 +132,7 @@ DEPENDENCIES
   docsplit (~> 0.6)
   elasticsearch (~> 1.0)
   mongoid (~> 3.1)
+  newrelic_rpm
   nokogiri (~> 1.5)
   oj (~> 1.0)
   ox (~> 2.0)

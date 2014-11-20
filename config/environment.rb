@@ -12,6 +12,7 @@ require 'sinatra/cross_origin'
 disable :protection
 disable :logging
 
+require 'newrelic_rpm'
 require './api/api'
 require './api/queryable'
 require './api/searchable'
