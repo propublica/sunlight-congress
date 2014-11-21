@@ -300,3 +300,10 @@ helpers do
 end
 
 before {request.env['timer'] = Time.now}
+
+before do
+  NewRelic::Agent.add_custom_parameters(
+    endpoint: request.path_info,
+    params: clean_params(params.clone)
+  )
+end

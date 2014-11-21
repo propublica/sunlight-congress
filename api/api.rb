@@ -187,6 +187,12 @@ module Api
         "captures", "splat"
       ]
     end
+
+    def clean_params(params_copy)
+      ["longitude", "latitude", "apikey", "zip"].each{|k| params_copy.delete(k)}
+      return params_copy
+    end
+
   end
 
   # installs a few methods when Api::Model is mixed in
