@@ -159,6 +159,10 @@ class Amendments
 
     Utils.es_flush! 'amendments', batcher
 
+    if missing_people.any?
+      Report.warning self, "Found #{missing_people.size} missing people by THOMAS id.", {missing_people: missing_people}
+    end
+
     if missing_committees.any?
       missing_committees = missing_committees.uniq
       Report.warning self, "Found #{missing_committees.size} missing committees by name.", {missing_committees: missing_committees}
