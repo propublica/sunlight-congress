@@ -3,7 +3,7 @@
 cd $HOME/unitedstates/congress
 source $HOME/.virtualenvs/us-congress/bin/activate
 
-# get all upcomming bills on the House Floor for the week
+# get all upcoming bills on the House Floor for the week
 ./run upcoming_house_floor  > $HOME/congress/shared/log/cron/upcoming-house-floor.txt 2>&1
 
 # deactivate virtualenv from above
