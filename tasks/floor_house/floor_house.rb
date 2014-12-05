@@ -210,7 +210,7 @@ class FloorHouse
       if warning
         # occasionally non-members are actually mentioned in the floor feed, which causes a barrage of emails
         # the code here works well enough that I'm comfortable commenting these out for a while
-        # Report.warning self, "Couldn't find legislator match for #{match[0]}", match: match
+        Report.warning self, "Couldn't find legislator match for #{match[0]}", match: match
       end
     end
     
