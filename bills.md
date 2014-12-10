@@ -13,7 +13,7 @@ Data on bills in Congress goes back to 2009, and comes from a mix of sources:
 * Bulk data at [GPO's FDSys](http://www.gpo.gov/fdsys/) for version information, and full text.
 * The House' [MajorityLeader.gov](http://majorityleader.gov/) and Senate Democrats' [official site](http://democrats.senate.gov/) for notices of upcoming debate.
 
-Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
+Feel free to [open a ticket](https://github.com/sunlightlabs/congress/issues/new) with any bugs or suggestions.
 
 ## Methods
 
