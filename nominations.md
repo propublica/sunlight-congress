@@ -10,7 +10,7 @@ layout: default
 
 Nominations made by the President and referred to the Senate for consideration. This data is taken from [THOMAS.gov's nominations directory](http://thomas.loc.gov/home/nomis.html), and goes back to 2009.
 
-Data is collected using the [unitedstates/congress](https://github.com/unitedstates/congress) project. Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
+Data is collected using the [unitedstates/congress](https://github.com/unitedstates/congress) project. Feel free to [open a ticket](https://github.com/sunlightlabs/congress/issues/new) with any bugs or suggestions.
 
 ## Methods
 

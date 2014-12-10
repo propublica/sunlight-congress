@@ -10,7 +10,7 @@ layout: default
 
 Currently, this project covers recent documents in the [House Committee Repository](http://docs.house.gov/Committee/Committees.aspx).
 
-The information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress). Feel free to [open a ticket](https://github.com/unitedstates/congress/issues/new) with any bugs or suggestions.
+The information is sourced from the bulk data at [github.com/unitedstates](https://github.com/unitedstates/congress). Feel free to [open a ticket](https://github.com/sunlightlabs/congress/issues/new) with any bugs or suggestions.
 
 ## Methods
 
