@@ -206,6 +206,7 @@ module Api
       def search_profiles; @search_profiles; end
       def search_profile(name, fields: [], functions: []); @search_profiles ||= {}; @search_profiles[name] = {fields: fields, functions: functions}; end
       def cite_key(key = nil); key ? @cite_key = key : @cite_key; end
+      def default_order(order = nil); order ? @default_order = order : @default_order; end
       def rss(fields = nil); fields ? @rss = fields : @rss; end
     end
     def self.included(base)

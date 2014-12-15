@@ -14,7 +14,7 @@ get queryable_route do
   format = format_for params
   fields = fields_for model, params
   filters = filters_for model, params
-  order = order_for params, "_id"
+  order = order_for params, Queryable.default_sort(model).nil? ? "_id" : Queryable.default_sort(model)
 
   # allow a pagination exception for legislators and committees, by request
   if [Legislator, Committee].include?(model) and (params[:per_page] == "all")
