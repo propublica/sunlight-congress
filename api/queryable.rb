@@ -99,4 +99,9 @@ module Queryable
       criteria
     end
   end
+
+  def self.default_sort(model)
+    model.default_order
+  end
+
 end

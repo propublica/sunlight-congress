@@ -11,7 +11,7 @@ class Document
     "gao_report.description"
 
   cite_key :document_id
-
+  default_order :published_on
 
   # experimental: RSS support
   rss title: "title",
