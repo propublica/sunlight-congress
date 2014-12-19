@@ -43,7 +43,7 @@ Path | Description
 [/hearings](hearings.html) | Committee hearings in Congress. Updated as hearings are announced.
 [/upcoming_bills](upcoming_bills.html) | Bills scheduled for debate in the future, as announced by party leadership.
 [/congressional_documents/search](congressional_documents.html) | Congressional documents including House witness documents and House committee reports.
-[/documents/search](documents.html) | Oversight documents including Government Accountability Office reports and Inspectors General reports. 
+[/documents/search](documents.html) | Oversight documents including Government Accountability Office reports and Inspectors General reports.
 
 
 ### Status endpoint
@@ -440,7 +440,7 @@ We help maintain a repository of public domain images of members of Congress, lo
 
 [https://github.com/unitedstates/images](https://github.com/unitedstates/images)
 
-Images are collected primarily from the Government Printing Office's [Member Guide](http://memberguide.gpo.gov), and hosted at predictable URLs, using the member of Congress' Bioguide ID.
+Images are collected primarily from the Government Publishing Office's [Member Guide](http://memberguide.gpo.gov), and hosted at predictable URLs, using the member of Congress' Bioguide ID.
 
 See the [URL documentation](https://github.com/unitedstates/images#using-the-photos) for complete details.
 
