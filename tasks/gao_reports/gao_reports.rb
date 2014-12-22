@@ -18,9 +18,12 @@ class GaoReports
       if options[:year]
         beginning = Time.parse("#{options[:year]}-01-01").midnight
         ending = Time.parse("#{options[:year]}-12-31").midnight
+      elsif options[:month]
+        beginning = Time.parse("#{options[:month]}-01").midnight
+        ending = Time.parse("#{options[:month]}-31").midnight
       else
         ending = Time.now.midnight
-        beginning = ending - 7.days
+        beginning = ending - 30.days
       end
 
       gao_ids = gao_ids_for beginning, ending, options
