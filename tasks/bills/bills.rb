@@ -1,3 +1,4 @@
+require 'pp'
 class Bills
 
   # options:
@@ -54,7 +55,7 @@ class Bills
 
       cosponsors, withdrawn, missing = cosponsors_for doc['cosponsors'], legislators
       missing_legislators += missing.map {|m| [bill_id, m]} if missing.any?
-
+      pp doc['actions']
       actions = actions_for doc['actions'], committee_cache
 
       summary = summary_for doc['summary']
@@ -356,7 +357,7 @@ class Bills
   end
 
   def self.opencongress_url(bill_id)
-    "http://www.opencongress.org/bill/#{bill_id}"
+    "https://www.opencongress.org/bill/#{bill_id}"
   end
 
   def self.govtrack_url(congress, type, number)
