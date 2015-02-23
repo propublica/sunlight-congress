@@ -36,8 +36,6 @@ get queryable_route do
     results[:results] = Citable.add_to(model, results[:results], params) if results[:results]
   end
 
-  hit! "query", format
-
   if format == 'json'
     json results
   elsif format == 'rss'
@@ -77,8 +75,6 @@ get searchable_route do
     results = Searchable.search_for query_string, models, query, filter, fields, order, pagination, profiles, other
     results[:results] = Citable.add_to(models, results[:results], params) if results[:results]
   end
-
-  hit! "search", format
 
   if format == 'json'
     json results
@@ -156,8 +152,6 @@ get(/(legislators|districts)\/locate\/?/) do
       results = {results: districts, count: districts.size}
     end
   end
-
-  hit! "locate", "json"
 
   json results
 end
@@ -249,52 +243,6 @@ helpers do
 
   def api_key
     params[:apikey] || request.env['HTTP_X_APIKEY']
-  end
-
-  def hit!(method_type, format)
-    return if params[:explain]
-
-    method = params[:captures][0]
-    key = api_key || "debug"
-    now = Time.zone.now
-
-    extras = {}
-
-    if method_type == "locate"
-      if params[:zip]
-        method += ".zip"
-        extras[:zip] = params[:zip]
-      elsif params[:latitude] and params[:longitude]
-        method += ".latlng"
-        # Specifically do NOT store latitude and longitude.
-        # We promise this in our API documentation.
-      end
-    elsif method_type == "search"
-      method += ".search"
-      extras[:query] = params[:query]
-    end
-
-    hit = Hit.create!(
-      key: key,
-
-      method: method,
-      method_type: method_type,
-      format: format,
-
-      extras: extras,
-
-      protocol: request.env['HTTP_X_FORWARDED_PROTO'],
-      user_agent: request.env['HTTP_USER_AGENT'],
-      app_version: request.env['HTTP_X_APP_VERSION'],
-      os_version: request.env['HTTP_X_OS_VERSION'],
-      app_channel: request.env['HTTP_X_APP_CHANNEL'],
-
-      created_at: now.utc,
-      elapsed: ((now - request.env['timer']) * 1000000).to_i
-    )
-
-    HitReport.log! now.strftime("%Y-%m-%d"), key, method
-    SearchReport.log! extras[:query], method if extras[:query]
   end
 
 end
