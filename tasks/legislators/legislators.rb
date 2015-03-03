@@ -266,7 +266,9 @@ class Legislators
     {
       twitter_id: details['social']['twitter'],
       youtube_id: details['social']['youtube'],
-      facebook_id: facebook
+      facebook_id: facebook,
+      instagram_id: details['social']['instagram_id'],
+      instagram_username: details['social']['instagram']
     }
   end
 
