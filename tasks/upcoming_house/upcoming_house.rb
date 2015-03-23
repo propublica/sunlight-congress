@@ -38,10 +38,10 @@ class UpcomingHouse
     bills = upcoming_house_data['upcoming']
 
     bills.each do |bill|
-      # check for valad bills
+      next if bill['bill_id'].nil?
+      # check for valid bills
       bill_id = bill['bill_id']
       draft_bill_id = bill['draft_bill_id']
-      bill_check =  Utils.bill_ids_for(bill_id, congress)
 
       scheduled_at = bill['added_at']
       description = bill['description']
