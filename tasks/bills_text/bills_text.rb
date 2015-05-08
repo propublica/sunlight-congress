@@ -42,6 +42,7 @@ class BillsText
       # ES will index a bill's basic fields plus these others
       es_only = Utils.bill_for(bill).merge(
         sponsor: bill['sponsor'],
+        cosponsor_ids: bill['cosponsor_ids'],
         last_action: bill['last_action'],
         summary: bill['summary'],
         summary_short: bill['summary_short'],
