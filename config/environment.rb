@@ -8,7 +8,6 @@ require 'typhoeus/adapters/faraday'
 require 'elasticsearch'
 
 require 'sinatra'
-require 'sinatra/cross_origin'
 disable :protection
 disable :logging
 
@@ -32,7 +31,6 @@ class Environment
 end
 
 configure do
-  enable :cross_origin
 
   Mongoid.load! File.join(File.dirname(__FILE__), "mongoid.yml")
 
