@@ -10,6 +10,8 @@ class Amendments
 
   def self.run(options)
     congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
+    options[:batch_size] ||= 500 # defaults to 1 otherwise and that can be slow
+    
     count = 0
 
     missing_bills = []
