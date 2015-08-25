@@ -11,6 +11,8 @@ require 'us-documents'
 class CongressionalDocuments
   def self.run(options = {})
     amazon_bucket = "http://unitedstates.sunlightfoundation.com/congress/committee/meetings/house"
+    options[:batch_size] ||= 500 # defaults to 1 otherwise and that can be slow
+    batcher = []
     meeting_count = 0
     document_count = 0
     path = "data/unitedstates/congress"
@@ -121,7 +123,8 @@ class CongressionalDocuments
 
           # save to elastic search
           collection = "congressional_documents"
-          Utils.es_store! collection, id, document
+          # Utils.es_store! collection, id, document
+          Utils.es_batch! collection, id, document, batcher, options
           document_count += 1
         end # end of meeting doc loop
       end
@@ -232,10 +235,12 @@ class CongressionalDocuments
           }
           # save to elastic search
           collection = "congressional_documents"
-          Utils.es_store! collection, id, document      
+          # Utils.es_store! collection, id, document     
+          Utils.es_batch! collection, id, document, batcher, options
         end # loop through witness doc
       end # loop through witness
     end # loop through hearing
+    Utils.es_flush! "congressional_documents", batcher
     Report.success self, "Processed #{document_count} House documents."
   end # self.run
 
