@@ -1,0 +1,5 @@
+rake task:legislators && rake task:legislators_bulk backup=1 && rake task:committees && rake task:bills && rake task:amendments && rake task:nominations && rake task:bills_bulk && rake task:bills_text backup=1 && rake task:bills_nicknames && rake task:videos captions=True && rake task:videos captions=True senate=True && rake task:votes_house latest=10 && rake task:votes_senate latest=10 && rake task:votes_house year=current force=1 && rake task:votes_senate year=current force=1 && rake task:floor_senate && rake task:floor_house && rake task:hearings_senate && rake task:hearings_house && rake task:congressional_documents && rake task:upcoming_senate && rake task:gao_reports rate_limit=1 && rake task:ig_reports since=2009 && rake task:regulations cache=1 days=2 backup=1 && rake task:regulations public_inspection=1
+
+
+
+#some of the rake tasks run with environmental variables so they will not produce the same effect if run with a #command line rake vs a cron task on a schedule because the chron task runs with arguments
