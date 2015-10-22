@@ -4,14 +4,22 @@ Python 2.7.6
 
 
 Necessary Languages, Packages & Build Tools
+
 Ruby - comes default with some OS's, can be installed via RVM - https://rvm.io/rvm/install
 Python - comes default with some OS's, can be installed via from here - https://www.python.org/download/releases/2.7.6/
+
 Bundler - from the command Line
 `gem install bundler`
+
 Pip - Instructions for downloading here - http://pip.readthedocs.org/en/stable/installing/
-Virtualenv
-Virtualenvwrapper
-Rake
+
+Virtualenv - `pip install virtualenv`
+  - https://virtualenv.pypa.io/en/latest/installation.html
+
+Virtualenvwrapper - `pip install virtualenvwrapper`
+    Be sure to complete the all the installation steps for virtualenvwrapper before proceeding
+      - http://virtualenvwrapper.readthedocs.org/en/latest/
+
 Brew - http://brew.sh/
   Poppler
   MongoDB
@@ -20,8 +28,7 @@ Brew - http://brew.sh/
         `mkdir -p /data/db`
 
 
-From Command Line
-
-
 
 See Gem List for Other Ruby Requriements
+ To install gems for project
+  - `bundle install`
