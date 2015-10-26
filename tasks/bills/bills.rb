@@ -366,7 +366,7 @@ class Bills
 
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
   def self.congress_gov_url(congress, type, number)
-    "http://beta.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
+    "https://www.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
   end
 
   def self.congress_gov_type(bill_type)
