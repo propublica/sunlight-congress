@@ -75,4 +75,42 @@ class QueryTest < Test::Unit::TestCase
     assert_match /hr1234/, last_response.body
   end
 
+  def test_boolean_parsing
+    bill = Bill.create!(
+      bill_id: "hr1234-113",
+      introduced_on: "2013-04-05",
+      history: {
+        enacted: true
+      }
+    )
+
+    # TODO: move "True" case to the success array
+    success = [true, "true"]
+    failure = [false, "false", "False", "True"]
+
+    success.each do |value|
+      get "/bills", {
+        bill_id: "hr1234-113",
+        "history.enacted" => value
+      }
+
+      assert_response 200
+      assert_json
+
+      assert_match /hr1234/, last_response.body, "Using history.enacted = #{value}"
+    end
+
+    failure.each do |value|
+      get "/bills", {
+        bill_id: "hr1234-113",
+        "history.enacted" => value
+      }
+
+      assert_response 200
+      assert_json
+
+      assert_no_match /hr1234/, last_response.body, "Using history.enacted = #{value}"
+    end
+  end
+
 end
