@@ -107,7 +107,7 @@ bundle exec unicorn
 In another terminal start mongo
   `mongod`
 
-If you are also running this with the UnitedStates Scrapper, a project that congress-api gets a fair amount of it's api data from, you will need to setup a symbolic link. This will vary from system:
+If you are also running this with the UnitedStates Scrapper (https://github.com/unitedstates/congress-legislators), a project that congress-api gets a fair amount of it's api data from, you will need to setup a symbolic link. This will vary from system to system:
   `ln -s {./data/united/states/congress} {from root of US scrapper/data/}`
 
 Then Run all of the rake tasks, found concatenated in importRakeScripts.md, copy and paste it into the command line.
