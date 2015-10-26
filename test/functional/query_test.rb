@@ -88,6 +88,10 @@ class QueryTest < Test::Unit::TestCase
     success = [true, "true"]
     failure = [false, "false", "False", "True"]
 
+    # note: using nil or '' will cause the query to be disregarded,
+    # which will make the bill return, but not because of the behavior
+    # this test is evaluating (so is not tested here).
+
     success.each do |value|
       get "/bills", {
         bill_id: "hr1234-113",
