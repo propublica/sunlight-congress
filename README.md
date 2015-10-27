@@ -1,3 +1,5 @@
+Last Updated: October 26th, 2015
+
 ## Sunlight Congress API
 
 This is the code that powers the [Sunlight Foundation's Congress API](http://sunlightlabs.github.io/congress/).
@@ -23,49 +25,139 @@ While the front end and back end are mostly decoupled, many of them do use the d
 
 The API **never performs joins** -- if data from one collection is expected to appear as a sub-field on another collection, it should be copied there during data loading.
 
+
 ### Setup - Dependencies
 
-If you don't have [Bundler](http://rubygems.org/gems/bundler), install it:
+
+*Ruby 2.1.1
+*Python 2.7.6
+
+
+Installation of Languages, Packages & Build Tools
+
+Ruby - comes default with some OS's, but can be installed via RVM - https://rvm.io/rvm/install
 
 ```bash
-gem install bundler
+\curl -sSL https://get.rvm.io | bash -s stable --ruby
 ```
 
-Then use Bundler to install the Ruby dependencies:
+
+Python - comes default with some OS's, can be installed via from here - https://www.python.org/download/releases/2.7.6/
+
+Bundler - ruby package manager
+  ```bash
+  gem install bundler
+  ```
+
+Brew - http://brew.sh/
+
+  -Poppler
+
+  -MongoDB
+
+  -Git
+
+  ```bash
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  ```
+
+
+
+  ```bash
+      brew install poppler mongodb git
+      sudo mkdir -p /data/db
+      sudo chmod -R 775
+  ```
+
+      **Prior to installing Brew you may want to ensure you have Xcode Command Line Toold and Dependecies Installed first. If not you may receive an error.
+
+
+
+Bundler - from the command Line
+	```bash
+  	gem install bundler
+  	```
+
+Git - Download here - https://git-scm.com/downloads
+
+Pip - Instructions for downloading here - http://pip.readthedocs.org/en/stable/installing/
+
+ **Alternatively, pip can also be installed from the command line 'sudo easy_install pip' (you may have to use sudo for future commands if using this method)
+
+Virtualenv -
+
+  ```bash
+    pip install virtualenv
+  ```
+  - https://virtualenv.pypa.io/en/latest/installation.html
+
+Virtualenvwrapper -
+
+  ```bash
+      pip install virtualenvwrapper
+  ```
+
+Be sure to complete all the installation steps for virtualenvwrapper before proceeding
+  - http://virtualenvwrapper.readthedocs.org/en/latest/
+
+  If these instructions for Virtualenvwrapper do not work, there is a work around. From the command line:
 
 ```bash
-bundle install --local
+      mkdir -p ~/bin ~/lib/python2.7 ~/src
+      cd ~/src
+      ln -s $HOME/lib/python2.7 $HOME/lib/python
+      wget http://pypi.python.org/packages/source/v/virtualenvwrapper/virtualenvwrapper-3.6.tar.gz
+      tar zxf virtualenvwrapper-3.6.tar.gz
+      cd virtualenvwrapper-3.6
+
+      vim ~/.bash_profile
+       Type the following:
+            export PYTHONPATH=$HOME/lib/python2.7
+            export PYTHONPATH=$HOME/lib/python2.7
+            source ~/src/virtualenvwrapper-3.6/virtualenvwrapper.sh
+            :x [press Enter Key and Open a New Terminal]
+
+      cd ~/src/virtualenvwrapper-3.6
+      python2.7 setup.py install --home=$HOME
+      source ~/src/virtualenvwrapper-3.6/virutalenvwrapper.sh
+      mkvirtualenv env1
 ```
 
-If you're going to use any of the Python-based tasks, install [virtualenv](http://www.virtualenv.org/en/latest/) and [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/), make a new virtual environment, and install the Python dependencies:
+After the last command it should start making an virtual enviornment, see documentation for additional information.
+
+Sources:
+	https://community.webfaction.com/questions/10316/pip-install-virtualenvwrapper-not-working
+	https://docs.webfaction.com/software/python.html#installing-packages-with-setup-py
+
+Clone This Repo
 
 ```bash
-mkvirtualenv congress-api
-pip install -r tasks/requirements.txt
+git clone https://github.com/sunlightlabs/congress
+cd congress
 ```
 
-Some tasks use PDF text extraction, which is performed through the [docsplit gem](http://documentcloud.github.com/docsplit/). If you use a task that does this, you will need to install a system dependency, `pdftotext`.
+See Gem List for Other Ruby Requriements
+ To install gems for the project
+  ```bash
+  bundle install --local
+  ```
 
-On Linux:
+From the command line create a virtual enviornment for congress-api
+  ```bash
+  mkvirtualenv congress-api
+  ```
 
-```bash
-sudo apt-get install poppler-data
-```
+Install python requirments
+  ```bash
+  pip install -r tasks/requirements.txt
+  ```
 
-Or on OS X:
-
-```bash
-brew install poppler
-```
-
-### Setup - Configuration
 
 Copy the example config files:
-
 ```bash
 cp config/config.yml.example config/config.yml
 cp config/mongoid.yml.example config/mongoid.yml
-cp config.ru.example config.ru`
+cp config.ru.example config.ru
 ```
 
 You **don't need to edit these** to get started in development, the defaults should work fine.
@@ -77,25 +169,32 @@ If you work for the Sunlight Foundation, and want it to sync analytics and API k
 Read the documentation in [config.yml.example](config/config.yml.example) for a description of each element.
 
 
-### Setup - Services
+Starting the API
 
-You can get started by just installing MongoDB.
+After installing dependencies and MongoDB, and copying the config files, boot the app with:
 
-The Congress API depends on [MongoDB](http://www.mongodb.org/), a JSONic document store, for just about everything. MongoDB can be installed via [apt](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/), [homebrew](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/), or [manually](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-linux/).
+```bash
+bundle exec unicorn
+```
+
+In another terminal window start mongo
+  ```bash
+  mongod
+  ```
+
+If you are also running this with the UnitedStates Scrapper (https://github.com/unitedstates/congress-legislators), a project that congress-api gets a fair amount of it's api data from, you will need to setup a symbolic link. This will vary from system to system:
+  `ln -s {./data/united/states/congress} {from root of US scrapper/data/}`
+
+Then Run all of the rake tasks, found concatenated in importRakeScripts.md, copy and paste it into the command line.
+
+
+### Optional - Services
 
 *Optional*. Some tasks that index full text will require [Elasticsearch](http://elasticsearch.org/), a JSONic full-text search engine based on Lucene. Elasticsearch can be installed [via apt](http://www.elasticsearch.org/blog/apt-and-yum-repositories/), or [manually](http://www.elasticsearch.org/overview/elkdownloads/).
 
 *Optional.* If you want citation parsing, you'll need to install [citation](https://github.com/unitedstates/citation), a Node-based citation extractor. After installing Node, you can install it with `[sudo] npm -g install citation`, then run it via `cite-server` on port 3000.
 
 *Optional.* To perform location lookups, you'll need to point the API at an instance of [pentagon](https://github.com/sunlightlabs/pentagon), a boundary service. Sunlight uses an instance loaded with congressional districts and ZCTAs, so that we can look up legislators and districts by either `latitude`/`longitude` or `zip`.
-
-### Starting the API
-
-After installing dependencies and MongoDB, and copying the config files, boot the app with:
-
-```
-bundle exec unicorn
-```
 
 The API should return some enthusiastic JSON at `http://localhost:8080`.
 
@@ -219,3 +318,8 @@ Might return something like:
 ### License
 
 This project is [licensed](LICENSE) under the [GPL v3](http://www.gnu.org/licenses/gpl-3.0.txt).
+
+
+
+
+**This document does not include the setup and configuration of cron(http://crontab.org/) or united-states scrapper (https://github.com/unitedstates/congress-legislators).
