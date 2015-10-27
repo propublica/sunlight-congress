@@ -96,10 +96,11 @@ Virtualenvwrapper -
   ```bash
       pip install virtualenvwrapper
   ```
-    Be sure to complete all the installation steps for virtualenvwrapper before proceeding
-      - http://virtualenvwrapper.readthedocs.org/en/latest/
 
-      If these instructions for Virtualenvwrapper do not work, there is a work around. From the command line:
+Be sure to complete all the installation steps for virtualenvwrapper before proceeding
+  - http://virtualenvwrapper.readthedocs.org/en/latest/
+
+  If these instructions for Virtualenvwrapper do not work, there is a work around. From the command line:
 
 ```bash
       mkdir -p ~/bin ~/lib/python2.7 ~/src
