@@ -59,15 +59,14 @@ Brew - http://brew.sh/
 
   ```bash
   ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
   ```
 
 
 
       ```bash
-          `brew install poppler mongodb git`
-          `sudo mkdir -p /data/db`
-          `sudo chmod -R 775`
+          brew install poppler mongodb git
+          sudo mkdir -p /data/db
+          sudo chmod -R 775
 		  ```
 
       **Prior to installing Brew you may want to ensure you have Xcode Command Line Toold and Dependecies Installed first. If not you may receive an error.
