@@ -123,11 +123,11 @@ Be sure to complete all the installation steps for virtualenvwrapper before proc
       mkvirtualenv env1
 ```
 
-      After the last command it should start making an virtual enviornment, see documentation for additional information.
+After the last command it should start making an virtual enviornment, see documentation for additional information.
 
-      Sources:
-      	https://community.webfaction.com/questions/10316/pip-install-virtualenvwrapper-not-working
-      	https://docs.webfaction.com/software/python.html#installing-packages-with-setup-py
+Sources:
+	https://community.webfaction.com/questions/10316/pip-install-virtualenvwrapper-not-working
+	https://docs.webfaction.com/software/python.html#installing-packages-with-setup-py
 
 Clone This Repo
 
