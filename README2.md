@@ -50,14 +50,16 @@ Bundler - ruby package manager
   ```
 
 Brew - http://brew.sh/
+  -Poppler
+  -MongoDB
+  -Git
+
   ```bash
   ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
   ```
 
-    -Poppler
-    -MongoDB
-    -Git
+
 
       ```bash
           `brew install poppler mongodb git`
