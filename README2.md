@@ -85,12 +85,14 @@ Pip - Instructions for downloading here - http://pip.readthedocs.org/en/stable/i
  **Alternatively, pip can also be installed from the command line 'sudo easy_install pip' (you may have to use sudo for future commands if using this method)
 
 Virtualenv -
+
   ```bash
     pip install virtualenv
   ```
   - https://virtualenv.pypa.io/en/latest/installation.html
 
 Virtualenvwrapper -
+
   ```bash
       pip install virtualenvwrapper
   ```
@@ -98,6 +100,7 @@ Virtualenvwrapper -
       - http://virtualenvwrapper.readthedocs.org/en/latest/
 
       If these instructions for Virtualenvwrapper do not work, there is a work around. From the command line:
+
 ```bash
       mkdir -p ~/bin ~/lib/python2.7 ~/src
       cd ~/src
@@ -117,7 +120,6 @@ Virtualenvwrapper -
       python2.7 setup.py install --home=$HOME
       source ~/src/virtualenvwrapper-3.6/virutalenvwrapper.sh
       mkvirtualenv env1
-
       ```
 
       After the last command it should start making an virtual enviornment, see documentation for additional information.
