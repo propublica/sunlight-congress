@@ -84,10 +84,16 @@ Pip - Instructions for downloading here - http://pip.readthedocs.org/en/stable/i
 
  **Alternatively, pip can also be installed from the command line 'sudo easy_install pip' (you may have to use sudo for future commands if using this method)
 
-Virtualenv - `pip install virtualenv`
+Virtualenv -
+  ```bash
+    pip install virtualenv
+  ```
   - https://virtualenv.pypa.io/en/latest/installation.html
 
-Virtualenvwrapper - `pip install virtualenvwrapper`
+Virtualenvwrapper -
+  ```bash
+      pip install virtualenvwrapper
+  ```
     Be sure to complete all the installation steps for virtualenvwrapper before proceeding
       - http://virtualenvwrapper.readthedocs.org/en/latest/
 
