@@ -63,11 +63,11 @@ Brew - http://brew.sh/
 
 
 
-      ```bash
-          brew install poppler mongodb git
-          sudo mkdir -p /data/db
-          sudo chmod -R 775
-		  ```
+  ```bash
+      brew install poppler mongodb git
+      sudo mkdir -p /data/db
+      sudo chmod -R 775
+  ```
 
       **Prior to installing Brew you may want to ensure you have Xcode Command Line Toold and Dependecies Installed first. If not you may receive an error.
 
@@ -121,7 +121,7 @@ Be sure to complete all the installation steps for virtualenvwrapper before proc
       python2.7 setup.py install --home=$HOME
       source ~/src/virtualenvwrapper-3.6/virutalenvwrapper.sh
       mkvirtualenv env1
-      ```
+```
 
       After the last command it should start making an virtual enviornment, see documentation for additional information.
 
