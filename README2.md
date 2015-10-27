@@ -50,6 +50,7 @@ Bundler - ruby package manager
   ```
 
 Brew - http://brew.sh/
+
   -Poppler
   -MongoDB
   -Git
