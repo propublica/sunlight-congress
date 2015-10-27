@@ -1,5 +1,30 @@
 Last Updated: October 26th, 2015
 
+## Sunlight Congress API
+
+This is the code that powers the [Sunlight Foundation's Congress API](http://sunlightlabs.github.io/congress/).
+
+### Overview
+
+The Congress API has two parts:
+
+* A light **front end**, written in Ruby using [Sinatra](http://www.sinatrarb.com).
+* A **back end** of data scraping and loading tasks. Most are written in Ruby, but Python tasks are also supported.
+
+The **front end** is essentially read-only. Its job is to translate an API call (the query string) into a single database query (usually to MongoDB), wrap the resulting JSON in a bit of pagination metadata, and return it to the user.
+
+Endpoints and behavior are determined by introspecting on the classes defined in `models/`. These classes are also expected to define database indexes where applicable.
+
+The front end tries to maintain as little model-specific logic as possible. There are a couple of exceptions made (like allowing disabling of pagination for `/legislators`) &mdash; but generally, adding a new endpoint is as simple as adding a model class.
+
+The **back end** is a set of tasks (scripts) whose job is to write data to the collections those models refer to. Most data is stored in [MongoDB](http://www.mongodb.org/), but some tasks will store additional data in [Elasticsearch](http://www.elasticsearch.org/), and some tasks may extract citations via a [citation](https://github.com/unitedstates/citation) server.
+
+We currently manage these tasks via  [cron](https://github.com/sunlightlabs/congress/blob/master/config/cron/production.crontab). A small task runner wraps each script in order to ensure any "reports" created along the way get emailed to admins, to catch errors, and to parse command line options.
+
+While the front end and back end are mostly decoupled, many of them do use the definitions in `models/` to save data (via [Mongoid](https://github.com/mongoid/mongoid)) and to manage duplicating "basic" fields about objects onto other objects.
+
+The API **never performs joins** -- if data from one collection is expected to appear as a sub-field on another collection, it should be copied there during data loading.
+
 
 ### Setup - Dependencies
 
