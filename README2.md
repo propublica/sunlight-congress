@@ -50,18 +50,19 @@ Bundler - ruby package manager
   ```
 
 Brew - http://brew.sh/
-	```bash
+  ```bash
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    ```
+  ```
 
     -Poppler
     -MongoDB
     -Git
+
       ```bash
           `brew install poppler mongodb git`
           `sudo mkdir -p /data/db`
           `sudo chmod -R 775`
-		```
+		  ```
 
       **Prior to installing Brew you may want to ensure you have Xcode Command Line Toold and Dependecies Installed first. If not you may receive an error.
 
@@ -307,4 +308,4 @@ This project is [licensed](LICENSE) under the [GPL v3](http://www.gnu.org/licens
 
 
 
-**This document does not include the setup and configuration of cron(http://crontab.org/) & united-states scrapper (https://github.com/unitedstates/congress-legislators).
+**This document does not include the setup and configuration of cron(http://crontab.org/) or united-states scrapper (https://github.com/unitedstates/congress-legislators).
