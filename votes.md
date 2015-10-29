@@ -47,7 +47,7 @@ Search and filter through votes in Congress. Filter by any [fields below](#field
 **Votes since July 2, 2013**
 
 {% highlight text %}
-/votes?voted_at__gte=2013-07-02T4:00:00Z
+/votes?voted_at__gte=2013-07-02T04:00:00Z
 {% endhighlight %}
 
 ## Fields
