@@ -155,6 +155,3 @@ DEPENDENCIES
   us-documents
   wirb
   yajl-ruby (~> 1.1)
-
-BUNDLED WITH
-   1.10.3
