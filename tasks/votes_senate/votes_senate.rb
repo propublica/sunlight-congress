@@ -1,4 +1,4 @@
- 'nokogiri'
+require 'nokogiri'
 
 class VotesSenate
 
@@ -346,7 +346,7 @@ class VotesSenate
       return false
     end
 
-    unless curl.content_type == "application/xml"
+    unless curl.content_type == "application/xml" or curl.content_type == 'text/xml'
       # don't consider it a failure - the vote's probably just not up yet
       # failures << {message: "Wrong content type", url: url, destination: destination, content_type: curl.content_type}
       puts "Wrong content type for #{url}" if options[:debug]
