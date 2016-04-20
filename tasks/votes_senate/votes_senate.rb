@@ -1,4 +1,8 @@
+<<<<<<< HEAD
  require 'nokogiri'
+=======
+require 'nokogiri'
+>>>>>>> a16dd2898b8f10fbb6175437754e22867c5ef4fd
 
 class VotesSenate
 
