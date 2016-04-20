@@ -5,7 +5,7 @@ require 'nokogiri'
 class UpcomingSenate
 
   def self.run(options = {})
-    url = "http://democrats.senate.gov/floor/daily-summary/feed/"
+    url = "https://democrats.senate.gov/floor/daily-summary/feed/"
 
     unless body = Utils.download(url)
       Report.warning self, "Problem downloading the Senate Daily Summary feed, can't go on.", url: url

@@ -38,6 +38,7 @@ class GaoReports
       return
     end
 
+    options[:batch_size] ||= 1000
     count = 0
     failures = []
     warnings = []
@@ -81,7 +82,6 @@ class GaoReports
         pdf_url = nil
       end
 
-
       unless landing_url or pdf_url
         puts "[#{gao_id}] No landing URL or PDF, skipping..." if options[:debug]
         next
@@ -99,7 +99,7 @@ class GaoReports
       end
 
       # if GAO provides an "Accessible Text" version, use that
-      if text_url
+      if text_url and (text_url =~ /\.txt$/)
         cache = cache_path_for gao_id, "report.download.txt"
         unless full_text = Utils.download(text_url, options.merge(destination: cache))
           warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download text version of report"}
@@ -108,6 +108,22 @@ class GaoReports
         # if the text is downloaded, needs to be treated as ISO-8859-1 and then converted to UTF-8
         full_text.force_encoding("ISO-8859-1")
         full_text = full_text.encode "UTF-8", :invalid => :replace, :undef => :replace
+      
+      # "Accessible PDF" that we seem to be able to scrape the text out of - cdunwell 4/19/2016
+      elsif text_url and (text_url =~ /\.pdf$/)
+        txt_path = cache_path_for gao_id, "report.txt.pdf"
+        unless full_text = Utils.download(text_url, options.merge(destination: txt_path))
+          warnings << {gao_id: gao_id, url: text_url, message: "Couldn't download accessible pdf version of report"}
+        end
+
+        output = cache_path_for gao_id, "report.txt"
+
+        if File.exists?(txt_path)
+          # depending on Docsplit's behavior of just changing the extension
+          Docsplit.extract_text(txt_path, ocr: false, output: File.dirname(output))
+
+          full_text = File.read(output) if File.exists?(output)
+        end
 
       # otherwise, create a file in the same place using a rip of the PDF
       elsif pdf_url
