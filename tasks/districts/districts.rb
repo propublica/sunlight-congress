@@ -24,10 +24,10 @@ class Districts
     dest = Environment.config['location']['zips']
     FileUtils.mkdir_p File.dirname(dest)
     if File.exists?(dest) 
-      FileUtils.rm dest
+    	FileUtils.rm dest
     end
 
-    Zip.delete_all
+    # Zip.delete_all
 
     errors = []
 
@@ -60,7 +60,10 @@ class Districts
           end
 
           # cache in DB for quick lookup in exactly the format we want
-          Zip.create! zip: zip, districts: districts
+	  if not Zip.where(zip: zip, districts: districts).first
+          	Zip.create! zip: zip, districts: districts
+		puts "Creating zip for #{zip} because it doesn't exist in the database"
+	  end
 
           puts "[#{zip}] Wrote #{districts.size} districts."
           zip_count += 1
