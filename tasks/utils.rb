@@ -62,7 +62,10 @@ module Utils
         text: CGI.escape(text),
         "options[excerpt]" => (options[:cite_excerpt] || 250),
         "options[types]" => "usc,law",
-        "options[parents]" => "true"
+        "options[parents]" => "true" do |c|
+	  c.connect_timeout = 360
+	  c.timeout = 360
+	end
 
       body = curl.body_str
       hash = MultiJson.load body

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
- require 'nokogiri'
-=======
 require 'nokogiri'
->>>>>>> a16dd2898b8f10fbb6175437754e22867c5ef4fd
 
 class VotesSenate
 
@@ -201,7 +197,7 @@ class VotesSenate
     puts "[#{congress}-#{session}] Fetching xml index page for #{url} from Senate website..." if options[:debug]
     
     return nil unless doc = Utils.xml_for(url)
-    latest = doc.xpath("//vote_number")[0].text.to_i
+    latest = doc.xpath("//vote_number")[0].text.to_i rescue nil
     return nil unless latest != nil
 
     if latest > 0
@@ -335,7 +331,7 @@ class VotesSenate
   def self.download_roll(year, congress, session, number, failures, options = {})
     url = url_for congress, session, number
     destination = destination_for year, number
-
+    puts "#{url}"
     # cache aggressively, redownload only if force option is passed
     if File.exists?(destination) and options[:force].blank?
       puts "\tCached at #{destination}" if options[:debug]
