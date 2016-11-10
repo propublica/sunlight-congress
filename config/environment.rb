@@ -26,7 +26,8 @@ class Environment
   end
 
   def self.check_key?
-    !(config[:debug] and config[:debug][:ignore_apikey])
+    false
+    #!(config[:debug] and config[:debug][:ignore_apikey])
   end
 end
 

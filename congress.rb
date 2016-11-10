@@ -242,9 +242,9 @@ helpers do
   end
 
   def check_key!
-    if Environment.check_key? and !ApiKey.allowed?(api_key)
-      error 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
-    end
+    #if Environment.check_key? and !ApiKey.allowed?(api_key)
+    #  error 403, 'API key required, you can obtain one from http://services.sunlightlabs.com/accounts/register/'
+    #end
   end
 
   def api_key

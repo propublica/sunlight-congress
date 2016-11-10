@@ -4,18 +4,18 @@ task :environment do
   require './config/environment'
 end
 
-desc "Load a fake api key into the db"
-task api_key: :environment do
-  key = ENV['key'] || "development"
-  email = ENV['email'] || "#{key}@example.com"
-
-  if ApiKey.where(key: key).first.nil?
-    ApiKey.create! status: "A", email: email, key: key
-    puts "Created '#{key}' API key under email #{email}"
-  else
-    puts "'#{key}' API key already exists"
-  end
-end
+#desc "Load a fake api key into the db"
+#task api_key: :environment do
+#  key = ENV['key'] || "development"
+#  email = ENV['email'] || "#{key}@example.com"
+#
+#  if ApiKey.where(key: key).first.nil?
+#    ApiKey.create! status: "A", email: email, key: key
+#    puts "Created '#{key}' API key under email #{email}"
+#  else
+#    puts "'#{key}' API key already exists"
+#  end
+#end
 
 desc "Run through each model and create all indexes"
 task create_indexes: :environment do
