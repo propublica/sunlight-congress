@@ -33,7 +33,7 @@ class QueryTest < Test::Unit::TestCase
       official_title: "A title",
       bill_id: "hr1234-113",
       urls: {
-        congress: "http://beta.congress.gov/bill/113th-congress/house-bill/1234"
+        congress: "https://www.congress.gov/bill/113th-congress/house-bill/1234"
       },
       introduced_on: "2013-04-05",
       summary: "A great bill"
@@ -56,7 +56,7 @@ class QueryTest < Test::Unit::TestCase
       official_title: "A title",
       bill_id: "hr1234-113",
       urls: {
-        congress: "http://beta.congress.gov/bill/113th-congress/house-bill/1234"
+        congress: "https://www.congress.gov/bill/113th-congress/house-bill/1234"
       },
       introduced_on: "2013-04-05",
       summary: "A great bill"
