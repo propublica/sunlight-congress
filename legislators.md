@@ -265,7 +265,7 @@ URL to their official contact form.
 Social media accounts for members of Congress. 
 
 \* **twitter_id**
-This is the offical government account of a member of Congress. This data comes from the [@unitedstates](https://github.com/unitedstates/congress-legislators) project.
+This is the official government account of a member of Congress. This data comes from the [@unitedstates](https://github.com/unitedstates/congress-legislators) project.
 
 \* **campaign_twitter_ids**
 This is an array of twitter accounts of a congressperson's campaign. This comes from Sunlight's Politwoops project. If you think you have uncovered a new account, email us at <twoops@sunlightfoundation.com>.
