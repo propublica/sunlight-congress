@@ -128,8 +128,9 @@ module Api
 
     # auto-detect type of argument - allow quotes to force string interpretation
     def value_for(value)
-      if ["true", "false"].include? value # boolean
-        value == "true"
+      # Case-insensitive boolean parsing plus nil checking.
+      if ["true", "false"].include? (value.nil? ? nil : value.downcase)
+        "true" == value.downcase
       elsif value =~ /^\d+$/
         value.to_i
       elsif (value =~ /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z$/)
