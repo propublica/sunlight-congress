@@ -126,7 +126,7 @@ module Utils
       curl.perform
     rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
       Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError,
-      Curl::Err::GotNothingError,
+      Curl::Err::GotNothingError, Curl::Err::TimeoutError,
       Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
       puts "Error curling #{url}"
       nil
@@ -156,6 +156,7 @@ module Utils
   #   json: if true, returns parsed content, and caches it to disk in pretty (indented) form
   #   rate_limit: number of seconds to sleep after each download (can be a decimal)
   def self.download(url, options = {})
+    puts url
 
     # cache if caching is opted-into, and the cache exists
     if options[:cache] and options[:destination] and File.exists?(options[:destination])
@@ -176,7 +177,7 @@ module Utils
         curl.perform
       rescue Curl::Err::ConnectionFailedError, Curl::Err::PartialFileError,
         Curl::Err::RecvError, Timeout::Error, Curl::Err::HostResolutionError,
-        Curl::Err::GotNothingError,
+        Curl::Err::GotNothingError, Curl::Err::SSLConnectError,
         Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENETUNREACH, Errno::ECONNREFUSED
         puts "Error curling #{url}"
         nil
