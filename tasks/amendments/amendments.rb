@@ -11,7 +11,7 @@ class Amendments
   def self.run(options)
     congress = options[:congress] ? options[:congress].to_i : Utils.current_congress
     options[:batch_size] ||= 500 # defaults to 1 otherwise and that can be slow
-    
+
     count = 0
 
     missing_bills = []
@@ -187,11 +187,13 @@ class Amendments
 
   # only amendments can be sponsored by committees
   def self.sponsor_committee_for(sponsor)
-    committee_id, subcommittee_id = sponsor['committee_id'].scan(/^([a-zA-Z]+)(\d+)$/).first
-    committee_id = committee_id.upcase
+    if sponsor['committee_id']
+      committee_id, subcommittee_id = sponsor['committee_id'].scan(/^([a-zA-Z]+)(\d+)$/).first
+      committee_id = committee_id.upcase
 
-    criteria = {committee_id: committee_id}
-    criteria[:subcommittee_id] = subcommittee_id unless subcommittee_id == "00"
+      criteria = {committee_id: committee_id}
+      criteria[:subcommittee_id] = subcommittee_id unless subcommittee_id == "00"
+    end
 
     if committee = Committee.where(criteria).first
       Utils.committee_for committee
