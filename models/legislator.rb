@@ -11,7 +11,7 @@ class Legislator
       :twitter_id, :facebook_id, :youtube_id, :oc_email,
       :term_start, :term_end
 
-  search_fields :first_name, :last_name, :middle_name, :nickname, "other_names.last"
+  search_fields :first_name, :last_name, :middle_name, :nickname, :aliases, "other_names.last"
 
 
   include Mongoid::Document
