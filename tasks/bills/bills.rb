@@ -169,11 +169,11 @@ class Bills
 
   def self.sponsor_for(sponsor, legislators)
     # cached by thomas ID
-    if legislators[sponsor['thomas_id']]
-      legislators[sponsor['thomas_id']]
-    elsif legislator = legislator_for(sponsor['thomas_id'])
+    if legislators[sponsor['bioguide_id']]
+      legislators[sponsor['bioguide_id']]
+    elsif legislator = legislator_for(sponsor['bioguide_id'])
       # cache it for next time
-      legislators[sponsor['thomas_id']] = legislator
+      legislators[sponsor['bioguide_id']] = legislator
       legislator
     else
       # no match, this needs to get reported
@@ -192,6 +192,7 @@ class Bills
     new_history
   end
 
+  # change this to not use thomas_id
   def self.cosponsors_for(cosponsors, legislators)
     new_cosponsors = []
     withdrawn_cosponsors = []
@@ -200,11 +201,11 @@ class Bills
     cosponsors.each do |cosponsor|
       person = nil
 
-      if legislators[cosponsor['thomas_id']]
-        person = legislators[cosponsor['thomas_id']]
-      elsif person = legislator_for(cosponsor['thomas_id'])
+      if legislators[cosponsor['bioguide_id']]
+        person = legislators[cosponsor['bioguide_id']]
+      elsif person = legislator_for(cosponsor['bioguide_id'])
         # cache it for next time
-        legislators[cosponsor['thomas_id']] = person
+        legislators[cosponsor['bioguide_id']] = person
       end
 
       if person
@@ -311,8 +312,8 @@ class Bills
     [committees, missing]
   end
 
-  def self.legislator_for(thomas_id)
-    legislator = Legislator.where(thomas_id: thomas_id).first
+  def self.legislator_for(bioguide_id)
+    legislator = Legislator.where(bioguide_id: bioguide_id).first
     legislator ? Utils.legislator_for(legislator) : nil
   end
 
@@ -351,13 +352,8 @@ class Bills
     type, number, congress, chamber = Utils.bill_fields_from bill_id
     {
       congress: congress_gov_url(congress, type, number),
-      govtrack: govtrack_url(congress, type, number),
-      opencongress: opencongress_url(bill_id)
+      govtrack: govtrack_url(congress, type, number)
     }
-  end
-
-  def self.opencongress_url(bill_id)
-    "https://www.opencongress.org/bill/#{bill_id}"
   end
 
   def self.govtrack_url(congress, type, number)
@@ -366,7 +362,7 @@ class Bills
 
   # todo: when they expand to earlier (or later) congresses, 'th' is not a universal ordinal
   def self.congress_gov_url(congress, type, number)
-    "http://beta.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
+    "https://www.congress.gov/bill/#{congress}th/#{congress_gov_type type}/#{number}"
   end
 
   def self.congress_gov_type(bill_type)
