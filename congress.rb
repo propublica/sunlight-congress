@@ -176,9 +176,8 @@ get '/' do
     status: 200,
     message: "I live!",
     documentation: "https://sunlightlabs.github.io/congress/",
-    code: "https://github.com/sunlightlabs/congress",
-    report_bugs: "https://github.com/sunlightlabs/congress/issues",
-    more_apis: "http://sunlightfoundation.com/api/"
+    code: "https://github.com/propublica/congress",
+    report_bugs: "https://github.com/propublica/congress/issues"
   ))
 end
 

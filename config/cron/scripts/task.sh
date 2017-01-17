@@ -1,9 +1,9 @@
 #!/bin/bash
 
 set -e
-. $HOME/.bashrc 
+. $HOME/.bashrc
 source $HOME/.virtualenvs/congress/bin/activate
-cd $HOME/congress/current 
+cd $HOME/congress/current
 
 FIRST=$1
 shift

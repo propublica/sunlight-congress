@@ -1,7 +1,7 @@
 class DistrictsKml
 
   # Generates KML files for every CD.
-  # 
+  #
   # options:
   #   district: do a particular district. In boundary service form: "ne-1", "ca-12"
 
@@ -32,7 +32,7 @@ class DistrictsKml
 
       districts.each do |district|
         puts "[#{district}] Downloading KML..."
-        
+
         url = kml_url_for district
         destination = destination_for district
         kml = Utils.download url, {destination: destination}.merge(options)

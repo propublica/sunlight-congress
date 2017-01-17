@@ -24,7 +24,7 @@ class Legislators
     twoops_dict = {}
     begin
       puts "downloading twoops"
-      twoops = Utils.download "http://politwoops.sunlightfoundation.com/users.csv"
+      twoops = Utils.download "http://projects.propublica.org/politwoops/users.csv"
       CSV.parse(twoops) do |line|
         if line[13] != nil and line[13] != ''
           if twoops_dict.has_key? line[13] and (line[5] == "campaign")
@@ -131,7 +131,7 @@ class Legislators
     # massage terms array a bit, remove some top-level fields
     terms = terms_for us_legislator
 
-    # an array of name combinations for the legislator  
+    # an array of name combinations for the legislator
     full_names = []
     first_name = us_legislator['name']['first']
     last_name = us_legislator['name']['last']
@@ -152,7 +152,7 @@ class Legislators
     else
       full_names.push nil
     end
-    
+
     if nickname != nil
       full_names.push "#{nickname} #{last_name}"
       full_names.push "#{terms.last['title']}. #{nickname} #{last_name} "
@@ -235,16 +235,14 @@ class Legislators
     end
 
     if current == true
-      # create open congress email address
-      attributes[:oc_email] = create_oc_email(last_term['url'], attributes[:chamber])
-      # create 
+      # update campaign_twitter_ids from twoops
       if twoops_dict.has_key? us_legislator['id']['bioguide']
         campaign_twitter_ids = []
         twoops_dict[us_legislator['id']['bioguide']].each do |handle|
           campaign_twitter_ids.push handle
         end
-        attributes[:campaign_twitter_ids] = campaign_twitter_ids 
-      end 
+        attributes[:campaign_twitter_ids] = campaign_twitter_ids
+      end
     else
       attributes[:oc_email] = nil
     end
@@ -360,16 +358,5 @@ class Legislators
       "WI" => "Wisconsin",
       "WY" => "Wyoming"
     }
-  end
-  def self.create_oc_email website, chamber
-    return nil if website == nil
-    pattern = /^(?:www[.])?([-a-z0-9]+)[.](house|senate)[.]gov$/i
-    url = URI.parse(website)
-    return nil if url.host.nil?
-    match = pattern.match(url.host.downcase)
-    return nil if match.nil?
-    nameish, chamber = match.captures
-    prefix = (chamber.downcase == 'senate') ? 'Sen' : 'Rep'
-    return "#{prefix.capitalize}.#{nameish.capitalize}@opencongress.org"   
   end
 end

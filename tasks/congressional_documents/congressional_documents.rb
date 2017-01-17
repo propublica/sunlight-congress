@@ -1,6 +1,8 @@
 # encoding: utf-8
 require 'us-documents'
 
+# this relies on S3 storage - would need to be rewritten
+
 # options:
 #   meeting_id: only process a particular meeting ID, skip all others
 #   force: always backup each document (ignore .backed file)
@@ -44,7 +46,7 @@ class CongressionalDocuments
           urls = Array.new
           # no urls for that document, skipping to next document
 
-          if not hearing_doc["urls"] 
+          if not hearing_doc["urls"]
             puts "SKIP"
             next
           end
@@ -81,7 +83,7 @@ class CongressionalDocuments
                 end
 
                 url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
-                check_and_save(url_base, house_event_id, options) 
+                check_and_save(url_base, house_event_id, options)
               end # bad files
             end # file found
           end #each url
@@ -131,7 +133,7 @@ class CongressionalDocuments
       next if hearing_data["witnesses"] == nil
       hearing_data["witnesses"].each do |witness|
         # no witnesses and meeting docs are already loaded, skipping to next meeting
-        next if hearing_data["witnesses"]== nil 
+        next if hearing_data["witnesses"]== nil
         # no documents for a particular witness, skipping witness
         redo if (defined?(witness["documents"])).nil?
         witness["documents"].each do |witness_doc|
@@ -144,7 +146,7 @@ class CongressionalDocuments
             url["url"] = u["url"]
             if u["file_found"] == true
               folder = house_event_id / 100
-              url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}" 
+              url["permalink"] = "#{amazon_bucket}/#{folder}/#{house_event_id}/#{url_base}"
               urls.push(url)
             end
           end
@@ -177,7 +179,7 @@ class CongressionalDocuments
               text = ''
             end
 
-            text_preview = text            
+            text_preview = text
             text_list = text_preview.split(' ')
             if text_list.count < 150
               text_preview = text_preview
@@ -207,7 +209,7 @@ class CongressionalDocuments
             position: witness["position"],
             witness_type: witness["witness_type"],
           }
-          
+
           document = {
             document_id: id,
             # document_type: '_report',
@@ -235,7 +237,7 @@ class CongressionalDocuments
           }
           # save to elastic search
           collection = "congressional_documents"
-          # Utils.es_store! collection, id, document     
+          # Utils.es_store! collection, id, document
           Utils.es_batch! collection, id, document, batcher, options
         end # loop through witness doc
       end # loop through witness

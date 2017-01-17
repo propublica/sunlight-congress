@@ -4,16 +4,16 @@ require 'curb'
 class BillsBulk
 
   # Maintains a local copy of bill data from GPO's FDSys system.
-  # 
+  #
   # By default, looks through the current year's sitemap, and re/downloads all bills updated in the last 3 days.
   # Options can be passed in to archive whole years, or use cached data.
-  # 
+  #
   # options:
   #   year: archive a year of data, don't limit it to 3 days
   #   cache: use cached data, don't re-download.
   #
   #   limit: only download a certain number of bills (stop short, useful for testing/development)
-  #   bill_version_id: only download a specific bill version. ignores other options. 
+  #   bill_version_id: only download a specific bill version. ignores other options.
   #     (examples: hr3590-111-ih, sres32-111-enr)
 
   def self.run(options = {})
@@ -35,7 +35,7 @@ class BillsBulk
       years = [year]
     else
       # initialize disk, with buffer in case the sitemap references a past congress (it happens)
-      # should be safe against bill text that hangs over from 
+      # should be safe against bill text that hangs over from
       # the previous session into Jan 1/2/3 of the next year
       current_congress = Utils.congress_for_year year
       (current_congress - 2).upto(current_congress) do |congress|
@@ -74,33 +74,33 @@ class BillsBulk
 
     count = 0
     failures = []
-    
+
     bill_versions.each do |bill_type, number, congress, version_code|
       dest_prefix = "data/gpo/BILLS/#{congress}/#{bill_type}/#{bill_type}#{number}-#{congress}-#{version_code}"
 
-      mods_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/mods.xml"
+      mods_url = "https://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/mods.xml"
       mods_dest = "#{dest_prefix}.mods.xml"
       unless Utils.download(mods_url, options.merge(destination: mods_dest))
         failures << {url: mods_url, dest: mods_dest}
       end
 
-      # sleep 0.1
+      sleep 0.1
 
-      text_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/html/BILLS-#{congress}#{bill_type}#{number}#{version_code}.htm"
+      text_url = "https://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/html/BILLS-#{congress}#{bill_type}#{number}#{version_code}.htm"
       text_dest = "#{dest_prefix}.htm"
       unless Utils.download(text_url, options.merge(destination: text_dest))
         failures << {url: text_url, dest: text_dest}
       end
 
-      # sleep 0.1
+      sleep 0.1
 
-      xml_url = "http://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/xml/BILLS-#{congress}#{bill_type}#{number}#{version_code}.xml"
+      xml_url = "https://www.gpo.gov/fdsys/pkg/BILLS-#{congress}#{bill_type}#{number}#{version_code}/xml/BILLS-#{congress}#{bill_type}#{number}#{version_code}.xml"
       xml_dest = "#{dest_prefix}.xml"
       unless Utils.download(xml_url, options.merge(destination: xml_dest))
         failures << {url: xml_url, dest: xml_dest}
       end
 
-      # sleep 0.1
+      sleep 0.1
 
       count += 1
     end
@@ -124,7 +124,7 @@ class BillsBulk
   end
 
   def self.sitemap_doc_for(year, options = {})
-    url = "http://www.gpo.gov/smap/fdsys/sitemap_#{year}/#{year}_BILLS_sitemap.xml"
+    url = "https://www.gpo.gov/smap/fdsys/sitemap_#{year}/#{year}_BILLS_sitemap.xml"
     puts "[#{year}] Fetching sitemap from GPO at #{url}..." if options[:debug]
     cache_url = "data/gpo/BILLS/sitemap-#{year}.xml"
 
