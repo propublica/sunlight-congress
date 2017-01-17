@@ -4,7 +4,6 @@
 /log
 *.log
 
-/config/config.yml
 /config/mongoid.yml
 
 *.sublime-project
