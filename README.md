@@ -23,6 +23,11 @@ While the front end and back end are mostly decoupled, many of them do use the d
 
 The API **never performs joins** -- if data from one collection is expected to appear as a sub-field on another collection, it should be copied there during data loading.
 
+### Setup - Docker
+* TODO: Explain services in docker-compose.yml
+* TODO: Explain configuration files
+* TODO: Explain how to run
+
 ### Setup - Dependencies
 
 If you don't have [Bundler](http://rubygems.org/gems/bundler), install it:

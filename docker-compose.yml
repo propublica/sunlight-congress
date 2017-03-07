@@ -1,0 +1,42 @@
+version: "2.1"
+
+services:
+# NOTE: Dockerfile at https://github.com/adelevie/citation-docker
+  citation:
+    command: cite-server
+    container_name: congress.citation
+    image: adelevie/citation
+
+  elasticsearch:
+    container_name: congress.elasticsearch
+    image: elasticsearch:1.7
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_data:/usr/share/elasticsearch/logs
+
+  mongo:
+    command: mongod --smallfiles
+    container_name: congress.mongo
+    image: mongo:3.4
+#    ports:
+#      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  web:
+    build:
+      context: .
+    command: unicorn
+    container_name: congress.web
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/app
+
+
+volumes:
+  elasticsearch_data:
+  mongo_data:
