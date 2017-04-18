@@ -24,7 +24,7 @@ class BillsText
         targets = targets.first options[:limit].to_i
       end
     end
-    options[:batch_size] ||= 1000
+    options[:batch_size] ||= 500
 
     warnings = []
     notes = []
@@ -162,15 +162,15 @@ class BillsText
         bill_versions.each {|v| v.delete :text}
 
 
-        unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(congress, bill_id), options)
-          warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
-          citation_ids = []
-        end
+        #unless citation_ids = Utils.citations_for(bill, last_version_text, citation_cache(congress, bill_id), options)
+        #  warnings << {message: "Failed to extract citations from #{bill.bill_id}, version code: #{last_version[:version_code]}"}
+        #  citation_ids = []
+        #end
 
         version_fields = {
           last_version: last_version,
           last_version_on: last_version_on,
-          citation_ids: citation_ids,
+#          citation_ids: citation_ids,
         }
 
         mongo_only.merge! versions: bill_versions
