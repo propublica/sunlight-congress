@@ -7,6 +7,7 @@ class Legislators
   #   limit: stop after N legislators
   #   clear: wipe the db of legislators first
   #   bioguide_id: limit to one legislator, with this bioguide ID
+  #   twoops: don't process politwoops accounts
 
   def self.run(options = {})
 
@@ -21,21 +22,23 @@ class Legislators
     end
 
     #politwoops download
-    twoops_dict = {}
-    begin
-      puts "downloading twoops"
-      twoops = Utils.download "http://projects.propublica.org/politwoops/users.csv"
-      CSV.parse(twoops) do |line|
-        if line[13] != nil and line[13] != ''
-          if twoops_dict.has_key? line[13] and (line[5] == "campaign")
-            twoops_dict[line[13]].push line[0]
-          elsif line[5] == "campaign"
-            twoops_dict[line[13]]= [line[0]]
+    unless options[:twoops]
+      twoops_dict = {}
+      begin
+        puts "downloading twoops"
+        twoops = Utils.download "http://projects.propublica.org/politwoops/users.csv"
+        CSV.parse(twoops) do |line|
+          if line[13] != nil and line[13] != ''
+            if twoops_dict.has_key? line[13] and (line[5] == "campaign")
+              twoops_dict[line[13]].push line[0]
+            elsif line[5] == "campaign"
+              twoops_dict[line[13]]= [line[0]]
+            end
           end
         end
+      rescue
+        Report.warning self, "Politwoops info did not download"
       end
-    rescue
-      Report.warning self, "Politwoops info did not download"
     end
 
     puts "Loading in YAML files..." if options[:debug]
@@ -234,7 +237,7 @@ class Legislators
       attributes[:district] = last_term['district']
     end
 
-    if current == true
+    if current == true && twoops_dict
       # update campaign_twitter_ids from twoops
       if twoops_dict.has_key? us_legislator['id']['bioguide']
         campaign_twitter_ids = []

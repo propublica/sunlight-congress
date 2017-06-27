@@ -108,7 +108,7 @@ class GaoReports
         # if the text is downloaded, needs to be treated as ISO-8859-1 and then converted to UTF-8
         full_text.force_encoding("ISO-8859-1")
         full_text = full_text.encode "UTF-8", :invalid => :replace, :undef => :replace
-      
+
       # "Accessible PDF" that we seem to be able to scrape the text out of - cdunwell 4/19/2016
       elsif text_url and (text_url =~ /\.pdf$/)
         txt_path = cache_path_for gao_id, "report.txt.pdf"

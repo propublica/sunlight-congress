@@ -186,7 +186,7 @@ module Utils
       end
 
       # if the code was 404, don't save some html 404 page
-      if curl.status.starts_with?("404")
+      if curl.status.nil? || curl.status.starts_with?("404")
         return nil
       end
 
@@ -239,7 +239,7 @@ module Utils
 
   # e.g. 2009 & 2010 -> 111th congress, 2011 & 2012 -> 112th congress
   def self.current_congress
-    congress_for_year current_legislative_year
+    congress_for_year 2017
   end
 
   def self.congress_for_year(year)
@@ -267,7 +267,7 @@ module Utils
 
   # legislative (sub)session - 1 or 2, depending on current legislative year
   def self.legislative_session_for_year(year)
-    session = year % 2
+    session = 1 #year % 2
     session = 2 if session == 0
     session.to_s
   end

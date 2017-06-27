@@ -18,11 +18,11 @@ class UpcomingHouse
       legislative_day = Date.parse(options[:week])
     else
       legislative_day = Date.today()
-    end  
-    
+    end
+
     mon = find_last_monday(legislative_day)
     week = mon.strftime('%Y%m%d')
-    
+
     path = "data/unitedstates/congress"
     if not File.file?("#{path}/upcoming_house_floor/#{week}.json")
       puts "Weekly schedule not scraped by unitedstates/congress/upcomming_house_floor for week of #{mon}"
@@ -64,20 +64,20 @@ class UpcomingHouse
       #   range
       #   chamber
       #   bill_id
-      
+
       # update should ONLY update these fields:
       #   bill
-      
+
       # source_type, congress, url - won't change
-      
+
       #This should NEVER overwrite scheduled_at.
-      
+
 
         upcoming = UpcomingBill.where(
           legislative_day: legislative_day,
           range: "week",
           chamber: "house",
-          
+
           bill_id: bill_id,
           # now tracking draft bills too
           draft_bill_id: draft_bill_id,
@@ -98,7 +98,7 @@ class UpcomingHouse
             congress: congress,
             source_type: "house_docs",
             url: "http://docs.house.gov/floor/Default.aspx?date=#{legislative_day}",
-            
+
             bill_url: url,
             description: description,
             consideration: consideration,
@@ -131,7 +131,7 @@ class UpcomingHouse
   # should work for both daily and weekly house notices
   # http://www.majorityleader.gov/floor/
   #
-  
+
   def self.details_from(url, doc)
     # Do I still need this?
     source_url = nil
@@ -149,7 +149,7 @@ class UpcomingHouse
     if (year.to_i != Time.zone.now.year) and (Utils.utc_parse(date) < 6.months.ago)
       date_text.gsub! year, (year.to_i + 1).to_s
     end
-    
+
     # I don't think source_urls is going to be used
     [source_url, date]
   end

@@ -28,10 +28,10 @@ class VotesSenate
 
     # by default, fetch the current congress' current session
     else
-      congress = Utils.current_congress
+      congress = 115 #Utils.current_congress
       # just the last session for that congress
-      year = Utils.current_legislative_year
-      session = year % 2
+      year = 2017 #Utils.current_legislative_year
+      session = 1 #year % 2
       session = 2 if session == 0
       sessions = [session.to_s]
       limit = options[:limit] ? options[:limit].to_i : 20
@@ -71,8 +71,8 @@ class VotesSenate
 
     to_get.each do |roll_id|
       number, year = roll_id.tr('s', '').split("-").map &:to_i
-      congress = Utils.congress_for_year year
-      session = Utils.legislative_session_for_year year
+      congress = 115 #Utils.congress_for_year year
+      session = 1 #Utils.legislative_session_for_year year
 
       puts "[#{roll_id}] Syncing to disc..." if options[:debug]
       unless download_roll year, congress, session, number, download_failures, options
@@ -195,7 +195,7 @@ class VotesSenate
   def self.rolls_for(congress, session, options = {})
     url = "http://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_#{congress}_#{session}.xml"
     puts "[#{congress}-#{session}] Fetching xml index page for #{url} from Senate website..." if options[:debug]
-    
+
     return nil unless doc = Utils.xml_for(url)
     latest = doc.xpath("//vote_number")[0].text.to_i rescue nil
     return nil unless latest != nil

@@ -24,7 +24,7 @@ class BillsText
         targets = targets.first options[:limit].to_i
       end
     end
-    options[:batch_size] ||= 500
+    options[:batch_size] ||= 200
 
     warnings = []
     notes = []

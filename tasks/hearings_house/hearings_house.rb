@@ -71,7 +71,7 @@ class HearingsHouse
           warnings << {name: hearing_type_code, url: hearing_url, date: occurs_at}
           hearing_type = "Other"
         end
-        
+
         if subcommittee_suffix
           subcommittee_id = committee_id + subcommittee_suffix
           unless subcommittee = Committee.where(committee_id: subcommittee_id).first
@@ -81,7 +81,7 @@ class HearingsHouse
         end
 
         if room
-          if (room == "TBA") 
+          if (room == "TBA")
             dc = true
           elsif (room =~ /(HOB|SOB|Office Building|Hart|Dirksen|Russell|Cannon|Longworth|Rayburn|Capitol)/)
             room = room_for(room)
@@ -95,15 +95,15 @@ class HearingsHouse
 
         ### look for event ID, chamber house
         hearing = Hearing.find_or_initialize_by house_event_id: house_event_id
-        
+
         if hearing.new_record?
-          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Creating " if options[:debug] 
+          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Creating " if options[:debug]
         else
-          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Updating " if options[:debug] 
+          puts "[#{committee_id}], #{house_event_id}, #{occurs_at}, Updating " if options[:debug]
         end
-        
+
         hearing.attributes = {
-          chamber: chamber, 
+          chamber: chamber,
           committee_id: committee_id,
           congress: congress,
           occurs_at: occurs_at,
@@ -118,7 +118,7 @@ class HearingsHouse
           house_event_id: house_event_id,
           hearing_id: hearing_id
         }
-        
+
         if subcommittee
           hearing[:subcommittee_id] = subcommittee_id
           hearing[:subcommittee] = Utils.committee_for(subcommittee)
@@ -194,7 +194,7 @@ class HearingsHouse
         count += 1
       end
     end
-    
+
     if bad_committee_lookups.any?
       Report.warning self, "#{bad_committee_lookups.size} bad committee lookups", bad_committee_lookups: bad_committee_lookups
     end
@@ -218,4 +218,3 @@ class HearingsHouse
     room
   end
 end
-
