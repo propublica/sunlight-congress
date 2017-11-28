@@ -6,7 +6,7 @@ gem 'rake'
 
 gem 'oj', '~> 1.0' # for serialization
 gem 'ox', '~> 2.0' # for RSS serialization
-gem 'yajl-ruby', '~> 1.1' # for parsing
+gem 'yajl-ruby', '~> 1.3.1' # for parsing
 
 gem "mongoid", '~> 3.1'
 gem 'elasticsearch', '~> 1.0'
