@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'sinatra', '~> 1.0'
-gem 'rack', '~> 1.0'
+gem 'rack', '~> 1.6'
 gem 'rake'
 
 gem 'oj', '~> 1.0' # for serialization
